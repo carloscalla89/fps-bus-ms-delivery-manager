@@ -1,0 +1,20 @@
+server:
+  port: 8031
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 10
+      idle-timeout: 10000
+      connection-timeout: 30000
+      auto-commit: false
+      pool-name: engine_pool_address
+      minimum-idle: 0
+  application:
+    name: us-order-manager
+  main:
+    banner-mode: "off"
+  jpa:
+    show-sql: true
+logging:
+  config: classpath:logging/logback.xml

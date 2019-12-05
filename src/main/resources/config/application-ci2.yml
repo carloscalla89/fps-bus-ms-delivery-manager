@@ -1,0 +1,18 @@
+spring:
+  kafka:
+    producer:
+      bootstrap-servers: pkc-43n10.us-central1.gcp.confluent.cloud:9092
+      topic: test-topic
+      key-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-serializer: io.confluent.kafka.serializers.KafkaJsonSerializer
+      properties:
+        spring:
+          json:
+            add:
+              type:
+                headers: false
+    confluent:
+      api-key: LGMCNIO7PGTAH3OH
+      api-secret: zYs4AaaM0iVOrQh84KvdwkScw1xdz21QicBs9wvTxtYPYIIQtODi+SdmYVUe2uEk
+
+
