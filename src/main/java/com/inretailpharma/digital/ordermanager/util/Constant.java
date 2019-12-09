@@ -1,4 +1,4 @@
-package com.inretailpharma.digital.OrderManager.util;
+package com.inretailpharma.digital.ordermanager.util;
 
 import org.apache.commons.lang3.EnumUtils;
 

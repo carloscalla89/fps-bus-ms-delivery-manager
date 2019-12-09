@@ -1,18 +1,20 @@
-package com.inretailpharma.digital.OrderManager.dto;
+package com.inretailpharma.digital.ordermanager.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Data;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+
 @Data
 public class OrderDto {
 
+    private String id;
     private String source;
+
+
     private Long digitalPurchaseId;
     private Long bridgePurchaseId;
     private OrderStatusDto orderStatusDto;
@@ -28,7 +30,10 @@ public class OrderDto {
 
     private LocalDateTime scheduledTime;
 
+
+
     private String notes;
+
 
     private ShipperDto shipper;
 

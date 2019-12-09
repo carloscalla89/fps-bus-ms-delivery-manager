@@ -2,7 +2,7 @@ spring:
   kafka:
     producer:
       bootstrap-servers: pkc-43n10.us-central1.gcp.confluent.cloud:9092
-      topic: test-topic
+      topic: order_topic
       key-serializer: org.apache.kafka.common.serialization.StringDeserializer
       value-serializer: io.confluent.kafka.serializers.KafkaJsonSerializer
       properties:
@@ -11,8 +11,21 @@ spring:
             add:
               type:
                 headers: false
+    consumer:
+      bootstrap-servers: pkc-43n10.us-central1.gcp.confluent.cloud:9092
+      group-id: order_callback_topic
+      auto-offset-reset: earliest
+      properties:
+        spring:
+          json:
+            add:
+              type:
+                headers: false
+      enable-auto-commit: false
     confluent:
       api-key: LGMCNIO7PGTAH3OH
       api-secret: zYs4AaaM0iVOrQh84KvdwkScw1xdz21QicBs9wvTxtYPYIIQtODi+SdmYVUe2uEk
+    listener:
+      ack-mode: MANUAL
 
 

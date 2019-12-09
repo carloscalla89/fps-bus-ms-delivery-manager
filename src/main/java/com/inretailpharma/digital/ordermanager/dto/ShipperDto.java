@@ -1,11 +1,10 @@
-package com.inretailpharma.digital.OrderManager.dto;
+package com.inretailpharma.digital.ordermanager.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class ReceiptTypeDto {
+public class ShipperDto {
+
     private String code;
-    private String name;
-    private String type;
 }
