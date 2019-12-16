@@ -42,4 +42,9 @@ public class KafkaPublisherServiceImpl implements IPublisherService {
 
         });
     }
+
+    @Override
+    public void sendOrderCallBack(OrderDto orderDto) {
+
+    }
 }

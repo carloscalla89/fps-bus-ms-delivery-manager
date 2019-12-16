@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.inretailpharma.digital</groupId>
-  <artifactId>us-order-manager</artifactId>
+  <artifactId>us-orderFulfillment-manager</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <parent>
@@ -23,9 +23,6 @@
     <kafka.version>2.3.1</kafka.version>
     <confluent.version>5.2.2</confluent.version>
     <slf4j-api.version>1.7.6</slf4j-api.version>
-    <spring-cloud.version>Hoxton.RELEASE</spring-cloud.version>
-    <avro.version>1.8.2</avro.version>
-    <kafka.avro.serializer.version>3.3.1</kafka.avro.serializer.version>
   </properties>
 
   <repositories>
@@ -53,7 +50,25 @@
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
 
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-java8</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger2</artifactId>
@@ -71,6 +86,12 @@
       <version>${swagger.version}</version>
     </dependency>
 
+    <!-- Flyway Core -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
@@ -80,22 +101,6 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.avro</groupId>
-      <artifactId>avro</artifactId>
-      <version>${avro.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka-streams</artifactId>
-      <version>${kafka.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>connect-runtime</artifactId>
-      <version>${kafka.version}</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
@@ -112,14 +117,6 @@
       <artifactId>kafka-json-serializer</artifactId>
       <version>${confluent.version}</version>
     </dependency>
-
-    <!-- https://mvnrepository.com/artifact/io.confluent/kafka-avro-serializer -->
-    <dependency>
-      <groupId>io.confluent</groupId>
-      <artifactId>kafka-avro-serializer</artifactId>
-      <version>${kafka.avro.serializer.version}</version>
-    </dependency>
-
 
     <!-- Utils -->
 
@@ -169,7 +166,7 @@
   </dependencies>
 
   <build>
-    <finalName>us-order-manager</finalName>
+    <finalName>us-orderFulfillment-manager</finalName>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>

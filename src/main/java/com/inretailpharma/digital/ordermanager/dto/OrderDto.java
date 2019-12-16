@@ -11,29 +11,24 @@ import java.util.List;
 @Data
 public class OrderDto {
 
-    private String id;
+    private Long id;
     private String source;
-
-
-    private Long digitalPurchaseId;
+    private String serviceTypeCode;
+    private String localCode;
+    private Long ecommercePurchaseId;
     private Long bridgePurchaseId;
     private OrderStatusDto orderStatusDto;
-    private BigDecimal delivery_cost;
-
-    private BigDecimal total_cost;
+    private BigDecimal deliveryCost;
+    private BigDecimal totalCost;
 
     private ClientDto client;
 
     private AddressDto address;
 
-    private LocalDateTime createdOrder;
-
-    private LocalDateTime scheduledTime;
-
-
+    private String createdOrder;
+    private String scheduledTime;
 
     private String notes;
-
 
     private ShipperDto shipper;
 
@@ -41,7 +36,7 @@ public class OrderDto {
 
     private ReceiptTypeDto receipt;
 
-    private List<OrderDetailDto> orderDetailList;
+    private List<OrderDetailDto> orderItem;
 
 
 

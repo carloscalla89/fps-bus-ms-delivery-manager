@@ -2,7 +2,7 @@ package com.inretailpharma.digital.ordermanager.config;
 
 
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
-import io.confluent.kafka.serializers.KafkaJsonDeserializer;
+import com.inretailpharma.digital.ordermanager.events.deserializer.OrderCallBackDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -11,8 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.core.*;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.ContainerProperties;
 
 import java.util.*;
 
@@ -22,17 +24,6 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.producer.bootstrap-servers}")
     private String kafkaServers;
 
-    /*
-    @Value("${spring.kafka.registry.url}")
-    private String registryUrl;
-
-    @Value("${spring.kafka.registry.api-key}")
-    private String registryApiKey;
-
-    @Value("${spring.kafka.registry.api-secret}")
-    private String registryApiSecret;
-
-     */
     @Value("${spring.kafka.confluent.api-key}")
     private String confluentApiKey;
 
@@ -42,6 +33,7 @@ public class KafkaConsumerConfig {
     @Bean
     public Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
+
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServers);
         props.put("ssl.endpoint.identification.algorithm","https");
         props.put("sasl.mechanism","PLAIN");
@@ -49,14 +41,10 @@ public class KafkaConsumerConfig {
         props.put("sasl.jaas.config",String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username='%s' password='%s';",confluentApiKey,confluentApiSecret));
         props.put("security.protocol","SASL_SSL");
         props.put("basic.auth.credentials.source","USER_INFO");
-        //props.put("schema.registry.basic.auth.user.info",String.format("%s:%s",registryApiKey,registryApiSecret));
-        //props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,registryUrl);
-        props.put(ProducerConfig.ACKS_CONFIG, "all");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "order_callback_topic");
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,false);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaJsonDeserializer.class.getName());
-
-
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, OrderCallBackDeserializer.class.getName());
 
         return props;
     }
@@ -70,7 +58,9 @@ public class KafkaConsumerConfig {
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, OrderDto>> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String,  OrderDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(1);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setPollTimeout(3000);
+        factory.setConcurrency(3);
 
         return factory;
     }

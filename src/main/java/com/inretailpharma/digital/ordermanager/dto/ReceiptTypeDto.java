@@ -5,7 +5,11 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class ReceiptTypeDto {
-    private String code;
+
     private String name;
-    private String type;
+    private String documentNumber;
+    private String ruc;
+    private String companyName;
+    private String companyAddress;
+    private String note;
 }

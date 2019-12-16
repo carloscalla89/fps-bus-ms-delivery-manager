@@ -7,13 +7,13 @@ pipeline {
 
         stage ('Apply Service') {
             steps {
-                sh "kubectl apply -f devops/k8/qa01/order-manager-service.yml"
+                sh "kubectl apply -f devops/k8/qa01/orderFulfillment-manager-service.yml"
             }
 
         }
         stage ('Apply Deployment') {
             steps {
-                sh 'cat devops/k8/qa01/order-manager-deployment.yml | sed "s/{{TAG}}/$TAG/g" | kubectl apply -f -'
+                sh 'cat devops/k8/qa01/orderFulfillment-manager-deployment.yml | sed "s/{{TAG}}/$TAG/g" | kubectl apply -f -'
 
 
             }

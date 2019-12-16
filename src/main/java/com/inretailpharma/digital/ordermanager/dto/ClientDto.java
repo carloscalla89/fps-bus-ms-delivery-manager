@@ -5,4 +5,6 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class ClientDto {
+
+    private String documentNumber;
 }

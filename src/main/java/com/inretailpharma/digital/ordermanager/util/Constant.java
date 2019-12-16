@@ -2,6 +2,8 @@ package com.inretailpharma.digital.ordermanager.util;
 
 import org.apache.commons.lang3.EnumUtils;
 
+import java.util.Optional;
+
 public interface Constant {
 
     Integer EARTH_RADIUS = 6371000;
@@ -11,6 +13,13 @@ public interface Constant {
     String BREAK_STATUS_ALERT = "M01";
     Long MAX_TIME_IN_QUEUE = 5000L;
     int POSITION_NOT_SETTED = 0;
+
+    interface orderStatus {
+        String PENDING_ECOMMERCE_PROCESS = "PENDING_ECOMMERCE";
+        String SUCCESS_ORDER_TO_TRACK = "SUCCESS_TRACKER";
+        String SUCCESS_ASSIGNED_SHIPPER = "SUCCESS_ASSIGNED_SHIPPER";
+        String ERROR_ASSIGNED_SHIPPER = "ERROR_ASSIGNED_SHIPPER";
+    }
 
     interface Integers {
 
@@ -35,8 +44,8 @@ public interface Constant {
             return value;
         }
 
-        public static Logical parse(boolean online) {
-            if (online) {
+        public static Logical parse(Boolean online) {
+            if (Optional.ofNullable(online).orElse(false)) {
                 return Y;
             }
             return N;

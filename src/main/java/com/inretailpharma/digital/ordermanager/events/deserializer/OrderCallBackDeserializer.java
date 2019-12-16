@@ -1,4 +1,4 @@
-package com.inretailpharma.digital.ordermanager.events;
+package com.inretailpharma.digital.ordermanager.events.deserializer;
 
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
 import org.springframework.kafka.support.serializer.JsonDeserializer;

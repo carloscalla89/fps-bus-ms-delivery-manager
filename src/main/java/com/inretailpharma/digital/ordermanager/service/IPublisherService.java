@@ -6,5 +6,7 @@ public interface IPublisherService {
 
     void sendOrder(OrderDto orderDto);
 
+    void sendOrderCallBack(OrderDto orderDto);
+
 
 }

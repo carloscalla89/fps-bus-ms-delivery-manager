@@ -1,4 +1,4 @@
-package com.inretailpharma.digital.ordermanager.entity;
+package com.inretailpharma.digital.ordermanager.factory;
 
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
 import com.inretailpharma.digital.ordermanager.service.IConsumerService;
