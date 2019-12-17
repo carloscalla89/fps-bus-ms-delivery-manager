@@ -4,6 +4,6 @@ COPY /devops/setup.sh /
 RUN chmod 777 /setup.sh
 ENV LOG_LEVEL_SYSTEM=ERROR
 ENV LOG_LEVEL_BUSINESS=INFO
-EXPOSE ####
+EXPOSE 8031
 
 CMD [ "/setup.sh" ]
