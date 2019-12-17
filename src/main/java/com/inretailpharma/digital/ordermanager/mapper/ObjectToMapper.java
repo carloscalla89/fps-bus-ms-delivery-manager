@@ -97,6 +97,7 @@ public class ObjectToMapper {
         orderStatusErrorCanonical.setErrorType(errorStatusMonitoring.getErrorCode());
         orderStatusErrorCanonical.setErrorTypeDescription(iOrderFulfillment.getStatusDetail());
         orderStatusErrorCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getLeadTime()));
+        orderStatusErrorCanonical.setLocalCode(iOrderFulfillment.getLocalCode());
         orderStatusErrorCanonical.setLocal(iOrderFulfillment.getLocal());
         orderStatusErrorCanonical.setCompany(iOrderFulfillment.getCompany());
         orderStatusErrorCanonical.setDocumentNumber(iOrderFulfillment.getDocumentNumber());

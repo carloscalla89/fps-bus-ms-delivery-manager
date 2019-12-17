@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Data
 public class OrderStatusErrorCanonical implements Serializable {
 
+    private String localCode;
     private String local;
     private String company;
 

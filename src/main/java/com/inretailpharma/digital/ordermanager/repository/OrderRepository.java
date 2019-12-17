@@ -13,7 +13,7 @@ import java.util.Set;
 @Repository
 public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
-    @Query(value = "select o.ecommerce_purchase_id as orderId, l.name as local, c.name as company, " +
+    @Query(value = "select o.ecommerce_purchase_id as orderId, l.code as localCode, l.name as local, c.name as company, " +
             "o.status as status, o.status_detail as statusDetail, p.payment_type as paymentMethod, " +
             "o.scheduled_time as leadTime, o.document_number as documentNumber, o.total_cost as totalAmount " +
             "from order_fulfillment o " +
