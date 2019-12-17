@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: us-order-manager
-  name: us-order-manager
+    app: us-ordermanager
+  name: us-ordermanager
 spec:
   type: NodePort
   ports:
@@ -11,6 +11,6 @@ spec:
     port: 80
     targetPort: 8031
   selector:
-    app: us-order-manager
+    app: us-ordermanager
 status:
   loadBalancer: {}

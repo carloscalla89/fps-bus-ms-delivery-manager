@@ -1,38 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: us-order-manager
+  name: us-ordermanager
   labels:
-    app: us-order-manager
+    app: us-ordermanager
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: us-order-manager
+      app: us-ordermanager
   template:
     metadata:
       labels:
-        app: us-order-manager
+        app: us-ordermanager
     spec:
       containers:
       - name: us-order-manager
-        image: 519901771307.dkr.ecr.us-west-2.amazonaws.com/order-manager-service:{{TAG}}
+        image: 519901771307.dkr.ecr.us-west-2.amazonaws.com/ordermanager-service:{{TAG}}
         env:
         - name: environment
-          value: "ci2"
+          value: "ci"
         - name: LOG_LEVEL_SYSTEM
           value: "INFO"
         - name: LOG_LEVEL_BUSINESS
           value: "ERROR"
         - name: LOGS_FOLDER
-          value: "/var/log/us-order-manager"
+          value: "/var/log/us-ordermanager"
         ports:
-        - containerPort: 8030
+        - containerPort:
         resources:
           limits:
             cpu: 200m
-            memory: 900Mi
+            memory: 800Mi
           requests:
-            cpu: 200m
-            memory: 900Mi
+            cpu: 100m
+            memory: 500Mi
       restartPolicy: Always
