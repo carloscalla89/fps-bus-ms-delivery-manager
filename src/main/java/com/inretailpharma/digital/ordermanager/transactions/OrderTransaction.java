@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
 @Component
@@ -25,7 +26,7 @@ public class OrderTransaction {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
-        orderFulfillment.setStatus(Constant.orderStatus.PENDING_ECOMMERCE_PROCESS);
+
         OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
 
         //ServiceType serviceType = orderRepositoryService.getByCode(orderDto.getServiceTypeCode());
@@ -48,7 +49,7 @@ public class OrderTransaction {
         return orderFulfillmentResp;
     }
 
-    public List<IOrderFulfillment> getListOrdersByStatus(String status){
+    public List<IOrderFulfillment> getListOrdersByStatus(Set<String> status){
         return orderRepositoryService.getListOrdersByStatus(status);
     }
 

@@ -52,6 +52,8 @@ public class OrderFulfillment extends OrderEntity<Long> {
 
     private String notes;
 
+    private Integer attempt;
+
     private String status;
 
     @Column(name="status_detail")

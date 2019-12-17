@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
@@ -20,8 +21,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join service_local_order s on o.id = s.order_fulfillment_id " +
             "inner join local l on s.local_code = l.code " +
             "inner join company c on l.company_code = c.code " +
-            "where o.status = :status",
+            "where o.status in :status",
             nativeQuery = true
     )
-    List<IOrderFulfillment> getListOrdersByStatus(@Param("status") String status);
+    List<IOrderFulfillment> getListOrdersByStatus(@Param("status") Set<String> status);
 }

@@ -9,7 +9,7 @@ spec:
   ports:
   - name: "80"
     port: 80
-    targetPort: 8030
+    targetPort: 8031
   selector:
     app: us-order-manager
 status:

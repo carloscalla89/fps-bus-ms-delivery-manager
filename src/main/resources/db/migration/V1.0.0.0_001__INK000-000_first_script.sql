@@ -70,6 +70,7 @@ CREATE TABLE `order_fulfillment` (
   `created_order` datetime NOT NULL,
   `scheduled_time` datetime NOT NULL,
   `notes` varchar(200) DEFAULT NULL,
+  `attempt` int(2) DEFAULT '0',
   `created_by` varchar(100) DEFAULT NULL,
   `date_created` datetime DEFAULT CURRENT_TIMESTAMP,
   `last_updated_by` varchar(100) DEFAULT NULL,

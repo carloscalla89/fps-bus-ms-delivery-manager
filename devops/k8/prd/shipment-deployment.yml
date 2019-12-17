@@ -25,7 +25,7 @@ spec:
         - name: LOG_LEVEL_BUSINESS
           value: "ERROR"
         ports:
-        - containerPort: 8030
+        - containerPort: 8031
         resources:
           limits:
             memory: 1.5Gi

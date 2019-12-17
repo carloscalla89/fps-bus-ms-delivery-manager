@@ -14,11 +14,27 @@ public interface Constant {
     Long MAX_TIME_IN_QUEUE = 5000L;
     int POSITION_NOT_SETTED = 0;
 
+
+
     interface orderStatus {
-        String PENDING_ECOMMERCE_PROCESS = "PENDING_ECOMMERCE";
-        String SUCCESS_ORDER_TO_TRACK = "SUCCESS_TRACKER";
+        // states to send at insink
+        String ERROR_BILLING_PROCESS = "ERROR_BILLING_PROCESS";
+
+        // state to release order
+        String ERROR_RELEASE_RESERVED = "ERROR_RELEASE_RESERVED";
+
+        // States to track
+        String ERROR_TRACKING_PROCESS = "ERROR_TRACKING_PROCESS";
+        String PENDING_TRACKING_PROCESS = "PENDING_TRACKING_PROCESS";
+        String SUCCESS_TRACKING_PROCESS = "SUCCESS_TRACKER_PROCESS";
+
+        // STATES TO ASSIGNED SHIPPER
         String SUCCESS_ASSIGNED_SHIPPER = "SUCCESS_ASSIGNED_SHIPPER";
         String ERROR_ASSIGNED_SHIPPER = "ERROR_ASSIGNED_SHIPPER";
+        String PENDING_ASSIGNED_SHIPPER = "ERROR_ASSIGNED_SHIPPER";
+
+        // state to send insink and tracker
+        String ERROR_ECOMMERCE_PROCESS = "ERROR_ECCOMMERCE_PROCESS";
     }
 
     interface Integers {
@@ -28,6 +44,43 @@ public interface Constant {
         Integer TWO = 2;
         Integer FIFTEEN = 15;
         Integer SIXTEEN = 16;
+    }
+
+    enum ErrorStatusOrderResponse {
+        ERROR_NOT_DEFINED("En canal","00","Error no definido del Ecommerce"),
+        ERROR_BILLING_PROCESS("En canal", "02","Error al insertar inkaventa"),
+        ERROR_TRACKING_PROCESS("En Tracking","01", "Error al insertar pedido a los tracking"),
+        ERROR_ECOMMERCE_PROCESS("En canal","04", "Error al insertar inkaventa y traking");
+
+        private String status;
+        private String errorCode;
+        private String errorCodeDescription;
+
+        public static ErrorStatusOrderResponse getByValue(String value) {
+            return EnumUtils.getEnumList(ErrorStatusOrderResponse.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(value))
+                    .findFirst()
+                    .orElse(ERROR_NOT_DEFINED);
+        }
+
+        ErrorStatusOrderResponse(String status,String errorCode, String errorCodeDescription) {
+            this.status = status;
+            this.errorCode = errorCode;
+            this.errorCodeDescription = errorCodeDescription;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public String getErrorCode() {
+            return errorCode;
+        }
+
+        public String getErrorCodeDescription() {
+            return errorCodeDescription;
+        }
     }
 
     enum Logical {
@@ -50,58 +103,6 @@ public interface Constant {
             }
             return N;
         }
-    }
-
-    interface Firebase {
-
-        String ORDER_STATUS_PATH_LISTENER = "orderStatusDto/statusName";
-        String GROUP_PATH_LISTENER = "group/name";
-        String ADDRESS_PATH_LISTENER = "address";
-        String ORDER_MOTORIZED_PATH_LISTENER = "motorizedId";
-        String USER_STATUS_PATH_LISTENER = "status/statusName";
-
-        String FIREBASE_STATUS_PATH = "status";
-        String FIREBASE_ALERT_PATH = "alerts";
-        String FIREBASE_DEVICE_PATH = "device";
-        String FIREBASE_GROUP_PATH = "group";
-
-        String FIREBASE_ETAP_PATH = "etap";
-
-        String ORDER_SHELF_PATH= "shelf";
-
-        String ORDER_SHELF_LOCK_CODE = "lockCode";
-        String ORDER_SHELF_PACK_CODE = "packCode";
-
-        String ORDER_SCHEDULED_PUSH_NOTIFICATION_STATUS = "pushNotificationStatus";
-        String ORDER_PUSH_SEND_SCHEDULE_PUSH = "SEND_SCHEDULE_PUSH";
-    }
-
-
-    interface MailTemplate {
-
-        String TH_START = "<th style=\"border: 1px solid black;padding: 5px;\" >";
-        String TD_START_LEFT = "<td style=\"border: 1px solid black;padding: 5px;\" >";
-        String TD_START_RIGHT = "<td style=\"border: 1px solid black;padding: 5px;text-align:right;\" >";
-        String TD_START_CENTER = "<td style=\"border: 1px solid black;padding: 5px;text-align:center;\" >";
-
-        String TD_WIDTH_IMAGE = "<td width=\"20%\">";
-        String TD_WIDTH_NAME = "<td width=\"50%\" style=\"border-bottom: 1px solid #c1c2c9;\">";
-        String TD_WIDTH_PRICE = "<td width=\"30%\" style=\"border-bottom: 1px solid #c1c2c9;\">";
-        String IMG_PRODUCT = "<img width=\"180\" src=\"";
-        String P_NAME = "<h4 style=\"margin-bottom: 5px;\"><b>";
-        String P_PRESENTATION = "<h5 style=\"color: #a6a7b1; margin-top: 10px; font-weight: 500;\">";
-        String P_PRICE = "<h3 style=\"color: #009540; font-weight: 500;\">S/ ";
-        String X = "X";
-
-        String MSG_SCHEDULED = "Entregaremos su pedido el ";
-        String MSG_CONFIRMED = "Entregaremos su pedido entre ";
-
-        String GIF_CAR = "\"https://s3-us-west-2.amazonaws.com/inkafarmaproductimages/email/carrito-listo.gif\"";
-        String IMG_LOGO = "\"https://s3-us-west-2.amazonaws.com/inkafarmaproductimages/email/logo-01.png\"";
-        String BTN_ORDER = "\"https://s3-us-west-2.amazonaws.com/inkafarmaproductimages/email/boton-01.png\"";
-        String MAILTO = "\"mailto:ayuda@inkafarmadigital.pe?subject=[Confirmación%20Orden]\"";
-
-        String DEFAULT_IMAGE = "https://s3-us-west-2.amazonaws.com/inkafarmaproductimages/newimages/imagen_default.png";
     }
 
     enum PaymentMethodCode {

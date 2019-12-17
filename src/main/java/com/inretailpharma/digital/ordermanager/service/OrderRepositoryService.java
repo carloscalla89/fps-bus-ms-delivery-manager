@@ -8,6 +8,7 @@ import com.inretailpharma.digital.ordermanager.entity.ServiceType;
 import com.inretailpharma.digital.ordermanager.entity.projection.IOrderFulfillment;
 
 import java.util.List;
+import java.util.Set;
 
 public interface OrderRepositoryService {
 
@@ -15,5 +16,5 @@ public interface OrderRepositoryService {
     ServiceType getByCode(String code);
     Local getByLocalCode(String localCode);
     ServiceLocalOrder saveServiceLocalOrder(ServiceLocalOrder serviceLocalOrder);
-    List<IOrderFulfillment> getListOrdersByStatus(String status);
+    List<IOrderFulfillment> getListOrdersByStatus(Set<String> status);
 }

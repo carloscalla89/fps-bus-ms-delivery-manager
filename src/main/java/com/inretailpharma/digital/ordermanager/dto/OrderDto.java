@@ -1,13 +1,14 @@
 package com.inretailpharma.digital.ordermanager.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class OrderDto {
 
@@ -15,7 +16,10 @@ public class OrderDto {
     private String source;
     private String serviceTypeCode;
     private String localCode;
+
     private Long ecommercePurchaseId;
+    private Long trackerId;
+    private Long externalPurchaseId;
     private Long bridgePurchaseId;
     private OrderStatusDto orderStatusDto;
     private BigDecimal deliveryCost;

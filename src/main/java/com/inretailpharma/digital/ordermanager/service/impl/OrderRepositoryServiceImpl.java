@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 
 @Slf4j
@@ -59,7 +60,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public List<IOrderFulfillment> getListOrdersByStatus(String status) {
+    public List<IOrderFulfillment> getListOrdersByStatus(Set<String> status) {
         return orderRepository.getListOrdersByStatus(status);
     }
 }

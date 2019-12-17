@@ -27,7 +27,7 @@ spec:
         - name: LOGS_FOLDER
           value: "/var/log/us-order-manager"
         ports:
-        - containerPort: 8030
+        - containerPort: 8031
         resources:
           limits:
             cpu: 800m
