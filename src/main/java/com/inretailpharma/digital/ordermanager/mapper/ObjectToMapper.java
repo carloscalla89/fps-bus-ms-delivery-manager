@@ -61,11 +61,12 @@ public class ObjectToMapper {
         // object receipt
         ReceiptType receiptType = new ReceiptType();
         receiptType.setName(orderDto.getReceipt().getName());
-        receiptType.setDocumentNumber(orderDto.getReceipt().getDocumentNumber());
+        receiptType.setDocumentNumber(orderDto.getClient().getDocumentNumber());
         receiptType.setRuc(orderDto.getReceipt().getRuc());
         receiptType.setCompanyName(orderDto.getReceipt().getCompanyName());
         receiptType.setReceiptNote(orderDto.getReceipt().getNote());
         orderFulfillment.setReceiptType(receiptType);
+
 
 
         log.info("[END] map-convertOrderdtoToOrderEntity:{}",orderFulfillment);
