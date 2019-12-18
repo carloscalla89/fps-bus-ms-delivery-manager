@@ -67,8 +67,6 @@ public class ObjectToMapper {
         receiptType.setReceiptNote(orderDto.getReceipt().getNote());
         orderFulfillment.setReceiptType(receiptType);
 
-
-
         log.info("[END] map-convertOrderdtoToOrderEntity:{}",orderFulfillment);
 
         return orderFulfillment;

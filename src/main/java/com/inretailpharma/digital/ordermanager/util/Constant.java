@@ -12,8 +12,12 @@ public interface Constant {
         FULFILLMENT_PROCESS_SUCCESS("00"),
         ERROR_INSERT_TRACKER("01"),
         ERROR_INSERT_INKAVENTA("02"),
-        ERROR_RELEASE_ORDER("03");
+        ERROR_RELEASE_ORDER("03"),
 
+        SUCCESS_TRACKED_BILLED_ORDER("08"),
+        SUCCESS_RESERVED_ORDER("09"),
+        ERROR_SEND_TRACK_RESERVED_ORDER("10"),
+        ERROR_RESERVED_ORDER("11");
         private String code;
 
         OrderStatus(String code) {

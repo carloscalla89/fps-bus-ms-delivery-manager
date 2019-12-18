@@ -35,6 +35,8 @@ public class OrderTransaction {
         serviceLocalOrderIdentity.setLocalCode(orderDto.getLocalCode());
         serviceLocalOrderIdentity.setOrderTrackerId(orderFulfillmentResp.getId());
         serviceLocalOrderIdentity.setServiceTypeCode(orderDto.getServiceTypeCode());
+
+        // status from delivery dispatcher
         setStatusOrderFromDeliveryDispatcher(serviceLocalOrderIdentity, orderDto);
         // ----------------------------------------------------
 
@@ -63,12 +65,31 @@ public class OrderTransaction {
                                                       OrderDto orderDto) {
         // set status
         if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId() != null) {
-            serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.getCode());
+            serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.SUCCESS_TRACKED_BILLED_ORDER.getCode());
+
+        } else if (
+                Optional
+                        .ofNullable(orderDto.getOrderStatusDto().getCode())
+                        .orElse("OK")
+                        .equalsIgnoreCase("0-1") && orderDto.getTrackerId() != null) {
+
+            serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.SUCCESS_RESERVED_ORDER.getCode());
+
+        } else if (
+                !Optional
+                        .ofNullable(orderDto.getOrderStatusDto().getCode())
+                        .orElse("OK")
+                        .equalsIgnoreCase("0-1")  && orderDto.getTrackerId() != null) {
+
+            serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
+
         } else if (orderDto.getExternalPurchaseId() != null){
             serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+
         } else if (orderDto.getTrackerId() != null) {
             serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
         } else {
+
             serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
         }
     }

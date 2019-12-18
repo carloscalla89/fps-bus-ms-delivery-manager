@@ -35,8 +35,6 @@ public class  OrderManagerRest {
     @PostMapping("/messages")
     public ResponseEntity<String> create(@RequestBody OrderDto orderDto) {
 
-
-
         log.info("finish sending to Kafka");
         return new ResponseEntity<>("success", HttpStatus.CREATED);
      }

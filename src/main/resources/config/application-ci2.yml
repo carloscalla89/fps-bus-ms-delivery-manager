@@ -31,5 +31,8 @@ spring:
       api-secret: zYs4AaaM0iVOrQh84KvdwkScw1xdz21QicBs9wvTxtYPYIIQtODi+SdmYVUe2uEk
     listener:
       ack-mode: MANUAL
-
+external-service:
+  audit:
+    create-order: http://us-audit/audit/order
+    time-out: 20000
 

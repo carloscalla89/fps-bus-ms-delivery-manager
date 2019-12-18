@@ -1,11 +1,11 @@
-package com.inretailpharma.digital.ordermanager.canonical;
+package com.inretailpharma.digital.ordermanager.canonical.audit;
 
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
-public class AddressDeliveryCanonical {
+public class AddressAuditCanonical {
 
     private String department;
     private String province;
