@@ -13,12 +13,14 @@ import java.util.Set;
 @Repository
 public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
-    @Query(value = "select o.ecommerce_purchase_id as orderId, l.code as localCode, l.name as local, c.name as company, " +
-            "o.status as status, o.status_detail as statusDetail, p.payment_type as paymentMethod, " +
-            "o.scheduled_time as leadTime, o.document_number as documentNumber, o.total_cost as totalAmount " +
+    @Query(value = "select o.ecommerce_purchase_id as orderId, o.scheduled_time as leadTime, " +
+            "o.document_number as documentNumber, o.total_cost as totalAmount, p.payment_type as paymentMethod, " +
+            "l.code as localCode, l.name as local, c.name as company, " +
+            "s.order_status_code as statusCode, s.status_detail as statusDetail, os.type as status " +
             "from order_fulfillment o " +
             "inner join payment_method p on o.id = p.order_fulfillment_id " +
-            "inner join service_local_order s on o.id = s.order_fulfillment_id " +
+            "inner join order_process_status s on o.id = s.order_fulfillment_id " +
+            "inner join order_status os on s.order_status_code = os.code " +
             "inner join local l on s.local_code = l.code " +
             "inner join company c on l.company_code = c.code " +
             "where o.status in :status",

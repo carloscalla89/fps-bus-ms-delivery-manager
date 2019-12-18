@@ -3,10 +3,7 @@ package com.inretailpharma.digital.ordermanager.service.impl;
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
 import com.inretailpharma.digital.ordermanager.entity.*;
 import com.inretailpharma.digital.ordermanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.ordermanager.repository.LocalRepository;
-import com.inretailpharma.digital.ordermanager.repository.OrderRepository;
-import com.inretailpharma.digital.ordermanager.repository.ServiceLocalOrderRepository;
-import com.inretailpharma.digital.ordermanager.repository.ServiceTypeRepository;
+import com.inretailpharma.digital.ordermanager.repository.*;
 import com.inretailpharma.digital.ordermanager.service.OrderRepositoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -63,4 +60,5 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     public List<IOrderFulfillment> getListOrdersByStatus(Set<String> status) {
         return orderRepository.getListOrdersByStatus(status);
     }
+
 }

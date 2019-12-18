@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -29,28 +30,47 @@ public class OrderTransaction {
 
         OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
 
-        //ServiceType serviceType = orderRepositoryService.getByCode(orderDto.getServiceTypeCode());
-        //Local local = orderRepositoryService.getByLocalCode(orderDto.getLocalCode());
-
-        ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
+        // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
         serviceLocalOrderIdentity.setLocalCode(orderDto.getLocalCode());
         serviceLocalOrderIdentity.setOrderTrackerId(orderFulfillmentResp.getId());
         serviceLocalOrderIdentity.setServiceTypeCode(orderDto.getServiceTypeCode());
+        setStatusOrderFromDeliveryDispatcher(serviceLocalOrderIdentity, orderDto);
+        // ----------------------------------------------------
 
+        // Create and set object ServiceLocalOrder
+        ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
-        serviceLocalOrder.setAttempt(1);
         serviceLocalOrder.setDaysToPickup(0);
         serviceLocalOrder.setStartHour(DateUtils.getLocalTimeFromStringWithFormat("09:00:00"));
         serviceLocalOrder.setEndHour(DateUtils.getLocalTimeFromStringWithFormat("20:00:00"));
+        Optional
+                .ofNullable(orderDto.getOrderStatusDto())
+                .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
+
 
         orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
+
 
         return orderFulfillmentResp;
     }
 
     public List<IOrderFulfillment> getListOrdersByStatus(Set<String> status){
         return orderRepositoryService.getListOrdersByStatus(status);
+    }
+
+    private void setStatusOrderFromDeliveryDispatcher(ServiceLocalOrderIdentity serviceLocalOrderIdentity,
+                                                      OrderDto orderDto) {
+        // set status
+        if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId() != null) {
+            serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.getCode());
+        } else if (orderDto.getExternalPurchaseId() != null){
+            serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+        } else if (orderDto.getTrackerId() != null) {
+            serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+        } else {
+            serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+        }
     }
 
 }

@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://ci02delivery.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/fulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
-    username: root
-    password: mjPjxJnhXspNOvIAmZw1FEQT
+    url: jdbc:mysql://ci02fulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/ci02fulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
+    username: carloscalla
+    password: elpreciomasbajo
   kafka:
     producer:
       bootstrap-servers: pkc-43n10.us-central1.gcp.confluent.cloud:9092

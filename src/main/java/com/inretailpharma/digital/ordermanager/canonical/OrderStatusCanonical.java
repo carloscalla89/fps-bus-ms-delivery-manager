@@ -8,5 +8,6 @@ import java.io.Serializable;
 public class OrderStatusCanonical implements Serializable {
 
     private String status;
+    private String statusCode;
     private String statusDetail;
 }

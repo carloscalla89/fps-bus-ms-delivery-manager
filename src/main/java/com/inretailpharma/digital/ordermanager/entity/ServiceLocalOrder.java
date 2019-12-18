@@ -10,7 +10,7 @@ import java.time.LocalTime;
 
 @Data
 @Entity
-@Table(name = "service_local_order")
+@Table(name = "order_process_status")
 public class ServiceLocalOrder {
 
     @EmbeddedId
@@ -27,6 +27,9 @@ public class ServiceLocalOrder {
 
     @Column(name="end_hour")
     private LocalTime endHour;
+
+    @Column(name="status_detail")
+    private String statusDetail;
 
     private Integer attempt;
 

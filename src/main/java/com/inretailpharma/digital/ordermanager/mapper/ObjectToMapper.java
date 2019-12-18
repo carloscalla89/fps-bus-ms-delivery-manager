@@ -1,7 +1,7 @@
 package com.inretailpharma.digital.ordermanager.mapper;
 
 import com.inretailpharma.digital.ordermanager.canonical.OrderFulfillmentCanonical;
-import com.inretailpharma.digital.ordermanager.canonical.OrderStatusErrorCanonical;
+import com.inretailpharma.digital.ordermanager.canonical.OrderStatusCanonical;
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
 import com.inretailpharma.digital.ordermanager.entity.*;
 import com.inretailpharma.digital.ordermanager.entity.projection.IOrderFulfillment;
@@ -10,7 +10,6 @@ import com.inretailpharma.digital.ordermanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -68,42 +67,28 @@ public class ObjectToMapper {
         receiptType.setReceiptNote(orderDto.getReceipt().getNote());
         orderFulfillment.setReceiptType(receiptType);
 
-
-        // set status
-        if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId() != null) {
-            orderFulfillment.setStatus(Constant.orderStatus.SUCCESS_TRACKING_PROCESS);
-        } else if (orderDto.getExternalPurchaseId() != null){
-            orderFulfillment.setStatus(Constant.orderStatus.ERROR_TRACKING_PROCESS);
-        } else if (orderDto.getTrackerId() != null) {
-            orderFulfillment.setStatus(Constant.orderStatus.ERROR_BILLING_PROCESS);
-        } else {
-            orderFulfillment.setStatus(Constant.orderStatus.ERROR_ECOMMERCE_PROCESS);
-        }
-
-        Optional.ofNullable(orderDto.getOrderStatusDto()).ifPresent(r -> orderFulfillment.setStatusDetail(r.getDescription()));
-
         return orderFulfillment;
 
     }
 
-    public OrderStatusErrorCanonical convertIOrderDtoToOrderCanonical(IOrderFulfillment iOrderFulfillment) {
-        OrderStatusErrorCanonical orderStatusErrorCanonical = new OrderStatusErrorCanonical();
-        orderStatusErrorCanonical.setOrderId(iOrderFulfillment.getOrderId());
+    public OrderFulfillmentCanonical convertIOrderDtoToOrderFulfillmentCanonical(IOrderFulfillment iOrderFulfillment) {
+        OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
+        orderFulfillmentCanonical.setTrackerCode(iOrderFulfillment.getOrderId());
 
-        Constant.ErrorStatusOrderResponse errorStatusMonitoring = Constant
-                .ErrorStatusOrderResponse.getByValue(iOrderFulfillment.getStatus());
+        Constant.OrderStatus orderStatus = Constant
+                .OrderStatus.getByCode(iOrderFulfillment.getStatus());
 
-        orderStatusErrorCanonical.setStatus(errorStatusMonitoring.getStatus());
-        orderStatusErrorCanonical.setErrorType(errorStatusMonitoring.getErrorCode());
-        orderStatusErrorCanonical.setErrorTypeDescription(iOrderFulfillment.getStatusDetail());
-        orderStatusErrorCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getLeadTime()));
-        orderStatusErrorCanonical.setLocalCode(iOrderFulfillment.getLocalCode());
-        orderStatusErrorCanonical.setLocal(iOrderFulfillment.getLocal());
-        orderStatusErrorCanonical.setCompany(iOrderFulfillment.getCompany());
-        orderStatusErrorCanonical.setDocumentNumber(iOrderFulfillment.getDocumentNumber());
-        orderStatusErrorCanonical.setTotalAmount(iOrderFulfillment.getTotalAmount());
-        orderStatusErrorCanonical.setPaymentMethod(iOrderFulfillment.getPaymentMethod());
+        OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
+        orderStatusCanonical.setStatusCode(orderStatus.getCode());
+        orderStatusCanonical.setStatus(orderStatus.name());
 
-        return orderStatusErrorCanonical;
+        orderFulfillmentCanonical.setOrderStatus(orderStatusCanonical);
+        orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getLeadTime()));
+        orderFulfillmentCanonical.setLocal(iOrderFulfillment.getLocalCode());
+        orderFulfillmentCanonical.setCompany(iOrderFulfillment.getCompany());
+        orderFulfillmentCanonical.setDocumentNumber(iOrderFulfillment.getDocumentNumber());
+        orderFulfillmentCanonical.setTotalAmount(iOrderFulfillment.getTotalAmount());
+
+        return orderFulfillmentCanonical;
     }
 }

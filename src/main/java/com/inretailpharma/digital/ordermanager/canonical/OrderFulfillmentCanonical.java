@@ -8,19 +8,31 @@ import java.math.BigDecimal;
 @Data
 public class OrderFulfillmentCanonical implements Serializable {
 
+    // Canonical data order
     private Long trackerCode;
-    private Long orderId;
+    private Long ecommerceId;
+    private Long externalId;
+    private String clientFullName;
+    private String documentNumber;
+    private String leadTime;
+    private BigDecimal totalAmount;
 
+    // Canonical local and company
+    private String localCode;
     private String local;
     private String company;
 
-    private String paymentMethod;
-    private String leadTime;
-    private String documentNumber;
-    private BigDecimal totalAmount;
+    // Canonical status
+    private OrderStatusCanonical orderStatus;
 
-    private String status;
-    private String statusDetail;
 
+    // Canonical receipt
+    private ReceiptCanonical receipt;
+
+    // Canonical PaymentMethod;
+    private PaymentMethodCanonical paymentMethod;
+
+    // Canonical Address delivery
+    private AddressDeliveryCanonical  addressDelivery;
 
 }

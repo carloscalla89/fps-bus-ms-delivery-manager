@@ -1,7 +1,6 @@
 package com.inretailpharma.digital.ordermanager.facade;
 
 import com.inretailpharma.digital.ordermanager.canonical.OrderFulfillmentCanonical;
-import com.inretailpharma.digital.ordermanager.canonical.OrderStatusErrorCanonical;
 import com.inretailpharma.digital.ordermanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.ordermanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
@@ -40,18 +39,18 @@ public class OrderProcessFacade {
 
     }
 
-    public List<OrderStatusErrorCanonical> getListOrdersByStatusError(){
+    public List<OrderFulfillmentCanonical> getListOrdersByStatusError(){
         return orderTransaction
                 .getListOrdersByStatus(
                         new HashSet<>(
                                 Arrays.asList(
-                                        Constant.orderStatus.ERROR_TRACKING_PROCESS,
-                                        Constant.orderStatus.ERROR_BILLING_PROCESS,
-                                        Constant.orderStatus.ERROR_ECOMMERCE_PROCESS)
+                                        Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(),
+                                        Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode(),
+                                        Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode())
                         )
                 )
                 .stream()
-                .map(r -> objectToMapper.convertIOrderDtoToOrderCanonical(r))
+                .map(r -> objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(r))
                 .collect(Collectors.toList());
     }
 

@@ -18,4 +18,7 @@ public class ServiceLocalOrderIdentity implements Serializable {
 
     @Column(name="order_fulfillment_id")
     private Long orderTrackerId;
+
+    @Column(name="order_status_code")
+    private String orderStatusCode;
 }
