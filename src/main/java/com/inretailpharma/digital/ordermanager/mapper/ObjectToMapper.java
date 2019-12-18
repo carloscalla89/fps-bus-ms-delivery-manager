@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class ObjectToMapper {
 
     public OrderFulfillment convertOrderdtoToOrderEntity(OrderDto orderDto){
-
+        log.info("[START] map-convertOrderdtoToOrderEntity");
         OrderFulfillment orderFulfillment = new OrderFulfillment();
         orderFulfillment.setSource(orderDto.getSource());
         orderFulfillment.setEcommercePurchaseId(orderDto.getEcommercePurchaseId());
@@ -66,6 +66,9 @@ public class ObjectToMapper {
         receiptType.setCompanyName(orderDto.getReceipt().getCompanyName());
         receiptType.setReceiptNote(orderDto.getReceipt().getNote());
         orderFulfillment.setReceiptType(receiptType);
+
+
+        log.info("[END] map-convertOrderdtoToOrderEntity:{}",orderFulfillment);
 
         return orderFulfillment;
 

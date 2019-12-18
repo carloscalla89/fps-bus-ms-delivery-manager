@@ -47,7 +47,7 @@ public class  OrderManagerRest {
             @ApiResponse(code = 200, message = "ordermanager creado", response = OrderDto.class), @ApiResponse(code = 500, message = "No creado") })
     @PostMapping("/order")
      public ResponseEntity<?> createOrder(@RequestBody OrderDto orderDto) {
-
+        log.info("[START] endpoint /fulfillment/order - orderDto:{}",orderDto);
         return new ResponseEntity<>(orderProcessFacade.createOrder(orderDto), HttpStatus.CREATED);
      }
 
