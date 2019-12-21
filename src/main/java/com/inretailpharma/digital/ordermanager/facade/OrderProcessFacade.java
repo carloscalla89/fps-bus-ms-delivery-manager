@@ -1,12 +1,16 @@
 package com.inretailpharma.digital.ordermanager.facade;
 
 import com.inretailpharma.digital.ordermanager.canonical.OrderFulfillmentCanonical;
+import com.inretailpharma.digital.ordermanager.canonical.OrderStatusCanonical;
 import com.inretailpharma.digital.ordermanager.entity.OrderFulfillment;
+import com.inretailpharma.digital.ordermanager.entity.ServiceLocalOrder;
+import com.inretailpharma.digital.ordermanager.proxy.OrderAuditService;
 import com.inretailpharma.digital.ordermanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
 import com.inretailpharma.digital.ordermanager.events.KafkaEvent;
 import com.inretailpharma.digital.ordermanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.ordermanager.util.Constant;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -14,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class OrderProcessFacade {
 
@@ -29,13 +34,20 @@ public class OrderProcessFacade {
 
     public OrderFulfillmentCanonical createOrder(OrderDto orderDto){
 
-        OrderFulfillment orderFulfillment = orderTransaction
-                .createOrder(objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto);
+        try{
+            log.info("[START] create order facade");
 
-        OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
-        orderFulfillmentCanonical.setTrackerCode(orderFulfillment.getId());
+            ServiceLocalOrder serviceLocalOrderEntity =
+                    orderTransaction
+                            .createOrder(
+                                    objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
+                            );
 
-        return orderFulfillmentCanonical;
+            return objectToMapper.convertEntityToOrderFulfillmentCanonical(serviceLocalOrderEntity, orderDto);
+
+        }finally {
+            log.info("[END] create order facade - orderFulfillmentCanonical");
+        }
 
     }
 

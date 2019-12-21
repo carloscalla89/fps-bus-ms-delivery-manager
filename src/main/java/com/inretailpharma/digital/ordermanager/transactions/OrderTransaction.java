@@ -26,7 +26,7 @@ public class OrderTransaction {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+    public ServiceLocalOrder createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
 
         OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
 
@@ -36,7 +36,7 @@ public class OrderTransaction {
         serviceLocalOrderIdentity.setOrderTrackerId(orderFulfillmentResp.getId());
         serviceLocalOrderIdentity.setServiceTypeCode(orderDto.getServiceTypeCode());
 
-        // status from delivery dispatcher
+        // Set status from delivery dispatcher
         setStatusOrderFromDeliveryDispatcher(serviceLocalOrderIdentity, orderDto);
         // ----------------------------------------------------
 
@@ -54,7 +54,7 @@ public class OrderTransaction {
         orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
 
-        return orderFulfillmentResp;
+        return serviceLocalOrder;
     }
 
     public List<IOrderFulfillment> getListOrdersByStatus(Set<String> status){

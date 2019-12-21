@@ -17,7 +17,8 @@ public interface Constant {
         SUCCESS_TRACKED_BILLED_ORDER("08"),
         SUCCESS_RESERVED_ORDER("09"),
         ERROR_SEND_TRACK_RESERVED_ORDER("10"),
-        ERROR_RESERVED_ORDER("11");
+        ERROR_RESERVED_ORDER("11"),
+        SUCCESS_INSERT_ORDER_MANAGER("12");
         private String code;
 
         OrderStatus(String code) {

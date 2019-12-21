@@ -82,7 +82,7 @@ public class ObjectToMapper {
 
         OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
         orderStatusCanonical.setStatusCode(orderStatus.getCode());
-        orderStatusCanonical.setStatus(orderStatus.name());
+        orderStatusCanonical.setStatus(Constant.OrderStatus.valueOf(orderStatus.name()));
 
         orderFulfillmentCanonical.setOrderStatus(orderStatusCanonical);
         orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getLeadTime()));
@@ -92,5 +92,44 @@ public class ObjectToMapper {
         orderFulfillmentCanonical.setTotalAmount(iOrderFulfillment.getTotalAmount());
 
         return orderFulfillmentCanonical;
+    }
+
+    public OrderFulfillmentCanonical convertEntityToOrderFulfillmentCanonical(ServiceLocalOrder serviceLocalOrderEntity,
+                                                                              OrderDto orderDto) {
+
+        OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
+
+        // set tracker code
+        orderFulfillmentCanonical.setTrackerCode(
+                serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderTrackerId()
+        );
+
+        // set status
+        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+        orderStatus.setStatusCode(
+                serviceLocalOrderEntity
+                        .getServiceLocalOrderIdentity()
+                        .getOrderStatusCode()
+        );
+        orderStatus.setStatus(
+                Constant.OrderStatus.getByCode(
+                        serviceLocalOrderEntity
+                                .getServiceLocalOrderIdentity()
+                                .getOrderStatusCode()
+                )
+        );
+        orderStatus.setStatusDetail(serviceLocalOrderEntity.getStatusDetail());
+        orderFulfillmentCanonical.setOrderStatus(orderStatus);
+        orderFulfillmentCanonical.setTotalAmount(orderDto.getTotalCost());
+        orderFulfillmentCanonical.setLocal(orderDto.getLocalCode());
+        orderFulfillmentCanonical.setLeadTime(orderDto.getScheduledTime());
+        orderFulfillmentCanonical.setDocumentNumber(orderDto.getClient().getDocumentNumber());
+        //orderFulfillmentCanonical.setCompany(orderDto.getc);
+
+
+        log.info("Map result orderFulfillmentCanonical:{}",orderFulfillmentCanonical);
+
+        return orderFulfillmentCanonical;
+
     }
 }
