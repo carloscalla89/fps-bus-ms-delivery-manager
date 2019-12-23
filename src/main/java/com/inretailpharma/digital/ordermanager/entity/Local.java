@@ -15,4 +15,11 @@ public class Local {
     @ManyToOne
     @JoinColumn(name = "company_code")
     private Company company;
+
+    /*
+    @MapsId("serviceLocalOrderIdentity")
+    @OneToOne
+    private ServiceLocalOrder serviceLocalOrder;
+
+     */
 }

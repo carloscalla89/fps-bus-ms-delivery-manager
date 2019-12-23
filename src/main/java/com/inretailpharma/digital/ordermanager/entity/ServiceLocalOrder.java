@@ -2,10 +2,7 @@ package com.inretailpharma.digital.ordermanager.entity;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalTime;
 
 @Data
@@ -15,6 +12,57 @@ public class ServiceLocalOrder {
 
     @EmbeddedId
     private ServiceLocalOrderIdentity serviceLocalOrderIdentity;
+
+    /*
+    @ManyToOne
+    @JoinColumn(name="service_type_code",insertable = false, updatable = false)
+    private ServiceType serviceType;
+
+
+
+    @ManyToOne
+    @JoinColumn(name="order_fulfillment_id",insertable = false, updatable = false)
+    private OrderFulfillment orderFulfillment;
+
+    @ManyToOne
+    @JoinColumn(name = "order_status_code",insertable = false, updatable = false)
+    private OrderStatus orderStatus;
+
+
+     */
+
+    /*
+    @OneToOne
+    @JoinColumn(name="local_code",insertable = false, updatable = false)
+    private Local local;
+
+
+     */
+
+    /*
+    @MapsId("drugstoreDeliveryTypeFrameIdentity")
+    @OneToOne(cascade = CascadeType.ALL)
+    //@OneToOne(mappedBy = "serviceLocalOrder", cascade = CascadeType.ALL)
+    @JoinColumn(name="service_type_code", referencedColumnName = "code",insertable = false, updatable = false)
+    private ServiceType serviceType;
+
+    @MapsId("drugstoreDeliveryTypeFrameIdentity")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="local_code", referencedColumnName = "code",insertable = false, updatable = false)
+    private Local local;
+
+    @MapsId("drugstoreDeliveryTypeFrameIdentity")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="order_fulfillment_id", referencedColumnName = "id",insertable = false, updatable = false)
+    private OrderFulfillment orderFulfillment;
+
+    @MapsId("drugstoreDeliveryTypeFrameIdentity")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_status_code", referencedColumnName = "code",insertable = false, updatable = false)
+    private OrderStatus orderStatus;
+
+
+     */
 
     @Column(name="lead_time")
     private Integer leadTime;

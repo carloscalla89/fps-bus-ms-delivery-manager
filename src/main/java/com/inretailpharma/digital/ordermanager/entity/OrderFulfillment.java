@@ -61,4 +61,5 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @ElementCollection
     @CollectionTable(name = "order_fulfillment_item", joinColumns = @JoinColumn(name = "order_fulfillment_id"))
     private List<OrderFulfillmentItem> orderItem;
+
 }

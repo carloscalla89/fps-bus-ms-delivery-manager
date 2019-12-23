@@ -43,7 +43,7 @@ public class OrderProcessFacade {
                                     objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
                             );
 
-            return objectToMapper.convertEntityToOrderFulfillmentCanonical(serviceLocalOrderEntity, orderDto);
+            return objectToMapper.convertEntityToOrderFulfillmentCanonical(serviceLocalOrderEntity);
 
         }finally {
             log.info("[END] create order facade - orderFulfillmentCanonical");

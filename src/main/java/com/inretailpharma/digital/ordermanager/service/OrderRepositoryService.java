@@ -10,8 +10,9 @@ import java.util.Set;
 public interface OrderRepositoryService {
 
     OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto);
-    ServiceType getByCode(String code);
-    Local getByLocalCode(String localCode);
+    ServiceType getServiceTypeByCode(String code);
+    Local getLocalByCode(String code);
+    OrderStatus getOrderStatusByCode(String code);
     ServiceLocalOrder saveServiceLocalOrder(ServiceLocalOrder serviceLocalOrder);
     List<IOrderFulfillment> getListOrdersByStatus(Set<String> status);
 }
