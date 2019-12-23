@@ -115,24 +115,17 @@ public class OrderTransaction {
              */
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.SUCCESS_RESERVED_ORDER.getCode());
-        } else if (
+        } /*else if (
                 !Optional
                         .ofNullable(orderDto.getOrderStatusDto().getCode())
                         .orElse("OK")
                         .equalsIgnoreCase("0-1")  && orderDto.getTrackerId() != null) {
 
-            //serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
 
-            //orderStatus.setCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
-            //orderStatus.setType(Constant.OrderStatus.ERROR_RESERVED_ORDER.name());
-            /*
-            serviceLocalOrderIdentity.setOrderStatus(
-                    orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode())
-            );
 
              */
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
-        } else if (orderDto.getExternalPurchaseId() != null){
+            //orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
+        else if (orderDto.getExternalPurchaseId() != null){
             //serviceLocalOrderIdentity.setOrderStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
             /*
             orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
