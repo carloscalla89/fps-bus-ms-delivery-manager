@@ -91,7 +91,7 @@ public class OrderTransaction {
                         .ofNullable(orderDto.getOrderStatusDto().getCode())
                         .orElse("OK")
                         .equalsIgnoreCase("0-1")
-                        && orderDto.getIsProgrammed() && orderDto.getTrackerId() != null) {
+                        && orderDto.getProgrammed() && orderDto.getTrackerId() != null) {
 
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
