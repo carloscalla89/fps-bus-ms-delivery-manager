@@ -77,7 +77,7 @@ public class OrderTransaction {
 
         if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId() != null) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.SUCCESS_TRACKED_BILLED_ORDER.getCode());
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.getCode());
 
         } else if (
                 Optional
