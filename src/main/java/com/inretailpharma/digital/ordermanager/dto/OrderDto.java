@@ -42,6 +42,8 @@ public class OrderDto {
 
     private List<OrderDetailDto> orderItem;
 
+    private Boolean isProgrammed;
+
 
 
 
