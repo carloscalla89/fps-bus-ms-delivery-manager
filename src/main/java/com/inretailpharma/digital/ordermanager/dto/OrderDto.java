@@ -2,6 +2,7 @@ package com.inretailpharma.digital.ordermanager.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.inretailpharma.digital.ordermanager.util.Constant;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -44,7 +45,7 @@ public class OrderDto {
 
     private Boolean programmed;
 
-
+    private Constant.ActionOrder action;
 
 
 }

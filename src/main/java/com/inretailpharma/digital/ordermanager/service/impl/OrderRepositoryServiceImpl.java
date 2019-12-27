@@ -69,4 +69,21 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return orderRepository.getListOrdersByStatus(status);
     }
 
+    @Override
+    public IOrderFulfillment getOrderByecommerceId(Long ecommerceId) {
+        return orderRepository.getOrderByecommerceId(ecommerceId);
+    }
+
+    @Override
+    public void updateReattemtpInsink(Long orderFulfillmentId, Integer attempt,
+                                      String orderStatusCode, String statusDetail) {
+        serviceLocalOrderRepository.updateReattemtpInsink(orderFulfillmentId, attempt,
+                orderStatusCode, statusDetail);
+    }
+
+    @Override
+    public void updateExternalPurchaseId(Long orderFulfillmentId, Long externalPurchaseId) {
+        orderRepository.updateExternalPurchaseId(orderFulfillmentId, externalPurchaseId);
+    }
+
 }

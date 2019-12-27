@@ -10,6 +10,7 @@ import javax.persistence.*;
 public class ServiceType {
     @Id
     private String code;
+    private String name;
     private String description;
 
 }

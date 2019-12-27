@@ -1,16 +1,17 @@
 package com.inretailpharma.digital.ordermanager.proxy;
 
 import com.inretailpharma.digital.ordermanager.canonical.OrderFulfillmentCanonical;
+import com.inretailpharma.digital.ordermanager.canonical.management.OrderResultCanonical;
 import com.inretailpharma.digital.ordermanager.config.parameters.ExternalServicesProperties;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.inretailpharma.digital.ordermanager.util.Constant;
 import org.springframework.stereotype.Service;
 
 @Service("auditProxy")
-public class OrderAuditProxy implements  OrderAuditService{
+public class OrderAuditProxy implements OrderExternalService {
 
     private ExternalServicesProperties externalServicesProperties;
 
-    private static OrderAuditService orderAuditService;
+    private static OrderExternalService orderExternalService;
 
     public OrderAuditProxy(ExternalServicesProperties externalServicesProperties) {
         this.externalServicesProperties = externalServicesProperties;
@@ -19,11 +20,17 @@ public class OrderAuditProxy implements  OrderAuditService{
     @Override
     public void sendOrder(OrderFulfillmentCanonical orderAuditCanonical) {
 
-        if (orderAuditService == null) {
-            orderAuditService = new OrderAuditServiceImpl(externalServicesProperties);
+        if (orderExternalService == null) {
+            orderExternalService = new OrderAuditServiceImpl(externalServicesProperties);
         }
 
-        orderAuditService.sendOrder(orderAuditCanonical);
+        orderExternalService.sendOrder(orderAuditCanonical);
 
     }
+
+    @Override
+    public OrderResultCanonical updateOrder(Long ecommerceId, Constant.ActionOrder actionOrder) {
+        return null;
+    }
+
 }

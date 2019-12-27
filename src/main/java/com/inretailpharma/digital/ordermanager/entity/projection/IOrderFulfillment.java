@@ -16,5 +16,10 @@ public interface IOrderFulfillment {
     LocalDateTime getLeadTime();
     String getDocumentNumber();
     BigDecimal getTotalAmount();
+    Integer getAttempt();
+    Integer getAttemptTracker();
+
+    String getServiceTypeCode();
+    String getServiceTypeName();
 
 }

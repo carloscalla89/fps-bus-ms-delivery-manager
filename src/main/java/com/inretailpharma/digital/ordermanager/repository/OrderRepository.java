@@ -3,9 +3,11 @@ package com.inretailpharma.digital.ordermanager.repository;
 import com.inretailpharma.digital.ordermanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.ordermanager.entity.projection.IOrderFulfillment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -27,4 +29,27 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true
     )
     List<IOrderFulfillment> getListOrdersByStatus(@Param("status") Set<String> status);
+
+    OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
+
+    @Query(value = "select o.ecommerce_purchase_id as orderId, " +
+            "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
+            "st.code as serviceTypeCode, st.name as serviceTypeName " +
+            "from order_fulfillment o " +
+            "inner join order_process_status s on o.id = s.order_fulfillment_id " +
+            "inner join service_type st on s.service_type_code = st.code " +
+            "where o.ecommerce_purchase_id = :ecommerceId",
+            nativeQuery = true
+    )
+    IOrderFulfillment getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_fulfillment " +
+            " set external_purchase_id = :externalPurchaseId " +
+            " where order_fulfillment_id = :orderFulfillmentId",
+            nativeQuery = true)
+    void updateExternalPurchaseId(@Param("orderFulfillmentId") Long orderFulfillmentId,
+                                  @Param("externalPurchaseId") Long externalPurchase
+    );
 }

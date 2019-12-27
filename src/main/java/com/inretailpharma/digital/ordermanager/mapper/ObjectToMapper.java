@@ -9,6 +9,7 @@ import com.inretailpharma.digital.ordermanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -76,19 +77,33 @@ public class ObjectToMapper {
         OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
         orderFulfillmentCanonical.setTrackerCode(iOrderFulfillment.getOrderId());
 
-        Constant.OrderStatus orderStatus = Constant
-                .OrderStatus.getByCode(iOrderFulfillment.getStatus());
+        Optional.ofNullable(iOrderFulfillment.getStatus()).ifPresent(r -> {
+            Constant.OrderStatus orderStatus = Constant.OrderStatus.getByCode(r);
 
-        OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
-        orderStatusCanonical.setStatusCode(orderStatus.getCode());
-        orderStatusCanonical.setStatus(orderStatus.name());
+            OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
+            orderStatusCanonical.setStatusCode(orderStatus.getCode());
+            orderStatusCanonical.setStatus(orderStatus.name());
 
-        orderFulfillmentCanonical.setOrderStatus(orderStatusCanonical);
-        orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getLeadTime()));
+            orderFulfillmentCanonical.setOrderStatus(orderStatusCanonical);
+        });
+
+
+        Optional
+                .ofNullable(iOrderFulfillment.getLeadTime())
+                .ifPresent(r -> orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(r)));
+
+        // ServiceType canonical
+        ServiceTypeCanonical serviceTypeCanonical = new ServiceTypeCanonical();
+        serviceTypeCanonical.setCode(iOrderFulfillment.getServiceTypeCode());
+        serviceTypeCanonical.setName(iOrderFulfillment.getServiceTypeName());
+        orderFulfillmentCanonical.setServiceType(serviceTypeCanonical);
+
         orderFulfillmentCanonical.setLocal(iOrderFulfillment.getLocalCode());
         orderFulfillmentCanonical.setCompany(iOrderFulfillment.getCompany());
         orderFulfillmentCanonical.setDocumentNumber(iOrderFulfillment.getDocumentNumber());
         orderFulfillmentCanonical.setTotalAmount(iOrderFulfillment.getTotalAmount());
+
+        orderFulfillmentCanonical.setAttempt(iOrderFulfillment.getAttempt());
 
         return orderFulfillmentCanonical;
     }
@@ -99,21 +114,11 @@ public class ObjectToMapper {
         OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
 
         // set tracker code
-        orderFulfillmentCanonical.setTrackerCode(
-                //serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderTrackerId()
-                orderFulfillment.getId()
-                //serviceLocalOrderEntity.getOrderFulfillment().getId()
-        );
+        orderFulfillmentCanonical.setTrackerCode(orderFulfillment.getId());
 
         // set status
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
         orderStatus.setStatusCode(
-                /*
-                serviceLocalOrderEntity
-                        .getServiceLocalOrderIdentity()
-                        .getOrderStatusCode()
-
-                 */
                 serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderStatus().getCode()
         );
         orderStatus.setStatus(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderStatus().getType());
@@ -128,6 +133,7 @@ public class ObjectToMapper {
         orderFulfillmentCanonical.setEcommerceId(orderFulfillment.getEcommercePurchaseId());
         orderFulfillmentCanonical.setExternalId(orderFulfillment.getExternalPurchaseId());
 
+        // Payment method canonical
         PaymentMethodCanonical paymentMethodCanonical = new PaymentMethodCanonical();
         paymentMethodCanonical.setType(orderFulfillment.getPaymentMethod().getPaymentType().name());
         paymentMethodCanonical.setProviderCard(orderFulfillment.getPaymentMethod().getCardProvider());
@@ -145,4 +151,6 @@ public class ObjectToMapper {
         return orderFulfillmentCanonical;
 
     }
+
+
 }

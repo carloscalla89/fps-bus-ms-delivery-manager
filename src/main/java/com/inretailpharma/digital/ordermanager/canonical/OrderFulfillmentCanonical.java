@@ -16,6 +16,10 @@ public class OrderFulfillmentCanonical implements Serializable {
     private String documentNumber;
     private String leadTime;
     private BigDecimal totalAmount;
+    private Integer attempt;
+
+    // Canonical serviceType
+    private ServiceTypeCanonical serviceType;
 
     // Canonical local and company
     private String localCode;
@@ -34,5 +38,7 @@ public class OrderFulfillmentCanonical implements Serializable {
 
     // Canonical Address delivery
     private AddressDeliveryCanonical  addressDelivery;
+
+
 
 }

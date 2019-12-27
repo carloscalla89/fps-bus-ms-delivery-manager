@@ -6,6 +6,30 @@ import java.util.Optional;
 
 public interface Constant {
 
+    interface InsinkErrorCode {
+        String CODE_ERROR_GENERAL = "E-0";
+        String CODE_ERROR_CLIENT_CONNECTION = "C-0";
+    }
+
+    enum ActionOrder {
+        ATTEMPT_INSINK(1),
+        UPDATE_ORDER(2),
+        CANCEL_ORDER(3),
+        RELEASE_ORDER(4),
+        CREATE_ORDER(5),
+        RESERVE_ORDER(6),
+        ATTEMP_TRACKER(7);
+
+        private Integer code;
+
+        ActionOrder(Integer code) {
+            this.code = code;
+        }
+
+        public Integer getCode() {
+            return code;
+        }
+    }
 
     enum OrderStatus {
 
@@ -58,6 +82,10 @@ public interface Constant {
             }
             return N;
         }
+    }
+
+    interface Constans {
+        Integer ONE_ATTEMPT = 1;
     }
 
     enum PaymentMethodCode {

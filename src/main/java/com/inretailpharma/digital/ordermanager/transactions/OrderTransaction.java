@@ -5,7 +5,6 @@ import com.inretailpharma.digital.ordermanager.entity.*;
 import com.inretailpharma.digital.ordermanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.ordermanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.ordermanager.util.Constant;
-import com.inretailpharma.digital.ordermanager.util.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -52,8 +51,7 @@ public class OrderTransaction {
         ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
         serviceLocalOrder.setDaysToPickup(0);
-        serviceLocalOrder.setStartHour(DateUtils.getLocalTimeFromStringWithFormat("09:00:00"));
-        serviceLocalOrder.setEndHour(DateUtils.getLocalTimeFromStringWithFormat("20:00:00"));
+        serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
         Optional
                 .ofNullable(orderDto.getOrderStatusDto())
                 .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
@@ -106,6 +104,23 @@ public class OrderTransaction {
         }
 
         serviceLocalOrderIdentity.setOrderStatus(orderStatus);
+    }
+
+    public IOrderFulfillment getOrderByecommerceId(Long ecommerceId) {
+        return orderRepositoryService.getOrderByecommerceId(ecommerceId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateReattemtpInsink(Long orderFulfillmentId, Integer attempt,
+                                      String orderStatusCode, String statusDetail){
+        orderRepositoryService.updateReattemtpInsink(
+                orderFulfillmentId, attempt, orderStatusCode, statusDetail
+        );
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateExternalPurchaseId(Long orderFulfillmentId, Long externalPurchaseId) {
+        orderRepositoryService.updateExternalPurchaseId(orderFulfillmentId, externalPurchaseId);
     }
 
 }
