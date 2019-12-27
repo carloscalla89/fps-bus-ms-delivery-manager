@@ -35,3 +35,10 @@ external-service:
   audit:
     create-order: http://localhost:8032/audit/order
     time-out: 20000
+  dispatcher:
+    insink:
+      uri: http://localhost:8082/order/insink/{ecommerceId}
+      timeout: 15000
+    tracker:
+      uri: testing
+      timeout: 15000

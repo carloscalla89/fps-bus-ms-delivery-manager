@@ -25,6 +25,12 @@ public class OrderAuditProcess {
     public void afterCreateOrderFulfillment(JoinPoint joinPoint, Object retVal) {
         log.info("Success aop process {} - {}",joinPoint.getTarget(), retVal);
 
-        orderExternalService.sendOrder((OrderFulfillmentCanonical)retVal);
+        if (retVal instanceof OrderFulfillmentCanonical) {
+            orderExternalService.sendOrder((OrderFulfillmentCanonical)retVal);
+        } else {
+            // send to audit microservice to update the order
+        }
+
+
     }
 }

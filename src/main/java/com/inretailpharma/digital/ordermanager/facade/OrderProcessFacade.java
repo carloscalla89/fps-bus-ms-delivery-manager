@@ -74,46 +74,66 @@ public class OrderProcessFacade {
                 .collect(Collectors.toList());
     }
 
-    public OrderResultCanonical getUpdateOrder(OrderDto orderDto) {
+    public OrderResultCanonical getUpdateOrder(String action, String ecommerceId) {
+        log.info("[START] getUpdateOrder action:{}",action);
+
+        Long ecommercePurchaseId = Long.parseLong(ecommerceId);
+        OrderResultCanonical resultCanonical;
 
         OrderFulfillmentCanonical orderFulfillment =
                 objectToMapper
                         .convertIOrderDtoToOrderFulfillmentCanonical(
-                                orderTransaction.getOrderByecommerceId(orderDto.getEcommercePurchaseId())
+                                orderTransaction.getOrderByecommerceId(ecommercePurchaseId)
                         );
 
-        OrderResultCanonical resultCanonical = orderExternalService
-                .updateOrder(orderDto.getEcommercePurchaseId(), orderDto.getAction());
+        if (Optional.ofNullable(orderFulfillment.getTrackerCode()).isPresent()) {
+            resultCanonical = orderExternalService
+                    .updateOrder(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
 
-        switch (orderDto.getAction().getCode()) {
-            case 1:
-                Integer attempt = orderFulfillment.getAttempt() + 1;
+            log.info("Action value {} ",Constant.ActionOrder.getByName(action).getCode());
 
-                if (Optional
-                        .ofNullable(resultCanonical.getStatus())
-                        .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                        .equals(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.getCode())) {
+            switch (Constant.ActionOrder.getByName(action).getCode()) {
 
-                    log.info("Update external id");
+                case 1:
+                    Integer attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(1) + 1;
 
-                    orderTransaction.updateExternalPurchaseId(
-                            orderFulfillment.getTrackerCode(), resultCanonical.getExternalId()
-                    );
+                    if (Optional
+                            .ofNullable(resultCanonical.getStatus())
+                            .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
+                            .equals(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.getCode())) {
 
-                } else {
-                    log.info("Update Reattmpt insink");
-                    orderTransaction.updateReattemtpInsink(
-                            orderFulfillment.getTrackerCode(), attempt,
-                            resultCanonical.getStatus(), resultCanonical.getStatusDetail()
-                    );
-                }
+                        log.info("Update external id");
 
-                resultCanonical.setAttempt(attempt);
+                        orderTransaction.updateExternalPurchaseId(
+                                orderFulfillment.getTrackerCode(), resultCanonical.getExternalId()
+                        );
 
-                break;
-            case 2:
-                break;
+                    } else {
+                        log.info("Update Reattmpt insink");
+                        orderTransaction.updateReattemtpInsink(
+                                orderFulfillment.getTrackerCode(), attempt,
+                                resultCanonical.getStatus(), resultCanonical.getStatusDetail()
+                        );
+                    }
 
+                    resultCanonical.setAttempt(attempt);
+
+                    break;
+                case 2:
+                    break;
+
+                default:
+                    resultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
+                    resultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+                    break;
+
+            }
+
+
+        } else {
+            resultCanonical = new OrderResultCanonical();
+            resultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
+            resultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ORDER.name());
         }
 
         return resultCanonical;

@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.ordermanager.rest;
 
+import com.inretailpharma.digital.ordermanager.dto.ActionDto;
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
 import com.inretailpharma.digital.ordermanager.facade.OrderProcessFacade;
 import io.swagger.annotations.*;
@@ -56,11 +57,12 @@ public class  OrderManagerRest {
             @ApiParam(value = "ID del drugstore de la zona segun la dirección")
             @PathVariable(value = "ecommerceId") String ecommerceId,
             @ApiParam(value = "Body para actualizar la orden")
-            @RequestBody OrderDto orderDto) {
+            @RequestBody ActionDto action) {
 
-        log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - orderDto {}",ecommerceId,orderDto);
+        log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - action {}"
+                ,ecommerceId,action);
 
-        return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(orderDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(action.getAction().name(), ecommerceId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Listar ordenes con error", tags = { "Controlador OrderManagers" })

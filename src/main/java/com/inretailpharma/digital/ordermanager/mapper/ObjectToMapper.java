@@ -75,35 +75,38 @@ public class ObjectToMapper {
 
     public OrderFulfillmentCanonical convertIOrderDtoToOrderFulfillmentCanonical(IOrderFulfillment iOrderFulfillment) {
         OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
-        orderFulfillmentCanonical.setTrackerCode(iOrderFulfillment.getOrderId());
 
-        Optional.ofNullable(iOrderFulfillment.getStatus()).ifPresent(r -> {
-            Constant.OrderStatus orderStatus = Constant.OrderStatus.getByCode(r);
+        Optional.ofNullable(iOrderFulfillment).ifPresent(s -> {
+            orderFulfillmentCanonical.setTrackerCode(s.getOrderId());
 
-            OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
-            orderStatusCanonical.setStatusCode(orderStatus.getCode());
-            orderStatusCanonical.setStatus(orderStatus.name());
+            Optional.ofNullable(s.getStatus()).ifPresent(r -> {
+                Constant.OrderStatus orderStatus = Constant.OrderStatus.getByCode(r);
 
-            orderFulfillmentCanonical.setOrderStatus(orderStatusCanonical);
+                OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
+                orderStatusCanonical.setStatusCode(orderStatus.getCode());
+                orderStatusCanonical.setStatus(orderStatus.name());
+
+                orderFulfillmentCanonical.setOrderStatus(orderStatusCanonical);
+            });
+
+
+            Optional
+                    .ofNullable(s.getLeadTime())
+                    .ifPresent(r -> orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(r)));
+
+            // ServiceType canonical
+            ServiceTypeCanonical serviceTypeCanonical = new ServiceTypeCanonical();
+            serviceTypeCanonical.setCode(s.getServiceTypeCode());
+            serviceTypeCanonical.setName(s.getServiceTypeName());
+            orderFulfillmentCanonical.setServiceType(serviceTypeCanonical);
+
+            orderFulfillmentCanonical.setLocal(s.getLocalCode());
+            orderFulfillmentCanonical.setCompany(s.getCompany());
+            orderFulfillmentCanonical.setDocumentNumber(s.getDocumentNumber());
+            orderFulfillmentCanonical.setTotalAmount(s.getTotalAmount());
+
+            orderFulfillmentCanonical.setAttempt(s.getAttempt());
         });
-
-
-        Optional
-                .ofNullable(iOrderFulfillment.getLeadTime())
-                .ifPresent(r -> orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(r)));
-
-        // ServiceType canonical
-        ServiceTypeCanonical serviceTypeCanonical = new ServiceTypeCanonical();
-        serviceTypeCanonical.setCode(iOrderFulfillment.getServiceTypeCode());
-        serviceTypeCanonical.setName(iOrderFulfillment.getServiceTypeName());
-        orderFulfillmentCanonical.setServiceType(serviceTypeCanonical);
-
-        orderFulfillmentCanonical.setLocal(iOrderFulfillment.getLocalCode());
-        orderFulfillmentCanonical.setCompany(iOrderFulfillment.getCompany());
-        orderFulfillmentCanonical.setDocumentNumber(iOrderFulfillment.getDocumentNumber());
-        orderFulfillmentCanonical.setTotalAmount(iOrderFulfillment.getTotalAmount());
-
-        orderFulfillmentCanonical.setAttempt(iOrderFulfillment.getAttempt());
 
         return orderFulfillmentCanonical;
     }

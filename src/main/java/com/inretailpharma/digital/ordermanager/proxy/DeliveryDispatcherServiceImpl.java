@@ -36,7 +36,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
     @Override
     public OrderResultCanonical updateOrder(Long ecommerceId, Constant.ActionOrder actionOrder) {
-
+        log.info("update order actionOrder.getCode:{}", actionOrder.getCode());
         OrderResultCanonical orderResultCanonical = new OrderResultCanonical();
 
         switch (actionOrder.getCode()) {
@@ -44,10 +44,10 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                 InsinkResponseCanonical insinkResponseCanonical;
                 try {
                     insinkResponseCanonical =
-                            restTemplate.patchForObject(
+                            restTemplate.getForEntity(
                                     externalServicesProperties.getDispatcherInsinkUri().replace("{ecommerceId}", ecommerceId.toString()),
-                                    null, InsinkResponseCanonical.class
-                            );
+                                    InsinkResponseCanonical.class).getBody();
+
                 } catch (RestClientException e) {
                     String errorMessage = "Connection Error with DD: " +
                             "Error invoking '" +
@@ -70,6 +70,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
                 log.info("object insinkResponse {}",insinkResponseCanonical);
 
+
                 Optional.ofNullable(insinkResponseCanonical).ifPresent(r -> {
                     orderResultCanonical.setEcommerceId(ecommerceId);
                     orderResultCanonical.setExternalId(
@@ -78,12 +79,19 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                     .map(s -> Long.parseLong(r.getInkaventaId()))
                                     .orElse(null));
 
-                    orderResultCanonical.setStatus(
+                    orderResultCanonical.setStatusCode(
                             Optional
                                     .ofNullable(r.getErrorCode())
                                     .map(s -> Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
                                     .orElse(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.getCode())
                     );
+                    orderResultCanonical.setStatus(
+                            Optional
+                                    .ofNullable(r.getErrorCode())
+                                    .map(s -> Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
+                                    .orElse(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.name())
+                    );
+
                     orderResultCanonical.setStatusDetail(r.getMessageDetail());
 
                 });
@@ -92,6 +100,11 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
             case 2:
                 // reattempt to send delivery dispatcher at inkatracker or inkatrackerlite
+                break;
+
+            default:
+                orderResultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
+                orderResultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
                 break;
         }
 

@@ -18,7 +18,8 @@ public interface Constant {
         RELEASE_ORDER(4),
         CREATE_ORDER(5),
         RESERVE_ORDER(6),
-        ATTEMP_TRACKER(7);
+        ATTEMP_TRACKER(7),
+        NONE(0);
 
         private Integer code;
 
@@ -28,6 +29,15 @@ public interface Constant {
 
         public Integer getCode() {
             return code;
+        }
+
+        public static ActionOrder getByName(String name) {
+
+            return EnumUtils.getEnumList(ActionOrder.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(NONE);
         }
     }
 
@@ -42,7 +52,12 @@ public interface Constant {
         SUCCESS_RESERVED_ORDER("09"),
         ERROR_SEND_TRACK_RESERVED_ORDER("10"),
         ERROR_RESERVED_ORDER("11"),
-        SUCCESS_INSERT_ORDER_MANAGER("12");
+        SUCCESS_INSERT_ORDER_MANAGER("12"),
+
+        NOT_FOUND_CODE("-1"),
+        NOT_FOUND_ORDER("-1"),
+        NOT_FOUND_ACTION("-1");
+
         private String code;
 
         OrderStatus(String code) {
@@ -54,7 +69,7 @@ public interface Constant {
                     .stream()
                     .filter(item -> item.code.equalsIgnoreCase(code))
                     .findFirst()
-                    .orElse(ERROR_INSERT_TRACKER);
+                    .orElse(NOT_FOUND_CODE);
         }
 
         public String getCode() {
