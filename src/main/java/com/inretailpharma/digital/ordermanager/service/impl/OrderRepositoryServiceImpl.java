@@ -7,10 +7,6 @@ import com.inretailpharma.digital.ordermanager.repository.*;
 import com.inretailpharma.digital.ordermanager.service.OrderRepositoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Set;
 
@@ -82,8 +78,20 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,
+                                       String orderStatusCode, String statusDetail) {
+        serviceLocalOrderRepository.updateReattemtpTracker(orderFulfillmentId, attemptTracker,
+                orderStatusCode, statusDetail);
+    }
+
+    @Override
     public void updateExternalPurchaseId(Long orderFulfillmentId, Long externalPurchaseId) {
         orderRepository.updateExternalPurchaseId(orderFulfillmentId, externalPurchaseId);
+    }
+
+    @Override
+    public void updatecommercePurchaseId(Long orderFulfillmentId, Long externalPurchaseId) {
+        orderRepository.updatecommercePurchaseId(orderFulfillmentId, externalPurchaseId);
     }
 
 }

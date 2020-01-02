@@ -19,5 +19,8 @@ public interface OrderRepositoryService {
     IOrderFulfillment getOrderByecommerceId(Long ecommerceId);
     void updateReattemtpInsink(Long orderFulfillmentId, Integer attempt,
                                String orderStatusCode, String statusDetail);
+    void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,
+                               String orderStatusCode, String statusDetail);
     void updateExternalPurchaseId(Long orderFulfillmentId, Long externalPurchaseId);
+    void updatecommercePurchaseId(Long orderFulfillmentId, Long externalPurchaseId);
 }

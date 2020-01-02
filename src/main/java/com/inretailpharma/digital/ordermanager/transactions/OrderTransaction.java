@@ -119,8 +119,21 @@ public class OrderTransaction {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,
+                                      String orderStatusCode, String statusDetail){
+        orderRepositoryService.updateReattemtpTracker(
+                orderFulfillmentId, attemptTracker, orderStatusCode, statusDetail
+        );
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateExternalPurchaseId(Long orderFulfillmentId, Long externalPurchaseId) {
         orderRepositoryService.updateExternalPurchaseId(orderFulfillmentId, externalPurchaseId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updatecommercePurchaseId(Long orderFulfillmentId, Long externalPurchaseId) {
+        orderRepositoryService.updatecommercePurchaseId(orderFulfillmentId, externalPurchaseId);
     }
 
 }

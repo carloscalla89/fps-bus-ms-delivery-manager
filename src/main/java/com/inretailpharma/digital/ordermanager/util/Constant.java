@@ -12,13 +12,13 @@ public interface Constant {
     }
 
     enum ActionOrder {
-        ATTEMPT_INSINK(1),
-        UPDATE_ORDER(2),
-        CANCEL_ORDER(3),
-        RELEASE_ORDER(4),
-        CREATE_ORDER(5),
-        RESERVE_ORDER(6),
-        ATTEMP_TRACKER(7),
+        ATTEMPT_INSINK_CREATE(1),
+        ATTEMP_TRACKER_CREATE(2),
+        UPDATE_ORDER(3),
+        CANCEL_ORDER(4),
+        RELEASE_ORDER(5),
+        CREATE_ORDER(6),
+        RESERVE_ORDER(7),
         NONE(0);
 
         private Integer code;

@@ -40,5 +40,5 @@ external-service:
       uri: http://localhost:8082/order/insink/{ecommerceId}
       timeout: 15000
     tracker:
-      uri: testing
+      uri: http://localhost:8082/order/tracker/{ecommerceId}
       timeout: 15000

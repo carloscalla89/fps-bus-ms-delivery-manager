@@ -52,4 +52,14 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     void updateExternalPurchaseId(@Param("orderFulfillmentId") Long orderFulfillmentId,
                                   @Param("externalPurchaseId") Long externalPurchase
     );
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_fulfillment " +
+            " set ecommerce_purchase_id = :externalPurchaseId " +
+            " where order_fulfillment_id = :ecommercePurchaseId",
+            nativeQuery = true)
+    void updatecommercePurchaseId(@Param("orderFulfillmentId") Long orderFulfillmentId,
+                                  @Param("ecommercePurchaseId") Long ecommercePurchaseId
+    );
 }

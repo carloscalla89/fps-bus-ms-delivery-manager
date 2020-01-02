@@ -21,4 +21,10 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.insink.timeout}")
     private String dispatcherInsinkTimeout;
 
+    @Value("${external-service.dispatcher.tracker.uri}")
+    private String dispatcherTrackerUri;
+
+    @Value("${external-service.dispatcher.tracker.timeout}")
+    private String dispatcherTrackerTimeout;
+
 }

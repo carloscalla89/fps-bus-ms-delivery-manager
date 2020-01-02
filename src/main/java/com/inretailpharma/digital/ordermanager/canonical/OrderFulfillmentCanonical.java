@@ -17,6 +17,7 @@ public class OrderFulfillmentCanonical implements Serializable {
     private String leadTime;
     private BigDecimal totalAmount;
     private Integer attempt;
+    private Integer attemptTracker;
 
     // Canonical serviceType
     private ServiceTypeCanonical serviceType;

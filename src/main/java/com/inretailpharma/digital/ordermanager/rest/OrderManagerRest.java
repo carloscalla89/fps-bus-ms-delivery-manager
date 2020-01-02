@@ -54,9 +54,9 @@ public class  OrderManagerRest {
             @ApiResponse(code = 500, message = "No creado") })
     @PatchMapping("/order/{ecommerceId}")
     public ResponseEntity<?> updateStatusOrder(
-            @ApiParam(value = "ID del drugstore de la zona segun la dirección")
+            @ApiParam(value = "Identificador e-commerce")
             @PathVariable(value = "ecommerceId") String ecommerceId,
-            @ApiParam(value = "Body para actualizar la orden")
+            @ApiParam(value = "Accción a realizar de la orden")
             @RequestBody ActionDto action) {
 
         log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - action {}"

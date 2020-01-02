@@ -88,7 +88,7 @@ public class OrderProcessFacade {
 
         if (Optional.ofNullable(orderFulfillment.getTrackerCode()).isPresent()) {
             resultCanonical = orderExternalService
-                    .updateOrder(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
+                                    .updateOrder(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
 
             log.info("Action value {} ",Constant.ActionOrder.getByName(action).getCode());
 
@@ -97,19 +97,16 @@ public class OrderProcessFacade {
                 case 1:
                     Integer attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(1) + 1;
 
-                    if (Optional
-                            .ofNullable(resultCanonical.getStatus())
-                            .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                            .equals(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.getCode())) {
+                    if (Optional.ofNullable(resultCanonical.getExternalId()).isPresent()) {
 
-                        log.info("Update external id");
+                        log.info("Update success insink with external id");
 
                         orderTransaction.updateExternalPurchaseId(
                                 orderFulfillment.getTrackerCode(), resultCanonical.getExternalId()
                         );
 
                     } else {
-                        log.info("Update Reattmpt insink");
+                        log.info("Update error Reattmpt insink");
                         orderTransaction.updateReattemtpInsink(
                                 orderFulfillment.getTrackerCode(), attempt,
                                 resultCanonical.getStatus(), resultCanonical.getStatusDetail()
@@ -120,6 +117,26 @@ public class OrderProcessFacade {
 
                     break;
                 case 2:
+                    Integer attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(1) + 1;
+
+                    if (Optional.ofNullable(resultCanonical.getEcommerceId()).isPresent()) {
+
+                        log.info("Update success tracker with ecommerce id");
+
+                        orderTransaction.updatecommercePurchaseId(
+                                orderFulfillment.getTrackerCode(), resultCanonical.getExternalId()
+                        );
+
+                    } else {
+                        log.info("Update error Reattempt tracker");
+                        orderTransaction.updateReattemtpTracker(
+                                orderFulfillment.getTrackerCode(), attemptTracker,
+                                resultCanonical.getStatus(), resultCanonical.getStatusDetail()
+                        );
+                    }
+
+                    resultCanonical.setAttemptTracker(attemptTracker);
+
                     break;
 
                 default:

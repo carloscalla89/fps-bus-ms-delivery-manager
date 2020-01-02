@@ -1,4 +1,4 @@
-package com.inretailpharma.digital.ordermanager.canonical.insink;
+package com.inretailpharma.digital.ordermanager.canonical.dispatcher;
 
 import java.io.Serializable;
 

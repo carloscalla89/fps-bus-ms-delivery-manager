@@ -40,6 +40,6 @@ external-service:
       uri: http://us-dd/order/insink/{ecommerceId}
       timeout: 15000
     tracker:
-     uri: testing
+     uri: http://us-dd/order/tracker/{ecommerceId}
      timeout: 15000
 

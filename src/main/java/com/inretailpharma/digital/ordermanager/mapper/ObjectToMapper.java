@@ -106,6 +106,7 @@ public class ObjectToMapper {
             orderFulfillmentCanonical.setTotalAmount(s.getTotalAmount());
 
             orderFulfillmentCanonical.setAttempt(s.getAttempt());
+            orderFulfillmentCanonical.setAttemptTracker(s.getAttemptTracker());
         });
 
         return orderFulfillmentCanonical;
