@@ -32,7 +32,7 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
             " where order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true)
     void updateReattemtpTracker(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                               @Param("attempt") Integer attemptTracker,
+                               @Param("attemptTracker") Integer attemptTracker,
                                @Param("orderStatusCode") String orderStatusCode,
                                @Param("statusDetail") String statusDetail
     );

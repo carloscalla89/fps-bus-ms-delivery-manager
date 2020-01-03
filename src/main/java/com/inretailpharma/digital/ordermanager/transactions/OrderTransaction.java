@@ -5,6 +5,7 @@ import com.inretailpharma.digital.ordermanager.entity.*;
 import com.inretailpharma.digital.ordermanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.ordermanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.ordermanager.util.Constant;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
+@Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
 @Component
 public class OrderTransaction {
@@ -113,6 +114,9 @@ public class OrderTransaction {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateReattemtpInsink(Long orderFulfillmentId, Integer attempt,
                                       String orderStatusCode, String statusDetail){
+        log.info("[START] updateReattemtpInsink - orderFulfillmentId:{}, attempt:{}, orderStatusCode:{}, statusDetail:{}",
+                orderFulfillmentId, attempt, orderStatusCode, statusDetail);
+
         orderRepositoryService.updateReattemtpInsink(
                 orderFulfillmentId, attempt, orderStatusCode, statusDetail
         );
@@ -121,6 +125,9 @@ public class OrderTransaction {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,
                                       String orderStatusCode, String statusDetail){
+        log.info("[START] updateReattemtpTracker - orderFulfillmentId:{}, attempt:{}, orderStatusCode:{}, statusDetail:{}",
+                orderFulfillmentId, attemptTracker, orderStatusCode, statusDetail);
+
         orderRepositoryService.updateReattemtpTracker(
                 orderFulfillmentId, attemptTracker, orderStatusCode, statusDetail
         );

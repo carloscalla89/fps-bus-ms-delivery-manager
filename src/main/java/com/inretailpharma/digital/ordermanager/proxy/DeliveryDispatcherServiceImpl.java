@@ -36,68 +36,10 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     @Override
     public OrderResultCanonical updateOrder(Long ecommerceId, Constant.ActionOrder actionOrder) {
         log.info("update order actionOrder.getCode:{}", actionOrder.getCode());
-        OrderResultCanonical orderResultCanonical = new OrderResultCanonical();
+        OrderResultCanonical orderResultCanonical;
 
         switch (actionOrder.getCode()) {
             case 1:
-                InsinkResponseCanonical insinkResponseCanonical;
-                try {
-                    insinkResponseCanonical =
-                            restTemplate.getForEntity(
-                                    externalServicesProperties.getDispatcherInsinkUri().replace("{ecommerceId}", ecommerceId.toString()),
-                                    InsinkResponseCanonical.class).getBody();
-
-                } catch (RestClientException e) {
-                    String errorMessage = "Connection Error with DD: " +
-                            "Error invoking '" +
-                            externalServicesProperties.getDispatcherInsinkUri() + "':" + e.getMessage();
-                    log.error(errorMessage);
-
-                    insinkResponseCanonical = new InsinkResponseCanonical();
-                    insinkResponseCanonical.setErrorCode(Constant.InsinkErrorCode.CODE_ERROR_GENERAL);
-                    insinkResponseCanonical.setMessageDetail(errorMessage);
-                    //TODO check boolean used
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherInsinkUri() +
-                            "':" + e.getMessage();
-                    log.error(errorMessage);
-                    insinkResponseCanonical = new InsinkResponseCanonical();
-                    insinkResponseCanonical.setErrorCode(Constant.InsinkErrorCode.CODE_ERROR_CLIENT_CONNECTION);
-                    insinkResponseCanonical.setMessageDetail(errorMessage);
-                }
-
-                log.info("object insinkResponse {}",insinkResponseCanonical);
-
-
-                Optional.ofNullable(insinkResponseCanonical).ifPresent(r -> {
-                    orderResultCanonical.setExternalId(
-                            Optional
-                                    .ofNullable(r.getInkaventaId())
-                                    .map(s -> Long.parseLong(r.getInkaventaId()))
-                                    .orElse(null));
-
-
-                    orderResultCanonical.setStatusCode(
-                            Optional
-                                    .ofNullable(r.getErrorCode())
-                                    .map(s -> Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                                    .orElse(null)
-                    );
-                    orderResultCanonical.setStatus(
-                            Optional
-                                    .ofNullable(r.getErrorCode())
-                                    .map(s -> Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
-                                    .orElse(null)
-                    );
-
-                    orderResultCanonical.setStatusDetail(r.getMessageDetail());
-
-                });
-
-                break;
-
-            case 2:
                 // reattempt to send delivery dispatcher at inkatracker or inkatrackerlite
                 TrackerResponseDto trackerResponseDto = null;
 
@@ -107,15 +49,33 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                     externalServicesProperties.getDispatcherTrackerUri().replace("{ecommerceId}", ecommerceId.toString()),
                                     TrackerResponseDto.class).getBody();
 
-                    Optional.ofNullable(trackerResponseDto)
-                            .filter(r -> r.getOrderExternalId() != null)
-                            .ifPresent(r -> orderResultCanonical.setEcommerceId(r.getOrderExternalId()));
+                    orderResultCanonical = Optional
+                                                .ofNullable(trackerResponseDto)
+                                                .filter(r -> r.getOrderExternalId() != null)
+                                                .map(r -> {
+                                                    OrderResultCanonical resultCanonical = new OrderResultCanonical();
+                                                    resultCanonical.setEcommerceId(r.getOrderExternalId());
+                                                    return resultCanonical;
+                                                }).orElseGet(() -> {
+                                                    OrderResultCanonical resultCanonical = new OrderResultCanonical();
+                                                    resultCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                                                    resultCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
 
+                                                    return resultCanonical;
+                                                });
+
+                    orderResultCanonical.setStatusDetail(
+                            Optional
+                                    .ofNullable(trackerResponseDto)
+                                    .map(TrackerResponseDto::getDetail)
+                                    .orElse(null)
+                    );
                 } catch (RestClientException e) {
                     String errorMessage = "Connection Error with DD: " +
                             "Error invoking '" +
                             externalServicesProperties.getDispatcherInsinkUri() + "':" + e.getMessage();
                     log.error(errorMessage);
+                    orderResultCanonical = new OrderResultCanonical();
                     orderResultCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
                     orderResultCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
                     orderResultCanonical.setStatusDetail(errorMessage);
@@ -126,17 +86,75 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                     String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherTrackerUri() +
                             "':" + e.getMessage();
                     log.error(errorMessage);
+                    orderResultCanonical = new OrderResultCanonical();
                     orderResultCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
                     orderResultCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
                     orderResultCanonical.setStatusDetail(errorMessage);
                 }
 
-                log.info("object TrackerResponse {}",trackerResponseDto);
+                log.info("object TrackerResponse {}", trackerResponseDto);
 
+                break;
+
+            case 2:
+                InsinkResponseCanonical insinkResponseCanonical;
+                try {
+                    insinkResponseCanonical =
+                            restTemplate.getForEntity(
+                                    externalServicesProperties.getDispatcherInsinkUri().replace("{ecommerceId}", ecommerceId.toString()),
+                                    InsinkResponseCanonical.class).getBody();
+
+
+                    orderResultCanonical = Optional
+                                                .ofNullable(insinkResponseCanonical)
+                                                .filter(r -> (r.getErrorCode() == null && r.getInkaventaId() != null))
+                                                .map(r -> {
+                                                    OrderResultCanonical resultCanonical = new OrderResultCanonical();
+                                                    resultCanonical.setExternalId(Long.parseLong(r.getInkaventaId()));
+                                                    return resultCanonical;
+                                                }).orElseGet(() -> {
+                                                    OrderResultCanonical resultCanonical = new OrderResultCanonical();
+                                                    resultCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                                                    resultCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                                                    return resultCanonical;
+                                                });
+
+                    orderResultCanonical.setStatusDetail(
+                            Optional
+                                    .ofNullable(insinkResponseCanonical)
+                                    .filter(r -> r.getErrorCode() != null)
+                                    .map(InsinkResponseCanonical::getMessageDetail)
+                                    .orElse(null)
+                    );
+
+                } catch (RestClientException e) {
+                    String errorMessage = "Connection Error with DD: " +
+                            "Error invoking '" +
+                            externalServicesProperties.getDispatcherInsinkUri() + "':" + e.getMessage();
+                    log.error(errorMessage);
+
+                    orderResultCanonical = new OrderResultCanonical();
+                    orderResultCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                    orderResultCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                    orderResultCanonical.setStatusDetail(errorMessage);
+                    //TODO check boolean used
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherInsinkUri() +
+                            "':" + e.getMessage();
+                    log.error(errorMessage);
+                    orderResultCanonical = new OrderResultCanonical();
+                    orderResultCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                    orderResultCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                    orderResultCanonical.setStatusDetail(errorMessage);
+                }
+
+                log.info("object insinkResponse {}", orderResultCanonical);
 
                 break;
 
             default:
+                orderResultCanonical = new OrderResultCanonical();
                 orderResultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
                 orderResultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
                 break;

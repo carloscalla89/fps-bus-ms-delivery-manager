@@ -95,29 +95,7 @@ public class OrderProcessFacade {
             switch (Constant.ActionOrder.getByName(action).getCode()) {
 
                 case 1:
-                    Integer attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(1) + 1;
-
-                    if (Optional.ofNullable(resultCanonical.getExternalId()).isPresent()) {
-
-                        log.info("Update success insink with external id");
-
-                        orderTransaction.updateExternalPurchaseId(
-                                orderFulfillment.getTrackerCode(), resultCanonical.getExternalId()
-                        );
-
-                    } else {
-                        log.info("Update error Reattmpt insink");
-                        orderTransaction.updateReattemtpInsink(
-                                orderFulfillment.getTrackerCode(), attempt,
-                                resultCanonical.getStatus(), resultCanonical.getStatusDetail()
-                        );
-                    }
-
-                    resultCanonical.setAttempt(attempt);
-
-                    break;
-                case 2:
-                    Integer attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(1) + 1;
+                    Integer attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
 
                     if (Optional.ofNullable(resultCanonical.getEcommerceId()).isPresent()) {
 
@@ -131,11 +109,33 @@ public class OrderProcessFacade {
                         log.info("Update error Reattempt tracker");
                         orderTransaction.updateReattemtpTracker(
                                 orderFulfillment.getTrackerCode(), attemptTracker,
-                                resultCanonical.getStatus(), resultCanonical.getStatusDetail()
+                                resultCanonical.getStatusCode(), resultCanonical.getStatusDetail()
                         );
                     }
 
                     resultCanonical.setAttemptTracker(attemptTracker);
+
+                    break;
+                case 2:
+                    Integer attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(0) + 1;
+
+                    if (Optional.ofNullable(resultCanonical.getExternalId()).isPresent()) {
+
+                        log.info("Update success insink with external id");
+
+                        orderTransaction.updateExternalPurchaseId(
+                                orderFulfillment.getTrackerCode(), resultCanonical.getExternalId()
+                        );
+
+                    } else {
+                        log.info("Update error Reattmpt insink");
+                        orderTransaction.updateReattemtpInsink(
+                                orderFulfillment.getTrackerCode(), attempt,
+                                resultCanonical.getStatusCode(), resultCanonical.getStatusDetail()
+                        );
+                    }
+
+                    resultCanonical.setAttempt(attempt);
 
                     break;
 

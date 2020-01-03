@@ -32,7 +32,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
     OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 
-    @Query(value = "select o.ecommerce_purchase_id as orderId, " +
+    @Query(value = "select o.id as orderId, " +
             "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
             "st.code as serviceTypeCode, st.name as serviceTypeName " +
             "from order_fulfillment o " +
@@ -50,14 +50,14 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             " where order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true)
     void updateExternalPurchaseId(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                  @Param("externalPurchaseId") Long externalPurchase
+                                  @Param("externalPurchaseId") Long externalPurchaseId
     );
 
     @Modifying
     @Transactional
     @Query(value = "Update order_fulfillment " +
-            " set ecommerce_purchase_id = :externalPurchaseId " +
-            " where order_fulfillment_id = :ecommercePurchaseId",
+            " set ecommerce_purchase_id = :ecommercePurchaseId " +
+            " where order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true)
     void updatecommercePurchaseId(@Param("orderFulfillmentId") Long orderFulfillmentId,
                                   @Param("ecommercePurchaseId") Long ecommercePurchaseId

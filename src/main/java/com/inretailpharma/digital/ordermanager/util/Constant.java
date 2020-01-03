@@ -12,8 +12,9 @@ public interface Constant {
     }
 
     enum ActionOrder {
-        ATTEMPT_INSINK_CREATE(1),
-        ATTEMP_TRACKER_CREATE(2),
+
+        ATTEMPT_TRACKER_CREATE(1),
+        ATTEMPT_INSINK_CREATE(2),
         UPDATE_ORDER(3),
         CANCEL_ORDER(4),
         RELEASE_ORDER(5),
@@ -56,6 +57,7 @@ public interface Constant {
 
         NOT_FOUND_CODE("-1"),
         NOT_FOUND_ORDER("-1"),
+        NOT_DEFINED_ERROR("-1"),
         NOT_FOUND_ACTION("-1");
 
         private String code;
