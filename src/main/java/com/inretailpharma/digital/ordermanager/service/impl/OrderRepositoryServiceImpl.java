@@ -78,6 +78,13 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,
+                                          Integer attempt, String orderStatusCode, String statusDetail) {
+        serviceLocalOrderRepository.updateRetryingOrderStatusProcess(orderFulfillmentId, attemptTracker, attempt,
+                orderStatusCode, statusDetail);
+    }
+
+    @Override
     public void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,
                                        String orderStatusCode, String statusDetail) {
         serviceLocalOrderRepository.updateReattemtpTracker(orderFulfillmentId, attemptTracker,
@@ -90,8 +97,14 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public void updatecommercePurchaseId(Long orderFulfillmentId, Long externalPurchaseId) {
-        orderRepository.updatecommercePurchaseId(orderFulfillmentId, externalPurchaseId);
+    public void updateTrackerId(Long orderFulfillmentId, Long trackerId) {
+        orderRepository.updateTrackerId(orderFulfillmentId, trackerId);
+    }
+
+    @Override
+    public void updateExternalAndTrackerId(Long orderFulfillmentId, Long externalPurchaseId,
+                                                     Long ecommerceId) {
+        orderRepository.updateExternalAndTrackerId(orderFulfillmentId, externalPurchaseId, ecommerceId);
     }
 
 }

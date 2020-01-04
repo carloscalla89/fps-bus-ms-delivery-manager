@@ -9,8 +9,9 @@ import java.math.BigDecimal;
 public class OrderFulfillmentCanonical implements Serializable {
 
     // Canonical data order
-    private Long trackerCode;
+    private Long id;
     private Long ecommerceId;
+    private Long trackerId;
     private Long externalId;
     private String clientFullName;
     private String documentNumber;

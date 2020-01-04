@@ -21,6 +21,7 @@ public class ObjectToMapper {
         OrderFulfillment orderFulfillment = new OrderFulfillment();
         orderFulfillment.setSource(orderDto.getSource());
         orderFulfillment.setEcommercePurchaseId(orderDto.getEcommercePurchaseId());
+        orderFulfillment.setTrackerId(orderDto.getTrackerId());
         orderFulfillment.setExternalPurchaseId(orderDto.getExternalPurchaseId());
         orderFulfillment.setBridgePurchaseId(orderDto.getBridgePurchaseId());
         orderFulfillment.setTotalCost(orderDto.getTotalCost());
@@ -77,7 +78,7 @@ public class ObjectToMapper {
         OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
 
         Optional.ofNullable(iOrderFulfillment).ifPresent(s -> {
-            orderFulfillmentCanonical.setTrackerCode(s.getOrderId());
+            orderFulfillmentCanonical.setId(s.getOrderId());
 
             Optional.ofNullable(s.getStatus()).ifPresent(r -> {
                 Constant.OrderStatus orderStatus = Constant.OrderStatus.getByCode(r);
@@ -117,8 +118,17 @@ public class ObjectToMapper {
         OrderFulfillment orderFulfillment = serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderFulfillment();
         OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
 
-        // set tracker code
-        orderFulfillmentCanonical.setTrackerCode(orderFulfillment.getId());
+        // set id
+        orderFulfillmentCanonical.setId(orderFulfillment.getId());
+
+        // set ecommerce(shoppingcart) id
+        orderFulfillmentCanonical.setEcommerceId(orderFulfillment.getEcommercePurchaseId());
+
+        // set tracker id
+        orderFulfillmentCanonical.setTrackerId(orderFulfillment.getTrackerId());
+
+        // Set insink id
+        orderFulfillmentCanonical.setExternalId(orderFulfillment.getExternalPurchaseId());
 
         // set status
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
@@ -134,8 +144,7 @@ public class ObjectToMapper {
         orderFulfillmentCanonical.setLocal(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getName());
         orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(orderFulfillment.getScheduledTime()));
         orderFulfillmentCanonical.setDocumentNumber(orderFulfillment.getDocumentNumber());
-        orderFulfillmentCanonical.setEcommerceId(orderFulfillment.getEcommercePurchaseId());
-        orderFulfillmentCanonical.setExternalId(orderFulfillment.getExternalPurchaseId());
+
 
         // Payment method canonical
         PaymentMethodCanonical paymentMethodCanonical = new PaymentMethodCanonical();

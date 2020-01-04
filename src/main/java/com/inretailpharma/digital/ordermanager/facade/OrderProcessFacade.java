@@ -77,6 +77,8 @@ public class OrderProcessFacade {
     public OrderResultCanonical getUpdateOrder(String action, String ecommerceId) {
         log.info("[START] getUpdateOrder action:{}",action);
 
+        int attemptTracker;
+        int attempt;
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
         OrderResultCanonical resultCanonical;
 
@@ -86,60 +88,78 @@ public class OrderProcessFacade {
                                 orderTransaction.getOrderByecommerceId(ecommercePurchaseId)
                         );
 
-        if (Optional.ofNullable(orderFulfillment.getTrackerCode()).isPresent()) {
+        if (Optional.ofNullable(orderFulfillment.getId()).isPresent()) {
             resultCanonical = orderExternalService
-                                    .updateOrder(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
+                                    .getResultfromExternalServices(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
 
             log.info("Action value {} ",Constant.ActionOrder.getByName(action).getCode());
 
             switch (Constant.ActionOrder.getByName(action).getCode()) {
 
                 case 1:
-                    Integer attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
+                    attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
+
+                    orderTransaction.updateOrderRetryingTracker(
+                            orderFulfillment.getId(), attemptTracker,
+                            resultCanonical.getStatusCode(), resultCanonical.getStatusDetail(),
+                            Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
+                    );
+                    /*
 
                     if (Optional.ofNullable(resultCanonical.getEcommerceId()).isPresent()) {
 
                         log.info("Update success tracker with ecommerce id");
 
                         orderTransaction.updatecommercePurchaseId(
-                                orderFulfillment.getTrackerCode(), resultCanonical.getExternalId()
+                                orderFulfillment.getOrderFulfillmentId(), resultCanonical.getExternalId()
                         );
 
                     } else {
                         log.info("Update error Reattempt tracker");
                         orderTransaction.updateReattemtpTracker(
-                                orderFulfillment.getTrackerCode(), attemptTracker,
+                                orderFulfillment.getOrderFulfillmentId(), attemptTracker,
                                 resultCanonical.getStatusCode(), resultCanonical.getStatusDetail()
                         );
                     }
 
                     resultCanonical.setAttemptTracker(attemptTracker);
-
+                    */
                     break;
                 case 2:
-                    Integer attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(0) + 1;
+                    attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(0) + 1;
+                    attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
 
-                    if (Optional.ofNullable(resultCanonical.getExternalId()).isPresent()) {
+                    orderTransaction.updateOrderRetrying(
+                            orderFulfillment.getId(), attempt, attemptTracker,
+                            resultCanonical.getStatusCode(), resultCanonical.getStatusDetail(),
+                            Optional.ofNullable(resultCanonical.getExternalId()).orElse(null),
+                            Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
+                    );
 
-                        log.info("Update success insink with external id");
+                    /*
+                    if (Optional.ofNullable(resultCanonical.getExternalId()).isPresent()
+                            && Optional.ofNullable(resultCanonical.getEcommerceId()).isPresent()) {
+
+                        log.info("Update success insink and tracker process");
 
                         orderTransaction.updateExternalPurchaseId(
-                                orderFulfillment.getTrackerCode(), resultCanonical.getExternalId()
+                                orderFulfillment.getOrderFulfillmentId(), resultCanonical.getExternalId()
                         );
 
                     } else {
                         log.info("Update error Reattmpt insink");
                         orderTransaction.updateReattemtpInsink(
-                                orderFulfillment.getTrackerCode(), attempt,
+                                orderFulfillment.getOrderFulfillmentId(), attempt,
                                 resultCanonical.getStatusCode(), resultCanonical.getStatusDetail()
                         );
                     }
 
                     resultCanonical.setAttempt(attempt);
-
+                    */
                     break;
 
                 default:
+                    resultCanonical = new OrderResultCanonical();
                     resultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
                     resultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
                     break;

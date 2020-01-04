@@ -15,11 +15,11 @@ public class ExternalServicesProperties {
     @Value("${external-service.audit.time-out}")
     private Integer timeout;
 
-    @Value("${external-service.dispatcher.insink.uri}")
-    private String dispatcherInsinkUri;
+    @Value("${external-service.dispatcher.insink-tracker.uri}")
+    private String dispatcherInsinkTrackerUri;
 
-    @Value("${external-service.dispatcher.insink.timeout}")
-    private String dispatcherInsinkTimeout;
+    @Value("${external-service.dispatcher.insink-tracker.timeout}")
+    private String dispatcherInsinkTrackerTimeout;
 
     @Value("${external-service.dispatcher.tracker.uri}")
     private String dispatcherTrackerUri;

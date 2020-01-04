@@ -33,9 +33,10 @@ public class OrderAuditServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public OrderResultCanonical updateOrder(Long ecommerceId, Constant.ActionOrder actionOrder) {
+    public OrderResultCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
         return null;
     }
+
 
     private ClientHttpRequestFactory getClientHttpRequestFactory() {
 

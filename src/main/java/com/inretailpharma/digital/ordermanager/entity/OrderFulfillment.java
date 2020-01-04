@@ -29,6 +29,9 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="ecommerce_purchase_id")
     private Long ecommercePurchaseId;
 
+    @Column(name="tracker_id")
+    private Long trackerId;
+
     @Column(name="external_purchase_id")
     private Long externalPurchaseId;
 

@@ -45,15 +45,14 @@ public interface Constant {
     enum OrderStatus {
 
         FULFILLMENT_PROCESS_SUCCESS("00"),
+
         ERROR_INSERT_TRACKER("01"),
         ERROR_INSERT_INKAVENTA("02"),
         ERROR_RELEASE_ORDER("03"),
+        ERROR_RESERVED_ORDER("04"),
 
-        SUCCESS_TRACKED_BILLED_ORDER("08"),
-        SUCCESS_RESERVED_ORDER("09"),
-        ERROR_SEND_TRACK_RESERVED_ORDER("10"),
-        ERROR_RESERVED_ORDER("11"),
-        SUCCESS_INSERT_ORDER_MANAGER("12"),
+        SUCCESS_RESERVED_ORDER("10"),
+
 
         NOT_FOUND_CODE("-1"),
         NOT_FOUND_ORDER("-1"),

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class OrderResultCanonical {
-    private Long ecommerceId;
+    private Long trackerId;
     private Long externalId;
     private String statusCode;
     private String status;

@@ -7,6 +7,6 @@ import com.inretailpharma.digital.ordermanager.util.Constant;
 public interface OrderExternalService {
 
     void sendOrder(OrderFulfillmentCanonical orderAuditCanonical);
-    OrderResultCanonical updateOrder(Long ecommerceId, Constant.ActionOrder actionOrder);
+    OrderResultCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder);
 
 }

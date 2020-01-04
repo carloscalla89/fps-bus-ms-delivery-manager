@@ -37,4 +37,19 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
                                @Param("statusDetail") String statusDetail
     );
 
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_process_status " +
+            " set attempt_tracker = :attemptTracker, attempt = :attempt, " +
+            " order_status_code = :orderStatusCode, status_detail = :statusDetail " +
+            " where order_fulfillment_id = :orderFulfillmentId",
+            nativeQuery = true)
+    void updateRetryingOrderStatusProcess(@Param("orderFulfillmentId") Long orderFulfillmentId,
+                            @Param("attemptTracker") Integer attemptTracker,
+                            @Param("attempt") Integer attempt,
+                            @Param("orderStatusCode") String orderStatusCode,
+                            @Param("statusDetail") String statusDetail
+    );
+
 }

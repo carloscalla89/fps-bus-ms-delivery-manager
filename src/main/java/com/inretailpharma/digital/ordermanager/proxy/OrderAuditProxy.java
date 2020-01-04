@@ -29,7 +29,7 @@ public class OrderAuditProxy implements OrderExternalService {
     }
 
     @Override
-    public OrderResultCanonical updateOrder(Long ecommerceId, Constant.ActionOrder actionOrder) {
+    public OrderResultCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
         return null;
     }
 
