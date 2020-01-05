@@ -36,8 +36,8 @@ external-service:
     create-order: http://us-audit/audit/order
     time-out: 20000
   dispatcher:
-    insink:
-      uri: http://us-dd/order/insink/{ecommerceId}
+    insink-tracker:
+      uri: http://us-dd/order/insink-tracker/{ecommerceId}
       timeout: 15000
     tracker:
      uri: http://us-dd/order/tracker/{ecommerceId}
