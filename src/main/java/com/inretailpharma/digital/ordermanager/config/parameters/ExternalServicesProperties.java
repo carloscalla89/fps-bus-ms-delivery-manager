@@ -18,13 +18,19 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.insink-tracker.uri}")
     private String dispatcherInsinkTrackerUri;
 
-    @Value("${external-service.dispatcher.insink-tracker.timeout}")
-    private String dispatcherInsinkTrackerTimeout;
+    @Value("${external-service.dispatcher.insink-tracker.connect-timeout}")
+    private String dispatcherInsinkTrackerConnectTimeout;
+
+    @Value("${external-service.dispatcher.insink-tracker.read-timeout}")
+    private String dispatcherInsinkTrackerReadTimeout;
 
     @Value("${external-service.dispatcher.tracker.uri}")
     private String dispatcherTrackerUri;
 
-    @Value("${external-service.dispatcher.tracker.timeout}")
-    private String dispatcherTrackerTimeout;
+    @Value("${external-service.dispatcher.tracker.connect-timeout}")
+    private String dispatcherTrackerConnectTimeout;
+
+    @Value("${external-service.dispatcher.tracker.read-timeout}")
+    private String dispatcherTrackerReadTimeout;
 
 }

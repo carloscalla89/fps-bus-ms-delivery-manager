@@ -38,8 +38,10 @@ external-service:
   dispatcher:
     insink-tracker:
       uri: http://us-dd/order/insink-tracker/{ecommerceId}
-      timeout: 15000
+      connect-timeout: 10000
+      read-timeout: 120000
     tracker:
      uri: http://us-dd/order/tracker/{ecommerceId}
-     timeout: 15000
+     connect-timeout: 10000
+     read-timeout: 120000
 

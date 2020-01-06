@@ -17,30 +17,27 @@ import java.time.Duration;
         ExternalServicesProperties.class
 })
 public class OrderManagerConfig {
-/*
+
     @Autowired
     private ExternalServicesProperties externalServicesProperties;
 
 
- */
+
     @Bean(name = "dispatcherRestTemplate")
     public RestTemplate createExternalRestTemplate(RestTemplateBuilder builder) {
-/*
+
         return builder
                 .setConnectTimeout(
-                        Duration.ofSeconds(
-                                Long.parseLong(externalServicesProperties.getDispatcherInsinkTimeout())
+                        Duration.ofMillis(
+                                Long.parseLong(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout())
+
                         )
                 )
                 .setReadTimeout(
-                        Duration.ofSeconds(
-                                Long.parseLong(externalServicesProperties.getDispatcherInsinkTimeout())
+                        Duration.ofMillis(
+                                Long.parseLong(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
                         )
                 ).build();
-
- */
-    return builder.build();
-
     }
 
 
