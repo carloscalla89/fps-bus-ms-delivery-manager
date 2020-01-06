@@ -1,26 +1,11 @@
 package com.inretailpharma.digital.ordermanager.config;
 
-
-import com.inretailpharma.digital.ordermanager.dto.OrderDto;
-import com.inretailpharma.digital.ordermanager.events.deserializer.OrderCallBackDeserializer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.ContainerProperties;
 
-import java.util.*;
 
 @Configuration
 public class KafkaConsumerConfig {
-
+/*
     @Value("${spring.kafka.producer.bootstrap-servers}")
     private String kafkaServers;
 
@@ -65,4 +50,6 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
+
+ */
 }

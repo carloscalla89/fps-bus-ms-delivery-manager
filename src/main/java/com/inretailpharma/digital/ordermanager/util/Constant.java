@@ -15,9 +15,9 @@ public interface Constant {
 
         ATTEMPT_TRACKER_CREATE(1),
         ATTEMPT_INSINK_CREATE(2),
-        UPDATE_ORDER(3),
-        CANCEL_ORDER(4),
-        RELEASE_ORDER(5),
+        RELEASE_ORDER(3),
+        UPDATE_ORDER(4),
+        CANCEL_ORDER(5),
         CREATE_ORDER(6),
         RESERVE_ORDER(7),
         NONE(0);
@@ -50,6 +50,7 @@ public interface Constant {
         ERROR_INSERT_INKAVENTA("02"),
         ERROR_RELEASE_ORDER("03"),
         ERROR_RESERVED_ORDER("04"),
+        ERROR_TO_RELEASE_ORDER("05"),
 
         SUCCESS_RESERVED_ORDER("10"),
 

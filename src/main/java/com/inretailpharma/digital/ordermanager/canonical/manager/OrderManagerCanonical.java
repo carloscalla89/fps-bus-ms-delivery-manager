@@ -1,9 +1,11 @@
-package com.inretailpharma.digital.ordermanager.canonical.management;
+package com.inretailpharma.digital.ordermanager.canonical.manager;
 
 import lombok.Data;
 
 @Data
-public class OrderResultCanonical {
+public class OrderManagerCanonical {
+
+    private Long ecommerceId;
     private Long trackerId;
     private Long externalId;
     private String statusCode;

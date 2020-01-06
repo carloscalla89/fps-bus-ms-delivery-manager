@@ -7,6 +7,9 @@ public interface IOrderFulfillment {
 
     String getCompany();
     Long getOrderId();
+    Long getTrackerId();
+    Long getExternalId();
+
     String getLocalCode();
     String getLocal();
     String getStatusCode();

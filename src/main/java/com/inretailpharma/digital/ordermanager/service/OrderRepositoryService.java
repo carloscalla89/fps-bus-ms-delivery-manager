@@ -17,13 +17,14 @@ public interface OrderRepositoryService {
     ServiceLocalOrder saveServiceLocalOrder(ServiceLocalOrder serviceLocalOrder);
     List<IOrderFulfillment> getListOrdersByStatus(Set<String> status);
     IOrderFulfillment getOrderByecommerceId(Long ecommerceId);
-    void updateReattemtpInsink(Long orderFulfillmentId, Integer attempt,
-                               String orderStatusCode, String statusDetail);
     void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,
                                    Integer attempt, String orderStatusCode, String statusDetail);
     void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,
                                String orderStatusCode, String statusDetail);
-    void updateExternalPurchaseId(Long orderFulfillmentId, Long externalPurchaseId);
     void updateTrackerId(Long orderFulfillmentId, Long trackerId);
     void updateExternalAndTrackerId(Long orderFulfillmentId, Long externalPurchaseId, Long trackerId);
+
+    void updateExternalIdToReservedOrder(Long orderFulfillmentId, Long externalPurchaseId);
+    void updateStatusToReservedOrder(Long orderFulfillmentId, Integer attempt, String orderStatusCode,
+                                     String statusDetail);
 }

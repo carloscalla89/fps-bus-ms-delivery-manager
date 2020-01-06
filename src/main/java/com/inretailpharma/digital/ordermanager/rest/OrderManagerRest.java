@@ -2,6 +2,7 @@ package com.inretailpharma.digital.ordermanager.rest;
 
 import com.inretailpharma.digital.ordermanager.dto.ActionDto;
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
+import com.inretailpharma.digital.ordermanager.dto.ReservedOrderDto;
 import com.inretailpharma.digital.ordermanager.facade.OrderProcessFacade;
 import io.swagger.annotations.*;
 
@@ -48,7 +49,23 @@ public class  OrderManagerRest {
         return new ResponseEntity<>(orderProcessFacade.createOrder(orderDto), HttpStatus.CREATED);
      }
 
-    @ApiOperation(value = "Crea una orden en el entonor fulfillment", tags = { "Controlador OrderManagers" })
+
+    @ApiOperation(value = "Actualiza el resultado de liberar una orden reservada")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Actualización satisfactoria", response = OrderDto.class),
+            @ApiResponse(code = 500, message = "No creado") })
+    @PatchMapping("/order/reserved/{ecommerceId}")
+    public ResponseEntity<?> updateReleaseOrder(@ApiParam(value = "Identificador e-commerce")
+                                                @PathVariable(value = "ecommerceId") String ecommerceId,
+                                                @RequestBody ReservedOrderDto reservedOrderDto) {
+        log.info("[START] endpoint /fulfillment/order/{} - reservedOrderDto:{}",ecommerceId,reservedOrderDto);
+        return new ResponseEntity<>(orderProcessFacade.releaseReservedOrder(ecommerceId, reservedOrderDto), HttpStatus.CREATED);
+    }
+
+
+
+
+    @ApiOperation(value = "Actualizar una orden en el dominio fulfillment segun una acción a realizar", tags = { "Controlador OrderManagers" })
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "ordermanager creado", response = OrderDto.class),
             @ApiResponse(code = 500, message = "No creado") })
@@ -62,8 +79,10 @@ public class  OrderManagerRest {
         log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - action {}"
                 ,ecommerceId,action);
 
-        return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(action.getAction().name(), ecommerceId), HttpStatus.OK);
+        return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(action.getAction().name(), ecommerceId, null, null), HttpStatus.OK);
     }
+
+
 
     @ApiOperation(value = "Listar ordenes con error", tags = { "Controlador OrderManagers" })
     @ApiResponses(value = { //

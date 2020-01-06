@@ -5,5 +5,6 @@ import lombok.Data;
 
 @Data
 public class ActionDto {
+
     private Constant.ActionOrder action;
 }

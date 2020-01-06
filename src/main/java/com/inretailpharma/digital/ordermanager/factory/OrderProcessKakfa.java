@@ -3,7 +3,6 @@ package com.inretailpharma.digital.ordermanager.factory;
 import com.inretailpharma.digital.ordermanager.dto.OrderDto;
 import com.inretailpharma.digital.ordermanager.service.IConsumerService;
 import com.inretailpharma.digital.ordermanager.service.IPublisherService;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,10 +24,11 @@ public class OrderProcessKakfa extends OrderProcess {
         iPublisherService.sendOrder(orderDto);
     }
 
+/*
     @Override
     public void receiver(OrderDto orderDto, Acknowledgment acknowledgment) {
         iConsumerService.receiverOrderCallback(orderDto, acknowledgment);
     }
-
+*/
 
 }

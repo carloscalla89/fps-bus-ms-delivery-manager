@@ -112,18 +112,6 @@ public class OrderTransaction {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateReattemtpInsink(Long orderFulfillmentId, Integer attempt,
-                                      String orderStatusCode, String statusDetail){
-        log.info("[START] updateReattemtpInsink - orderFulfillmentId:{}, attempt:{}, orderStatusCode:{}, statusDetail:{}",
-                orderFulfillmentId, attempt, orderStatusCode, statusDetail);
-
-        orderRepositoryService.updateReattemtpInsink(
-                orderFulfillmentId, attempt, orderStatusCode, statusDetail
-        );
-    }
-
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateOrderRetrying(Long orderFulfillmentId, Integer attempt, Integer attemptTracker,
                                     String orderStatusCode, String statusDetail, Long externalPurchaseId,
                                     Long trackerId){
@@ -154,23 +142,17 @@ public class OrderTransaction {
                 orderFulfillmentId, attemptTracker, orderStatusCode, statusDetail
         );
     }
-/*
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateExternalPurchaseId(Long orderFulfillmentId, Long externalPurchaseId) {
-        orderRepositoryService.updateExternalPurchaseId(orderFulfillmentId, externalPurchaseId);
-    }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updatecommercePurchaseId(Long orderFulfillmentId, Long ecommercePurchaseId) {
-        orderRepositoryService.updatecommercePurchaseId(orderFulfillmentId, ecommercePurchaseId);
+    public void updateReservedOrder(Long orderFulfillmentId, Long externalPurchaseId, Integer attempt, String orderStatusCode,
+                                    String statusDetail) {
+        log.info("[START] updateReservedOrder - orderFulfillmentId:{} - externalPurchaseId:{} , attempt:{}, " +
+                        "orderStatusCode:{}, statusDetail:{}",
+                orderFulfillmentId, externalPurchaseId, attempt, orderStatusCode, statusDetail);
+
+        orderRepositoryService.updateExternalIdToReservedOrder(orderFulfillmentId, externalPurchaseId);
+
+        orderRepositoryService.updateStatusToReservedOrder(orderFulfillmentId, attempt, orderStatusCode, statusDetail);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateExternalAndEcommercePurchaseId(Long orderFulfillmentId,
-                                                     Long externalPurchaseId,
-                                                     Long ecommercePurchaseId) {
-        orderRepositoryService.updateExternalAndEcommercePurchaseId(orderFulfillmentId, externalPurchaseId, ecommercePurchaseId);
-    }
-
- */
 }

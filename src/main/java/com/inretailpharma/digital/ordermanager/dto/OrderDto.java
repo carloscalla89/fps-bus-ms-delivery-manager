@@ -22,9 +22,10 @@ public class OrderDto {
     private Long trackerId;
     private Long externalPurchaseId;
     private Long bridgePurchaseId;
-    private OrderStatusDto orderStatusDto;
     private BigDecimal deliveryCost;
     private BigDecimal totalCost;
+
+    private OrderStatusDto orderStatusDto;
 
     private ClientDto client;
 

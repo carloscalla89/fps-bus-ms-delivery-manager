@@ -79,6 +79,8 @@ public class ObjectToMapper {
 
         Optional.ofNullable(iOrderFulfillment).ifPresent(s -> {
             orderFulfillmentCanonical.setId(s.getOrderId());
+            orderFulfillmentCanonical.setTrackerId(s.getTrackerId());
+            orderFulfillmentCanonical.setExternalId(s.getExternalId());
 
             Optional.ofNullable(s.getStatus()).ifPresent(r -> {
                 Constant.OrderStatus orderStatus = Constant.OrderStatus.getByCode(r);
