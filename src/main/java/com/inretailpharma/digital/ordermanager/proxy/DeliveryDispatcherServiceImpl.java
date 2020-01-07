@@ -46,7 +46,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
         switch (actionOrder.getCode()) {
             case 1:
-                // reattempt to send delivery dispatcher at inkatracker or inkatrackerlite
+                // reattempt to send from delivery dispatcher at inkatracker or inkatrackerlite
                 TrackerResponseDto trackerResponseDto = null;
 
                 try {
@@ -107,7 +107,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                 break;
 
             case 2:
-                // reattempt to send delivery dispatcher at insink
+                // reattempt to send from delivery dispatcher at insink
                 TrackerInsinkResponseCanonical trackerInsinkResponseCanonical;
                 try {
                     log.info("Starting Connect Dispatcher uri action id 2: {}",
