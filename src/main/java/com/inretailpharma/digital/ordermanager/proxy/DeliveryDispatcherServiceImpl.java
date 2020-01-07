@@ -199,6 +199,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                 break;
         }
 
+        orderManagerCanonical.setEcommerceId(ecommerceId);
         log.info("object parse order result {}", orderManagerCanonical);
 
         return orderManagerCanonical;
