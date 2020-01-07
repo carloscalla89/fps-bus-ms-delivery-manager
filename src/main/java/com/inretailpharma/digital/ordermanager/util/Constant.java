@@ -48,9 +48,9 @@ public interface Constant {
 
         ERROR_INSERT_TRACKER("01"),
         ERROR_INSERT_INKAVENTA("02"),
-        ERROR_RELEASE_ORDER("03"),
-        ERROR_RESERVED_ORDER("04"),
-        ERROR_TO_RELEASE_ORDER("05"),
+        ERROR_RESERVED_ORDER("03"),
+        ERROR_RELEASE_ORDER("04"),
+
 
         SUCCESS_RESERVED_ORDER("10"),
 

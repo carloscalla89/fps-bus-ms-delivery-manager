@@ -141,7 +141,7 @@ public class OrderProcessFacade {
                     log.info("Start to update reserved order");
                     Constant.OrderStatus status =  Optional.ofNullable(externalId)
                             .map(r -> Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS)
-                            .orElse(Constant.OrderStatus.ERROR_TO_RELEASE_ORDER);
+                            .orElse(Constant.OrderStatus.ERROR_RELEASE_ORDER);
 
 
 
@@ -155,6 +155,8 @@ public class OrderProcessFacade {
                     );
 
                     resultCanonical = new OrderManagerCanonical();
+
+                    resultCanonical.setEcommerceId(orderFulfillment.getEcommerceId());
                     resultCanonical.setStatusCode(status.getCode());
                     resultCanonical.setStatus(status.name());
                     resultCanonical.setExternalId(Optional.ofNullable(externalId).map(Long::parseLong).orElse(null));
