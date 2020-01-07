@@ -94,14 +94,10 @@ public class OrderTransaction {
 
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
-        } else if (orderDto.getExternalPurchaseId() != null){
-            orderStatus =  orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-
-        } else if (orderDto.getTrackerId() != null) {
-
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-        } else {
+        } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+        } else {
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
         }
 
         serviceLocalOrderIdentity.setOrderStatus(orderStatus);
