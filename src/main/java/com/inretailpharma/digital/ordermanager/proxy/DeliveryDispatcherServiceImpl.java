@@ -73,7 +73,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                             .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER);
 
                                                     resultCanonical.setStatusCode(orderStatus.getCode());
-                                                    resultCanonical.setStatusDescription(orderStatus.name());
+                                                    resultCanonical.setStatus(orderStatus.name());
                                                     return resultCanonical;
                                                 }).orElseGet(() -> {
                                                     OrderManagerCanonical resultCanonical = new OrderManagerCanonical();
@@ -143,7 +143,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                                 .orElse(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS);
 
                                                         resultCanonical.setStatusCode(orderStatus.getCode());
-                                                        resultCanonical.setStatusDescription(orderStatus.name());
+                                                        resultCanonical.setStatus(orderStatus.name());
 
                                                     } else if (r.getInsinkProcess() && !r.getTrackerProcess()) {
                                                         resultCanonical.setExternalId(
