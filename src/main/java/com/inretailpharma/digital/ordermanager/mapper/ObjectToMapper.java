@@ -141,11 +141,20 @@ public class ObjectToMapper {
         orderStatus.setStatusDetail(serviceLocalOrderEntity.getStatusDetail());
         orderFulfillmentCanonical.setOrderStatus(orderStatus);
 
-        orderFulfillmentCanonical.setTotalAmount(orderFulfillment.getTotalCost());
+        // localCode, locals and the company
+
         orderFulfillmentCanonical.setLocalCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getCode());
         orderFulfillmentCanonical.setLocal(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getName());
+        orderFulfillmentCanonical.setCompany(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getCompany().getName());
+
+        orderFulfillmentCanonical.setTotalAmount(orderFulfillment.getTotalCost());
         orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(orderFulfillment.getScheduledTime()));
         orderFulfillmentCanonical.setDocumentNumber(orderFulfillment.getDocumentNumber());
+
+
+        // attempt of insink and attemptTracker of tracker
+        orderFulfillmentCanonical.setAttempt(serviceLocalOrderEntity.getAttempt());
+        orderFulfillmentCanonical.setAttemptTracker(serviceLocalOrderEntity.getAttemptTracker());
 
 
         // Payment method canonical

@@ -89,8 +89,7 @@ public class OrderProcessFacade {
     public OrderManagerCanonical getUpdateOrder(String action, String ecommerceId, String externalId, String statusDetail) {
         log.info("[START] getUpdateOrder action:{}",action);
 
-        int attemptTracker;
-        int attempt;
+
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
         OrderManagerCanonical resultCanonical;
 
@@ -99,34 +98,40 @@ public class OrderProcessFacade {
                         .convertIOrderDtoToOrderFulfillmentCanonical(
                                 orderTransaction.getOrderByecommerceId(ecommercePurchaseId)
                         );
+        int attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0);
+        int attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(0);
 
         if (Optional.ofNullable(orderFulfillment.getId()).isPresent()) {
 
             switch (Constant.ActionOrder.getByName(action).getCode()) {
 
                 case 1:
+                    // Result of call to reattempt at inkatracker
                     resultCanonical = orderExternalService
                             .getResultfromExternalServices(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
 
                     log.info("Action value {} ",Constant.ActionOrder.getByName(action).getCode());
 
-                    attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
+                    attemptTracker = attemptTracker + 1;
 
                     orderTransaction.updateOrderRetryingTracker(
                             orderFulfillment.getId(), attemptTracker,
                             resultCanonical.getStatusCode(), resultCanonical.getStatusDetail(),
                             Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
                     );
-
                     break;
                 case 2:
+                    // Result of call to reattempt to insink
                     resultCanonical = orderExternalService
                             .getResultfromExternalServices(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
 
                     log.info("Action value {} ",Constant.ActionOrder.getByName(action).getCode());
 
                     attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(0) + 1;
-                    attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
+
+                    if (!resultCanonical.getStatusCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())) {
+                        attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
+                    }
 
                     orderTransaction.updateOrderRetrying(
                             orderFulfillment.getId(), attempt, attemptTracker,
@@ -138,18 +143,19 @@ public class OrderProcessFacade {
                     break;
 
                 case 3:
+                    // Case to release a order when this is reserved
+
                     log.info("Start to update reserved order");
                     Constant.OrderStatus status =  Optional.ofNullable(externalId)
                             .map(r -> Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS)
                             .orElse(Constant.OrderStatus.ERROR_RELEASE_ORDER);
 
-
+                    attempt = attempt + 1;
 
                     orderTransaction.updateReservedOrder(
                             orderFulfillment.getId(),
                             Optional.ofNullable(externalId).map(Long::parseLong).orElse(null),
-                            Optional
-                                    .ofNullable(orderFulfillment.getAttempt()).orElse(0)+1,
+                            attempt,
                             status.getCode(),
                             statusDetail
                     );
@@ -161,6 +167,7 @@ public class OrderProcessFacade {
                     resultCanonical.setStatus(status.name());
                     resultCanonical.setExternalId(Optional.ofNullable(externalId).map(Long::parseLong).orElse(null));
                     resultCanonical.setStatusDetail(statusDetail);
+
                     break;
 
                 default:
@@ -169,11 +176,10 @@ public class OrderProcessFacade {
                     resultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
                     break;
 
-
-
-
             }
 
+            resultCanonical.setAttempt(attempt);
+            resultCanonical.setAttemptTracker(attemptTracker);
 
         } else {
             resultCanonical = new OrderManagerCanonical();

@@ -53,6 +53,7 @@ public class OrderTransaction {
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
         serviceLocalOrder.setDaysToPickup(0);
         serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
+        serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
         Optional
                 .ofNullable(orderDto.getOrderStatusDto())
                 .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
