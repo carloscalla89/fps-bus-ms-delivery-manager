@@ -141,8 +141,13 @@ public class ObjectToMapper {
         orderStatus.setStatusDetail(serviceLocalOrderEntity.getStatusDetail());
         orderFulfillmentCanonical.setOrderStatus(orderStatus);
 
-        // localCode, locals and the company
+        // Set type and name of service
+        ServiceTypeCanonical serviceType = new ServiceTypeCanonical();
+        serviceType.setCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getServiceType().getCode());
+        serviceType.setName(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getServiceType().getName());
+        orderFulfillmentCanonical.setServiceType(serviceType);
 
+        // localCode, locals and the company
         orderFulfillmentCanonical.setLocalCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getCode());
         orderFulfillmentCanonical.setLocal(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getName());
         orderFulfillmentCanonical.setCompany(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getCompany().getName());
