@@ -15,11 +15,12 @@ public interface Constant {
 
         ATTEMPT_TRACKER_CREATE(1),
         ATTEMPT_INSINK_CREATE(2),
-        RELEASE_ORDER(3),
-        UPDATE_ORDER(4),
-        CANCEL_ORDER(5),
-        CREATE_ORDER(6),
-        RESERVE_ORDER(7),
+        RESERVE_ORDER(3),
+        RELEASE_ORDER(4),
+        UPDATE_ORDER(15),
+        CANCEL_ORDER(16),
+        CREATE_ORDER(17),
+
         NONE(0);
 
         private Integer code;

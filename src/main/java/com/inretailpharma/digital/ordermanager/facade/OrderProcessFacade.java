@@ -142,7 +142,7 @@ public class OrderProcessFacade {
 
                     break;
 
-                case 3:
+                case 4:
                     // Case to release a order when this is reserved
 
                     log.info("Start to update reserved order");
