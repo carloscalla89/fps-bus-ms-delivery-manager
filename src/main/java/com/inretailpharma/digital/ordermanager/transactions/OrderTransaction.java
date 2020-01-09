@@ -52,8 +52,14 @@ public class OrderTransaction {
         ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
         serviceLocalOrder.setDaysToPickup(0);
+
+        // Set attempt of attempt to insink and tracker
         serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
-        serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
+        if (!(serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
+            || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
+            serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
+        }
+
         Optional
                 .ofNullable(orderDto.getOrderStatusDto())
                 .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
