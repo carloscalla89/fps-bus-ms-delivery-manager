@@ -8,9 +8,12 @@ import com.inretailpharma.digital.ordermanager.config.parameters.ExternalService
 import com.inretailpharma.digital.ordermanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,13 +55,22 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                 TrackerResponseDto trackerResponseDto = null;
 
                 try {
-                    log.info("Starting Connect Dispatcher uri action id 1: {}",
-                            externalServicesProperties.getDispatcherTrackerUri().replace("{ecommerceId}", ecommerceId.toString()));
+                    log.info("Starting Connect Dispatcher uri action id 1: {}", externalServicesProperties.getDispatcherTrackerUri());
 
-                    trackerResponseDto =
-                            restTemplate.getForEntity(
-                                    externalServicesProperties.getDispatcherTrackerUri().replace("{ecommerceId}", ecommerceId.toString()),
-                                    TrackerResponseDto.class).getBody();
+                    Map<String, String> uriParam = new HashMap<>();
+                    uriParam.put("ecommerceId", ecommerceId.toString());
+
+                    UriComponents builder = UriComponentsBuilder.fromHttpUrl(externalServicesProperties.getDispatcherTrackerUri())
+                            .queryParam("action",actionOrder.name())
+                            .build();
+
+                    trackerResponseDto =restTemplate.exchange(
+                            builder.toString(),
+                            HttpMethod.GET,
+                            null,
+                            TrackerResponseDto.class,
+                            uriParam
+                    ).getBody();
 
                     log.info("End Connect Dispatcher uri action id 1 with response - {}",trackerResponseDto);
 
@@ -113,17 +125,22 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                 TrackerInsinkResponseCanonical trackerInsinkResponseCanonical;
 
                 try {
-                    log.info("Starting Connect Dispatcher uri action id 2: {}",
-                            externalServicesProperties.getDispatcherInsinkTrackerUri().replace("{ecommerceId}", ecommerceId.toString()));
-                    Map<String, String> queryParams = new HashMap<>();
-                    queryParams.put("action",actionOrder.name());
+                    log.info("Starting Connect Dispatcher uri action id 2: {}", externalServicesProperties.getDispatcherInsinkTrackerUri());
 
-                    trackerInsinkResponseCanonical =
-                            restTemplate
-                                    .getForEntity(
-                                            externalServicesProperties.getDispatcherInsinkTrackerUri().replace("{ecommerceId}", ecommerceId.toString()),
-                                            TrackerInsinkResponseCanonical.class, queryParams
-                                    ).getBody();
+                    Map<String, String> uriParam = new HashMap<>();
+                    uriParam.put("ecommerceId", ecommerceId.toString());
+
+                    UriComponents builder = UriComponentsBuilder.fromHttpUrl(externalServicesProperties.getDispatcherInsinkTrackerUri())
+                            .queryParam("action",actionOrder.name())
+                            .build();
+
+                    trackerInsinkResponseCanonical =restTemplate.exchange(
+                            builder.toString(),
+                            HttpMethod.GET,
+                            null,
+                            TrackerInsinkResponseCanonical.class,
+                            uriParam
+                    ).getBody();
 
                     log.info("End Connect Dispatcher uri action id 2 with response - {}",trackerInsinkResponseCanonical);
 
