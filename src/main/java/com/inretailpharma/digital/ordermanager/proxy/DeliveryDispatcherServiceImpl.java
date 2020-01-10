@@ -204,6 +204,8 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                     orderManagerCanonical.setStatusDetail(errorMessage);
                 }
 
+                break;
+
             default:
                 orderManagerCanonical = new OrderManagerCanonical();
                 orderManagerCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
