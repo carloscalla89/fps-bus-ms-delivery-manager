@@ -14,9 +14,10 @@ public interface Constant {
     enum ActionOrder {
 
         ATTEMPT_TRACKER_CREATE(1),
+        UPDATE_TRACKER_BILLING(1),
         ATTEMPT_INSINK_CREATE(2),
         RESERVE_ORDER(3),
-        RELEASE_ORDER(4),
+        RELEASE_ORDER(2),
         UPDATE_ORDER(15),
         CANCEL_ORDER(16),
         CREATE_ORDER(17),
@@ -51,6 +52,7 @@ public interface Constant {
         ERROR_INSERT_INKAVENTA("02"),
         ERROR_RESERVED_ORDER("03"),
         ERROR_RELEASE_ORDER("04"),
+        ERROR_UPDATE_BILLING_ID_TRACKER("05"),
 
 
         SUCCESS_RESERVED_ORDER("10"),
@@ -104,6 +106,7 @@ public interface Constant {
 
     interface Constans {
         Integer ONE_ATTEMPT = 1;
+        String SUCCESS_CODE = "00";
     }
 
     enum PaymentMethodCode {

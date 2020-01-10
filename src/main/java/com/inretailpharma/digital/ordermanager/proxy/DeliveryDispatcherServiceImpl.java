@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -70,7 +72,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
                                                     Constant.OrderStatus orderStatus = Optional.ofNullable(r.getId())
                                                             .map(s -> Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS)
-                                                            .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER);
+                                                            .orElseGet(() -> Constant.OrderStatus.valueOf(Optional.ofNullable(r.getCode()).orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())));
 
                                                     resultCanonical.setStatusCode(orderStatus.getCode());
                                                     resultCanonical.setStatus(orderStatus.name());
@@ -109,15 +111,18 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
             case 2:
                 // reattempt to send from delivery dispatcher at insink
                 TrackerInsinkResponseCanonical trackerInsinkResponseCanonical;
+
                 try {
                     log.info("Starting Connect Dispatcher uri action id 2: {}",
                             externalServicesProperties.getDispatcherInsinkTrackerUri().replace("{ecommerceId}", ecommerceId.toString()));
+                    Map<String, String> queryParams = new HashMap<>();
+                    queryParams.put("action",actionOrder.name());
 
                     trackerInsinkResponseCanonical =
                             restTemplate
                                     .getForEntity(
                                             externalServicesProperties.getDispatcherInsinkTrackerUri().replace("{ecommerceId}", ecommerceId.toString()),
-                                            TrackerInsinkResponseCanonical.class
+                                            TrackerInsinkResponseCanonical.class, queryParams
                                     ).getBody();
 
                     log.info("End Connect Dispatcher uri action id 2 with response - {}",trackerInsinkResponseCanonical);
@@ -151,12 +156,21 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                                         .ofNullable(r.getInsinkResponseCanonical().getInkaventaId())
                                                                         .map(Long::parseLong).orElse(null)
                                                         );
-                                                        resultCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-                                                        resultCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
+
+                                                        Constant.OrderStatus orderStatus = r.isReleased() ?
+                                                                Constant.OrderStatus.ERROR_UPDATE_BILLING_ID_TRACKER : Constant.OrderStatus.ERROR_INSERT_TRACKER;
+
+                                                        resultCanonical.setStatusCode(orderStatus.getCode());
+                                                        resultCanonical.setStatus(orderStatus.name());
                                                         resultCanonical.setStatusDetail(r.getTrackerResponseDto().getDetail());
+
                                                     } else {
-                                                        resultCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-                                                        resultCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+
+                                                        Constant.OrderStatus orderStatus = r.isReleased() ?
+                                                                Constant.OrderStatus.ERROR_RELEASE_ORDER : Constant.OrderStatus.ERROR_INSERT_INKAVENTA;
+
+                                                        resultCanonical.setStatusCode(orderStatus.getCode());
+                                                        resultCanonical.setStatus(orderStatus.name());
                                                         resultCanonical.setStatusDetail(r.getInsinkResponseCanonical().getMessageDetail());
                                                     }
 
@@ -189,8 +203,6 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                     orderManagerCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
                     orderManagerCanonical.setStatusDetail(errorMessage);
                 }
-
-                break;
 
             default:
                 orderManagerCanonical = new OrderManagerCanonical();

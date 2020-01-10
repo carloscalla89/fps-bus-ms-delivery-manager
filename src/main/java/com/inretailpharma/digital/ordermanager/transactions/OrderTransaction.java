@@ -45,7 +45,8 @@ public class OrderTransaction {
 
 
         // Set status from delivery dispatcher
-        setStatusOrderFromDeliveryDispatcher(serviceLocalOrderIdentity, orderDto);
+        OrderStatus orderStatus = getStatusOrderFromDeliveryDispatcher(orderDto);
+        serviceLocalOrderIdentity.setOrderStatus(orderStatus);
         // ----------------------------------------------------
 
         // Create and set object ServiceLocalOrder
@@ -75,8 +76,7 @@ public class OrderTransaction {
         return orderRepositoryService.getListOrdersByStatus(status);
     }
 
-    private void setStatusOrderFromDeliveryDispatcher(ServiceLocalOrderIdentity serviceLocalOrderIdentity,
-                                                      OrderDto orderDto) {
+    public OrderStatus  getStatusOrderFromDeliveryDispatcher(OrderDto orderDto) {
         OrderStatus orderStatus;
 
         // set status
@@ -97,17 +97,31 @@ public class OrderTransaction {
                         .ofNullable(orderDto.getOrderStatusDto().getCode())
                         .orElse("OK")
                         .equalsIgnoreCase("0-1")
-                        && orderDto.getProgrammed() && orderDto.getTrackerId() != null) {
-
+                        && Optional.ofNullable(orderDto.getProgrammed()).orElse(false)
+                        && orderDto.getTrackerId() != null) {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
+
+        } else if (Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_RELEASE_ORDER.name())) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode());
+        } else if(Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_UPDATE_BILLING_ID_TRACKER.name())) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_UPDATE_BILLING_ID_TRACKER.getCode());
+
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
+
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
         } else {
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
         }
 
-        serviceLocalOrderIdentity.setOrderStatus(orderStatus);
+        return orderStatus;
+
     }
 
     public IOrderFulfillment getOrderByecommerceId(Long ecommerceId) {

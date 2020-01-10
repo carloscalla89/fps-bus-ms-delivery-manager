@@ -12,6 +12,7 @@ public class TrackerInsinkResponseCanonical implements Serializable {
     private Boolean trackerProcess;
     private InsinkResponseCanonical insinkResponseCanonical;
     private TrackerResponseDto trackerResponseDto;
+    private boolean released;
 
     public Boolean getInsinkProcess() {
         return insinkProcess;
@@ -45,6 +46,14 @@ public class TrackerInsinkResponseCanonical implements Serializable {
         this.trackerResponseDto = trackerResponseDto;
     }
 
+    public boolean isReleased() {
+        return released;
+    }
+
+    public void setReleased(boolean released) {
+        this.released = released;
+    }
+
     @Override
     public String toString() {
         return "TrackerInsinkResponseCanonical{" +
@@ -52,6 +61,7 @@ public class TrackerInsinkResponseCanonical implements Serializable {
                 ", trackerProcess=" + trackerProcess +
                 ", insinkResponseCanonical=" + insinkResponseCanonical +
                 ", trackerResponseDto=" + trackerResponseDto +
+                ", released=" + released +
                 '}';
     }
 }

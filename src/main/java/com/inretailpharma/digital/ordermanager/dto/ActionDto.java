@@ -7,4 +7,7 @@ import lombok.Data;
 public class ActionDto {
 
     private Constant.ActionOrder action;
+    private OrderStatusDto orderStatusDto;
+    private String externalBillingId;
+    private String trackerId;
 }

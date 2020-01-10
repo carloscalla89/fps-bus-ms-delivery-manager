@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 public class ReservedOrderDto {
     private String externalPurchaseId;
+    private String trackerPurchaseId;
     private OrderStatusDto orderStatusDto;
 
 }
