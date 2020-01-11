@@ -77,6 +77,14 @@ public interface Constant {
                     .orElse(NOT_FOUND_CODE);
         }
 
+        public static OrderStatus getByName(String name) {
+            return EnumUtils.getEnumList(OrderStatus.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(NOT_FOUND_CODE);
+        }
+
         public String getCode() {
             return code;
         }

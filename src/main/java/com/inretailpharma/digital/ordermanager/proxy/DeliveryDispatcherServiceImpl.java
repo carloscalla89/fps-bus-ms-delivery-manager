@@ -83,8 +83,18 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                     resultCanonical.setStatusDetail(r.getDetail());
 
                                                     Constant.OrderStatus orderStatus = Optional.ofNullable(r.getId())
-                                                            .map(s -> Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS)
-                                                            .orElseGet(() -> Constant.OrderStatus.valueOf(Optional.ofNullable(r.getCode()).orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())));
+                                                            .map(s ->
+                                                                    Optional
+                                                                            .ofNullable(r.getCode())
+                                                                            .map(Constant.OrderStatus::getByCode)
+                                                                            .orElse(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS)
+                                                            )
+                                                            .orElseGet(() ->
+                                                                    Constant.OrderStatus.getByCode(
+                                                                            Optional.ofNullable(r.getCode())
+                                                                                    .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())
+                                                                    )
+                                                            );
 
                                                     resultCanonical.setStatusCode(orderStatus.getCode());
                                                     resultCanonical.setStatus(orderStatus.name());
