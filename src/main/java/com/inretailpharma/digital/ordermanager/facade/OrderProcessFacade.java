@@ -123,6 +123,8 @@ public class OrderProcessFacade {
                             resultCanonical.getStatusCode(), resultCanonical.getStatusDetail(),
                             Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
                     );
+                    resultCanonical.setExternalId(orderFulfillment.getExternalId());
+
                     break;
                 case 2:
                     // Result of call to reattempt to insink
