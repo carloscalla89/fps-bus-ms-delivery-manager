@@ -92,6 +92,16 @@ public class OrderTransaction {
                         .equalsIgnoreCase("0-1") && orderDto.getTrackerId() != null) {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.SUCCESS_RESERVED_ORDER.getCode());
+
+        } else if (Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse("OK")
+                .equalsIgnoreCase("0-1")
+                && orderDto.getTrackerId() == null
+                && Optional.ofNullable(orderDto.getProgrammed()).orElse(false)) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+
         } else if (
                 !Optional
                         .ofNullable(orderDto.getOrderStatusDto().getCode())
