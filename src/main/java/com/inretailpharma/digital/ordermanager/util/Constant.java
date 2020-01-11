@@ -15,9 +15,13 @@ public interface Constant {
 
         ATTEMPT_TRACKER_CREATE(1),
         UPDATE_TRACKER_BILLING(1),
+
         ATTEMPT_INSINK_CREATE(2),
-        RESERVE_ORDER(3),
         RELEASE_ORDER(2),
+
+        UPDATE_RELEASE_ORDER(3),
+
+
         UPDATE_ORDER(15),
         CANCEL_ORDER(16),
         CREATE_ORDER(17),
@@ -46,13 +50,13 @@ public interface Constant {
 
     enum OrderStatus {
 
-        FULFILLMENT_PROCESS_SUCCESS("00"),
+        SUCCESS_FULFILLMENT_PROCESS("00"),
 
         ERROR_INSERT_TRACKER("01"),
         ERROR_INSERT_INKAVENTA("02"),
         ERROR_RESERVED_ORDER("03"),
         ERROR_RELEASE_ORDER("04"),
-        ERROR_UPDATE_BILLING_ID_TRACKER("05"),
+        ERROR_UPDATE_TRACKER_BILLING("05"),
 
 
         SUCCESS_RESERVED_ORDER("10"),

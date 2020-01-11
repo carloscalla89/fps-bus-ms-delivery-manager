@@ -83,7 +83,7 @@ public class OrderTransaction {
 
         if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId() != null) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS.getCode());
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS.getCode());
 
         } else if (
                 Optional
@@ -119,9 +119,9 @@ public class OrderTransaction {
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode());
         } else if(Optional
                 .ofNullable(orderDto.getOrderStatusDto().getCode())
-                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_UPDATE_BILLING_ID_TRACKER.name())) {
+                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING.name())) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_UPDATE_BILLING_ID_TRACKER.getCode());
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING.getCode());
 
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 

@@ -148,10 +148,11 @@ public class OrderProcessFacade {
 
                     break;
 
-                case 4:
-                    // Result to set status when the order was released in Dispatcher
+                case 3:
+                    // Result to update the status when the order was released in Dispatcher
 
-                    log.info("Start to update release order");
+                    log.info("Starting to update release order when the order come from dispatcher");
+
                     OrderDto orderDto = new OrderDto();
                     orderDto.setExternalPurchaseId(Optional.ofNullable(externalId).map(Long::parseLong).orElse(null));
                     orderDto.setTrackerId(Optional.ofNullable(trackerId).map(Long::parseLong).orElse(null));

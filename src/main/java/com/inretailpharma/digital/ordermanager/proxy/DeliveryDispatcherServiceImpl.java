@@ -87,7 +87,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                                     Optional
                                                                             .ofNullable(r.getCode())
                                                                             .map(Constant.OrderStatus::getByName)
-                                                                            .orElse(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS)
+                                                                            .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS)
                                                             )
                                                             .orElseGet(() ->
                                                                     Constant.OrderStatus.getByName(
@@ -172,7 +172,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                         Constant.OrderStatus orderStatus = Optional.ofNullable(r.getInsinkResponseCanonical().getSuccessCode())
                                                                 .filter(t -> t.equalsIgnoreCase("0-1") && resultCanonical.getExternalId() == null)
                                                                 .map(t -> Constant.OrderStatus.SUCCESS_RESERVED_ORDER)
-                                                                .orElse(Constant.OrderStatus.FULFILLMENT_PROCESS_SUCCESS);
+                                                                .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS);
 
                                                         resultCanonical.setStatusCode(orderStatus.getCode());
                                                         resultCanonical.setStatus(orderStatus.name());
@@ -185,7 +185,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                         );
 
                                                         Constant.OrderStatus orderStatus = r.isReleased() ?
-                                                                Constant.OrderStatus.ERROR_UPDATE_BILLING_ID_TRACKER : Constant.OrderStatus.ERROR_INSERT_TRACKER;
+                                                                Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING : Constant.OrderStatus.ERROR_INSERT_TRACKER;
 
                                                         resultCanonical.setStatusCode(orderStatus.getCode());
                                                         resultCanonical.setStatus(orderStatus.name());
