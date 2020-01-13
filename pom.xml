@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.inretailpharma.digital</groupId>
-  <artifactId>us-ordermanager</artifactId>
+  <artifactId>us-deliverymanager</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <parent>
@@ -14,7 +14,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <start-class>com.inretailpharma.digital.ordermanager.OrderManagerApplication</start-class>
+    <start-class>com.inretailpharma.digital.deliverymanager.DeliveryManagerApplication</start-class>
     <java.version>1.8</java.version>
     <swagger.version>2.5.0</swagger.version>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -189,7 +189,7 @@
   </dependencies>
 
   <build>
-    <finalName>us-ordermanager</finalName>
+    <finalName>us-deliverymanager</finalName>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>

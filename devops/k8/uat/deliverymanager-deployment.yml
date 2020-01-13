@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: us-deliverymanager
+  labels:
+    app: us-deliverymanager
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: us-deliverymanager
+  template:
+    metadata:
+      labels:
+        app: us-deliverymanager
+    spec:
+      containers:
+      - name: us-deliverymanager
+        image: 519901771307.dkr.ecr.us-west-2.amazonaws.com/deliverymanager-service:{{TAG}}
+        env:
+        - name: environment
+          value: "uat"
+        - name: LOG_LEVEL_SYSTEM
+          value: "INFO"
+        - name: LOG_LEVEL_BUSINESS
+          value: "ERROR"
+        - name: LOGS_FOLDER
+          value: "/var/log/us-deliverymanager"
+        ports:
+        - containerPort: 8022
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1Gi
+          requests:
+            cpu: 200m
+            memory: 1Gi
+      restartPolicy: Always

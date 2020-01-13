@@ -14,6 +14,6 @@
     }
   ],
   "name": "Order",
-  "namespace": "com.inretailpharma.digital.ordermanager.dto",
+  "namespace": "com.inretailpharma.digital.deliverymanager.dto",
   "type": "record"
 }
