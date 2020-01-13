@@ -11,9 +11,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @SpringBootApplication
 @EnableSwagger2
-public class OrderManagerApplication{
+public class DeliveryManagerApplication {
 
     public static void main( String[] args ){
-        SpringApplication.run(OrderManagerApplication.class, args);
+        SpringApplication.run(DeliveryManagerApplication.class, args);
     }
 }
