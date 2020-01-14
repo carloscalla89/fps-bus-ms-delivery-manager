@@ -10,4 +10,6 @@ public class ActionDto {
     private OrderStatusDto orderStatusDto;
     private String externalBillingId;
     private String trackerId;
+    private String orderCancelCode;
+    private String orderCancelObservation;
 }

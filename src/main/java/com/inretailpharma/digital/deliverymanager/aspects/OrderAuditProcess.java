@@ -2,7 +2,7 @@ package com.inretailpharma.digital.deliverymanager.aspects;
 
 
 import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderManagerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -30,7 +30,7 @@ public class OrderAuditProcess {
             orderExternalService.sendOrder((OrderFulfillmentCanonical)retVal);
         } else {
             // send to audit microservice to update the order
-            orderExternalService.updateOrder((OrderManagerCanonical)retVal);
+            orderExternalService.updateOrder((OrderCanonical)retVal);
         }
 
 

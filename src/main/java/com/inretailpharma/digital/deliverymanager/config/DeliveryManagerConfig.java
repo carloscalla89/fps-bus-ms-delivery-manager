@@ -14,7 +14,7 @@ import java.time.Duration;
 @EnableConfigurationProperties({
         ExternalServicesProperties.class
 })
-public class OrderManagerConfig {
+public class DeliveryManagerConfig {
 
     @Autowired
     private ExternalServicesProperties externalServicesProperties;

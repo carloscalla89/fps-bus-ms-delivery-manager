@@ -1,7 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderManagerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
@@ -33,18 +33,18 @@ public class OrderAuditServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public void updateOrder(OrderManagerCanonical orderManagerCanonical) {
+    public void updateOrder(OrderCanonical orderCanonical) {
         log.info("[START] connect api audit to update..  - value:{} - body:{}",
-                externalServicesProperties, orderManagerCanonical);
+                externalServicesProperties, orderCanonical);
 
         Flux<String> response = WebClient.create(externalServicesProperties.getUriApiService())
-                .patch().bodyValue(orderManagerCanonical).retrieve().bodyToFlux(String.class);
+                .patch().bodyValue(orderCanonical).retrieve().bodyToFlux(String.class);
         response.subscribe(log::info);
         log.info("Exiting NON-BLOCKING Service!");
     }
 
     @Override
-    public OrderManagerCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
+    public OrderCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
         return null;
     }
 

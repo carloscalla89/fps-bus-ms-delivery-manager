@@ -3,7 +3,7 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerResponseDto;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderManagerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
@@ -39,15 +39,15 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public void updateOrder(OrderManagerCanonical orderManagerCanonical) {
+    public void updateOrder(OrderCanonical orderCanonical) {
 
     }
 
     @Override
-    public OrderManagerCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
+    public OrderCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
         log.info("update order actionOrder.getCode:{}", actionOrder.getCode());
 
-        OrderManagerCanonical orderManagerCanonical;
+        OrderCanonical orderCanonical;
 
         switch (actionOrder.getCode()) {
             case 1:
@@ -74,10 +74,10 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
                     log.info("End Connect Dispatcher uri action id 1 with response - {}",trackerResponseDto);
 
-                    orderManagerCanonical = Optional
+                    orderCanonical = Optional
                                                 .ofNullable(trackerResponseDto)
                                                 .map(r -> {
-                                                    OrderManagerCanonical resultCanonical = new OrderManagerCanonical();
+                                                    OrderCanonical resultCanonical = new OrderCanonical();
 
                                                     resultCanonical.setTrackerId(r.getId());
                                                     resultCanonical.setStatusDetail(r.getDetail());
@@ -100,7 +100,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                     resultCanonical.setStatus(orderStatus.name());
                                                     return resultCanonical;
                                                 }).orElseGet(() -> {
-                                                    OrderManagerCanonical resultCanonical = new OrderManagerCanonical();
+                                                    OrderCanonical resultCanonical = new OrderCanonical();
                                                     resultCanonical.setStatusCode(Constant.OrderStatus.NOT_DEFINED_ERROR.getCode());
                                                     resultCanonical.setStatus(Constant.OrderStatus.NOT_DEFINED_ERROR.name());
 
@@ -111,10 +111,10 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                             "Error invoking '" +
                             externalServicesProperties.getDispatcherTrackerUri() + "':" + e.getMessage();
                     log.error(errorMessage);
-                    orderManagerCanonical = new OrderManagerCanonical();
-                    orderManagerCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-                    orderManagerCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
-                    orderManagerCanonical.setStatusDetail(errorMessage);
+                    orderCanonical = new OrderCanonical();
+                    orderCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                    orderCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
+                    orderCanonical.setStatusDetail(errorMessage);
 
                     //TODO check boolean used
                 } catch (Exception e) {
@@ -122,10 +122,10 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                     String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherTrackerUri() +
                             "':" + e.getMessage();
                     log.error(errorMessage);
-                    orderManagerCanonical = new OrderManagerCanonical();
-                    orderManagerCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-                    orderManagerCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
-                    orderManagerCanonical.setStatusDetail(errorMessage);
+                    orderCanonical = new OrderCanonical();
+                    orderCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                    orderCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
+                    orderCanonical.setStatusDetail(errorMessage);
                 }
 
                 break;
@@ -154,11 +154,11 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
                     log.info("End Connect Dispatcher uri action id 2 with response - {}",trackerInsinkResponseCanonical);
 
-                    orderManagerCanonical = Optional
+                    orderCanonical = Optional
                                                 .ofNullable(trackerInsinkResponseCanonical)
                                                 .filter(r -> (r.getInsinkProcess() != null && r.getTrackerProcess() != null))
                                                 .map(r -> {
-                                                    OrderManagerCanonical resultCanonical = new OrderManagerCanonical();
+                                                    OrderCanonical resultCanonical = new OrderCanonical();
 
                                                     if (r.getTrackerProcess() && r.getInsinkProcess()) {
 
@@ -203,7 +203,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
                                                     return resultCanonical;
                                                 }).orElseGet(() -> {
-                                                    OrderManagerCanonical resultCanonical = new OrderManagerCanonical();
+                                                    OrderCanonical resultCanonical = new OrderCanonical();
                                                     resultCanonical.setStatusCode(Constant.OrderStatus.NOT_DEFINED_ERROR.getCode());
                                                     resultCanonical.setStatus(Constant.OrderStatus.NOT_DEFINED_ERROR.name());
                                                     return resultCanonical;
@@ -215,35 +215,35 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                             externalServicesProperties.getDispatcherInsinkTrackerUri() + "':" + e.getMessage();
                     log.error(errorMessage);
 
-                    orderManagerCanonical = new OrderManagerCanonical();
-                    orderManagerCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-                    orderManagerCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-                    orderManagerCanonical.setStatusDetail(errorMessage);
+                    orderCanonical = new OrderCanonical();
+                    orderCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                    orderCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                    orderCanonical.setStatusDetail(errorMessage);
                     //TODO check boolean used
                 } catch (Exception e) {
                     e.printStackTrace();
                     String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherInsinkTrackerUri() +
                             "':" + e.getMessage();
                     log.error(errorMessage);
-                    orderManagerCanonical = new OrderManagerCanonical();
-                    orderManagerCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-                    orderManagerCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-                    orderManagerCanonical.setStatusDetail(errorMessage);
+                    orderCanonical = new OrderCanonical();
+                    orderCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                    orderCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                    orderCanonical.setStatusDetail(errorMessage);
                 }
 
                 break;
 
             default:
-                orderManagerCanonical = new OrderManagerCanonical();
-                orderManagerCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
-                orderManagerCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+                orderCanonical = new OrderCanonical();
+                orderCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
+                orderCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
                 break;
         }
 
-        orderManagerCanonical.setEcommerceId(ecommerceId);
-        log.info("object parse order result {}", orderManagerCanonical);
+        orderCanonical.setEcommerceId(ecommerceId);
+        log.info("object parse order result {}", orderCanonical);
 
-        return orderManagerCanonical;
+        return orderCanonical;
     }
 
 }
