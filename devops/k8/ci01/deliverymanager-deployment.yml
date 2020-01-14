@@ -15,7 +15,7 @@ spec:
         app: us-deliverymanager
     spec:
       containers:
-      - name: us-order-manager
+      - name: us-deliverymanager
         image: 519901771307.dkr.ecr.us-west-2.amazonaws.com/deliverymanager-service:{{TAG}}
         env:
         - name: environment
