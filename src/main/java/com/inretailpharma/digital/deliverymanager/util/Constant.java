@@ -13,29 +13,35 @@ public interface Constant {
 
     enum ActionOrder {
 
-        ATTEMPT_TRACKER_CREATE(1),
-        UPDATE_TRACKER_BILLING(1),
+        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker"),
+        UPDATE_TRACKER_BILLING(1, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
 
-        ATTEMPT_INSINK_CREATE(2),
-        RELEASE_ORDER(2),
+        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink"),
+        RELEASE_ORDER(2, "Liberar orden reservada"),
 
-        UPDATE_RELEASE_ORDER(3),
+        UPDATE_RELEASE_ORDER(3, ""),
 
 
-        UPDATE_ORDER(15),
-        CANCEL_ORDER(16),
-        CREATE_ORDER(17),
+        UPDATE_ORDER(15,""),
+        CANCEL_ORDER(16, ""),
+        CREATE_ORDER(17, ""),
 
-        NONE(0);
+        NONE(0, "");
 
         private Integer code;
+        private String description;
 
-        ActionOrder(Integer code) {
+        ActionOrder(Integer code, String description) {
             this.code = code;
+            this.description = description;
         }
 
         public Integer getCode() {
             return code;
+        }
+
+        public String getDescription() {
+            return description;
         }
 
         public static ActionOrder getByName(String name) {

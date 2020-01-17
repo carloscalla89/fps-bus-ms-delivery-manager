@@ -1,7 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderManagerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
 import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
@@ -57,44 +57,14 @@ public class OrderProcessFacade {
         }
 
     }
-/*
-    public OrderManagerCanonical releaseReservedOrder(String ecommerceId, ReservedOrderDto reservedOrderDto) {
-
-        return getUpdateOrder(
-                Constant.ActionOrder.RELEASE_ORDER.name(),
-                ecommerceId,
-                reservedOrderDto.getExternalPurchaseId(),
-                reservedOrderDto.getTrackerPurchaseId(),
-                reservedOrderDto.getOrderStatusDto()
-        );
-
-    }
 
 
- */
-
-    public List<OrderFulfillmentCanonical> getListOrdersByStatusError(){
-        return orderTransaction
-                .getListOrdersByStatus(
-                        new HashSet<>(
-                                Arrays.asList(
-                                        Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(),
-                                        Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode(),
-                                        Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode())
-                        )
-                )
-                .stream()
-                .map(r -> objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(r))
-                .collect(Collectors.toList());
-    }
-
-
-    public OrderManagerCanonical getUpdateOrder(String action, String ecommerceId, String externalId,
-                                                String trackerId, OrderStatusDto orderStatusDto) {
+    public OrderCanonical getUpdateOrder(String action, String ecommerceId, String externalId,
+                                         String trackerId, OrderStatusDto orderStatusDto) {
         log.info("[START] getUpdateOrder action:{}",action);
 
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
-        OrderManagerCanonical resultCanonical;
+        OrderCanonical resultCanonical;
 
         OrderFulfillmentCanonical orderFulfillment =
                 objectToMapper
@@ -173,7 +143,7 @@ public class OrderProcessFacade {
                             orderStatusDto.getDescription()
                     );
 
-                    resultCanonical = new OrderManagerCanonical();
+                    resultCanonical = new OrderCanonical();
 
                     resultCanonical.setEcommerceId(orderFulfillment.getEcommerceId());
                     resultCanonical.setStatusCode(orderStatus.getCode());
@@ -184,7 +154,7 @@ public class OrderProcessFacade {
                     break;
 
                 default:
-                    resultCanonical = new OrderManagerCanonical();
+                    resultCanonical = new OrderCanonical();
                     resultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
                     resultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
                     break;
@@ -195,7 +165,7 @@ public class OrderProcessFacade {
             resultCanonical.setAttemptTracker(attemptTracker);
 
         } else {
-            resultCanonical = new OrderManagerCanonical();
+            resultCanonical = new OrderCanonical();
             resultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
             resultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ORDER.name());
         }

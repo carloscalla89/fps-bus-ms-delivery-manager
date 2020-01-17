@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.*;
  * @author
  */
 @Slf4j
-public class  OrderManagerRest {
+public class DeliveryManagerRest {
 
     private OrderProcessFacade orderProcessFacade;
 
-    public OrderManagerRest(OrderProcessFacade orderProcessFacade) {
+    public DeliveryManagerRest(OrderProcessFacade orderProcessFacade) {
         this.orderProcessFacade = orderProcessFacade;
     }
 
@@ -65,19 +65,6 @@ public class  OrderManagerRest {
         return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(action.getAction().name(), ecommerceId,
                 action.getExternalBillingId(), action.getTrackerId(), action.getOrderStatusDto()), HttpStatus.OK);
     }
-
-
-
-    @ApiOperation(value = "Listar ordenes con error", tags = { "Controlador OrderManagers" })
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "Error in server ot obtain list") })
-    @GetMapping("/order")
-    public ResponseEntity<?> getOrderListWithError() {
-
-        return new ResponseEntity<>(orderProcessFacade.getListOrdersByStatusError(), HttpStatus.OK);
-    }
-
 
 
 }
