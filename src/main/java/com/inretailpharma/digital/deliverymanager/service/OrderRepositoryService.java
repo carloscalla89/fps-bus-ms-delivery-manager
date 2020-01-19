@@ -26,4 +26,5 @@ public interface OrderRepositoryService {
     void updateExternalIdToReservedOrder(Long orderFulfillmentId, Long externalPurchaseId);
     void updateStatusToReservedOrder(Long orderFulfillmentId, Integer attempt, String orderStatusCode,
                                      String statusDetail);
+    void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
 }

@@ -182,4 +182,12 @@ public class OrderTransaction {
         orderRepositoryService.updateStatusToReservedOrder(orderFulfillmentId, attempt, orderStatusCode, statusDetail);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail) {
+        log.info("[START] updateOrderStatus - orderFulfillmentId:{} - orderStatusCode:{}, statusDetail:{}",
+                orderFulfillmentId, orderStatusCode, statusDetail);
+
+        orderRepositoryService.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
+    }
+
 }

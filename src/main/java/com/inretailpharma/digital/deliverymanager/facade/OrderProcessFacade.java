@@ -115,7 +115,7 @@ public class OrderProcessFacade {
                     }
 
                     orderTransaction.updateOrderRetrying(
-                            resultCanonical.getId(), attempt, attemptTracker,
+                            orderCanonical.getId(), attempt, attemptTracker,
                             resultCanonical.getOrderStatus().getCode(), resultCanonical.getOrderStatus().getDetail(),
                             Optional.ofNullable(resultCanonical.getExternalId()).orElse(null),
                             Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
@@ -155,6 +155,7 @@ public class OrderProcessFacade {
                     resultCanonical.setEcommerceId(orderCanonical.getEcommerceId());
                     resultCanonical.getOrderStatus().setCode(orderStatusEntity.getCode());
                     resultCanonical.getOrderStatus().setName(orderStatusEntity.getType());
+                    resultCanonical.setTrackerId(Optional.ofNullable(trackerId).map(Long::parseLong).orElse(null));
                     resultCanonical.setExternalId(Optional.ofNullable(externalId).map(Long::parseLong).orElse(null));
                     resultCanonical.getOrderStatus().setDetail(orderStatusDto.getDescription());
                     resultCanonical.setAttempt(attempt);
@@ -164,6 +165,10 @@ public class OrderProcessFacade {
                 case 4:
                     resultCanonical = orderExternalServiceInkatrackerLite
                             .getResultfromExternalServices(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
+
+                    orderTransaction.updateStatusOrder(orderCanonical.getId(), resultCanonical.getOrderStatus().getCode(),
+                            resultCanonical.getOrderStatus().getDetail());
+
                     resultCanonical.setAttempt(orderCanonical.getAttempt());
                     resultCanonical.setAttemptTracker(orderCanonical.getAttemptTracker());
                     resultCanonical.setEcommerceId(ecommercePurchaseId);

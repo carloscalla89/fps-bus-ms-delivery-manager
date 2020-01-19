@@ -106,4 +106,9 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         serviceLocalOrderRepository.updateStatusToReservedOrder(orderFulfillmentId, attempt, orderStatusCode, statusDetail);
     }
 
+    @Override
+    public void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail) {
+        serviceLocalOrderRepository.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
+    }
+
 }

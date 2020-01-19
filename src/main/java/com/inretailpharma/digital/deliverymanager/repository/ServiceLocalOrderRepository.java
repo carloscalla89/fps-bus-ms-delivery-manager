@@ -45,10 +45,10 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
             " where order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true)
     void updateRetryingOrderStatusProcess(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                            @Param("attemptTracker") Integer attemptTracker,
-                            @Param("attempt") Integer attempt,
-                            @Param("orderStatusCode") String orderStatusCode,
-                            @Param("statusDetail") String statusDetail
+                                          @Param("attemptTracker") Integer attemptTracker,
+                                          @Param("attempt") Integer attempt,
+                                          @Param("orderStatusCode") String orderStatusCode,
+                                          @Param("statusDetail") String statusDetail
     );
 
     @Modifying
@@ -59,9 +59,21 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
             " where order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true)
     void updateStatusToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                          @Param("attempt") Integer attempt,
-                                          @Param("orderStatusCode") String orderStatusCode,
-                                          @Param("statusDetail") String statusDetail
+                                     @Param("attempt") Integer attempt,
+                                     @Param("orderStatusCode") String orderStatusCode,
+                                     @Param("statusDetail") String statusDetail
+    );
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_process_status " +
+            " set order_status_code = :orderStatusCode, status_detail = :statusDetail " +
+            " where order_fulfillment_id = :orderFulfillmentId",
+            nativeQuery = true)
+    void updateStatusOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
+                           @Param("orderStatusCode") String orderStatusCode,
+                           @Param("statusDetail") String statusDetail
     );
 
 }
