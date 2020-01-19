@@ -1,6 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -8,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service("audit")
@@ -22,12 +25,24 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
 
     @Override
-    public void sendOrder(OrderFulfillmentCanonical orderAuditCanonical) {
+    public void sendOrder(OrderCanonical orderAuditCanonical) {
         log.info("[START] connect api audit..  - value:{} - body:{}",
                 externalServicesProperties, orderAuditCanonical);
 
-        Flux<String> response = WebClient.create(externalServicesProperties.getUriApiService())
-                .post().bodyValue(orderAuditCanonical).retrieve().bodyToFlux(String.class);
+        Mono<String> response = WebClient
+                                    .create(externalServicesProperties.getUriApiService())
+                                    .post()
+                                    .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                                    .retrieve()
+                                    .bodyToMono(String.class)
+                                    .map(r -> r)
+                                    .onErrorResume(e -> {
+                                        e.printStackTrace();
+                                        log.error("Error in audit call {} ",e.getMessage());
+
+                                        return Mono.just("ERROR");
+                                    });
+
         response.subscribe(log::info);
         log.info("Exiting NON-BLOCKING Service!");
     }

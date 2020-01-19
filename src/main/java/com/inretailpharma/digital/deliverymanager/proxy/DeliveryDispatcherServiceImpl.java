@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerResponseDto;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
@@ -34,7 +35,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public void sendOrder(OrderFulfillmentCanonical orderAuditCanonical) {
+    public void sendOrder(OrderCanonical orderAuditCanonical) {
 
     }
 
@@ -80,9 +81,8 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                     OrderCanonical resultCanonical = new OrderCanonical();
 
                                                     resultCanonical.setTrackerId(r.getId());
-                                                    resultCanonical.setStatusDetail(r.getDetail());
 
-                                                    Constant.OrderStatus orderStatus = Optional.ofNullable(r.getId())
+                                                    Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getId())
                                                             .map(s ->
                                                                     Optional
                                                                             .ofNullable(r.getCode())
@@ -96,25 +96,37 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                                     )
                                                             );
 
-                                                    resultCanonical.setStatusCode(orderStatus.getCode());
-                                                    resultCanonical.setStatus(orderStatus.name());
+                                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                                                    orderStatus.setCode(orderStatusUtil.getCode());
+                                                    orderStatus.setName(orderStatusUtil.name());
+                                                    orderStatus.setDetail(r.getDetail());
+
+                                                    resultCanonical.setOrderStatus(orderStatus);
+
                                                     return resultCanonical;
                                                 }).orElseGet(() -> {
                                                     OrderCanonical resultCanonical = new OrderCanonical();
-                                                    resultCanonical.setStatusCode(Constant.OrderStatus.NOT_DEFINED_ERROR.getCode());
-                                                    resultCanonical.setStatus(Constant.OrderStatus.NOT_DEFINED_ERROR.name());
-
+                                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                                    orderStatus.setCode(Constant.OrderStatus.NOT_DEFINED_ERROR.getCode());
+                                                    orderStatus.setName(Constant.OrderStatus.NOT_DEFINED_ERROR.name());
+                                                    resultCanonical.setOrderStatus(orderStatus);
                                                     return resultCanonical;
                                                 });
                 } catch (RestClientException e) {
+                    e.printStackTrace();
                     String errorMessage = "Connection Error with DD: " +
                             "Error invoking '" +
                             externalServicesProperties.getDispatcherTrackerUri() + "':" + e.getMessage();
                     log.error(errorMessage);
                     orderCanonical = new OrderCanonical();
-                    orderCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-                    orderCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
-                    orderCanonical.setStatusDetail(errorMessage);
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                    orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
+                    orderStatus.setDetail(errorMessage);
+
+                    orderCanonical.setOrderStatus(orderStatus);
 
                     //TODO check boolean used
                 } catch (Exception e) {
@@ -123,9 +135,13 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                             "':" + e.getMessage();
                     log.error(errorMessage);
                     orderCanonical = new OrderCanonical();
-                    orderCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-                    orderCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
-                    orderCanonical.setStatusDetail(errorMessage);
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                    orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
+                    orderStatus.setDetail(errorMessage);
+
+                    orderCanonical.setOrderStatus(orderStatus);
                 }
 
                 break;
@@ -169,13 +185,17 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                                         .map(Long::parseLong).orElse(null)
                                                         );
 
-                                                        Constant.OrderStatus orderStatus = Optional.ofNullable(r.getInsinkResponseCanonical().getSuccessCode())
+                                                        Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getInsinkResponseCanonical().getSuccessCode())
                                                                 .filter(t -> t.equalsIgnoreCase("0-1") && resultCanonical.getExternalId() == null)
                                                                 .map(t -> Constant.OrderStatus.SUCCESS_RESERVED_ORDER)
                                                                 .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS);
 
-                                                        resultCanonical.setStatusCode(orderStatus.getCode());
-                                                        resultCanonical.setStatus(orderStatus.name());
+                                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                                                        orderStatus.setCode(orderStatusUtil.getCode());
+                                                        orderStatus.setName(orderStatusUtil.name());
+
+                                                        resultCanonical.setOrderStatus(orderStatus);
 
                                                     } else if (r.getInsinkProcess() && !r.getTrackerProcess()) {
                                                         resultCanonical.setExternalId(
@@ -184,28 +204,40 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                                         .map(Long::parseLong).orElse(null)
                                                         );
 
-                                                        Constant.OrderStatus orderStatus = r.isReleased() ?
+                                                        Constant.OrderStatus orderStatusUtil = r.isReleased() ?
                                                                 Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING : Constant.OrderStatus.ERROR_INSERT_TRACKER;
 
-                                                        resultCanonical.setStatusCode(orderStatus.getCode());
-                                                        resultCanonical.setStatus(orderStatus.name());
-                                                        resultCanonical.setStatusDetail(r.getTrackerResponseDto().getDetail());
+                                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                                                        orderStatus.setCode(orderStatusUtil.getCode());
+                                                        orderStatus.setName(orderStatusUtil.name());
+                                                        orderStatus.setDetail(r.getTrackerResponseDto().getDetail());
+
+                                                        resultCanonical.setOrderStatus(orderStatus);
 
                                                     } else {
 
-                                                        Constant.OrderStatus orderStatus = r.isReleased() ?
+                                                        Constant.OrderStatus orderStatusUtil = r.isReleased() ?
                                                                 Constant.OrderStatus.ERROR_RELEASE_ORDER : Constant.OrderStatus.ERROR_INSERT_INKAVENTA;
 
-                                                        resultCanonical.setStatusCode(orderStatus.getCode());
-                                                        resultCanonical.setStatus(orderStatus.name());
-                                                        resultCanonical.setStatusDetail(r.getInsinkResponseCanonical().getMessageDetail());
+                                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                                                        orderStatus.setCode(orderStatusUtil.getCode());
+                                                        orderStatus.setName(orderStatusUtil.name());
+                                                        orderStatus.setDetail(r.getInsinkResponseCanonical().getMessageDetail());
+
+                                                        resultCanonical.setOrderStatus(orderStatus);
                                                     }
 
                                                     return resultCanonical;
                                                 }).orElseGet(() -> {
                                                     OrderCanonical resultCanonical = new OrderCanonical();
-                                                    resultCanonical.setStatusCode(Constant.OrderStatus.NOT_DEFINED_ERROR.getCode());
-                                                    resultCanonical.setStatus(Constant.OrderStatus.NOT_DEFINED_ERROR.name());
+
+                                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                                    orderStatus.setCode(Constant.OrderStatus.NOT_DEFINED_ERROR.getCode());
+                                                    orderStatus.setName(Constant.OrderStatus.NOT_DEFINED_ERROR.name());
+                                                    resultCanonical.setOrderStatus(orderStatus);
+
                                                     return resultCanonical;
                                                 });
 
@@ -214,29 +246,46 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                             "Error invoking '" +
                             externalServicesProperties.getDispatcherInsinkTrackerUri() + "':" + e.getMessage();
                     log.error(errorMessage);
-
                     orderCanonical = new OrderCanonical();
-                    orderCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-                    orderCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-                    orderCanonical.setStatusDetail(errorMessage);
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                    orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                    orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                    orderStatus.setDetail(errorMessage);
+
+                    orderCanonical.setOrderStatus(orderStatus);
+
                     //TODO check boolean used
                 } catch (Exception e) {
                     e.printStackTrace();
                     String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherInsinkTrackerUri() +
                             "':" + e.getMessage();
                     log.error(errorMessage);
+
                     orderCanonical = new OrderCanonical();
-                    orderCanonical.setStatusCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-                    orderCanonical.setStatus(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-                    orderCanonical.setStatusDetail(errorMessage);
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                    orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                    orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                    orderStatus.setDetail(errorMessage);
+
+                    orderCanonical.setOrderStatus(orderStatus);
                 }
 
                 break;
 
             default:
                 orderCanonical = new OrderCanonical();
-                orderCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
-                orderCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+
+                OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
+                orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+
+                orderCanonical.setOrderStatus(orderStatus);
+
                 break;
         }
 

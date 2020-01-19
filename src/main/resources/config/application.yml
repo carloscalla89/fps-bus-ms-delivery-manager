@@ -2,7 +2,7 @@ server:
   port: 8031
 spring:
   application:
-    name: us-order-manager
+    name: us-delivery-manager
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:

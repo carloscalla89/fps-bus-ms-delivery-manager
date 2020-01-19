@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-	<property name="APP_NAME" value="us-order-manager"/>
+	<property name="APP_NAME" value="us-delivery-manager"/>
 	<variable name="LOG_LEVEL_SYSTEM" value="${LOG_LEVEL_SYSTEM:-DEBUG}" />
 	<variable name="LOG_LEVEL_BUSINESS" value="${LOG_LEVEL_BUSINESS:-DEBUG}" />
 

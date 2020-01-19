@@ -33,4 +33,13 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.tracker.read-timeout}")
     private String dispatcherTrackerReadTimeout;
 
+    @Value("${external-service.inkatrackerlite.update-order.uri}")
+    private String inkatrackerLiteUpdateOrderUri;
+
+    @Value("${external-service.inkatrackerlite.update-order.connect-timeout}")
+    private String inkatrackerLiteUpdateOrderConnectTimeOut;
+
+    @Value("${external-service.inkatrackerlite.update-order.read-timeout}")
+    private String inkatrackerLiteUpdateOrderReadTimeOut;
+
 }

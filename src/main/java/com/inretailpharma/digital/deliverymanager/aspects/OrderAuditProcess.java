@@ -22,17 +22,21 @@ public class OrderAuditProcess {
         this.orderExternalService = orderExternalService;
     }
 
-    @AfterReturning(value = "execution(* com.inretailpharma.digital.deliverymanager.facade.*.*(..))", returning="retVal")
+    @AfterReturning(value = "execution(* com.inretailpharma.digital.deliverymanager.facade.OrderProcessFacade.createOrder(..))", returning="retVal")
     public void afterCreateOrderFulfillment(JoinPoint joinPoint, Object retVal) {
-        log.info("Success aop process {} - {}",joinPoint.getTarget(), retVal);
+        log.info("Success aop process afterCreateOrderFulfillment {} - {}",joinPoint.getTarget(), retVal);
 
-        if (retVal instanceof OrderFulfillmentCanonical) {
-            orderExternalService.sendOrder((OrderFulfillmentCanonical)retVal);
-        } else {
-            // send to audit microservice to update the order
-            orderExternalService.updateOrder((OrderCanonical)retVal);
-        }
-
+            orderExternalService.sendOrder((OrderCanonical)retVal);
 
     }
+
+    @AfterReturning(value = "execution(* com.inretailpharma.digital.deliverymanager.facade.OrderProcessFacade.getUpdateOrder(..))", returning="retVal")
+    public void afterUpdateOrderFulfillment(JoinPoint joinPoint, Object retVal) {
+        log.info("Success aop process afterCreateOrderFulfillment {} - {}",joinPoint.getTarget(), retVal);
+
+        // send to audit microservice to update the order
+        orderExternalService.updateOrder((OrderCanonical)retVal);
+
+    }
+
 }

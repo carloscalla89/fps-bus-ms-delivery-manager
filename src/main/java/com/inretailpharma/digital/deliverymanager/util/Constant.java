@@ -11,6 +11,22 @@ public interface Constant {
         String CODE_ERROR_CLIENT_CONNECTION = "C-0";
     }
 
+
+
+    interface ActionName {
+        String RELEASE_ORDER = "RELEASE_ORDER";
+        String CANCEL_ORDER = "CANCEL_ORDER";
+        String DELIVER_ORDER = "DELIVER_ORDER";
+        String READY_PICKUP_ORDER = "READY_PICKUP_ORDER";
+    }
+
+    interface ActionNameInkatrackerlite {
+        String READY_FOR_PICKUP = "READY_FOR_PICKUP";
+        String CANCELLED = "CANCELLED";
+        String DELIVERED = "DELIVERED";
+        String READY_FOR_BILLING = "READY_FOR_BILLING";
+    }
+
     enum ActionOrder {
 
         ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker"),
@@ -21,10 +37,9 @@ public interface Constant {
 
         UPDATE_RELEASE_ORDER(3, ""),
 
-
-        UPDATE_ORDER(15,""),
-        CANCEL_ORDER(16, ""),
-        CREATE_ORDER(17, ""),
+        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como entregada"),
+        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada"),
+        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger"),
 
         NONE(0, "");
 
@@ -63,14 +78,25 @@ public interface Constant {
         ERROR_RESERVED_ORDER("03"),
         ERROR_RELEASE_ORDER("04"),
         ERROR_UPDATE_TRACKER_BILLING("05"),
+        ERROR_UPDATE_ORDER("06"),
 
 
         SUCCESS_RESERVED_ORDER("10"),
 
+        CANCELLED_ORDER("11"),
+        DELIVERED_ORDER("12"),
+        READY_PICKUP_ORDER("13"),
+        RELEASED_ORDER("14"),
+
+        PENDING_CANCEL_ORDER("21"),
+        PENDING_DELIVERY_ORDER("22"),
+        PENDING_READY_PICKUP_ORDER("23"),
+        PENDING_RELEASE_ORDER("24"),
 
         NOT_FOUND_CODE("-1"),
         NOT_FOUND_ORDER("-1"),
         NOT_DEFINED_ERROR("-1"),
+        NOT_DEFINED_STATUS("-1"),
         NOT_FOUND_ACTION("-1");
 
         private String code;

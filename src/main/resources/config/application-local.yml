@@ -9,10 +9,15 @@ external-service:
     time-out: 20000
   dispatcher:
     insink-tracker:
-      uri: http://localhost:8082/order/insink-tracker/{ecommerceId}
+      uri: http://us-dd/order/insink-tracker/{ecommerceId}
       connect-timeout: 10000
       read-timeout: 120000
     tracker:
-      uri: http://localhost:8082/order/tracker/{ecommerceId}
+      uri: http://us-dd/order/tracker/{ecommerceId}
+      connect-timeout: 10000
+      read-timeout: 120000
+  inkatracker-lite:
+    update-order:
+      uri: http://localhost:8283/nvr/unattended-orders
       connect-timeout: 10000
       read-timeout: 120000

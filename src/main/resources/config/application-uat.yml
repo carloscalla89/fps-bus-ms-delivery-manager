@@ -16,3 +16,8 @@ external-service:
       uri: http://us-dd/order/tracker/{ecommerceId}
       connect-timeout: 10000
       read-timeout: 120000
+  inkatracker-lite:
+    update-order:
+      uri: http://us-inkatrackerlite/nvr/unattended-orders
+      connect-timeout: 10000
+      read-timeout: 120000

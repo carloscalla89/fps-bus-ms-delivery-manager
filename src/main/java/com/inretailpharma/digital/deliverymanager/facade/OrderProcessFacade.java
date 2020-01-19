@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
@@ -28,18 +29,21 @@ public class OrderProcessFacade {
     private OrderTransaction orderTransaction;
     private KafkaEvent kafkaEvent;
     private ObjectToMapper objectToMapper;
-    private OrderExternalService orderExternalService;
+    private OrderExternalService orderExternalServiceDispatcher;
+    private OrderExternalService orderExternalServiceInkatrackerLite;
 
     public OrderProcessFacade(OrderTransaction orderTransaction, KafkaEvent kafkaEvent,
                               ObjectToMapper objectToMapper,
-                              @Qualifier("deliveryDispatcher") OrderExternalService orderExternalService) {
+                              @Qualifier("deliveryDispatcher") OrderExternalService orderExternalServiceDispatcher,
+                              @Qualifier("inkatrackerlite") OrderExternalService orderExternalServiceInkatrackerLite) {
         this.orderTransaction = orderTransaction;
         this.kafkaEvent = kafkaEvent;
         this.objectToMapper = objectToMapper;
-        this.orderExternalService = orderExternalService;
+        this.orderExternalServiceDispatcher = orderExternalServiceDispatcher;
+        this.orderExternalServiceInkatrackerLite = orderExternalServiceInkatrackerLite;
     }
 
-    public OrderFulfillmentCanonical createOrder(OrderDto orderDto){
+    public OrderCanonical createOrder(OrderDto orderDto){
 
         try{
             log.info("[START] create order facade");
@@ -50,7 +54,7 @@ public class OrderProcessFacade {
                                     objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
                             );
 
-            return objectToMapper.convertEntityToOrderFulfillmentCanonical(serviceLocalOrderEntity);
+            return objectToMapper.convertEntityToOrderCanonical(serviceLocalOrderEntity);
 
         }finally {
             log.info("[END] create order facade - orderFulfillmentCanonical");
@@ -66,21 +70,21 @@ public class OrderProcessFacade {
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
         OrderCanonical resultCanonical;
 
-        OrderFulfillmentCanonical orderFulfillment =
+        OrderCanonical orderCanonical =
                 objectToMapper
                         .convertIOrderDtoToOrderFulfillmentCanonical(
                                 orderTransaction.getOrderByecommerceId(ecommercePurchaseId)
                         );
-        int attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0);
-        int attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(0);
+        int attemptTracker = Optional.ofNullable(orderCanonical.getAttemptTracker()).orElse(0);
+        int attempt = Optional.ofNullable(orderCanonical.getAttempt()).orElse(0);
 
-        if (Optional.ofNullable(orderFulfillment.getId()).isPresent()) {
+        if (Optional.ofNullable(orderCanonical.getId()).isPresent()) {
 
             switch (Constant.ActionOrder.getByName(action).getCode()) {
 
                 case 1:
                     // Result of call to reattempt at inkatracker
-                    resultCanonical = orderExternalService
+                    resultCanonical = orderExternalServiceDispatcher
                             .getResultfromExternalServices(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
 
                     log.info("Action value {} ",Constant.ActionOrder.getByName(action).getCode());
@@ -88,90 +92,108 @@ public class OrderProcessFacade {
                     attemptTracker = attemptTracker + 1;
 
                     orderTransaction.updateOrderRetryingTracker(
-                            orderFulfillment.getId(), attemptTracker,
-                            resultCanonical.getStatusCode(), resultCanonical.getStatusDetail(),
+                            orderCanonical.getId(), attemptTracker,
+                            resultCanonical.getOrderStatus().getCode(), resultCanonical.getOrderStatus().getDetail(),
                             Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
                     );
-                    resultCanonical.setExternalId(orderFulfillment.getExternalId());
+                    resultCanonical.setExternalId(orderCanonical.getExternalId());
+                    resultCanonical.setAttempt(attempt);
+                    resultCanonical.setAttemptTracker(attemptTracker);
 
                     break;
                 case 2:
                     // Result of call to reattempt to insink
-                    resultCanonical = orderExternalService
+                    resultCanonical = orderExternalServiceDispatcher
                             .getResultfromExternalServices(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
 
                     log.info("Action value {} ",Constant.ActionOrder.getByName(action).getCode());
 
-                    attempt = Optional.ofNullable(orderFulfillment.getAttempt()).orElse(0) + 1;
+                    attempt = Optional.ofNullable(orderCanonical.getAttempt()).orElse(0) + 1;
 
-                    if (!resultCanonical.getStatusCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())) {
-                        attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
+                    if (!resultCanonical.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())) {
+                        attemptTracker = Optional.ofNullable(resultCanonical.getAttemptTracker()).orElse(0) + 1;
                     }
 
                     orderTransaction.updateOrderRetrying(
-                            orderFulfillment.getId(), attempt, attemptTracker,
-                            resultCanonical.getStatusCode(), resultCanonical.getStatusDetail(),
+                            resultCanonical.getId(), attempt, attemptTracker,
+                            resultCanonical.getOrderStatus().getCode(), resultCanonical.getOrderStatus().getDetail(),
                             Optional.ofNullable(resultCanonical.getExternalId()).orElse(null),
                             Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
                     );
-
+                    resultCanonical.setAttempt(attempt);
+                    resultCanonical.setAttemptTracker(attemptTracker);
                     break;
 
                 case 3:
                     // Result to update the status when the order was released in Dispatcher
 
-                    log.info("Starting to update release order when the order come from dispatcher");
+                    log.info("Starting to update the released order when the order come from dispatcher");
 
                     OrderDto orderDto = new OrderDto();
                     orderDto.setExternalPurchaseId(Optional.ofNullable(externalId).map(Long::parseLong).orElse(null));
                     orderDto.setTrackerId(Optional.ofNullable(trackerId).map(Long::parseLong).orElse(null));
                     orderDto.setOrderStatusDto(orderStatusDto);
 
-                    OrderStatus orderStatus =  orderTransaction.getStatusOrderFromDeliveryDispatcher(orderDto);
+                    OrderStatus orderStatusEntity =  orderTransaction.getStatusOrderFromDeliveryDispatcher(orderDto);
 
                     attempt = attempt + 1;
 
-                    if (!orderStatus.getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode())) {
-                        attemptTracker = Optional.ofNullable(orderFulfillment.getAttemptTracker()).orElse(0) + 1;
+                    if (!orderStatusEntity.getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode())) {
+                        attemptTracker = Optional.ofNullable(orderCanonical.getAttemptTracker()).orElse(0) + 1;
                     }
 
                     orderTransaction.updateReservedOrder(
-                            orderFulfillment.getId(),
+                            orderCanonical.getId(),
                             Optional.ofNullable(externalId).map(Long::parseLong).orElse(null),
                             attempt,
-                            orderStatus.getCode(),
+                            orderStatusEntity.getCode(),
                             orderStatusDto.getDescription()
                     );
 
                     resultCanonical = new OrderCanonical();
 
-                    resultCanonical.setEcommerceId(orderFulfillment.getEcommerceId());
-                    resultCanonical.setStatusCode(orderStatus.getCode());
-                    resultCanonical.setStatus(orderStatus.getType());
+                    resultCanonical.setEcommerceId(orderCanonical.getEcommerceId());
+                    resultCanonical.getOrderStatus().setCode(orderStatusEntity.getCode());
+                    resultCanonical.getOrderStatus().setName(orderStatusEntity.getType());
                     resultCanonical.setExternalId(Optional.ofNullable(externalId).map(Long::parseLong).orElse(null));
-                    resultCanonical.setStatusDetail(orderStatusDto.getDescription());
+                    resultCanonical.getOrderStatus().setDetail(orderStatusDto.getDescription());
+                    resultCanonical.setAttempt(attempt);
+                    resultCanonical.setAttemptTracker(attemptTracker);
+                    break;
 
+                case 4:
+                    resultCanonical = orderExternalServiceInkatrackerLite
+                            .getResultfromExternalServices(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
+                    resultCanonical.setAttempt(orderCanonical.getAttempt());
+                    resultCanonical.setAttemptTracker(orderCanonical.getAttemptTracker());
                     break;
 
                 default:
                     resultCanonical = new OrderCanonical();
-                    resultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
-                    resultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
+                    orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+                    resultCanonical.setOrderStatus(orderStatus);
+                    resultCanonical.setEcommerceId(ecommercePurchaseId);
                     break;
 
             }
 
-            resultCanonical.setAttempt(attempt);
-            resultCanonical.setAttemptTracker(attemptTracker);
+
 
         } else {
             resultCanonical = new OrderCanonical();
-            resultCanonical.setStatusCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
-            resultCanonical.setStatus(Constant.OrderStatus.NOT_FOUND_ORDER.name());
+            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+            orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
+            orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
+            resultCanonical.setOrderStatus(orderStatus);
+            resultCanonical.setEcommerceId(ecommercePurchaseId);
         }
 
         return resultCanonical;
 
     }
+
+
 
 }
