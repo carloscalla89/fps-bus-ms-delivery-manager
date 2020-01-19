@@ -166,6 +166,9 @@ public class OrderProcessFacade {
                             .getResultfromExternalServices(ecommercePurchaseId, Constant.ActionOrder.getByName(action));
                     resultCanonical.setAttempt(orderCanonical.getAttempt());
                     resultCanonical.setAttemptTracker(orderCanonical.getAttemptTracker());
+                    resultCanonical.setEcommerceId(ecommercePurchaseId);
+                    resultCanonical.setExternalId(orderCanonical.getExternalId());
+                    resultCanonical.setTrackerId(orderCanonical.getTrackerId());
                     break;
 
                 default:
