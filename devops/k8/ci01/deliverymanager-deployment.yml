@@ -27,12 +27,12 @@ spec:
         - name: LOGS_FOLDER
           value: "/var/log/us-deliverymanager"
         ports:
-        - containerPort:
+        - containerPort: 8031
         resources:
           limits:
             cpu: 200m
-            memory: 800Mi
+            memory: 900Mi
           requests:
-            cpu: 100m
-            memory: 500Mi
+            cpu: 200m
+            memory: 900Mi
       restartPolicy: Always
