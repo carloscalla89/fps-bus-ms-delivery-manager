@@ -77,8 +77,6 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
         Mono<OrderCanonical> webClient =        WebClient
                         .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
                         .patch()
-                        //.uri("/{externalId}",ecommerceId.toString())
-
                         .uri(builder ->
                                 builder
                                         .path("/{orderExternalId}").queryParam("action",actionInkatrackerLite)
@@ -113,8 +111,8 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
         webClient.subscribe(r -> {
             log.info("Response inkatracker lite {} ",r);
-            r.setEcommerceId(ecommerceId);
-            orderExternalService.updateOrder(r);
+            //r.setEcommerceId(ecommerceId);
+            //orderExternalService.updateOrder(r);
         });
 
         OrderCanonical orderCanonical = new OrderCanonical();

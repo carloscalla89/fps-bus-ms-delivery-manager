@@ -1,7 +1,5 @@
 package com.inretailpharma.digital.deliverymanager.aspects;
 
-
-import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 
 @Slf4j
-@Aspect
+//@Aspect
 @Configuration
 public class OrderAuditProcess {
 
@@ -36,7 +34,6 @@ public class OrderAuditProcess {
 
         // send to audit microservice to update the order
         orderExternalService.updateOrder((OrderCanonical)retVal);
-
     }
 
 }
