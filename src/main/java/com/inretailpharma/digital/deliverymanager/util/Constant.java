@@ -6,12 +6,14 @@ import java.util.Optional;
 
 public interface Constant {
 
+    interface ApplicationsParameters {
+        String ACTIVATED_AUDIT = "1";
+    }
+
     interface InsinkErrorCode {
         String CODE_ERROR_GENERAL = "E-0";
         String CODE_ERROR_CLIENT_CONNECTION = "C-0";
     }
-
-
 
     interface ActionName {
         String RELEASE_ORDER = "RELEASE_ORDER";

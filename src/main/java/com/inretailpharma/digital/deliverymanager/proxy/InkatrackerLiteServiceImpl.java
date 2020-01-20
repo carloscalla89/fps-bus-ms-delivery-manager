@@ -1,17 +1,19 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 @Slf4j
 @Service("inkatrackerlite")
@@ -19,11 +21,14 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
     private OrderExternalService orderExternalService;
     private ExternalServicesProperties externalServicesProperties;
+    private ApplicationParameterService applicationParameterService;
 
     public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties,
-                                      @Qualifier("audit") OrderExternalService orderExternalService) {
+                                      @Qualifier("audit") OrderExternalService orderExternalService,
+                                      ApplicationParameterService applicationParameterService) {
         this.externalServicesProperties = externalServicesProperties;
         this.orderExternalService = orderExternalService;
+        this.applicationParameterService = applicationParameterService;
     }
 
     @Override
@@ -111,8 +116,24 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
         webClient.subscribe(r -> {
             log.info("Response inkatracker lite {} ",r);
-            //r.setEcommerceId(ecommerceId);
-            //orderExternalService.updateOrder(r);
+
+            try {
+                r.setEcommerceId(ecommerceId);
+
+                ApplicationParameter activatedAudit = applicationParameterService
+                        .findApplicationParameterByCode(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
+
+                log.info("Call for uS-Audit activated=1 - Not activated=0 activatedAudit:{}",activatedAudit);
+
+                Optional
+                        .ofNullable(activatedAudit)
+                        .map(s -> s.getCode().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
+                        .ifPresent(s -> orderExternalService.updateOrder(r));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("Error to send at uS-Audit to update error:{}",e.getMessage());
+            }
         });
 
         OrderCanonical orderCanonical = new OrderCanonical();

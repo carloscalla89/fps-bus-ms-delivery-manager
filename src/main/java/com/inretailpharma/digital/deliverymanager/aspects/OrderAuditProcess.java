@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 
 @Slf4j
-//@Aspect
+@Aspect
 @Configuration
 public class OrderAuditProcess {
 
