@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://fulfillment.uat.internal:3306/ci02fulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
+    url: jdbc:mysql://fulfillment.uat.internal:3306/uatfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
     username: operaciones
     password: Operaciones2020
 external-service:
