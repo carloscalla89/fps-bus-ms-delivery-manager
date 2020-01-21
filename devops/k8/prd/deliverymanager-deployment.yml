@@ -5,7 +5,7 @@ metadata:
   labels:
     app: us-deliverymanager
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: us-deliverymanager
@@ -28,7 +28,8 @@ spec:
         - containerPort: 8031
         resources:
           limits:
-            memory: 1.5Gi
+            memory: 1Gi
           requests:
+            cpu: 200m
             memory: 1.5Gi
       restartPolicy: Always

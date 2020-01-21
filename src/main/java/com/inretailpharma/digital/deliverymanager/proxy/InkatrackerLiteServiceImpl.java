@@ -138,8 +138,8 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
         OrderCanonical orderCanonical = new OrderCanonical();
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-        orderStatus.setCode(pending.getCode());
-        orderStatus.setName(pending.name());
+        orderStatus.setCode(successResponse.getCode());
+        orderStatus.setName(successResponse.name());
 
         orderCanonical.setOrderStatus(orderStatus);
 

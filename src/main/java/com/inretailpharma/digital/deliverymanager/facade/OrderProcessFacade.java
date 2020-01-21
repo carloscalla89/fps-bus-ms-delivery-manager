@@ -164,8 +164,8 @@ public class OrderProcessFacade {
                     orderTransaction.updateStatusOrder(orderCanonical.getId(), resultCanonical.getOrderStatus().getCode(),
                             resultCanonical.getOrderStatus().getDetail());
 
-                    resultCanonical.setAttempt(orderCanonical.getAttempt());
-                    resultCanonical.setAttemptTracker(orderCanonical.getAttemptTracker());
+                    //resultCanonical.setAttempt(orderCanonical.getAttempt());
+                    //resultCanonical.setAttemptTracker(orderCanonical.getAttemptTracker());
                     resultCanonical.setEcommerceId(ecommercePurchaseId);
                     resultCanonical.setExternalId(orderCanonical.getExternalId());
                     resultCanonical.setTrackerId(orderCanonical.getTrackerId());

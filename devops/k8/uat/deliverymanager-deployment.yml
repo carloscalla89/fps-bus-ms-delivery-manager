@@ -5,7 +5,7 @@ metadata:
   labels:
     app: us-deliverymanager
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: us-deliverymanager
@@ -27,12 +27,12 @@ spec:
         - name: LOGS_FOLDER
           value: "/var/log/us-deliverymanager"
         ports:
-        - containerPort: 8022
+        - containerPort: 8031
         resources:
           limits:
             cpu: 200m
-            memory: 1Gi
+            memory: 900Mi
           requests:
             cpu: 200m
-            memory: 1Gi
+            memory: 900Mi
       restartPolicy: Always
