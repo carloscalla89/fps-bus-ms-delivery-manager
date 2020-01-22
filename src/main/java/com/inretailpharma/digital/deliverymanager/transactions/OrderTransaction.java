@@ -38,7 +38,7 @@ public class OrderTransaction {
 
         serviceLocalOrderIdentity.setLocal(
                 Optional
-                        .ofNullable(orderRepositoryService.getLocalByCode(orderDto.getLocalCode()))
+                        .ofNullable(orderRepositoryService.getLocalByLocalCodeAndCompanyCode(orderDto.getLocalCode(), orderDto.getCompanyCode()))
                         .orElse(orderRepositoryService.getLocalByCode(Constant.Constans.NOT_DEFINED_LOCAL))
         );
 

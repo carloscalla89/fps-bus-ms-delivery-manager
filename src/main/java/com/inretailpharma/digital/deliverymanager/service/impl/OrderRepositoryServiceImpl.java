@@ -50,6 +50,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public Local getLocalByLocalCodeAndCompanyCode(String localCode, String companyCode) {
+        return localRepository.getLocalByLocalIdentityCodeAndLocalIdentityCompany_Code(localCode, companyCode);
+    }
+
+    @Override
     public OrderStatus getOrderStatusByCode(String code) {
         return orderStatusRepository.getOne(code);
     }

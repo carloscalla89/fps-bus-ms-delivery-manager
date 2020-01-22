@@ -16,6 +16,7 @@ public class OrderDto {
     private String source;
     private String serviceTypeCode;
     private String localCode;
+    private String companyCode;
 
     private Long ecommercePurchaseId;
     private Long trackerId;
