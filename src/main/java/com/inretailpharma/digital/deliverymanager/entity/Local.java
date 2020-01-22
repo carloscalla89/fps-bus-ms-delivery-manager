@@ -9,17 +9,20 @@ import javax.persistence.*;
 @Table(name = "local")
 public class Local {
 
+    /*
     @Id
     private String code;
+     */
+    @EmbeddedId
+    private LocalIdentity localIdentity;
     private String name;
+
+    /*
+
     @ManyToOne
     @JoinColumn(name = "company_code")
     private Company company;
 
-    /*
-    @MapsId("serviceLocalOrderIdentity")
-    @OneToOne
-    private ServiceLocalOrder serviceLocalOrder;
-
      */
+
 }

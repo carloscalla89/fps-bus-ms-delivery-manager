@@ -7,6 +7,7 @@ import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterSe
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,16 +36,19 @@ public class OrderTransaction {
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
 
-        Local local = new Local();
-        local.setCode(orderDto.getLocalCode());
-        serviceLocalOrderIdentity.setLocal(orderRepositoryService.getLocalByCode(orderDto.getLocalCode()));
+        serviceLocalOrderIdentity.setLocal(
+                Optional
+                        .ofNullable(orderRepositoryService.getLocalByCode(orderDto.getLocalCode()))
+                        .orElse(orderRepositoryService.getLocalByCode(Constant.Constans.NOT_DEFINED_LOCAL))
+        );
 
-        ServiceType serviceType = new ServiceType();
-        serviceType.setCode(orderDto.getServiceTypeCode());
+        serviceLocalOrderIdentity.setServiceType(
+                Optional
+                        .ofNullable(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()))
+                        .orElse(orderRepositoryService.getServiceTypeByCode(Constant.Constans.NOT_DEFINED_SERVICE))
 
-        serviceLocalOrderIdentity.setServiceType(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()));
+        );
         serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillmentResp);
-
 
         // Set status from delivery dispatcher
         OrderStatus orderStatus = getStatusOrderFromDeliveryDispatcher(orderDto);
@@ -67,15 +71,10 @@ public class OrderTransaction {
                 .ofNullable(orderDto.getOrderStatusDto())
                 .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
 
-
         orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
 
         return serviceLocalOrder;
-    }
-
-    public List<IOrderFulfillment> getListOrdersByStatus(Set<String> status){
-        return orderRepositoryService.getListOrdersByStatus(status);
     }
 
     public OrderStatus  getStatusOrderFromDeliveryDispatcher(OrderDto orderDto) {

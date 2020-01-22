@@ -153,6 +153,8 @@ public interface Constant {
     interface Constans {
         Integer ONE_ATTEMPT = 1;
         String SUCCESS_CODE = "00";
+        String NOT_DEFINED_LOCAL = "NDL";
+        String NOT_DEFINED_SERVICE = "NDS";
     }
 
     enum PaymentMethodCode {
