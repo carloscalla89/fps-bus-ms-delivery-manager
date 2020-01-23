@@ -20,7 +20,4 @@ public class ApplicationParameter implements Serializable {
     private String code;
     private String description;
     private String value;
-    @Version
-    private Integer version;
-
 }

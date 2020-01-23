@@ -17,20 +17,20 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 
     private OrderRepository orderRepository;
     private ServiceTypeRepository serviceTypeRepository;
-    private LocalRepository localRepository;
     private OrderStatusRepository orderStatusRepository;
     private ServiceLocalOrderRepository serviceLocalOrderRepository;
+    private CenterCompanyRepository centerCompanyRepository;
 
     public OrderRepositoryServiceImpl(OrderRepository orderRepository,
                                       ServiceTypeRepository serviceTypeRepository,
-                                      LocalRepository localRepository,
                                       OrderStatusRepository orderStatusRepository,
-                                      ServiceLocalOrderRepository serviceLocalOrderRepository) {
+                                      ServiceLocalOrderRepository serviceLocalOrderRepository,
+                                      CenterCompanyRepository centerCompanyRepository) {
         this.orderRepository = orderRepository;
         this.serviceTypeRepository = serviceTypeRepository;
-        this.localRepository = localRepository;
         this.orderStatusRepository = orderStatusRepository;
         this.serviceLocalOrderRepository = serviceLocalOrderRepository;
+        this.centerCompanyRepository = centerCompanyRepository;
     }
 
     @Override
@@ -44,14 +44,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return serviceTypeRepository.getOne(code);
     }
 
-    @Override
-    public Local getLocalByCode(String localCode) {
-        return localRepository.getOne(localCode);
-    }
 
     @Override
-    public Local getLocalByLocalCodeAndCompanyCode(String localCode, String companyCode) {
-        return localRepository.getLocalByLocalIdentityCodeAndLocalIdentityCompany_Code(localCode, companyCode);
+    public CenterCompanyFulfillment getCenterCompanyByCenterCodeAndCompanyCode(String centerCode, String companyCode) {
+        return centerCompanyRepository.getCenterCompanyFulfillmentByCenterCompanyIdentity_CenterCodeAndCenterCompanyIdentity_CompanyCode
+                (centerCode, companyCode);
     }
 
     @Override

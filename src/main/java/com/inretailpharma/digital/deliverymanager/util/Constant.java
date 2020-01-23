@@ -7,7 +7,8 @@ import java.util.Optional;
 public interface Constant {
 
     interface ApplicationsParameters {
-        String ACTIVATED_AUDIT = "1";
+        String ACTIVATED_AUDIT_VALUE = "1";
+        String ACTIVATED_AUDIT = "ACTIVATED_AUDIT";
     }
 
     interface InsinkErrorCode {
@@ -153,7 +154,8 @@ public interface Constant {
     interface Constans {
         Integer ONE_ATTEMPT = 1;
         String SUCCESS_CODE = "00";
-        String NOT_DEFINED_LOCAL = "NDL";
+        String NOT_DEFINED_CENTER = "NDC";
+        String NOT_DEFINED_COMPANY = "NDC";
         String NOT_DEFINED_SERVICE = "NDS";
     }
 

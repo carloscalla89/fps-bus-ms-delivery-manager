@@ -11,8 +11,7 @@ public interface OrderRepositoryService {
 
     OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto);
     ServiceType getServiceTypeByCode(String code);
-    Local getLocalByCode(String code);
-    Local getLocalByLocalCodeAndCompanyCode(String localCode, String companyCode);
+    CenterCompanyFulfillment getCenterCompanyByCenterCodeAndCompanyCode(String centerCode, String companyCode);
     OrderStatus getOrderStatusByCode(String code);
     ServiceLocalOrder saveServiceLocalOrder(ServiceLocalOrder serviceLocalOrder);
     List<IOrderFulfillment> getListOrdersByStatus(Set<String> status);

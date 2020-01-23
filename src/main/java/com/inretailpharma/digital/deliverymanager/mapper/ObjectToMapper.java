@@ -217,9 +217,17 @@ public class ObjectToMapper {
         orderCanonical.setServiceType(serviceType);
 
         // localCode, locals and the company
+        /*
         orderCanonical.setLocalCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getLocalIdentity().getCode());
         orderCanonical.setLocal(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getName());
         orderCanonical.setCompany(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getLocalIdentity().getCompany().getName());
+        */
+
+        orderCanonical.setLocalCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterCompanyIdentity().getCenterCode());
+        orderCanonical.setLocal(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterName());
+        orderCanonical.setCompany(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCompanyName());
+
+
 
         orderCanonical.setTotalAmount(orderFulfillment.getTotalCost());
         orderCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(orderFulfillment.getScheduledTime()));

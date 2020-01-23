@@ -13,9 +13,10 @@ public class ServiceLocalOrderIdentity implements Serializable {
 
     }
 
-    public ServiceLocalOrderIdentity(ServiceType serviceType, Local local, OrderFulfillment orderFulfillment, OrderStatus orderStatus) {
+    public ServiceLocalOrderIdentity(ServiceType serviceType, CenterCompanyFulfillment centerCompanyFulfillment,
+                                     OrderFulfillment orderFulfillment, OrderStatus orderStatus) {
         this.serviceType = serviceType;
-        this.local = local;
+        this.centerCompanyFulfillment = centerCompanyFulfillment;
         this.orderFulfillment = orderFulfillment;
         this.orderStatus = orderStatus;
     }
@@ -24,6 +25,14 @@ public class ServiceLocalOrderIdentity implements Serializable {
     @JoinColumn(name="service_type_code",referencedColumnName = "code")
     private ServiceType serviceType;
 
+    @MapsId("centerCompanyIdentity")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumns({
+            @JoinColumn(name="center_code",referencedColumnName="center_code"),
+            @JoinColumn(name="company_code",referencedColumnName="company_code"),
+    })
+    private CenterCompanyFulfillment centerCompanyFulfillment;
+
     /*
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="local_code",referencedColumnName = "code")
@@ -31,14 +40,16 @@ public class ServiceLocalOrderIdentity implements Serializable {
 
      */
 
+    /*
+
     @MapsId("localIdentity")
     @JoinColumns({
-            @JoinColumn(name="code",referencedColumnName="code"),
+            @JoinColumn(name="local_code",referencedColumnName="local_code"),
             @JoinColumn(name="company_code",referencedColumnName="company_code"),
     })
     @OneToOne(cascade = CascadeType.ALL)
     private Local local;
-
+*/
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="order_fulfillment_id",referencedColumnName = "id")

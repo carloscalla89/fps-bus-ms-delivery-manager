@@ -36,11 +36,21 @@ public class OrderTransaction {
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
 
+        /*
         serviceLocalOrderIdentity.setLocal(
                 Optional
                         .ofNullable(orderRepositoryService.getLocalByLocalCodeAndCompanyCode(orderDto.getLocalCode(), orderDto.getCompanyCode()))
                         .orElse(orderRepositoryService.getLocalByCode(Constant.Constans.NOT_DEFINED_LOCAL))
         );
+
+         */
+
+        serviceLocalOrderIdentity.setCenterCompanyFulfillment(
+                Optional
+                        .ofNullable(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(orderDto.getLocalCode(), orderDto.getCompanyCode()))
+                        .orElse(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(Constant.Constans.NOT_DEFINED_CENTER, Constant.Constans.NOT_DEFINED_COMPANY))
+        );
+
 
         serviceLocalOrderIdentity.setServiceType(
                 Optional

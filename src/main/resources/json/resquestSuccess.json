@@ -1,0 +1,43 @@
+{
+  "source": "WEB",
+  "serviceTypeCode": "INKATRACKER_LITE_RAD",
+  "localCode": "179",
+  "companyCode": "IKF",
+  "ecommercePurchaseId": 401210,
+  "trackerId": 401210,
+  "externalPurchaseId": 7,
+  "totalCost": 2.90,
+  "client": {
+    "documentNumber": "42216206"
+  },
+  "createdOrder": "2020-01-22 16:47:58",
+  "scheduledTime": "2020-01-22 17:00:00",
+  "payment":{
+    "type":"CASH",
+    "paidAmount":20.00,
+    "changeAmount":17.10
+  },
+  "receipt": {
+    "name":"TICKET"
+  },
+  "orderItem": [
+    {
+      "productCode": "010003",
+      "productName": "Levocelip 5 mg Tabletas Recubiertas(1 Tableta)",
+      "shortDescription": "",
+      "brand": "Drogueria los andes -a-",
+      "quantity":1,
+      "unitPrice": 2.9,
+      "totalPrice": 2.9
+    },
+    {
+      "productCode": "024031",
+      "productName": "Envió Delivery",
+      "shortDescription": "Envió Delivery",
+      "brand": "Cluny nac",
+      "quantity":1,
+      "unitPrice": 5.0,
+      "totalPrice": 5.0
+    }
+  ]
+}

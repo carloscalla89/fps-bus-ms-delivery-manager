@@ -18,4 +18,9 @@ public class ApplicationParameterServiceImpl implements ApplicationParameterServ
     public ApplicationParameter findApplicationParameterByCode(String code) {
         return applicationParameterRepository.getOne(code);
     }
+
+    @Override
+    public ApplicationParameter getApplicationParameterByCodeIs(String code) {
+        return applicationParameterRepository.getApplicationParameterByCodeIs(code);
+    }
 }

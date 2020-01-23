@@ -34,13 +34,13 @@ public class OrderAuditServiceImpl implements OrderExternalService {
         try {
 
             ApplicationParameter activatedAudit = applicationParameterService
-                    .findApplicationParameterByCode(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
+                    .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
 
             log.info("Parameter to Call uS-Audit - activated=1 - Not activated=0 activatedAudit-{}",activatedAudit);
 
             Optional
                     .ofNullable(activatedAudit)
-                    .map(s -> s.getCode().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
+                    .filter(s -> s.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
                     .ifPresent(s -> {
 
                         Mono<String> response = WebClient

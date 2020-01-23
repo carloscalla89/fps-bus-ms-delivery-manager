@@ -28,35 +28,20 @@ DROP TABLE IF EXISTS `service_type`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `service_type` (
   `code` varchar(32) NOT NULL,
+  `name` VARCHAR(64) NULL,
   `description` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Table structure for table `company`
+-- Table structure for table `center_company_fulfillment`
 --
-DROP TABLE IF EXISTS `company`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `company` (
-  `code` varchar(16) NOT NULL,
-  `name` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
---
--- Table structure for table `local`
---
-DROP TABLE IF EXISTS `local`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `local` (
-  `code` varchar(16) NOT NULL,
-  `name` varchar(128) DEFAULT NULL,
-  `company_code` varchar(32) NOT NULL,
-  PRIMARY KEY (`code`),
-  CONSTRAINT `local_fk_1` FOREIGN KEY (`company_code`) REFERENCES `company` (`code`) ON DELETE NO ACTION ON UPDATE CASCADE
+CREATE TABLE `center_company_fulfillment` (
+  `center_code` VARCHAR(16) NOT NULL,
+  `company_code` VARCHAR(16) NOT NULL,
+  `center_name` VARCHAR(45) NULL,
+  `company_name` VARCHAR(45) NULL,
+  PRIMARY KEY (`center_code`, `company_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -71,6 +56,7 @@ CREATE TABLE `order_fulfillment` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `source` varchar(5) NOT NULL,
   `ecommerce_purchase_id` bigint(20) DEFAULT NULL,
+  `tracker_id` bigint(20) DEFAULT NULL,
   `external_purchase_id` bigint(20) DEFAULT NULL,
   `bridge_purchase_id` bigint(20) DEFAULT NULL,
   `total_cost` decimal(10,2) DEFAULT NULL,
@@ -158,7 +144,8 @@ DROP TABLE IF EXISTS `order_process_service`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `order_process_status` (
   `service_type_code` varchar(32) NOT NULL,
-  `local_code` varchar(16) NOT NULL,
+  `center_code` varchar(16) NOT NULL,
+  `company_code` varchar(16) NOT NULL,
   `order_fulfillment_id` bigint(20) NOT NULL,
   `order_status_code` varchar(16) NOT NULL,
   `lead_time` int(11) DEFAULT NULL,
@@ -167,13 +154,15 @@ CREATE TABLE `order_process_status` (
   `end_hour` time DEFAULT NULL,
   `status_detail` varchar(512) DEFAULT NULL,
   `attempt` int(11) DEFAULT NULL,
+  `attempt_tracker` int(11) DEFAULT NULL,
   `reprogrammed` tinyint(1) DEFAULT NULL,
   KEY `service_type_code` (`service_type_code`),
-  KEY `local_code` (`local_code`),
+  KEY `center_code` (`center_code`),
+  KEY `company_code` (`company_code`),
   KEY `order_fulfillment_id` (`order_fulfillment_id`),
   KEY `order_status_code` (`order_status_code`),
   CONSTRAINT `service_local_order_ibfk_1` FOREIGN KEY (`service_type_code`) REFERENCES `service_type` (`code`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  CONSTRAINT `service_local_order_ibfk_2` FOREIGN KEY (`local_code`) REFERENCES `local` (`code`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `service_local_order_ibfk_2` FOREIGN KEY (`center_code`,`company_code`) REFERENCES `center_company_fulfillment` (`center_code` , `company_code`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `service_local_order_ibfk_3` FOREIGN KEY (`order_fulfillment_id`) REFERENCES `order_fulfillment` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `service_local_order_ibfk_4` FOREIGN KEY (`order_status_code`) REFERENCES `order_status` (`code`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
