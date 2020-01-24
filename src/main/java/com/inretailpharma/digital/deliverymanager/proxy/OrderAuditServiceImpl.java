@@ -85,7 +85,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
             Optional
                     .ofNullable(activatedAudit)
-                    .map(s -> s.getCode().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
+                    .filter(s -> s.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
                     .ifPresent(s -> {
 
                         Mono<String> response = WebClient
