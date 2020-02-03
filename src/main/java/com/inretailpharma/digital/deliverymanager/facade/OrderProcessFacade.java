@@ -40,21 +40,17 @@ public class OrderProcessFacade {
 
     public OrderCanonical createOrder(OrderDto orderDto){
 
-        try{
-            log.info("[START] create order facade");
+        log.info("[START] createOrder facade");
 
-            ServiceLocalOrder serviceLocalOrderEntity =
-                    orderTransaction
-                            .createOrder(
-                                    objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
-                            );
+        ServiceLocalOrder serviceLocalOrderEntity =
+                orderTransaction
+                        .createOrder(
+                                objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
+                        );
 
-            return objectToMapper.convertEntityToOrderCanonical(serviceLocalOrderEntity);
-
-        }finally {
-            log.info("[END] create order facade - orderFulfillmentCanonical");
-        }
-
+        OrderCanonical orderCanonical = objectToMapper.convertEntityToOrderCanonical(serviceLocalOrderEntity);
+        log.info("[END] createOrder facade");
+        return orderCanonical;
     }
 
 

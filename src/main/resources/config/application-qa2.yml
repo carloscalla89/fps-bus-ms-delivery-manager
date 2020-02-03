@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mysql://fulfillment.qa02.internal:3306/qa02fulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
-    username: carloscalla
-    password: elpreciomasbajo
+    username: operaciones
+    password: Operaciones2020.
 external-service:
   audit:
     create-order: http://us-audit/audit/order

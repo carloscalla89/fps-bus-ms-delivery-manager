@@ -31,19 +31,12 @@ public class OrderTransaction {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public ServiceLocalOrder createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
 
+        log.info("[START] createOrder");
+
         OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
 
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
-
-        /*
-        serviceLocalOrderIdentity.setLocal(
-                Optional
-                        .ofNullable(orderRepositoryService.getLocalByLocalCodeAndCompanyCode(orderDto.getLocalCode(), orderDto.getCompanyCode()))
-                        .orElse(orderRepositoryService.getLocalByCode(Constant.Constans.NOT_DEFINED_LOCAL))
-        );
-
-         */
 
         serviceLocalOrderIdentity.setCenterCompanyFulfillment(
                 Optional
@@ -83,7 +76,7 @@ public class OrderTransaction {
 
         orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
-
+        log.info("[END] createOrder");
         return serviceLocalOrder;
     }
 
