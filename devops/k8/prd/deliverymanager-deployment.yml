@@ -28,8 +28,9 @@ spec:
         - containerPort: 8031
         resources:
           limits:
-            memory: 1Gi
+            cpu: 200m
+            memory: 900Mi
           requests:
             cpu: 200m
-            memory: 1.5Gi
+            memory: 900Mi
       restartPolicy: Always
