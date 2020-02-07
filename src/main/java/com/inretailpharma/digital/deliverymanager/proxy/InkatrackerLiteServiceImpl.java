@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical
 import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -42,15 +43,15 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public OrderCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
+    public OrderCanonical getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
-                ecommerceId, actionOrder);
+                ecommerceId, actionDto.getAction());
 
         String actionInkatrackerLite;
         Constant.OrderStatus pending;
         Constant.OrderStatus successResponse;
 
-        switch (actionOrder.name()) {
+        switch (actionDto.getAction()) {
 
             case Constant.ActionName.RELEASE_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_BILLING;
@@ -84,7 +85,9 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                         .patch()
                         .uri(builder ->
                                 builder
-                                        .path("/{orderExternalId}").queryParam("action",actionInkatrackerLite)
+                                        .path("/{orderExternalId}")
+                                        .queryParam("action",actionInkatrackerLite)
+                                        .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
                                         .build(ecommerceId))
                         .retrieve()
                         .bodyToMono(OrderInfoCanonical.class)

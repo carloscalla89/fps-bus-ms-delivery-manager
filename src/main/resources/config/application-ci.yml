@@ -1,7 +1,24 @@
 spring:
   datasource:
-    url:
-    username:
-    password:
-  flyway:
-    baseline-on-migrate: true
+    url: jdbc:mysql://ci02fulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/cifulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
+    username: carloscalla
+    password: elpreciomasbajo
+external-service:
+  audit:
+    create-order: http://us-audit/audit/order
+    time-out: 20000
+  dispatcher:
+    insink-tracker:
+      uri: http://us-dd/order/insink-tracker/{ecommerceId}
+      connect-timeout: 10000
+      read-timeout: 120000
+    tracker:
+      uri: http://us-dd/order/tracker/{ecommerceId}
+      connect-timeout: 10000
+      read-timeout: 120000
+  inkatracker-lite:
+    update-order:
+      uri: http://us-inkatrackerlite/v2/unattended-orders
+      connect-timeout: 10000
+      read-timeout: 120000
+

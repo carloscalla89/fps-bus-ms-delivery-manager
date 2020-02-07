@@ -6,6 +6,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerIn
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerResponseDto;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,12 +46,12 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public OrderCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
-        log.info("update order actionOrder.getCode:{}", actionOrder.getCode());
+    public OrderCanonical getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
+        log.info("update order actionOrder.getCode:{}", actionDto.getAction());
 
         OrderCanonical orderCanonical;
 
-        switch (actionOrder.getCode()) {
+        switch (Constant.ActionOrder.getByName(actionDto.getAction()).getCode()) {
             case 1:
                 // reattempt to send from delivery dispatcher at inkatracker or inkatrackerlite
                 TrackerResponseDto trackerResponseDto = null;
@@ -62,7 +63,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                     uriParam.put("ecommerceId", ecommerceId.toString());
 
                     UriComponents builder = UriComponentsBuilder.fromHttpUrl(externalServicesProperties.getDispatcherTrackerUri())
-                            .queryParam("action",actionOrder.name())
+                            .queryParam("action",actionDto.getAction())
                             .build();
 
                     trackerResponseDto =restTemplate.exchange(
@@ -157,7 +158,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                     uriParam.put("ecommerceId", ecommerceId.toString());
 
                     UriComponents builder = UriComponentsBuilder.fromHttpUrl(externalServicesProperties.getDispatcherInsinkTrackerUri())
-                            .queryParam("action",actionOrder.name())
+                            .queryParam("action",actionDto.getAction())
                             .build();
 
                     trackerInsinkResponseCanonical =restTemplate.exchange(

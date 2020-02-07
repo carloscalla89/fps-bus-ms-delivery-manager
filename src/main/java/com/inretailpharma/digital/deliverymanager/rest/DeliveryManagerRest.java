@@ -62,8 +62,7 @@ public class DeliveryManagerRest {
         log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - action {}"
                 ,ecommerceId,action);
 
-        return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(action.getAction(), ecommerceId,
-                action.getExternalBillingId(), action.getTrackerId(), action.getOrderStatusDto()), HttpStatus.OK);
+        return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(action, ecommerceId), HttpStatus.OK);
     }
 
 

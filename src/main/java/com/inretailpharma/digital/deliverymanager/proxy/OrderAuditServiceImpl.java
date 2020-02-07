@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -115,7 +116,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public OrderCanonical getResultfromExternalServices(Long ecommerceId, Constant.ActionOrder actionOrder) {
+    public OrderCanonical getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
         return null;
     }
 

@@ -18,6 +18,6 @@ external-service:
       read-timeout: 120000
   inkatracker-lite:
     update-order:
-      uri: http://localhost:8283/nvr/unattended-orders
+      uri: http://localhost:8283/v2/unattended-orders
       connect-timeout: 10000
       read-timeout: 120000
