@@ -10,9 +10,8 @@ import javax.persistence.*;
 @Table(name = "order_fulfillment_cancelled")
 public class OrderCancelled {
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="order_fulfillment_id",referencedColumnName = "id")
-    private OrderFulfillment orderFulfillment;
+    @EmbeddedId
+    private OrderCancelledIdentity orderCancelledIdentity;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="code_cancellation",referencedColumnName = "code")

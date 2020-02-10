@@ -2,7 +2,7 @@
 -- Table structure for table `order_fulfillment_cancel_reason`
 --
 DROP TABLE IF EXISTS `cancellation_code_reason`;
-CREATE TABLE `order_fulfillment_cancel_reason` (
+CREATE TABLE `cancellation_code_reason` (
   `code` varchar(40) NOT NULL,
   `type` varchar(50) NOT NULL,
   `reason` varchar(500) DEFAULT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE `order_fulfillment_cancel_reason` (
 -- Table structure for table `order_fulfillment_cancel_reason`
 --
 DROP TABLE IF EXISTS `order_fulfillment_cancelled`;
-CREATE TABLE `order_fulfillment_cancel_reason` (
+CREATE TABLE `order_fulfillment_cancelled` (
   `order_fulfillment_id` bigint(20) NOT NULL,
   `code_cancellation` varchar(40) NOT NULL,
   `observation` varchar(512) NOT NULL,

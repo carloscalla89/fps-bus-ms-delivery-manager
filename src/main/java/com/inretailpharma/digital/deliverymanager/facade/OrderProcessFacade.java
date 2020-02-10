@@ -166,7 +166,9 @@ public class OrderProcessFacade {
                         cancellationCodeReason.setCode(actionDto.getOrderCancelCode());
 
                         OrderCancelled orderCancelled = new OrderCancelled();
-                        orderCancelled.setOrderFulfillment(orderFulfillment);
+                        OrderCancelledIdentity orderCancelledIdentity = new OrderCancelledIdentity();
+                        orderCancelledIdentity.setOrderFulfillment(orderFulfillment);
+                        orderCancelled.setOrderCancelledIdentity(orderCancelledIdentity);
                         orderCancelled.setCancellationCodeReason(cancellationCodeReason);
                         orderCancelled.setObservation(actionDto.getOrderCancelObservation());
 
