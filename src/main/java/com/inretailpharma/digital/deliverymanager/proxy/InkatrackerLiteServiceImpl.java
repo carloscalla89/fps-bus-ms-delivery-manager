@@ -7,6 +7,7 @@ import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServ
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
+import com.inretailpharma.digital.deliverymanager.service.impl.ApplicationParameterServiceImpl;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,15 +21,15 @@ import java.util.Optional;
 @Service("inkatrackerlite")
 public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
-    private OrderExternalService orderExternalService;
+    private OrderExternalService orderExternalServiceAudit;
     private ExternalServicesProperties externalServicesProperties;
     private ApplicationParameterService applicationParameterService;
 
     public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties,
-                                      @Qualifier("audit") OrderExternalService orderExternalService,
+                                      @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                                       ApplicationParameterService applicationParameterService) {
         this.externalServicesProperties = externalServicesProperties;
-        this.orderExternalService = orderExternalService;
+        this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.applicationParameterService = applicationParameterService;
     }
 
@@ -46,6 +47,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     public OrderCanonical getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
+
 
         String actionInkatrackerLite;
         Constant.OrderStatus pending;
@@ -103,7 +105,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                         })
                         .onErrorResume(e -> {
                             e.printStackTrace();
-                            log.error("Error in audit call {} ",e.getMessage());
+                            log.error("Error in inkatrackerlite call {} ",e.getMessage());
                             OrderCanonical orderCanonical = new OrderCanonical();
 
                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
@@ -121,17 +123,18 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
             log.info("Response inkatracker lite {} ",r);
 
             try {
+
                 r.setEcommerceId(ecommerceId);
 
                 ApplicationParameter activatedAudit = applicationParameterService
                         .findApplicationParameterByCode(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
 
-                log.info("Call for uS-Audit activated=1 - Not activated=0 activatedAudit:{}",activatedAudit);
+                log.info("Call for uS-Audit:{}",activatedAudit);
 
                 Optional
                         .ofNullable(activatedAudit)
                         .map(s -> s.getCode().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
-                        .ifPresent(s -> orderExternalService.updateOrder(r));
+                        .ifPresent(s -> orderExternalServiceAudit.updateOrder(r));
 
             } catch (Exception e) {
                 e.printStackTrace();

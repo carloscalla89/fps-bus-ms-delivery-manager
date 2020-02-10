@@ -40,6 +40,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public OrderFulfillment getOrderFulfillmentById(Long id) {
+        return orderRepository.getOne(id);
+    }
+
+    @Override
     public ServiceType getServiceTypeByCode(String code) {
         return serviceTypeRepository.getOne(code);
     }

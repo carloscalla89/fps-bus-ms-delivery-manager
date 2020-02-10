@@ -13,7 +13,7 @@ public class OrderCancelled {
     @EmbeddedId
     private OrderCancelledIdentity orderCancelledIdentity;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(orphanRemoval = true,cascade = CascadeType.ALL)
     @JoinColumn(name="code_cancellation",referencedColumnName = "code")
     private CancellationCodeReason cancellationCodeReason;
 

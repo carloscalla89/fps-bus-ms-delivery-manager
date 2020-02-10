@@ -143,6 +143,10 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderByecommerceId(ecommerceId);
     }
 
+    public OrderFulfillment getOrderFulfillmentById(Long id) {
+        return orderRepositoryService.getOrderFulfillmentById(id);
+    }
+
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateOrderRetrying(Long orderFulfillmentId, Integer attempt, Integer attemptTracker,
                                     String orderStatusCode, String statusDetail, Long externalPurchaseId,
@@ -199,8 +203,13 @@ public class OrderTransaction {
         return orderCancellationService.getListCodeCancellationByCode();
     }
 
+    public CancellationCodeReason getCancellationCodeReasonByCode(String code) {
+        return orderCancellationService.geByCode(code);
+    }
+
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void insertCancelledOrder(OrderCancelled orderCancelled) {
+        log.info("[START] insertCancelledOrder - orderCancelled-{}",orderCancelled);
         orderCancellationService.insertCancelledOrder(orderCancelled);
     }
 

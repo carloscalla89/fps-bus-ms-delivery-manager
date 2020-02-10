@@ -17,8 +17,10 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
     private CancellationCodeReasonRepository cancellationCodeReasonRepository;
     private OrderCancelledRepository orderCancelledRepository;
 
-    public OrderCancellationServiceImpl(CancellationCodeReasonRepository cancellationCodeReasonRepository) {
+    public OrderCancellationServiceImpl(CancellationCodeReasonRepository cancellationCodeReasonRepository,
+                                        OrderCancelledRepository orderCancelledRepository) {
         this.cancellationCodeReasonRepository = cancellationCodeReasonRepository;
+        this.orderCancelledRepository = orderCancelledRepository;
     }
 
     @Override
@@ -29,5 +31,10 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
     @Override
     public void insertCancelledOrder(OrderCancelled orderCancelled) {
         orderCancelledRepository.save(orderCancelled);
+    }
+
+    @Override
+    public CancellationCodeReason geByCode(String code) {
+        return cancellationCodeReasonRepository.getOne(code);
     }
 }

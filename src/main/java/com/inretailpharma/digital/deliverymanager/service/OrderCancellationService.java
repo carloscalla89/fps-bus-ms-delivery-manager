@@ -9,4 +9,5 @@ public interface OrderCancellationService {
 
     List<CancellationCodeReason> getListCodeCancellationByCode();
     void insertCancelledOrder(OrderCancelled orderCancelled);
+    CancellationCodeReason geByCode(String code);
 }

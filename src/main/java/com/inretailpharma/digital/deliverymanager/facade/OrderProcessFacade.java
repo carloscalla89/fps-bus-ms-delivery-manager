@@ -157,24 +157,23 @@ public class OrderProcessFacade {
                     orderTransaction.updateStatusOrder(iOrderFulfillment.getOrderId(), resultCanonical.getOrderStatus().getCode(),
                             resultCanonical.getOrderStatus().getDetail());
 
+                    log.info("[START] to registar cancelled order");
                     if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
-                        OrderFulfillment orderFulfillment = new OrderFulfillment();
-                        orderFulfillment.setId(iOrderFulfillment.getOrderId());
-
-                        CancellationCodeReason cancellationCodeReason = new CancellationCodeReason();
-                        cancellationCodeReason.setCode(actionDto.getOrderCancelCode());
-
-                        OrderCancelled orderCancelled = new OrderCancelled();
+                        OrderFulfillment orderFulfillment = orderTransaction.getOrderFulfillmentById(iOrderFulfillment.getOrderId());
                         OrderCancelledIdentity orderCancelledIdentity = new OrderCancelledIdentity();
                         orderCancelledIdentity.setOrderFulfillment(orderFulfillment);
+
+                        CancellationCodeReason codeReason = orderTransaction.getCancellationCodeReasonByCode(actionDto.getOrderCancelCode());
+
+                        OrderCancelled orderCancelled = new OrderCancelled();
                         orderCancelled.setOrderCancelledIdentity(orderCancelledIdentity);
-                        orderCancelled.setCancellationCodeReason(cancellationCodeReason);
+                        orderCancelled.setCancellationCodeReason(codeReason);
                         orderCancelled.setObservation(actionDto.getOrderCancelObservation());
 
                         orderTransaction.insertCancelledOrder(orderCancelled);
                     }
-
+                    log.info("[START] to registar cancelled order");
                     resultCanonical.setEcommerceId(ecommercePurchaseId);
                     resultCanonical.setExternalId(iOrderFulfillment.getExternalId());
                     resultCanonical.setTrackerId(iOrderFulfillment.getTrackerId());

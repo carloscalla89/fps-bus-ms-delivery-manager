@@ -10,6 +10,7 @@ import java.util.Set;
 public interface OrderRepositoryService {
 
     OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto);
+    OrderFulfillment getOrderFulfillmentById(Long id);
     ServiceType getServiceTypeByCode(String code);
     CenterCompanyFulfillment getCenterCompanyByCenterCodeAndCompanyCode(String centerCode, String companyCode);
     OrderStatus getOrderStatusByCode(String code);
