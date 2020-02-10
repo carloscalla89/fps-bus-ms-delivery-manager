@@ -35,7 +35,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
         try {
 
             ApplicationParameter activatedAudit = applicationParameterService
-                    .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
+                    .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
 
             log.info("Parameter to Call uS-Audit - activated=1 - Not activated=0 activatedAudit-{}",activatedAudit);
 

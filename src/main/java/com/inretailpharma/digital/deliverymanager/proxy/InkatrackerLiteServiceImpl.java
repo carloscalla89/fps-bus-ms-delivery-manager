@@ -133,7 +133,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
                 Optional
                         .ofNullable(activatedAudit)
-                        .map(s -> s.getCode().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
+                        .map(s -> s.getCode().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
                         .ifPresent(s -> orderExternalServiceAudit.updateOrder(r));
 
             } catch (Exception e) {
