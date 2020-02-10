@@ -33,6 +33,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 
     @Query(value = "select o.id as orderId, o.tracker_id as trackerId, o.external_purchase_id as externalId, " +
+            "o.ecommerce_purchase_id as ecommerceId," +
             "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
             "st.code as serviceTypeCode, st.name as serviceTypeName " +
             "from order_fulfillment o " +

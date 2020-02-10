@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
 import com.inretailpharma.digital.deliverymanager.canonical.*;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
@@ -10,6 +11,7 @@ import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -116,73 +118,6 @@ public class ObjectToMapper {
         return orderCanonical;
     }
 
-    /*
-    public OrderFulfillmentCanonical convertEntityToOrderFulfillmentCanonical(ServiceLocalOrder serviceLocalOrderEntity) {
-
-        OrderFulfillment orderFulfillment = serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderFulfillment();
-        OrderFulfillmentCanonical orderFulfillmentCanonical = new OrderFulfillmentCanonical();
-
-        // set id
-        orderFulfillmentCanonical.setId(orderFulfillment.getId());
-
-        // set ecommerce(shoppingcart) id
-        orderFulfillmentCanonical.setEcommerceId(orderFulfillment.getEcommercePurchaseId());
-
-        // set tracker id
-        orderFulfillmentCanonical.setTrackerId(orderFulfillment.getTrackerId());
-
-        // Set insink id
-        orderFulfillmentCanonical.setExternalId(orderFulfillment.getExternalPurchaseId());
-
-        // set status
-        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-        orderStatus.setStatusCode(
-                serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderStatus().getCode()
-        );
-        orderStatus.setStatus(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderStatus().getType());
-        orderStatus.setStatusDetail(serviceLocalOrderEntity.getStatusDetail());
-        orderFulfillmentCanonical.setOrderStatus(orderStatus);
-
-        // Set type and name of service
-        ServiceTypeCanonical serviceType = new ServiceTypeCanonical();
-        serviceType.setCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getServiceType().getCode());
-        serviceType.setName(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getServiceType().getName());
-        orderFulfillmentCanonical.setServiceType(serviceType);
-
-        // localCode, locals and the company
-        orderFulfillmentCanonical.setLocalCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getCode());
-        orderFulfillmentCanonical.setLocal(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getName());
-        orderFulfillmentCanonical.setCompany(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getCompany().getName());
-
-        orderFulfillmentCanonical.setTotalAmount(orderFulfillment.getTotalCost());
-        orderFulfillmentCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(orderFulfillment.getScheduledTime()));
-        orderFulfillmentCanonical.setDocumentNumber(orderFulfillment.getDocumentNumber());
-
-
-        // attempt of insink and attemptTracker of tracker
-        orderFulfillmentCanonical.setAttempt(serviceLocalOrderEntity.getAttempt());
-        orderFulfillmentCanonical.setAttemptTracker(serviceLocalOrderEntity.getAttemptTracker());
-
-
-        // Payment method canonical
-        PaymentMethodCanonical paymentMethodCanonical = new PaymentMethodCanonical();
-        paymentMethodCanonical.setType(orderFulfillment.getPaymentMethod().getPaymentType().name());
-        paymentMethodCanonical.setProviderCard(orderFulfillment.getPaymentMethod().getCardProvider());
-        orderFulfillmentCanonical.setPaymentMethod(paymentMethodCanonical);
-
-        ReceiptCanonical receiptCanonical = new ReceiptCanonical();
-        receiptCanonical.setType(orderFulfillment.getReceiptType().getName());
-        receiptCanonical.setRuc(orderFulfillment.getReceiptType().getRuc());
-        receiptCanonical.setCompanyName(orderFulfillment.getReceiptType().getCompanyName());
-        receiptCanonical.setAddress(orderFulfillment.getReceiptType().getCompanyAddress());
-        orderFulfillmentCanonical.setReceipt(receiptCanonical);
-
-        log.info("Map result orderFulfillmentCanonical:{}",orderFulfillmentCanonical);
-
-        return orderFulfillmentCanonical;
-
-    }
-     */
 
     public OrderCanonical convertEntityToOrderCanonical(ServiceLocalOrder serviceLocalOrderEntity) {
 
@@ -216,13 +151,6 @@ public class ObjectToMapper {
         serviceType.setName(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getServiceType().getName());
         orderCanonical.setServiceType(serviceType);
 
-        // localCode, locals and the company
-        /*
-        orderCanonical.setLocalCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getLocalIdentity().getCode());
-        orderCanonical.setLocal(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getName());
-        orderCanonical.setCompany(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getLocal().getLocalIdentity().getCompany().getName());
-        */
-
         orderCanonical.setLocalCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterCompanyIdentity().getCenterCode());
         orderCanonical.setLocal(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterName());
         orderCanonical.setCompany(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCompanyName());
@@ -255,6 +183,20 @@ public class ObjectToMapper {
         log.info("Map result orderFulfillmentCanonical:{}",orderCanonical);
 
         return orderCanonical;
+
+    }
+
+    public List<OrderCancellationCanonical> convertEntityOrderCancellationToCanonical(
+            List<CancellationCodeReason> cancelReasons) {
+
+        return cancelReasons.stream().map(r -> {
+            OrderCancellationCanonical orderCancellationCanonical = new OrderCancellationCanonical();
+            orderCancellationCanonical.setCode(r.getCode());
+            orderCancellationCanonical.setType(r.getType());
+            orderCancellationCanonical.setDescription(r.getReason());
+
+            return orderCancellationCanonical;
+        }).collect(Collectors.toList());
 
     }
 

@@ -3,11 +3,10 @@ package com.inretailpharma.digital.deliverymanager.transactions;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
+import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -15,17 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
 @Component
 public class OrderTransaction {
 
     private OrderRepositoryService orderRepositoryService;
+    private OrderCancellationService orderCancellationService;
 
-
-    public OrderTransaction(OrderRepositoryService orderRepositoryService) {
+    public OrderTransaction(OrderRepositoryService orderRepositoryService,
+                            OrderCancellationService orderCancellationService) {
         this.orderRepositoryService = orderRepositoryService;
+        this.orderCancellationService = orderCancellationService;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -192,6 +193,15 @@ public class OrderTransaction {
                 orderFulfillmentId, orderStatusCode, statusDetail);
 
         orderRepositoryService.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
+    }
+
+    public List<CancellationCodeReason> getListCancelReason() {
+        return orderCancellationService.getListCodeCancellationByCode();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void insertCancelledOrder(OrderCancelled orderCancelled) {
+        orderCancellationService.insertCancelledOrder(orderCancelled);
     }
 
 }

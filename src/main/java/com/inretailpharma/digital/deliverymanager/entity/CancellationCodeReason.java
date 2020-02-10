@@ -7,8 +7,8 @@ import javax.persistence.Table;
 
 @Data
 @Entity
-@Table(name="order_fulfillment_cancel_reason")
-public class OrderFulfillmentCancelReason {
+@Table(name="cancellation_code_reason")
+public class CancellationCodeReason {
 
     private String code;
     private String type;

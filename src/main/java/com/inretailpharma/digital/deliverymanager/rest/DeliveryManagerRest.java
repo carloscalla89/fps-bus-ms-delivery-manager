@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/fulfillment")
 @Api(value = "OrderManagerRest", produces = "application/json")
@@ -38,7 +40,7 @@ public class DeliveryManagerRest {
      }
 
 
-    @ApiOperation(value = "Crea una orden en el entonor fulfillment", tags = { "Controlador OrderManagers" })
+    @ApiOperation(value = "Ejecutar accion para actualizar una orden", tags = { "Controlador OrderManagers" })
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
             @ApiResponse(code = 500, message = "No creado") })
@@ -48,7 +50,7 @@ public class DeliveryManagerRest {
         return new ResponseEntity<>(orderProcessFacade.createOrder(orderDto), HttpStatus.CREATED);
      }
 
-    @ApiOperation(value = "Actualizar una orden en el dominio fulfillment segun una acción a realizar", tags = { "Controlador OrderManagers" })
+    @ApiOperation(value = "Actualizar una orden en el dominio fulfillment segun una acción a realizar", tags = { "Controlador DeliveryManager" })
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
             @ApiResponse(code = 500, message = "No creado") })
@@ -65,5 +67,17 @@ public class DeliveryManagerRest {
         return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(action, ecommerceId), HttpStatus.OK);
     }
 
+
+    @ApiOperation(value = "Obtener los códigos y descripción de cancelación de una orden", tags = { "Controlador DeliveryManager" })
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Lista obtenida correctamente", response = List.class),
+            @ApiResponse(code = 500, message = "No creado") })
+    @GetMapping("/order/cancellation")
+    public ResponseEntity<?> getCancellationReasonsCode() {
+
+        log.info("[START] endpoint getCancellationReasonsCode");
+
+        return new ResponseEntity<>(orderProcessFacade.getOrderCancellationList(), HttpStatus.OK);
+    }
 
 }
