@@ -33,24 +33,6 @@ public class ServiceLocalOrderIdentity implements Serializable {
     })
     private CenterCompanyFulfillment centerCompanyFulfillment;
 
-    /*
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="local_code",referencedColumnName = "code")
-    private Local local;
-
-     */
-
-    /*
-
-    @MapsId("localIdentity")
-    @JoinColumns({
-            @JoinColumn(name="local_code",referencedColumnName="local_code"),
-            @JoinColumn(name="company_code",referencedColumnName="company_code"),
-    })
-    @OneToOne(cascade = CascadeType.ALL)
-    private Local local;
-*/
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="order_fulfillment_id",referencedColumnName = "id")
     private OrderFulfillment orderFulfillment;
