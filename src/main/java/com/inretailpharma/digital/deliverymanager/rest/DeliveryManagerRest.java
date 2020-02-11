@@ -72,7 +72,7 @@ public class DeliveryManagerRest {
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "Lista obtenida correctamente", response = List.class),
             @ApiResponse(code = 500, message = "No creado") })
-    @GetMapping("/order/cancellation")
+    @GetMapping("/cancellation/reason")
     public ResponseEntity<?> getCancellationReasonsCode() {
 
         log.info("[START] endpoint getCancellationReasonsCode");
