@@ -87,7 +87,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                             .map(s ->
                                                                     Optional
                                                                             .ofNullable(r.getCode())
-                                                                            .map(Constant.OrderStatus::getByName)
+                                                                            .map(code -> Constant.OrderStatus.getByName(code))
                                                                             .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS)
                                                             )
                                                             .orElseGet(() ->

@@ -62,10 +62,10 @@ public class OrderProcessFacade {
 
         IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
 
-        int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
-        int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0);
+        if (Optional.ofNullable(iOrderFulfillment).isPresent()) {
 
-        if (Optional.ofNullable(iOrderFulfillment.getOrderId()).isPresent()) {
+            int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
+            int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0);
 
             switch (Constant.ActionOrder.getByName(actionDto.getAction()).getCode()) {
 
