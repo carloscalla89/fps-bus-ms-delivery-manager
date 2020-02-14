@@ -1,7 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerResponseDto;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
@@ -16,6 +15,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +26,6 @@ import java.util.Optional;
 public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
     private ExternalServicesProperties externalServicesProperties;
-
     private RestTemplate restTemplate;
 
     public DeliveryDispatcherServiceImpl(ExternalServicesProperties externalServicesProperties,
@@ -36,13 +35,23 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public void sendOrder(OrderCanonical orderAuditCanonical) {
-
+    public Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderCanonical) {
+        return null;
     }
 
     @Override
-    public void updateOrder(OrderCanonical orderCanonical) {
+    public OrderCanonical sendOrder(OrderCanonical orderAuditCanonical) {
+        return null;
+    }
 
+    @Override
+    public OrderCanonical updateOrder(OrderCanonical orderCanonical) {
+        return null;
+    }
+
+    @Override
+    public Mono<OrderCanonical> updateOrderReactive(OrderCanonical orderCanonical) {
+        return null;
     }
 
     @Override

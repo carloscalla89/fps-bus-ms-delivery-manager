@@ -1,6 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -14,6 +14,8 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,36 +23,53 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class OrderProcessFacade {
+public class DeliveryManagerFacade {
 
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
     private OrderExternalService orderExternalServiceDispatcher;
     private OrderExternalService orderExternalServiceInkatrackerLite;
+    private OrderExternalService orderExternalServiceOrderTracker;
+    private OrderExternalService orderExternalServiceAudit;
 
-    public OrderProcessFacade(OrderTransaction orderTransaction,
-                              ObjectToMapper objectToMapper,
-                              @Qualifier("deliveryDispatcher") OrderExternalService orderExternalServiceDispatcher,
-                              @Qualifier("inkatrackerlite") OrderExternalService orderExternalServiceInkatrackerLite) {
+    public DeliveryManagerFacade(OrderTransaction orderTransaction,
+                                 ObjectToMapper objectToMapper,
+                                 @Qualifier("deliveryDispatcher") OrderExternalService orderExternalServiceDispatcher,
+                                 @Qualifier("inkatrackerlite") OrderExternalService orderExternalServiceInkatrackerLite,
+                                 @Qualifier("orderTracker") OrderExternalService orderExternalServiceOrderTracker,
+                                 @Qualifier("audit") OrderExternalService orderExternalServiceAudit) {
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceDispatcher = orderExternalServiceDispatcher;
         this.orderExternalServiceInkatrackerLite = orderExternalServiceInkatrackerLite;
+        this.orderExternalServiceOrderTracker = orderExternalServiceOrderTracker;
+        this.orderExternalServiceAudit = orderExternalServiceAudit;
     }
 
     public OrderCanonical createOrder(OrderDto orderDto){
 
+
+        Mono.defer(() -> {
+            OrderFulfillment orderFulfillment = orderTransaction.createOrder(
+                    objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
+            );
+        })
+
         log.info("[START] createOrder facade");
+        OrderFulfillment orderFulfillment = orderTransaction.createOrder(
+                objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
+        );
+        ServiceLocalOrder serviceLocalOrder = orderTransaction.createServiceLocalOrder(orderFulfillment, orderDto);
 
-        ServiceLocalOrder serviceLocalOrderEntity =
-                orderTransaction
-                        .createOrder(
-                                objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
-                        );
+        Mono.fromCallable(() -> serviceLocalOrder)
+                .map(r -> objectToMapper.convertEntityToOrderCanonical(r)) // convert entity for canonical fulfillment
+                .flatMap(r -> orderExternalServiceAudit.sendOrderReactive(r)) // send to audit
+                .flatMap(r -> orderExternalServiceOrderTracker.sendOrderReactive(r)) // Send orderDto for order-tracker
+                .flatMap(r -> orderExternalServiceAudit.updateOrderReactive(r)) // send for audit with status
+                .subscribeOn(Schedulers.elastic()).subscribe((r)->log.info("success - r:{}",r));
 
-        OrderCanonical orderCanonical = objectToMapper.convertEntityToOrderCanonical(serviceLocalOrderEntity);
         log.info("[END] createOrder facade");
-        return orderCanonical;
+        return objectToMapper.convertOrderFulfillmentToOrderCanonical(orderFulfillment);
     }
 
 
@@ -206,6 +225,5 @@ public class OrderProcessFacade {
     public List<OrderCancellationCanonical> getOrderCancellationList() {
         return objectToMapper.convertEntityOrderCancellationToCanonical(orderTransaction.getListCancelReason());
     }
-
 
 }

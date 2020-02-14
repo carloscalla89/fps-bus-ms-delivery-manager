@@ -2,7 +2,7 @@ package com.inretailpharma.digital.deliverymanager.rest;
 
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.facade.OrderProcessFacade;
+import com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade;
 import io.swagger.annotations.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +23,10 @@ import java.util.List;
 @Slf4j
 public class DeliveryManagerRest {
 
-    private OrderProcessFacade orderProcessFacade;
+    private DeliveryManagerFacade deliveryManagerFacade;
 
-    public DeliveryManagerRest(OrderProcessFacade orderProcessFacade) {
-        this.orderProcessFacade = orderProcessFacade;
+    public DeliveryManagerRest(DeliveryManagerFacade deliveryManagerFacade) {
+        this.deliveryManagerFacade = deliveryManagerFacade;
     }
 
     @ApiOperation(value = "Crea un deliverymanager", tags = { "Controlador OrderManagers" })
@@ -47,7 +47,8 @@ public class DeliveryManagerRest {
     @PostMapping("/order")
      public ResponseEntity<?> createOrder(@RequestBody OrderDto orderDto) {
         log.info("[START] endpoint /fulfillment/order - orderDto:{}",orderDto);
-        return new ResponseEntity<>(orderProcessFacade.createOrder(orderDto), HttpStatus.CREATED);
+
+        return new ResponseEntity<>(deliveryManagerFacade.createOrder(orderDto), HttpStatus.CREATED);
      }
 
     @ApiOperation(value = "Actualizar una orden en el dominio fulfillment segun una acción a realizar", tags = { "Controlador DeliveryManager" })
@@ -64,7 +65,7 @@ public class DeliveryManagerRest {
         log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - action {}"
                 ,ecommerceId,action);
 
-        return new ResponseEntity<>(orderProcessFacade.getUpdateOrder(action, ecommerceId), HttpStatus.OK);
+        return new ResponseEntity<>(deliveryManagerFacade.getUpdateOrder(action, ecommerceId), HttpStatus.OK);
     }
 
 
@@ -77,7 +78,7 @@ public class DeliveryManagerRest {
 
         log.info("[START] endpoint getCancellationReasonsCode");
 
-        return new ResponseEntity<>(orderProcessFacade.getOrderCancellationList(), HttpStatus.OK);
+        return new ResponseEntity<>(deliveryManagerFacade.getOrderCancellationList(), HttpStatus.OK);
     }
 
 }

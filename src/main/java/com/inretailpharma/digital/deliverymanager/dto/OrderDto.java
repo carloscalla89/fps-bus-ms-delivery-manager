@@ -22,7 +22,10 @@ public class OrderDto {
     private Long trackerId;
     private Long externalPurchaseId;
     private Long bridgePurchaseId;
+
     private BigDecimal deliveryCost;
+    private BigDecimal discountApplied;
+    private BigDecimal subTotalCost;
     private BigDecimal totalCost;
 
     private OrderStatusDto orderStatusDto;
@@ -43,6 +46,8 @@ public class OrderDto {
     private ReceiptTypeDto receipt;
 
     private List<OrderDetailDto> orderItem;
+
+    private ScheduleServiceTypeDto scheduleService;
 
     private Boolean programmed;
 

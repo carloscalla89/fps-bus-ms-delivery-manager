@@ -1,8 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
-import com.inretailpharma.digital.deliverymanager.canonical.*;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancellationCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
@@ -18,6 +16,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class ObjectToMapper {
+
+
+    public OrderCanonical convertOrderFulfillmentToOrderCanonical(OrderFulfillment orderFulfillment) {
+        OrderCanonical orderCanonical = new OrderCanonical();
+        orderCanonical.setTrackerId(orderFulfillment.getId());
+        orderCanonical.setEcommerceId(orderCanonical.getEcommerceId());
+        orderCanonical.setExternalId(orderCanonical.getExternalId());
+
+        return orderCanonical;
+    }
 
     public OrderFulfillment convertOrderdtoToOrderEntity(OrderDto orderDto){
         log.info("[START] map-convertOrderdtoToOrderEntity");
@@ -120,7 +128,7 @@ public class ObjectToMapper {
 
 
     public OrderCanonical convertEntityToOrderCanonical(ServiceLocalOrder serviceLocalOrderEntity) {
-
+        log.info("[START] convertEntityToOrderCanonical");
         OrderFulfillment orderFulfillment = serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderFulfillment();
         OrderCanonical orderCanonical = new OrderCanonical();
 
@@ -180,7 +188,7 @@ public class ObjectToMapper {
         receiptCanonical.setAddress(orderFulfillment.getReceiptType().getCompanyAddress());
         orderCanonical.setReceipt(receiptCanonical);
 
-        log.info("Map result orderFulfillmentCanonical:{}",orderCanonical);
+        log.info("[END] convertEntityToOrderCanonical:{}",orderCanonical);
 
         return orderCanonical;
 

@@ -6,6 +6,12 @@ import java.util.Optional;
 
 public interface Constant {
 
+
+    interface OrderTrackerResponseCode {
+        String SUCCESS_CODE = "0";
+        String ERROR_CODE = "1";
+    }
+
     interface ApplicationsParameters {
         String ACTIVATED_AUDIT_VALUE = "1";
         String ACTIVATED_AUDIT = "ACTIVATED_AUDIT";
@@ -82,6 +88,7 @@ public interface Constant {
         ERROR_RELEASE_ORDER("04"),
         ERROR_UPDATE_TRACKER_BILLING("05"),
         ERROR_UPDATE_ORDER("06"),
+        ERROR_SHIPPER_TRACKER_ORDER("07"),
 
 
         SUCCESS_RESERVED_ORDER("10"),
@@ -90,11 +97,13 @@ public interface Constant {
         DELIVERED_ORDER("12"),
         READY_PICKUP_ORDER("13"),
         RELEASED_ORDER("14"),
+        SHIPPED_TRACKER_ORDER("15"),
 
         PENDING_CANCEL_ORDER("21"),
         PENDING_DELIVERY_ORDER("22"),
         PENDING_READY_PICKUP_ORDER("23"),
         PENDING_RELEASE_ORDER("24"),
+        PENDING_TRACKER_ORDER("25"),
 
         NOT_FOUND_CODE("-1"),
         NOT_FOUND_ORDER("-1"),

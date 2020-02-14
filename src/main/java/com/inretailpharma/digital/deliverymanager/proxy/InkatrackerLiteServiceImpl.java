@@ -1,13 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
-import com.inretailpharma.digital.deliverymanager.service.impl.ApplicationParameterServiceImpl;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,20 +33,29 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public void sendOrder(OrderCanonical orderAuditCanonical) {
-
+    public Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderCanonical) {
+        return null;
     }
 
     @Override
-    public void updateOrder(OrderCanonical orderCanonical) {
+    public OrderCanonical sendOrder(OrderCanonical orderAuditCanonical) {
+        return null;
+    }
 
+    @Override
+    public OrderCanonical updateOrder(OrderCanonical orderCanonical) {
+        return null;
+    }
+
+    @Override
+    public Mono<OrderCanonical> updateOrderReactive(OrderCanonical orderCanonical) {
+        return null;
     }
 
     @Override
     public OrderCanonical getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
-
 
         String actionInkatrackerLite;
         Constant.OrderStatus pending;
@@ -82,42 +90,41 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
         }
 
 
-        Mono<OrderCanonical> webClient =        WebClient
-                        .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
-                        .patch()
-                        .uri(builder ->
-                                builder
-                                        .path("/{orderExternalId}")
-                                        .queryParam("action",actionInkatrackerLite)
-                                        .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
-                                        .build(ecommerceId))
-                        .retrieve()
-                        .bodyToMono(OrderInfoCanonical.class)
-                        .map(r -> {
-                            OrderCanonical orderCanonical = new OrderCanonical();
+        Mono<OrderCanonical> webClient = WebClient
+                                            .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
+                                            .patch()
+                                            .uri(builder ->
+                                                    builder
+                                                            .path("/{orderExternalId}")
+                                                            .queryParam("action",actionInkatrackerLite)
+                                                            .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
+                                                            .build(ecommerceId))
+                                            .retrieve()
+                                            .bodyToMono(OrderInfoCanonical.class)
+                                            .map(r -> {
+                                                OrderCanonical orderCanonical = new OrderCanonical();
 
-                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                            orderStatus.setCode(successResponse.getCode());
-                            orderStatus.setName(successResponse.name());
-                            orderCanonical.setOrderStatus(orderStatus);
+                                                OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                                orderStatus.setCode(successResponse.getCode());
+                                                orderStatus.setName(successResponse.name());
+                                                orderCanonical.setOrderStatus(orderStatus);
 
-                            return orderCanonical;
-                        })
-                        .onErrorResume(e -> {
-                            e.printStackTrace();
-                            log.error("Error in inkatrackerlite call {} ",e.getMessage());
-                            OrderCanonical orderCanonical = new OrderCanonical();
+                                                return orderCanonical;
+                                            })
+                                            .onErrorResume(e -> {
+                                                e.printStackTrace();
+                                                log.error("Error in inkatrackerlite call {} ",e.getMessage());
+                                                OrderCanonical orderCanonical = new OrderCanonical();
 
-                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                            orderStatus.setCode(Constant.OrderStatus.ERROR_UPDATE_ORDER.getCode());
-                            orderStatus.setName(Constant.OrderStatus.ERROR_UPDATE_ORDER.name());
-                            orderStatus.setDetail(e.getMessage());
+                                                OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                                orderStatus.setCode(Constant.OrderStatus.ERROR_UPDATE_ORDER.getCode());
+                                                orderStatus.setName(Constant.OrderStatus.ERROR_UPDATE_ORDER.name());
+                                                orderStatus.setDetail(e.getMessage());
 
-                            orderCanonical.setOrderStatus(orderStatus);
+                                                orderCanonical.setOrderStatus(orderStatus);
 
-                            return Mono.just(orderCanonical);
-                        });
-
+                                                return Mono.just(orderCanonical);
+                                            });
 
         webClient.subscribe(r -> {
             log.info("Response inkatracker lite {} ",r);
@@ -144,8 +151,8 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
         OrderCanonical orderCanonical = new OrderCanonical();
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-        orderStatus.setCode(successResponse.getCode());
-        orderStatus.setName(successResponse.name());
+        orderStatus.setCode(pending.getCode());
+        orderStatus.setName(pending.name());
 
         orderCanonical.setOrderStatus(orderStatus);
 

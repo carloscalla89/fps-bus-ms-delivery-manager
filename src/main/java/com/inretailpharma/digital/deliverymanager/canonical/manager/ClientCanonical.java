@@ -1,12 +1,12 @@
-package com.inretailpharma.digital.deliverymanager.dto;
+package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class ClientDto {
+public class ClientCanonical {
 
-    private String userId;
     private String firstName;
     private String lastName;
     private String email;
@@ -15,5 +15,4 @@ public class ClientDto {
     private String birthDate;
     private String hasInkaClub;
     private String anonimous;
-    private String notificationToken;
 }

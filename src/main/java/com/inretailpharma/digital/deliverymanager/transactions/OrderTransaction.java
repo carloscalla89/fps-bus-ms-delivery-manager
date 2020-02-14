@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
@@ -30,11 +31,44 @@ public class OrderTransaction {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public ServiceLocalOrder createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+    public OrderCanonical createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+        log.info("[START] createOrder");
+        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
+        log.info("[END] createOrder");
+    }
+
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
 
         log.info("[START] createOrder");
-
         OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
+        log.info("[END] createOrder");
+
+        ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
+
+        log.info("[START] createServiceLocalOrder");
+        serviceLocalOrderIdentity.setCenterCompanyFulfillment(
+                Optional
+                        .ofNullable(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(orderDto.getLocalCode(), orderDto.getCompanyCode()))
+                        .orElse(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(Constant.Constans.NOT_DEFINED_CENTER, Constant.Constans.NOT_DEFINED_COMPANY))
+        );
+
+        serviceLocalOrderIdentity.setServiceType(
+                Optional
+                        .ofNullable(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()))
+                        .orElse(orderRepositoryService.getServiceTypeByCode(Constant.Constans.NOT_DEFINED_SERVICE))
+
+        );
+        serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillment);
+
+        return orderFulfillmentResp;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public ServiceLocalOrder createServiceLocalOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+
+        log.info("[START] createServiceLocalOrder");
 
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
@@ -52,7 +86,7 @@ public class OrderTransaction {
                         .orElse(orderRepositoryService.getServiceTypeByCode(Constant.Constans.NOT_DEFINED_SERVICE))
 
         );
-        serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillmentResp);
+        serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillment);
 
         // Set status from delivery dispatcher
         OrderStatus orderStatus = getStatusOrderFromDeliveryDispatcher(orderDto);
@@ -67,7 +101,7 @@ public class OrderTransaction {
         // Set attempt of attempt to insink and tracker
         serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
         if (!(serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-            || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
+                || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
             serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
         }
 
@@ -77,9 +111,11 @@ public class OrderTransaction {
 
         orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
-        log.info("[END] createOrder");
+        log.info("[END] createServiceLocalOrder");
+
         return serviceLocalOrder;
     }
+
 
     public OrderStatus  getStatusOrderFromDeliveryDispatcher(OrderDto orderDto) {
         OrderStatus orderStatus;
