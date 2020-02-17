@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,31 +26,25 @@ public class OrderTransaction {
 
     private OrderRepositoryService orderRepositoryService;
     private OrderCancellationService orderCancellationService;
+    private ObjectToMapper objectToMapper;
 
     public OrderTransaction(OrderRepositoryService orderRepositoryService,
-                            OrderCancellationService orderCancellationService) {
+                            OrderCancellationService orderCancellationService,
+                            ObjectToMapper objectToMapper) {
         this.orderRepositoryService = orderRepositoryService;
         this.orderCancellationService = orderCancellationService;
+        this.objectToMapper = objectToMapper;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public OrderCanonical createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
-        log.info("[START] createOrder");
+    public Mono<OrderCanonical> createOrderReactive(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+        log.info("[START ] createOrderReactive");
+
         OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
-        log.info("[END] createOrder");
-    }
 
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
-
-        log.info("[START] createOrder");
-        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
-        log.info("[END] createOrder");
-
+        // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
 
-        log.info("[START] createServiceLocalOrder");
         serviceLocalOrderIdentity.setCenterCompanyFulfillment(
                 Optional
                         .ofNullable(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(orderDto.getLocalCode(), orderDto.getCompanyCode()))
@@ -60,9 +57,52 @@ public class OrderTransaction {
                         .orElse(orderRepositoryService.getServiceTypeByCode(Constant.Constans.NOT_DEFINED_SERVICE))
 
         );
-        serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillment);
+        serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillmentResp);
+
+        // Set status from delivery dispatcher
+        OrderStatus orderStatus = getStatusOrderFromDeliveryDispatcher(orderDto);
+        serviceLocalOrderIdentity.setOrderStatus(orderStatus);
+        // ----------------------------------------------------
+
+        // Create and set object ServiceLocalOrder
+        ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
+        serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
+        serviceLocalOrder.setDaysToPickup(0);
+
+        // Set attempt of attempt to insink and tracker
+        serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
+
+        if (!(serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
+                || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
+            serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
+        }
+
+        Optional
+                .ofNullable(orderDto.getOrderStatusDto())
+                .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
+
+        orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
+
+        log.info("[END] createOrderReactive");
+
+        return Mono.just(objectToMapper.convertEntityToOrderCanonical(serviceLocalOrder));
+    }
+
+
+
+    private Mono<OrderFulfillment> getObject(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+        return Mono.just(orderRepositoryService.createOrder(orderFulfillment, orderDto));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+
+        log.info("[START] createOrder");
+        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
+        log.info("[END] createOrder");
 
         return orderFulfillmentResp;
+
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)

@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.rest;
 
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade;
@@ -7,8 +8,11 @@ import io.swagger.annotations.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -29,27 +33,18 @@ public class DeliveryManagerRest {
         this.deliveryManagerFacade = deliveryManagerFacade;
     }
 
-    @ApiOperation(value = "Crea un deliverymanager", tags = { "Controlador OrderManagers" })
+    @ApiOperation(value = "Crear una orden que viene del ecommerce")
     @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class), @ApiResponse(code = 500, message = "No creado") })
-    @PostMapping("/messages")
-    public ResponseEntity<String> create(@RequestBody OrderDto orderDto) {
-
-        log.info("finish sending to Kafka");
-        return new ResponseEntity<>("success", HttpStatus.CREATED);
-     }
-
-
-    @ApiOperation(value = "Ejecutar accion para actualizar una orden", tags = { "Controlador OrderManagers" })
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
+            @ApiResponse(code = 200, message = "Orden creado", response = OrderDto.class),
             @ApiResponse(code = 500, message = "No creado") })
-    @PostMapping("/order")
-     public ResponseEntity<?> createOrder(@RequestBody OrderDto orderDto) {
+    @PostMapping(value = "/order")
+    public ResponseEntity<Mono<OrderCanonical>> createOrderReactive(@RequestBody OrderDto orderDto) {
         log.info("[START] endpoint /fulfillment/order - orderDto:{}",orderDto);
 
-        return new ResponseEntity<>(deliveryManagerFacade.createOrder(orderDto), HttpStatus.CREATED);
-     }
+        return new ResponseEntity<>(
+                deliveryManagerFacade.createOrder(orderDto)
+                        .subscribeOn(Schedulers.parallel()), HttpStatus.CREATED);
+    }
 
     @ApiOperation(value = "Actualizar una orden en el dominio fulfillment segun una acción a realizar", tags = { "Controlador DeliveryManager" })
     @ApiResponses(value = { //

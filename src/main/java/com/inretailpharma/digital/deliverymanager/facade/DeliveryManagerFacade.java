@@ -46,16 +46,18 @@ public class DeliveryManagerFacade {
         this.orderExternalServiceAudit = orderExternalServiceAudit;
     }
 
-    public OrderCanonical createOrder(OrderDto orderDto){
-
-
-        Mono.defer(() -> {
-            OrderFulfillment orderFulfillment = orderTransaction.createOrder(
-                    objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
-            );
-        })
+    public Mono<OrderCanonical> createOrder(OrderDto orderDto){
 
         log.info("[START] createOrder facade");
+
+        return  Mono
+                .defer(() -> orderTransaction.createOrderReactive(objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto))
+                .flatMap(r -> orderExternalServiceAudit.sendOrderReactive(r)) // send to audit
+                .flatMap(r -> orderExternalServiceOrderTracker.sendOrderReactive(r)) // Send orderDto for order-tracker
+                .flatMap(r -> orderExternalServiceAudit.updateOrderReactive(r))
+                .doOnSuccess(r -> log.info("[END] createOrder facade r:{}",r)); // send for audit with status;
+
+        /*
         OrderFulfillment orderFulfillment = orderTransaction.createOrder(
                 objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
         );
@@ -70,6 +72,8 @@ public class DeliveryManagerFacade {
 
         log.info("[END] createOrder facade");
         return objectToMapper.convertOrderFulfillmentToOrderCanonical(orderFulfillment);
+
+         */
     }
 
 

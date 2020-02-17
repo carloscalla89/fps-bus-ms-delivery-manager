@@ -46,6 +46,7 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
                 .retrieve()
                 .bodyToMono(ResponseDTO.class)
                 .subscribeOn(Schedulers.parallel())
+                .doOnSuccess(s -> log.info("[END] sendOrderReactive Order-Tracker, s:{}",s))
                 .map(r -> {
 
                     Constant.OrderStatus status = Optional
@@ -63,7 +64,6 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
 
                     return orderCanonical;
                 })
-                .doOnSuccess(s -> log.info("[END] sendOrderReactive Order-Tracker"))
                 .onErrorResume(e -> {
                     log.error("[END] Error calling uS-Order-Tracker: {} ",e.getMessage());
 
