@@ -43,6 +43,7 @@ public class DeliveryManagerRest {
 
         return new ResponseEntity<>(
                 deliveryManagerFacade.createOrder(orderDto)
+                        .doOnSuccess(r -> log.info("[END] endpoint /fulfillment/order"))
                         .subscribeOn(Schedulers.parallel()), HttpStatus.CREATED);
     }
 

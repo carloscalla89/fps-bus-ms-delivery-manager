@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface OrderRepositoryService {
 
-    OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto);
+    OrderFulfillment createOrder(OrderFulfillment orderFulfillment);
     OrderFulfillment getOrderFulfillmentById(Long id);
     ServiceType getServiceTypeByCode(String code);
     CenterCompanyFulfillment getCenterCompanyByCenterCodeAndCompanyCode(String centerCode, String companyCode);
@@ -28,4 +28,8 @@ public interface OrderRepositoryService {
     void updateStatusToReservedOrder(Long orderFulfillmentId, Integer attempt, String orderStatusCode,
                                      String statusDetail);
     void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
+
+    OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
+
+    Client saveClient(Client client);
 }

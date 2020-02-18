@@ -37,10 +37,14 @@ public class OrderTransaction {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public Mono<OrderCanonical> createOrderReactive(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+    public OrderCanonical createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
         log.info("[START ] createOrderReactive");
 
-        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
+        Client client = orderRepositoryService.saveClient(orderFulfillment.getClient());
+
+        orderFulfillment.setClient(client);
+
+        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment);
 
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
@@ -85,28 +89,13 @@ public class OrderTransaction {
 
         log.info("[END] createOrderReactive");
 
-        return Mono.just(objectToMapper.convertEntityToOrderCanonical(serviceLocalOrder));
+        return objectToMapper.convertEntityToOrderCanonical(serviceLocalOrder);
     }
 
 
-
-    private Mono<OrderFulfillment> getObject(OrderFulfillment orderFulfillment, OrderDto orderDto) {
-        return Mono.just(orderRepositoryService.createOrder(orderFulfillment, orderDto));
-    }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
-
-        log.info("[START] createOrder");
-        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
-        log.info("[END] createOrder");
-
-        return orderFulfillmentResp;
-
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public ServiceLocalOrder createServiceLocalOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+    public Mono<ServiceLocalOrder> createServiceLocalOrder(Long orderFulfillmentId, OrderDto orderDto) {
 
         log.info("[START] createServiceLocalOrder");
 
@@ -126,7 +115,7 @@ public class OrderTransaction {
                         .orElse(orderRepositoryService.getServiceTypeByCode(Constant.Constans.NOT_DEFINED_SERVICE))
 
         );
-        serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillment);
+        serviceLocalOrderIdentity.setOrderFulfillment(orderRepositoryService.getOrderFulfillmentById(orderFulfillmentId));
 
         // Set status from delivery dispatcher
         OrderStatus orderStatus = getStatusOrderFromDeliveryDispatcher(orderDto);
@@ -153,7 +142,7 @@ public class OrderTransaction {
 
         log.info("[END] createServiceLocalOrder");
 
-        return serviceLocalOrder;
+        return Mono.just(serviceLocalOrder);
     }
 
 

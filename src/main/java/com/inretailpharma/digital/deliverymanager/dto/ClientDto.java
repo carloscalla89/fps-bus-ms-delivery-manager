@@ -13,7 +13,6 @@ public class ClientDto {
     private String documentNumber;
     private String phone;
     private String birthDate;
-    private String hasInkaClub;
-    private String anonimous;
-    private String notificationToken;
+    private Integer hasInkaClub;
+    private Integer anonimous;
 }

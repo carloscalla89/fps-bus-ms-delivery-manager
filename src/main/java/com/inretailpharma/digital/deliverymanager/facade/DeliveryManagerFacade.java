@@ -46,16 +46,45 @@ public class DeliveryManagerFacade {
         this.orderExternalServiceAudit = orderExternalServiceAudit;
     }
 
-    public Mono<OrderCanonical> createOrder(OrderDto orderDto){
+    public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
 
         log.info("[START] createOrder facade");
 
-        return  Mono
-                .defer(() -> orderTransaction.createOrderReactive(objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto))
-                .flatMap(r -> orderExternalServiceAudit.sendOrderReactive(r)) // send to audit
+        return Mono
+                .defer(() -> Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)))
+                .flatMap(r ->
+                        Mono.just(orderTransaction.createOrder(r, orderDto))
+                                .map(a -> orderExternalServiceAudit.sendOrderReactive(a))
+                                .subscribeOn(Schedulers.parallel())
+                )
+                .flatMap(r ->
+
+                        r.zipWith(orderExternalServiceOrderTracker.sendOrderReactiveWithParamMono(r), (a, b) -> {
+
+                            a.setOrderStatus(b.getOrderStatus());
+                            orderExternalServiceAudit.updateOrderReactive(a).subscribeOn(Schedulers.parallel());
+
+                            return a;
+                })).doOnSuccess(r -> log.info("[END] createOrder facade"));
+
+
+/*
+
+                .flatMap(r -> orderExternalServiceAudit.sendOrderReactive(r))
+                .flatMap(r -> orderExternalServiceOrderTracker.sendOrderReactive(r))
+                .flatMap(r -> orderExternalServiceAudit.updateOrderReactive(r))
+                .doOnSuccess(r -> log.info("[END] createOrder facade"));
+
+ */
+
+    }
+        /*
+                .flatMap(r -> ) // send to audit
                 .flatMap(r -> orderExternalServiceOrderTracker.sendOrderReactive(r)) // Send orderDto for order-tracker
                 .flatMap(r -> orderExternalServiceAudit.updateOrderReactive(r))
-                .doOnSuccess(r -> log.info("[END] createOrder facade r:{}",r)); // send for audit with status;
+                .doOnSuccess(r -> log.info("[END] createOrder facade r:{}",r)); // send for audit with status
+
+         */
 
         /*
         OrderFulfillment orderFulfillment = orderTransaction.createOrder(
@@ -74,7 +103,7 @@ public class DeliveryManagerFacade {
         return objectToMapper.convertOrderFulfillmentToOrderCanonical(orderFulfillment);
 
          */
-    }
+
 
 
     public OrderCanonical getUpdateOrder(ActionDto actionDto, String ecommerceId) {

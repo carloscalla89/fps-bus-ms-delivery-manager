@@ -1,6 +1,5 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.repository.*;
@@ -20,22 +19,24 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     private OrderStatusRepository orderStatusRepository;
     private ServiceLocalOrderRepository serviceLocalOrderRepository;
     private CenterCompanyRepository centerCompanyRepository;
+    private ClientRepository clientRepository;
 
     public OrderRepositoryServiceImpl(OrderRepository orderRepository,
                                       ServiceTypeRepository serviceTypeRepository,
                                       OrderStatusRepository orderStatusRepository,
                                       ServiceLocalOrderRepository serviceLocalOrderRepository,
-                                      CenterCompanyRepository centerCompanyRepository) {
+                                      CenterCompanyRepository centerCompanyRepository,
+                                      ClientRepository clientRepository) {
         this.orderRepository = orderRepository;
         this.serviceTypeRepository = serviceTypeRepository;
         this.orderStatusRepository = orderStatusRepository;
         this.serviceLocalOrderRepository = serviceLocalOrderRepository;
         this.centerCompanyRepository = centerCompanyRepository;
+        this.clientRepository = clientRepository;
     }
 
     @Override
-    public OrderFulfillment createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
-        log.info("[START] create repository service");
+    public OrderFulfillment createOrder(OrderFulfillment orderFulfillment) {
         return orderRepository.save(orderFulfillment);
     }
 
@@ -116,6 +117,16 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     @Override
     public void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail) {
         serviceLocalOrderRepository.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
+    }
+
+    @Override
+    public OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId) {
+        return orderRepository.getOrderFulfillmentByEcommercePurchaseIdIs(ecommerceId);
+    }
+
+    @Override
+    public Client saveClient(Client client) {
+        return clientRepository.save(client);
     }
 
 }

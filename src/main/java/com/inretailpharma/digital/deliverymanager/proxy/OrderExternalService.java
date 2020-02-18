@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 public interface OrderExternalService {
 
     Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderCanonical);
+    Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical);
     OrderCanonical sendOrder(OrderCanonical orderCanonical);
     OrderCanonical updateOrder(OrderCanonical orderCanonical);
     Mono<OrderCanonical> updateOrderReactive(OrderCanonical orderCanonical);

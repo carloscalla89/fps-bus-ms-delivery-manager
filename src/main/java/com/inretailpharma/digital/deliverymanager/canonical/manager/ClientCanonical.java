@@ -7,12 +7,11 @@ import lombok.Data;
 @Data
 public class ClientCanonical {
 
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String email;
     private String documentNumber;
     private String phone;
     private String birthDate;
-    private String hasInkaClub;
-    private String anonimous;
+    private Integer hasInkaClub;
+    private Integer anonimous;
 }

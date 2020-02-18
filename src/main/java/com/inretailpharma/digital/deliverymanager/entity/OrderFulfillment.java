@@ -18,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name="order_fulfillment")
 @SecondaryTables({
+        @SecondaryTable(name="address_fulfillment", pkJoinColumns = @PrimaryKeyJoinColumn(name = "order_fulfillment_id", referencedColumnName = "id")),
         @SecondaryTable(name="payment_method", pkJoinColumns = @PrimaryKeyJoinColumn(name = "order_fulfillment_id", referencedColumnName = "id")),
         @SecondaryTable(name="receipt_type", pkJoinColumns = @PrimaryKeyJoinColumn(name = "order_fulfillment_id", referencedColumnName = "id"))
 })
@@ -49,8 +50,9 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="scheduled_time")
     private LocalDateTime scheduledTime;
 
-    @Column(name="document_number")
-    private String documentNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
 
     private String notes;
 
@@ -59,6 +61,9 @@ public class OrderFulfillment extends OrderEntity<Long> {
 
     @Embedded
     private ReceiptType receiptType;
+
+    @Embedded
+    private Address address;
 
     @ElementCollection
     @CollectionTable(name = "order_fulfillment_item", joinColumns = @JoinColumn(name = "order_fulfillment_id"))

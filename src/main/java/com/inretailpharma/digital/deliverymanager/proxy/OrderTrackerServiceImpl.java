@@ -37,18 +37,23 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderCanonical) {
+        return null;
+
+    }
+
+    @Override
+    public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical) {
         log.info("[START] sendOrderReactive Order-Tracker");
 
         return WebClient
                 .create(externalServicesProperties.getOrderTrackerCreateOrderUri())
                 .post()
-                .body(Mono.just(orderCanonical), OrderCanonical.class)
+                .body(orderCanonical, OrderCanonical.class)
                 .retrieve()
                 .bodyToMono(ResponseDTO.class)
                 .subscribeOn(Schedulers.parallel())
-                .doOnSuccess(s -> log.info("[END] sendOrderReactive Order-Tracker, s:{}",s))
-                .map(r -> {
-
+                .flatMap(r -> {
+                    log.info("Response Order-Tracker r:{}",r);
                     Constant.OrderStatus status = Optional
                             .ofNullable(r.getCode())
                             .filter(s -> s.equals(Constant.OrderTrackerResponseCode.SUCCESS_CODE))
@@ -60,9 +65,12 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
                     orderStatus.setName(status.name());
                     orderStatus.setDetail(r.getErrorDetail());
 
-                    orderCanonical.setOrderStatus(orderStatus);
+                    return orderCanonical.map(f -> {
+                        f.setOrderStatus(orderStatus);
+                        return f;
+                    });
 
-                    return orderCanonical;
+
                 })
                 .onErrorResume(e -> {
                     log.error("[END] Error calling uS-Order-Tracker: {} ",e.getMessage());
@@ -72,11 +80,11 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
                     orderStatus.setName(Constant.OrderStatus.ERROR_SHIPPER_TRACKER_ORDER.name());
                     orderStatus.setDetail(e.getMessage());
 
-                    orderCanonical.setOrderStatus(orderStatus);
-
-                    return Mono.just(orderCanonical);
-                });
-
+                    return orderCanonical.map(f -> {
+                        f.setOrderStatus(orderStatus);
+                        return f;
+                    });
+                }).doOnSuccess(s -> log.info("[END] sendOrderReactive Order-Tracker"));
     }
 
     @Override

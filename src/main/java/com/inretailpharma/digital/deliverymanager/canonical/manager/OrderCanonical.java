@@ -15,8 +15,6 @@ public class OrderCanonical {
     private Long bridgePurchaseId;
 
     //
-    private String clientFullName;
-    private String documentNumber;
     private String leadTime;
 
     // Canonical cost

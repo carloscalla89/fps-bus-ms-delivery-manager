@@ -40,6 +40,11 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
+    public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical) {
+        return null;
+    }
+
+    @Override
     public OrderCanonical sendOrder(OrderCanonical orderAuditCanonical) {
         return null;
     }
