@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.canonical.manager;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class OrderCanonical {
@@ -50,7 +51,7 @@ public class OrderCanonical {
     // Canonical Address delivery
     private AddressCanonical address;
 
-    private OrderItemCanonical orderItem;
+    private List<OrderItemCanonical> orderItems;
 
 
 }
