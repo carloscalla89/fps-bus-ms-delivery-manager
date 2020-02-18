@@ -7,6 +7,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTr
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ResponseDTO;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -44,11 +45,12 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical) {
+    public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical,
+                                                               OrderDto orderDto) {
 
         Gson gson = new Gson();
 
-        log.info("[START] sendOrderReactive Order-Tracker json:{}",gson.toJson(orderCanonical.block()));
+        log.info("[START] sendOrderReactive Order-Tracker ");
 
 
         return WebClient
@@ -93,18 +95,6 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
                 }).doOnSuccess(s -> log.info("[END] sendOrderReactive Order-Tracker"));
     }
 
-    @Override
-    public OrderCanonical sendOrder(OrderCanonical orderCanonical) {
-        log.info("[START] service to call api Order-Tracker - {}", orderCanonical);
-
-        return null;
-
-    }
-
-    @Override
-    public OrderCanonical updateOrder(OrderCanonical orderCanonical) {
-        return null;
-    }
 
     @Override
     public Mono<OrderCanonical> updateOrderReactive(OrderCanonical orderCanonical) {

@@ -6,6 +6,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerRe
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,17 +41,8 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical) {
-        return null;
-    }
-
-    @Override
-    public OrderCanonical sendOrder(OrderCanonical orderAuditCanonical) {
-        return null;
-    }
-
-    @Override
-    public OrderCanonical updateOrder(OrderCanonical orderCanonical) {
+    public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical,
+                                                               OrderDto orderDto) {
         return null;
     }
 

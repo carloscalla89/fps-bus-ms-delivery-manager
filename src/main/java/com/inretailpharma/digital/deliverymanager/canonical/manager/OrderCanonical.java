@@ -50,5 +50,7 @@ public class OrderCanonical {
     // Canonical Address delivery
     private AddressCanonical address;
 
+    private OrderItemCanonical orderItem;
+
 
 }

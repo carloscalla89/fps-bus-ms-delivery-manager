@@ -75,7 +75,7 @@ public class DeliveryManagerFacade {
                 )
                 .flatMap(r ->
 
-                        r.zipWith(orderExternalServiceOrderTracker.sendOrderReactiveWithParamMono(r), (a, b) -> {
+                        r.zipWith(orderExternalServiceOrderTracker.sendOrderReactiveWithParamMono(r, orderDto), (a, b) -> {
 
                             a.setOrderStatus(b.getOrderStatus());
                             orderExternalServiceAudit.updateOrderReactive(a).subscribeOn(Schedulers.parallel());
