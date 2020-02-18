@@ -2,15 +2,18 @@ package com.inretailpharma.digital.deliverymanager.entity;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
 @Entity
 @Table(name = "client_fulfillment")
-public class Client extends OrderEntity<Long> {
+public class Client  implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name="first_name")
     private String firstName;

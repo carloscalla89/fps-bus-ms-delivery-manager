@@ -158,7 +158,7 @@ public class ObjectToMapper {
         return orderCanonical;
     }
 
-    public OrderCanonical convertEntityToOrderCanonical(OrderDto orderDto) {
+    public Mono<OrderCanonical> convertEntityToOrderCanonical(OrderDto orderDto) {
         log.info("[START] convertEntityToOrderCanonical");
 
         OrderCanonical orderCanonical = new OrderCanonical();
@@ -207,7 +207,7 @@ public class ObjectToMapper {
         orderCanonical.setAddress(addressCanonical);
         log.info("[END] convertEntityToOrderCanonical:{}",orderCanonical);
 
-        return orderCanonical;
+        return Mono.just(orderCanonical);
 
     }
 

@@ -3,7 +3,7 @@
 --
 DROP TABLE IF EXISTS `client_fulfillment`;
 CREATE TABLE `client_fulfillment` (
-  `id` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `first_name` VARCHAR(64) NULL,
   `last_name` VARCHAR(64) NULL,
   `email` VARCHAR(45) NULL,
@@ -28,6 +28,8 @@ CREATE TABLE `address_fulfillment` (
   `country` VARCHAR(45) NULL,
   `city` VARCHAR(45) NULL,
   `district` VARCHAR(45) NULL,
+  `province` VARCHAR(45) NULL,
+  `department` VARCHAR(45) NULL,
   `notes` VARCHAR(45) NULL,
   `latitude` DECIMAL(11,8) NULL,
   `longitude` DECIMAL(11,8) NULL,
@@ -61,5 +63,3 @@ ADD CONSTRAINT `fk_address_fulfillment_1`
   REFERENCES `order_fulfillment` (`id`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
-
-

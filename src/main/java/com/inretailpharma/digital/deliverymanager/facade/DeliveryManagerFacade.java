@@ -53,7 +53,25 @@ public class DeliveryManagerFacade {
         return Mono
                 .defer(() -> Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)))
                 .flatMap(r ->
-                        Mono.just(orderTransaction.createOrder(r, orderDto))
+                        orderTransaction.createOrderTransaction(r, orderDto)
+                                .zipWith(objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) -> {
+
+
+
+                                    b.setTrackerId(a.getTrackerId());
+
+                                    // set status
+                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                    orderStatus.setCode(
+                                            a.getOrderStatusCode()
+                                    );
+                                    orderStatus.setName(a.getOrderStatusName());
+                                    orderStatus.setDetail(a.getOrderStatusDetail());
+                                    b.setOrderStatus(orderStatus);
+
+                                    return b;
+
+                                })
                                 .map(a -> orderExternalServiceAudit.sendOrderReactive(a))
                                 .subscribeOn(Schedulers.parallel())
                 )

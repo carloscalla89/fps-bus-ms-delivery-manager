@@ -95,9 +95,15 @@ public class OrderTransaction {
 
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public Mono<ServiceLocalOrder> createServiceLocalOrder(Long orderFulfillmentId, OrderDto orderDto) {
+    public Mono<OrderWrapperResponse> createOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto) {
 
-        log.info("[START] createServiceLocalOrder");
+        log.info("[START ] createOrderReactive");
+
+        Client client = orderRepositoryService.saveClient(orderFulfillment.getClient());
+
+        orderFulfillment.setClient(client);
+
+        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment);
 
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
@@ -108,14 +114,13 @@ public class OrderTransaction {
                         .orElse(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(Constant.Constans.NOT_DEFINED_CENTER, Constant.Constans.NOT_DEFINED_COMPANY))
         );
 
-
         serviceLocalOrderIdentity.setServiceType(
                 Optional
                         .ofNullable(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()))
                         .orElse(orderRepositoryService.getServiceTypeByCode(Constant.Constans.NOT_DEFINED_SERVICE))
 
         );
-        serviceLocalOrderIdentity.setOrderFulfillment(orderRepositoryService.getOrderFulfillmentById(orderFulfillmentId));
+        serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillmentResp);
 
         // Set status from delivery dispatcher
         OrderStatus orderStatus = getStatusOrderFromDeliveryDispatcher(orderDto);
@@ -129,6 +134,7 @@ public class OrderTransaction {
 
         // Set attempt of attempt to insink and tracker
         serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
+
         if (!(serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
                 || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
             serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
@@ -138,11 +144,18 @@ public class OrderTransaction {
                 .ofNullable(orderDto.getOrderStatusDto())
                 .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
 
-        orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
+        ServiceLocalOrder serviceLocalOrderFinal =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
-        log.info("[END] createServiceLocalOrder");
+        OrderWrapperResponse orderWrapperResponse = new OrderWrapperResponse();
+        orderWrapperResponse.setTrackerId(orderFulfillmentResp.getId());
+        orderWrapperResponse.setOrderStatusCode(serviceLocalOrderFinal.getServiceLocalOrderIdentity().getOrderStatus().getCode());
+        orderWrapperResponse.setOrderStatusName(serviceLocalOrderFinal.getServiceLocalOrderIdentity().getOrderStatus().getType());
+        orderWrapperResponse.setOrderStatusDetail(serviceLocalOrderFinal.getStatusDetail());
 
-        return Mono.just(serviceLocalOrder);
+
+        log.info("[END] createOrderReactive");
+
+        return Mono.just(orderWrapperResponse);
     }
 
 
