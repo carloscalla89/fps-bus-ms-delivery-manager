@@ -3,12 +3,24 @@
   "serviceTypeCode": "INKATRACKER_LITE_RAD",
   "localCode": "179",
   "companyCode": "IKF",
-  "ecommercePurchaseId": 401210,
-  "trackerId": 401210,
-  "externalPurchaseId": 7,
+  "ecommercePurchaseId": 401220,
+  "trackerId": 70000,
+  "externalPurchaseId": 8,
   "totalCost": 2.90,
-  "client": {
-    "documentNumber": "42216206"
+  "address":{
+    "name": "Sector 1, grupo 6 manzana I",
+    "street": "avenida revolucion",
+    "number": "15",
+    "district": "Villa el salvador",
+    "province": "Lima",
+    "department": "Lima",
+    "country":"Peru"
+  },
+  "client":{
+    "firstName": "carlos",
+    "lastname": "calla",
+    "documentNumber":"46075388",
+    "email": "carloscalla@inkafarmadigital.pe"
   },
   "createdOrder": "2020-01-22 16:47:58",
   "scheduledTime": "2020-01-22 17:00:00",
