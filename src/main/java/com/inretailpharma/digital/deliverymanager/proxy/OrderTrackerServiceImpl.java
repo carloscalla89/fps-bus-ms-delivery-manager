@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.google.gson.Gson;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerCanonical;
@@ -10,6 +11,7 @@ import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -43,7 +45,11 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical) {
-        log.info("[START] sendOrderReactive Order-Tracker");
+
+        Gson gson = new Gson();
+
+        log.info("[START] sendOrderReactive Order-Tracker json:{}",gson.toJson(orderCanonical.block()));
+
 
         return WebClient
                 .create(externalServicesProperties.getOrderTrackerCreateOrderUri())

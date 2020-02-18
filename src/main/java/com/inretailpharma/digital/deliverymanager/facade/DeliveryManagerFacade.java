@@ -56,8 +56,6 @@ public class DeliveryManagerFacade {
                         orderTransaction.createOrderTransaction(r, orderDto)
                                 .zipWith(objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) -> {
 
-
-
                                     b.setTrackerId(a.getTrackerId());
 
                                     // set status
