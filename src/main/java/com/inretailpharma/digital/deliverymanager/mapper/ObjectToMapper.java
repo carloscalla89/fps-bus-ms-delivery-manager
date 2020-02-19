@@ -41,8 +41,8 @@ public class ObjectToMapper {
         orderFulfillment.setBridgePurchaseId(orderDto.getBridgePurchaseId());
         orderFulfillment.setTotalCost(orderDto.getTotalCost());
         orderFulfillment.setDeliveryCost(orderDto.getDeliveryCost());
-        orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getCreatedOrder()));
-        orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getScheduledTime()));
+        orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
+        orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
 
 
         // object orderItem
@@ -169,11 +169,13 @@ public class ObjectToMapper {
         // Set insink id
         orderCanonical.setExternalId(orderDto.getExternalPurchaseId());
 
-        // Set localCode and companyCode
+        // Set localCode
         orderCanonical.setLocalCode(orderDto.getLocalCode());
-        orderCanonical.setCompany(orderDto.getCompanyCode());
 
         // set total amount
+        orderCanonical.setDeliveryCost(orderDto.getDeliveryCost());
+        orderCanonical.setDiscountApplied(orderDto.getDiscountApplied());
+        orderCanonical.setSubTotalCost(orderDto.getSubTotalCost());
         orderCanonical.setTotalAmount(orderDto.getTotalCost());
 
         // set client
@@ -224,11 +226,11 @@ public class ObjectToMapper {
 
         // set detail order
         OrderDetailCanonical orderDetailCanonical = new OrderDetailCanonical();
-        orderDetailCanonical.setConfirmedSchedule(orderDto.getScheduledTime());
-        orderDetailCanonical.setCreatedOrder(orderDto.getCreatedOrder());
-        orderDetailCanonical.setStartHour(orderDto.getScheduleService().getStartHour());
-        orderDetailCanonical.setEndHour(orderDto.getScheduleService().getEndHour());
-        orderDetailCanonical.setLeadTime(orderDto.getScheduleService().getLeadTime());
+        orderDetailCanonical.setConfirmedSchedule(orderDto.getSchedules().getScheduledTime());
+        orderDetailCanonical.setCreatedOrder(orderDto.getSchedules().getCreatedOrder());
+        orderDetailCanonical.setStartHour(orderDto.getSchedules().getStartHour());
+        orderDetailCanonical.setEndHour(orderDto.getSchedules().getEndHour());
+        orderDetailCanonical.setLeadTime(orderDto.getSchedules().getLeadTime());
         orderCanonical.setOrderDetail(orderDetailCanonical);
 
         log.info("[END] convertEntityToOrderCanonical:{}",orderCanonical);

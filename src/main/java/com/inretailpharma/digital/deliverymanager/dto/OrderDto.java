@@ -12,11 +12,10 @@ import java.util.List;
 @Data
 public class OrderDto {
 
-    private Long id;
     private String source;
-    private String serviceTypeCode;
     private String localCode;
     private String companyCode;
+    private String serviceTypeCode;
 
     private Long ecommercePurchaseId;
     private Long trackerId;
@@ -34,8 +33,6 @@ public class OrderDto {
 
     private AddressDto address;
 
-    private String notes;
-
     private ShipperDto shipper;
 
     private PaymentMethodDto payment;
@@ -47,6 +44,8 @@ public class OrderDto {
     private ScheduleServiceTypeDto schedules;
 
     private Constant.ActionOrder action;
+
+    private Boolean programmed;
 
 
 }

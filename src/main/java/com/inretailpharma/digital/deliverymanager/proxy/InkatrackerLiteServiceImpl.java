@@ -5,33 +5,22 @@ import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.Orde
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Optional;
-
 @Slf4j
 @Service("inkatrackerlite")
 public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
-    private OrderExternalService orderExternalServiceAudit;
     private ExternalServicesProperties externalServicesProperties;
-    private ApplicationParameterService applicationParameterService;
 
-    public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties,
-                                      @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
-                                      ApplicationParameterService applicationParameterService) {
+    public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties) {
         this.externalServicesProperties = externalServicesProperties;
-        this.orderExternalServiceAudit = orderExternalServiceAudit;
-        this.applicationParameterService = applicationParameterService;
     }
 
     @Override
@@ -88,40 +77,41 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
 
         return WebClient
-                                            .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
-                                            .patch()
-                                            .uri(builder ->
-                                                    builder
-                                                            .path("/{orderExternalId}")
-                                                            .queryParam("action",actionInkatrackerLite)
-                                                            .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
-                                                            .build(ecommerceId))
-                                            .retrieve()
-                                            .bodyToMono(OrderInfoCanonical.class)
-                                            .map(r -> {
-                                                OrderCanonical orderCanonical = new OrderCanonical();
+                .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
+                .patch()
+                .uri(builder ->
+                        builder
+                                .path("/{orderExternalId}")
+                                .queryParam("action",actionInkatrackerLite)
+                                .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
+                                .build(ecommerceId))
+                .retrieve()
+                .bodyToMono(OrderInfoCanonical.class)
+                .subscribeOn(Schedulers.parallel())
+                .map(r -> {
+                    OrderCanonical orderCanonical = new OrderCanonical();
 
-                                                OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                                orderStatus.setCode(successResponse.getCode());
-                                                orderStatus.setName(successResponse.name());
-                                                orderCanonical.setOrderStatus(orderStatus);
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(successResponse.getCode());
+                    orderStatus.setName(successResponse.name());
+                    orderCanonical.setOrderStatus(orderStatus);
 
-                                                return orderCanonical;
-                                            }).subscribeOn(Schedulers.parallel())
-                                            .onErrorResume(e -> {
-                                                e.printStackTrace();
-                                                log.error("Error in inkatrackerlite call {} ",e.getMessage());
-                                                OrderCanonical orderCanonical = new OrderCanonical();
+                    return orderCanonical;
+                })
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    log.error("Error in inkatrackerlite call {} ",e.getMessage());
+                    OrderCanonical orderCanonical = new OrderCanonical();
 
-                                                OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                                orderStatus.setCode(Constant.OrderStatus.ERROR_UPDATE_ORDER.getCode());
-                                                orderStatus.setName(Constant.OrderStatus.ERROR_UPDATE_ORDER.name());
-                                                orderStatus.setDetail(e.getMessage());
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(Constant.OrderStatus.ERROR_UPDATE_ORDER.getCode());
+                    orderStatus.setName(Constant.OrderStatus.ERROR_UPDATE_ORDER.name());
+                    orderStatus.setDetail(e.getMessage());
 
-                                                orderCanonical.setOrderStatus(orderStatus);
+                    orderCanonical.setOrderStatus(orderStatus);
 
-                                                return Mono.just(orderCanonical);
-                                            }).block();
+                    return Mono.just(orderCanonical);
+                }).block();
 
         /*
         webClient.subscribe(r -> {

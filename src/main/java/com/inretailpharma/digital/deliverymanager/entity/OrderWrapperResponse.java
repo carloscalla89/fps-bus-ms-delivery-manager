@@ -14,4 +14,8 @@ public class OrderWrapperResponse {
     private String serviceName;
     private Integer attemptBilling;
     private Integer attemptTracker;
+    private String localCode;
+    private String localName;
+    private String companyCode;
+    private String companyName;
 }

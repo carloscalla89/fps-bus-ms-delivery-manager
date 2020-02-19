@@ -1,23 +1,15 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.google.gson.Gson;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ResponseDTO;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
-import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Optional;
@@ -26,16 +18,10 @@ import java.util.Optional;
 @Service("orderTracker")
 public class OrderTrackerServiceImpl implements OrderExternalService {
 
-    private OrderExternalService orderExternalServiceAudit;
     private ExternalServicesProperties externalServicesProperties;
-    private ApplicationParameterService applicationParameterService;
 
-    public OrderTrackerServiceImpl(@Qualifier("audit") OrderExternalService orderExternalServiceAudit,
-                                   ExternalServicesProperties externalServicesProperties,
-                                   ApplicationParameterService applicationParameterService) {
-        this.orderExternalServiceAudit = orderExternalServiceAudit;
+    public OrderTrackerServiceImpl(ExternalServicesProperties externalServicesProperties) {
         this.externalServicesProperties = externalServicesProperties;
-        this.applicationParameterService = applicationParameterService;
     }
 
     @Override
@@ -46,8 +32,6 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical) {
-
-        Gson gson = new Gson();
 
         log.info("[START] sendOrderReactive Order-Tracker ");
 

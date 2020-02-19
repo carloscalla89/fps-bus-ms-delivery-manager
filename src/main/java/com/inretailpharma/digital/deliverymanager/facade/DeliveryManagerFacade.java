@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderDetailCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
@@ -58,7 +59,7 @@ public class DeliveryManagerFacade {
 
                             OrderWrapperResponse r =  orderTransaction.createOrderTransaction(a, orderDto);
 
-                            // set idTracker
+                            // set tracker ID
                             b.setTrackerId(r.getTrackerId());
 
                             // set status
@@ -75,6 +76,10 @@ public class DeliveryManagerFacade {
                             b.getOrderDetail().setAttempt(r.getAttemptBilling());
                             b.getOrderDetail().setAttemptTracker(r.getAttemptTracker());
 
+                            // set local and company names;
+                            b.setCompany(r.getCompanyName());
+                            b.setLocal(r.getLocalName());
+
                             Mono.just(b).subscribe(au -> orderExternalServiceAudit.sendOrderReactive(au));
 
                             return b;
@@ -89,44 +94,7 @@ public class DeliveryManagerFacade {
                             return a;
                 })).doOnSuccess(r -> log.info("[END] createOrder facade"));
 
-
-/*
-
-                .flatMap(r -> orderExternalServiceAudit.sendOrderReactive(r))
-                .flatMap(r -> orderExternalServiceOrderTracker.sendOrderReactive(r))
-                .flatMap(r -> orderExternalServiceAudit.updateOrderReactive(r))
-                .doOnSuccess(r -> log.info("[END] createOrder facade"));
-
- */
-
     }
-        /*
-                .flatMap(r -> ) // send to audit
-                .flatMap(r -> orderExternalServiceOrderTracker.sendOrderReactive(r)) // Send orderDto for order-tracker
-                .flatMap(r -> orderExternalServiceAudit.updateOrderReactive(r))
-                .doOnSuccess(r -> log.info("[END] createOrder facade r:{}",r)); // send for audit with status
-
-         */
-
-        /*
-        OrderFulfillment orderFulfillment = orderTransaction.createOrder(
-                objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto
-        );
-        ServiceLocalOrder serviceLocalOrder = orderTransaction.createServiceLocalOrder(orderFulfillment, orderDto);
-
-        Mono.fromCallable(() -> serviceLocalOrder)
-                .map(r -> objectToMapper.convertEntityToOrderCanonical(r)) // convert entity for canonical fulfillment
-                .flatMap(r -> orderExternalServiceAudit.sendOrderReactive(r)) // send to audit
-                .flatMap(r -> orderExternalServiceOrderTracker.sendOrderReactive(r)) // Send orderDto for order-tracker
-                .flatMap(r -> orderExternalServiceAudit.updateOrderReactive(r)) // send for audit with status
-                .subscribeOn(Schedulers.elastic()).subscribe((r)->log.info("success - r:{}",r));
-
-        log.info("[END] createOrder facade");
-        return objectToMapper.convertOrderFulfillmentToOrderCanonical(orderFulfillment);
-
-         */
-
-
 
     public OrderCanonical getUpdateOrder(ActionDto actionDto, String ecommerceId) {
         log.info("[START] getUpdateOrder action:{}",actionDto);
@@ -137,6 +105,8 @@ public class DeliveryManagerFacade {
         IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
 
         if (Optional.ofNullable(iOrderFulfillment).isPresent()) {
+
+            OrderDetailCanonical orderDetail = new OrderDetailCanonical();
 
             int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
             int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0);
@@ -158,8 +128,10 @@ public class DeliveryManagerFacade {
                             Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
                     );
                     resultCanonical.setExternalId(iOrderFulfillment.getExternalId());
-                    resultCanonical.setAttempt(attempt);
-                    resultCanonical.setAttemptTracker(attemptTracker);
+
+                    orderDetail.setAttempt(attempt);
+                    orderDetail.setAttemptTracker(attemptTracker);
+                    resultCanonical.setOrderDetail(orderDetail);
 
                     break;
                 case 2:
@@ -172,7 +144,7 @@ public class DeliveryManagerFacade {
                     attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0) + 1;
 
                     if (!resultCanonical.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())) {
-                        attemptTracker = Optional.ofNullable(resultCanonical.getAttemptTracker()).orElse(0) + 1;
+                        attemptTracker = Optional.ofNullable(resultCanonical.getOrderDetail().getAttemptTracker()).orElse(0) + 1;
                     }
 
                     orderTransaction.updateOrderRetrying(
@@ -181,8 +153,11 @@ public class DeliveryManagerFacade {
                             Optional.ofNullable(resultCanonical.getExternalId()).orElse(null),
                             Optional.ofNullable(resultCanonical.getTrackerId()).orElse(null)
                     );
-                    resultCanonical.setAttempt(attempt);
-                    resultCanonical.setAttemptTracker(attemptTracker);
+
+                    orderDetail.setAttempt(attempt);
+                    orderDetail.setAttemptTracker(attemptTracker);
+
+                    resultCanonical.setOrderDetail(orderDetail);
                     break;
 
                 case 3:
@@ -219,8 +194,12 @@ public class DeliveryManagerFacade {
                     resultCanonical.setTrackerId(Optional.ofNullable(actionDto.getTrackerId()).map(Long::parseLong).orElse(null));
                     resultCanonical.setExternalId(Optional.ofNullable(actionDto.getExternalBillingId()).map(Long::parseLong).orElse(null));
                     resultCanonical.getOrderStatus().setDetail(actionDto.getOrderStatusDto().getDescription());
-                    resultCanonical.setAttempt(attempt);
-                    resultCanonical.setAttemptTracker(attemptTracker);
+
+                    orderDetail.setAttempt(attempt);
+                    orderDetail.setAttemptTracker(attemptTracker);
+
+                    resultCanonical.setOrderDetail(orderDetail);
+
                     break;
 
                 case 4:
