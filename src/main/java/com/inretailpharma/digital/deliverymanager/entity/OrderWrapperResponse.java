@@ -9,4 +9,9 @@ public class OrderWrapperResponse {
     private String orderStatusCode;
     private String orderStatusName;
     private String orderStatusDetail;
+    private String serviceCode;
+    private String serviceType;
+    private String serviceName;
+    private Integer attemptBilling;
+    private Integer attemptTracker;
 }

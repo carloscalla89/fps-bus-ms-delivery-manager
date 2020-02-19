@@ -34,9 +34,6 @@ public class OrderDto {
 
     private AddressDto address;
 
-    private String createdOrder;
-    private String scheduledTime;
-
     private String notes;
 
     private ShipperDto shipper;
@@ -47,9 +44,7 @@ public class OrderDto {
 
     private List<OrderDetailDto> orderItem;
 
-    private ScheduleServiceTypeDto scheduleService;
-
-    private Boolean programmed;
+    private ScheduleServiceTypeDto schedules;
 
     private Constant.ActionOrder action;
 

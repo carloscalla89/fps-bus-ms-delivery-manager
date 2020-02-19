@@ -57,8 +57,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical,
-                                                               OrderDto orderDto) {
+    public Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical) {
         return null;
     }
 

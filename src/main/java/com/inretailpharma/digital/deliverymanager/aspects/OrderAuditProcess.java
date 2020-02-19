@@ -24,7 +24,7 @@ public class OrderAuditProcess {
     public void afterCreateOrderFulfillment(JoinPoint joinPoint, Object retVal) {
         log.info("Success aop process afterCreateOrderFulfillment {} - {}",joinPoint.getTarget(), retVal);
 
-            orderExternalService.sendOrder((OrderCanonical)retVal);
+            //orderExternalService.sendOrder((OrderCanonical)retVal);
     }
 
     //@AfterReturning(value = "execution(* com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade.getUpdateOrder(..))", returning="retVal")
@@ -32,7 +32,7 @@ public class OrderAuditProcess {
         log.info("Success aop process afterCreateOrderFulfillment {} - {}",joinPoint.getTarget(), retVal);
 
         // send to audit microservice to update the order
-        orderExternalService.updateOrder((OrderCanonical)retVal);
+        //orderExternalService.updateOrder((OrderCanonical)retVal);
     }
 
 }

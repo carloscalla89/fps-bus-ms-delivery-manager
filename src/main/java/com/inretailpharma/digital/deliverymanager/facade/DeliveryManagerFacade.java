@@ -52,32 +52,38 @@ public class DeliveryManagerFacade {
 
         return Mono
                 .defer(() -> Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)))
+                .zipWith(
+                        objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) ->
+                        {
+
+                            OrderWrapperResponse r =  orderTransaction.createOrderTransaction(a, orderDto);
+
+                            // set idTracker
+                            b.setTrackerId(r.getTrackerId());
+
+                            // set status
+                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                            orderStatus.setCode(r.getOrderStatusCode());
+                            orderStatus.setName(r.getOrderStatusName());
+                            orderStatus.setDetail(r.getOrderStatusDetail());
+                            b.setOrderStatus(orderStatus);
+
+                            // set service of delivery or pickup on store
+                            b.getOrderDetail().setServiceCode(r.getServiceCode());
+                            b.getOrderDetail().setServiceName(r.getServiceName());
+                            b.getOrderDetail().setServiceType(r.getServiceType());
+                            b.getOrderDetail().setAttempt(r.getAttemptBilling());
+                            b.getOrderDetail().setAttemptTracker(r.getAttemptTracker());
+
+                            Mono.just(b).subscribe(au -> orderExternalServiceAudit.sendOrderReactive(au));
+
+                            return b;
+                        })
                 .flatMap(r ->
-                        orderTransaction.createOrderTransaction(r, orderDto)
-                                .zipWith(objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) -> {
-
-                                    b.setTrackerId(a.getTrackerId());
-
-                                    // set status
-                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                    orderStatus.setCode(
-                                            a.getOrderStatusCode()
-                                    );
-                                    orderStatus.setName(a.getOrderStatusName());
-                                    orderStatus.setDetail(a.getOrderStatusDetail());
-                                    b.setOrderStatus(orderStatus);
-
-                                    return b;
-
-                                })
-                                .map(a -> orderExternalServiceAudit.sendOrderReactive(a))
-                                .subscribeOn(Schedulers.parallel())
-                )
-                .flatMap(r ->
-
-                        r.zipWith(orderExternalServiceOrderTracker.sendOrderReactiveWithParamMono(r, orderDto), (a, b) -> {
+                        Mono.just(r).zipWith(orderExternalServiceOrderTracker.sendOrderReactiveWithOrderDto(r), (a, b) -> {
 
                             a.setOrderStatus(b.getOrderStatus());
+
                             orderExternalServiceAudit.updateOrderReactive(a).subscribeOn(Schedulers.parallel());
 
                             return a;

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Optional;
 
@@ -39,8 +40,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactiveWithParamMono(Mono<OrderCanonical> orderCanonical,
-                                                               OrderDto orderDto) {
+    public Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical) {
         return null;
     }
 
@@ -87,7 +87,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
         }
 
 
-        Mono<OrderCanonical> webClient = WebClient
+        return WebClient
                                             .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
                                             .patch()
                                             .uri(builder ->
@@ -107,7 +107,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                                                 orderCanonical.setOrderStatus(orderStatus);
 
                                                 return orderCanonical;
-                                            })
+                                            }).subscribeOn(Schedulers.parallel())
                                             .onErrorResume(e -> {
                                                 e.printStackTrace();
                                                 log.error("Error in inkatrackerlite call {} ",e.getMessage());
@@ -121,8 +121,9 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                                                 orderCanonical.setOrderStatus(orderStatus);
 
                                                 return Mono.just(orderCanonical);
-                                            });
+                                            }).block();
 
+        /*
         webClient.subscribe(r -> {
             log.info("Response inkatracker lite {} ",r);
 
@@ -146,13 +147,8 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
             }
         });
 
-        OrderCanonical orderCanonical = new OrderCanonical();
-        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-        orderStatus.setCode(pending.getCode());
-        orderStatus.setName(pending.name());
 
-        orderCanonical.setOrderStatus(orderStatus);
+         */
 
-        return orderCanonical;
     }
 }

@@ -26,16 +26,14 @@ public class OrderTransaction {
 
     private OrderRepositoryService orderRepositoryService;
     private OrderCancellationService orderCancellationService;
-    private ObjectToMapper objectToMapper;
 
     public OrderTransaction(OrderRepositoryService orderRepositoryService,
-                            OrderCancellationService orderCancellationService,
-                            ObjectToMapper objectToMapper) {
+                            OrderCancellationService orderCancellationService) {
         this.orderRepositoryService = orderRepositoryService;
         this.orderCancellationService = orderCancellationService;
-        this.objectToMapper = objectToMapper;
     }
 
+    /*
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public OrderCanonical createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
         log.info("[START ] createOrderReactive");
@@ -92,10 +90,10 @@ public class OrderTransaction {
         return objectToMapper.convertEntityToOrderCanonical(serviceLocalOrder);
     }
 
-
+*/
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public Mono<OrderWrapperResponse> createOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+    public OrderWrapperResponse createOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto) {
 
         log.info("[START ] createOrderReactive");
 
@@ -146,16 +144,19 @@ public class OrderTransaction {
 
         ServiceLocalOrder serviceLocalOrderFinal =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
+        // Set the values of return as wrapped
         OrderWrapperResponse orderWrapperResponse = new OrderWrapperResponse();
         orderWrapperResponse.setTrackerId(orderFulfillmentResp.getId());
         orderWrapperResponse.setOrderStatusCode(serviceLocalOrderFinal.getServiceLocalOrderIdentity().getOrderStatus().getCode());
         orderWrapperResponse.setOrderStatusName(serviceLocalOrderFinal.getServiceLocalOrderIdentity().getOrderStatus().getType());
         orderWrapperResponse.setOrderStatusDetail(serviceLocalOrderFinal.getStatusDetail());
-
+        orderWrapperResponse.setServiceCode(serviceLocalOrderFinal.getServiceLocalOrderIdentity().getServiceType().getCode());
+        orderWrapperResponse.setServiceName(serviceLocalOrderFinal.getServiceLocalOrderIdentity().getServiceType().getCode());
+        orderWrapperResponse.setServiceType(serviceLocalOrderFinal.getServiceLocalOrderIdentity().getServiceType().getType());
 
         log.info("[END] createOrderReactive");
 
-        return Mono.just(orderWrapperResponse);
+        return orderWrapperResponse;
     }
 
 

@@ -29,6 +29,8 @@ public class ObjectToMapper {
         return orderCanonical;
     }
 
+
+
     public OrderFulfillment convertOrderdtoToOrderEntity(OrderDto orderDto){
         log.info("[START] map-convertOrderdtoToOrderEntity");
         OrderFulfillment orderFulfillment = new OrderFulfillment();
@@ -137,22 +139,20 @@ public class ObjectToMapper {
             });
 
 
-            Optional
-                    .ofNullable(s.getLeadTime())
-                    .ifPresent(r -> orderCanonical.setLeadTime(DateUtils.getLocalDateTimeWithFormat(r)));
+
 
             // ServiceType canonical
-            ServiceTypeCanonical serviceTypeCanonical = new ServiceTypeCanonical();
-            serviceTypeCanonical.setCode(s.getServiceTypeCode());
-            serviceTypeCanonical.setName(s.getServiceTypeName());
-            orderCanonical.setServiceType(serviceTypeCanonical);
+            OrderDetailCanonical orderDetailCanonical = new OrderDetailCanonical();
+            //orderDetailCanonical.setCode(s.getServiceTypeCode());
+            //orderDetailCanonical.setName(s.getServiceTypeName());
+            //orderCanonical.setServiceType(orderDetailCanonical);
 
             orderCanonical.setLocal(s.getLocalCode());
             orderCanonical.setCompany(s.getCompany());
             orderCanonical.setTotalAmount(s.getTotalAmount());
 
-            orderCanonical.setAttempt(s.getAttempt());
-            orderCanonical.setAttemptTracker(s.getAttemptTracker());
+            //orderCanonical.setAttempt(s.getAttempt());
+            //orderCanonical.setAttemptTracker(s.getAttemptTracker());
         });
 
         return orderCanonical;
@@ -169,13 +169,14 @@ public class ObjectToMapper {
         // Set insink id
         orderCanonical.setExternalId(orderDto.getExternalPurchaseId());
 
-
+        // Set localCode and companyCode
         orderCanonical.setLocalCode(orderDto.getLocalCode());
-
         orderCanonical.setCompany(orderDto.getCompanyCode());
 
+        // set total amount
         orderCanonical.setTotalAmount(orderDto.getTotalCost());
 
+        // set client
         ClientCanonical client = new ClientCanonical();
         client.setFullName(
                 Optional.ofNullable(orderDto.getClient().getLastName()).orElse(StringUtils.EMPTY)
@@ -187,11 +188,11 @@ public class ObjectToMapper {
         client.setDocumentNumber(orderDto.getClient().getDocumentNumber());
         client.setEmail(orderDto.getClient().getEmail());
         client.setPhone(orderDto.getClient().getPhone());
-
         orderCanonical.setClient(client);
 
-        AddressCanonical addressCanonical = new AddressCanonical();
-        addressCanonical.setName(
+        // set Address
+        AddressCanonical address = new AddressCanonical();
+        address.setName(
 
                 Optional.ofNullable(orderDto.getAddress().getName()).orElse(StringUtils.EMPTY)
                         + StringUtils.SPACE
@@ -199,18 +200,43 @@ public class ObjectToMapper {
                         + StringUtils.SPACE
                 + Optional.ofNullable(orderDto.getAddress().getNumber()).orElse(StringUtils.EMPTY)
         );
+        address.setDistrict(orderDto.getAddress().getDistrict());
+        address.setDepartment(orderDto.getAddress().getDepartment());
+        address.setCountry(orderDto.getAddress().getCountry());
+        orderCanonical.setAddress(address);
 
-        addressCanonical.setDistrict(orderDto.getAddress().getDistrict());
-        addressCanonical.setDepartment(orderDto.getAddress().getDepartment());
-        addressCanonical.setCountry(orderDto.getAddress().getCountry());
+        // set items
+        orderCanonical.setOrderItems(
+                orderDto.getOrderItem().stream().map(r -> {
+                    OrderItemCanonical itemCanonical = new OrderItemCanonical();
+                    itemCanonical.setProductCode(r.getProductCode());
+                    itemCanonical.setProductName(r.getProductName());
+                    itemCanonical.setShortDescription(r.getShortDescription());
+                    itemCanonical.setBrand(r.getBrand());
+                    itemCanonical.setQuantity(r.getQuantity());
+                    itemCanonical.setUnitPrice(r.getUnitPrice());
+                    itemCanonical.setTotalPrice(r.getTotalPrice());
+                    itemCanonical.setFractionated(r.getFractionated());
 
-        orderCanonical.setAddress(addressCanonical);
+                    return itemCanonical;
+                }).collect(Collectors.toList())
+        );
+
+        // set detail order
+        OrderDetailCanonical orderDetailCanonical = new OrderDetailCanonical();
+        orderDetailCanonical.setConfirmedSchedule(orderDto.getScheduledTime());
+        orderDetailCanonical.setCreatedOrder(orderDto.getCreatedOrder());
+        orderDetailCanonical.setStartHour(orderDto.getScheduleService().getStartHour());
+        orderDetailCanonical.setEndHour(orderDto.getScheduleService().getEndHour());
+        orderDetailCanonical.setLeadTime(orderDto.getScheduleService().getLeadTime());
+        orderCanonical.setOrderDetail(orderDetailCanonical);
+
         log.info("[END] convertEntityToOrderCanonical:{}",orderCanonical);
 
         return Mono.just(orderCanonical);
 
     }
-
+/*
     public OrderCanonical convertEntityToOrderCanonical(ServiceLocalOrder serviceLocalOrderEntity) {
         log.info("[START] convertEntityToOrderCanonical");
         OrderFulfillment orderFulfillment = serviceLocalOrderEntity.getServiceLocalOrderIdentity().getOrderFulfillment();
@@ -238,7 +264,7 @@ public class ObjectToMapper {
         orderCanonical.setOrderStatus(orderStatus);
 
         // Set type and name of service
-        ServiceTypeCanonical serviceType = new ServiceTypeCanonical();
+        OrderDetailCanonical serviceType = new OrderDetailCanonical();
         serviceType.setCode(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getServiceType().getCode());
         serviceType.setName(serviceLocalOrderEntity.getServiceLocalOrderIdentity().getServiceType().getName());
         orderCanonical.setServiceType(serviceType);
@@ -274,7 +300,8 @@ public class ObjectToMapper {
         return orderCanonical;
 
     }
-
+*/
+/*
     public Mono<OrderCanonical> convertEntityToOrderCanonicalReactive(ServiceLocalOrder serviceLocalOrderEntity) {
         OrderDto orderDto = new OrderDto();
         log.info("[START] convertEntityToOrderCanonical");
@@ -326,6 +353,7 @@ public class ObjectToMapper {
 
     }
 
+ */
     public List<OrderCancellationCanonical> convertEntityOrderCancellationToCanonical(
             List<CancellationCodeReason> cancelReasons) {
 

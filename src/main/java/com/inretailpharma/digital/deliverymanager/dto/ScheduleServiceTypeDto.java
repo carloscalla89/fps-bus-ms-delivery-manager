@@ -7,17 +7,14 @@ import lombok.Data;
 @Data
 public class ScheduleServiceTypeDto {
 
-    private String startHourZone;
+    private String createdOrder;
 
-    private String endHourZone;
+    private String scheduledTime;
 
-    private Integer deliveryLeadTime;
+    private String startHour;
 
-    private Integer daysToPickup;
+    private String endHour;
 
-    private String startHourPickup;
-
-    private String endHourPickup;
-
+    private Integer leadTime;
 
 }

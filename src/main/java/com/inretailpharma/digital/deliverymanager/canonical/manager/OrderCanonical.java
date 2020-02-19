@@ -15,18 +15,12 @@ public class OrderCanonical {
     private Long externalId;
     private Long bridgePurchaseId;
 
-    //
-    private String leadTime;
 
     // Canonical cost
     private BigDecimal deliveryCost;
     private BigDecimal discountApplied;
     private BigDecimal subTotalCost;
     private BigDecimal totalAmount;
-
-    // Canonical attempt
-    private Integer attempt;
-    private Integer attemptTracker;
 
     // Canonical local and company
     private String localCode;
@@ -39,9 +33,6 @@ public class OrderCanonical {
     // canonical status
     private OrderStatusCanonical  orderStatus;
 
-    // Canonical serviceType
-    private ServiceTypeCanonical serviceType;
-
     // Canonical receipt
     private ReceiptCanonical receipt;
 
@@ -51,7 +42,13 @@ public class OrderCanonical {
     // Canonical Address delivery
     private AddressCanonical address;
 
+    // Canonical items
     private List<OrderItemCanonical> orderItems;
 
+    // Canonical serviceType
+    private OrderDetailCanonical orderDetail;
 
+    // attempts
+    private Integer attempt;
+    private Integer attemptTracker;
 }
