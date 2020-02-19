@@ -1,9 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderDetailCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancellationCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
@@ -79,6 +76,12 @@ public class DeliveryManagerFacade {
                             // set local and company names;
                             b.setCompany(r.getCompanyName());
                             b.setLocal(r.getLocalName());
+
+                            // set Receipt
+                            b.getReceipt().setType(r.getReceiptName());
+
+                            // set Payment
+                            b.getPaymentMethod().setType(r.getPaymentMethodName());
 
                             Mono.just(b).subscribe(au -> orderExternalServiceAudit.sendOrderReactive(au));
 

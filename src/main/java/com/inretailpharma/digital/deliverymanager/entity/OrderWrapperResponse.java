@@ -18,4 +18,7 @@ public class OrderWrapperResponse {
     private String localName;
     private String companyCode;
     private String companyName;
+    private String receiptName;
+    private String paymentMethodName;
+
 }

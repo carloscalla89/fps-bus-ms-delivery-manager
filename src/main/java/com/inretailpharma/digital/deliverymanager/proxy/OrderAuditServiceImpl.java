@@ -30,8 +30,8 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to createOrder - value:{} - body:{}",
-                externalServicesProperties, orderAuditCanonical);
+        log.info("[START] service to call api audit to createOrder - uri:{} - body:{}",
+                externalServicesProperties.getUriApiService(), orderAuditCanonical);
 
         ApplicationParameter activatedAudit = applicationParameterService
                 .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT);

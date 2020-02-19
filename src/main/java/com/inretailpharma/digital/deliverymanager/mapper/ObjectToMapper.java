@@ -233,6 +233,19 @@ public class ObjectToMapper {
         orderDetailCanonical.setLeadTime(orderDto.getSchedules().getLeadTime());
         orderCanonical.setOrderDetail(orderDetailCanonical);
 
+        // set Receipt
+        ReceiptCanonical receipt = new ReceiptCanonical();
+        receipt.setAddress(orderDto.getReceipt().getCompanyAddress());
+        receipt.setCompanyName(orderDto.getReceipt().getCompanyName());
+        receipt.setRuc(orderDto.getReceipt().getRuc());
+        orderCanonical.setReceipt(receipt);
+
+        // set Payment
+        PaymentMethodCanonical paymentMethod = new PaymentMethodCanonical();
+        paymentMethod.setCardProvider(orderDto.getPayment().getCardProvider());
+        paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
+        paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
+        orderCanonical.setPaymentMethod(paymentMethod);
         log.info("[END] convertEntityToOrderCanonical:{}",orderCanonical);
 
         return Mono.just(orderCanonical);

@@ -6,7 +6,10 @@
   "ecommercePurchaseId": 401220,
   "trackerId": 70000,
   "externalPurchaseId": 8,
-  "totalCost": 2.90,
+  "deliveryCost": 5.00,
+  "discountApplied": 0.00,
+  "subTotalCost": 8.90,
+  "totalCost": 10.90,
   "address":{
     "name": "Sector 1, grupo 6 manzana I",
     "street": "avenida revolucion",
@@ -22,8 +25,13 @@
     "documentNumber":"46075388",
     "email": "carloscalla@inkafarmadigital.pe"
   },
-  "createdOrder": "2020-01-22 16:47:58",
-  "scheduledTime": "2020-01-22 17:00:00",
+  "schedules":{
+    "createdOrder": "2020-01-22 16:47:58",
+    "scheduledTime": "2020-01-22 17:00:00",
+    "startHour":"08:00:00",
+    "endHour":"23:00:00",
+    "leadTime": 150
+  },
   "payment":{
     "type":"CASH",
     "paidAmount":20.00,

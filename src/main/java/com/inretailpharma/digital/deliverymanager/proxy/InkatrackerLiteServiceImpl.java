@@ -136,8 +136,6 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                 log.error("Error to send at uS-Audit to update error:{}",e.getMessage());
             }
         });
-
-
          */
 
     }

@@ -93,6 +93,8 @@ public class OrderTransaction {
         orderWrapperResponse.setAttemptTracker(serviceLocalOrderResponse.getAttemptTracker());
         orderWrapperResponse.setLocalName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterName());
         orderWrapperResponse.setCompanyName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCompanyName());
+        orderWrapperResponse.setPaymentMethodName(orderFulfillmentResp.getPaymentMethod().getPaymentType().name());
+        orderWrapperResponse.setReceiptName(orderFulfillmentResp.getReceiptType().getName());
         log.info("[END] createOrderReactive");
 
         return orderWrapperResponse;
