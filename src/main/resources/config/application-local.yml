@@ -23,6 +23,6 @@ external-service:
       read-timeout: 120000
   order-tracker:
     create-order:
-      uri: http://localhost:8030/ordertracker/messages
+      uri: http://localhost:8030/ordertracker
       connect-timeout: 10000
       read-timeout: 120000

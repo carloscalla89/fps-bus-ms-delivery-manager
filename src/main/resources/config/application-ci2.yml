@@ -23,7 +23,7 @@ external-service:
       read-timeout: 120000
   order-tracker:
     create-order:
-      uri: http://us-order-tracker/ordertracker/messages
+      uri: http://us-ordertracker/ordertracker
       connect-timeout: 10000
       read-timeout: 120000
 
