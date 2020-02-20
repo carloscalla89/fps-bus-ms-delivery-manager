@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -33,6 +34,22 @@ public class DeliveryManagerRest {
         this.deliveryManagerFacade = deliveryManagerFacade;
     }
 
+    @ApiOperation(value = "Lista de órdenes")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Orden creado", response = OrderDto.class),
+            @ApiResponse(code = 500, message = "No creado") })
+    @GetMapping(value = "/orders")
+    public ResponseEntity<Flux<OrderCanonical>> listOrders(@RequestParam(name="status") String status) {
+        log.info("[START] endpoint /orders - status:{}",status);
+
+        return new ResponseEntity<>(
+                deliveryManagerFacade.getOrdersByStatus(status)
+                .subscribeOn(Schedulers.parallel()), HttpStatus.OK
+                );
+
+    }
+
+
     @ApiOperation(value = "Crear una orden que viene del ecommerce")
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "Orden creado", response = OrderDto.class),
@@ -44,7 +61,8 @@ public class DeliveryManagerRest {
         return new ResponseEntity<>(
                 deliveryManagerFacade.createOrder(orderDto)
                         .doOnSuccess(r -> log.info("[END] endpoint /fulfillment/order"))
-                        .subscribeOn(Schedulers.parallel()), HttpStatus.CREATED);
+                        .subscribeOn(Schedulers.parallel()), HttpStatus.CREATED
+        );
     }
 
     @ApiOperation(value = "Actualizar una orden en el dominio fulfillment segun una acción a realizar", tags = { "Controlador DeliveryManager" })

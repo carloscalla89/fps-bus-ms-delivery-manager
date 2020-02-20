@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -161,6 +160,10 @@ public class OrderTransaction {
 
     public IOrderFulfillment getOrderByecommerceId(Long ecommerceId) {
         return orderRepositoryService.getOrderByecommerceId(ecommerceId);
+    }
+
+    public List<IOrderFulfillment> getOrdersByStatus(String status){
+        return orderRepositoryService.getListOrdersByStatus(new HashSet<>(Collections.singletonList(status)));
     }
 
     public OrderFulfillment getOrderFulfillmentById(Long id) {

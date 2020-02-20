@@ -25,7 +25,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join order_status os on s.order_status_code = os.code " +
             "inner join local l on s.local_code = l.code " +
             "inner join company c on l.company_code = c.code " +
-            "where o.status in :status",
+            "where os.code in :status",
             nativeQuery = true
     )
     List<IOrderFulfillment> getListOrdersByStatus(@Param("status") Set<String> status);

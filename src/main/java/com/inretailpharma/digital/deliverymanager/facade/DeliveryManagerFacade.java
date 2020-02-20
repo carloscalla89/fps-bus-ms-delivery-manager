@@ -12,11 +12,13 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -42,6 +44,22 @@ public class DeliveryManagerFacade {
         this.orderExternalServiceInkatrackerLite = orderExternalServiceInkatrackerLite;
         this.orderExternalServiceOrderTracker = orderExternalServiceOrderTracker;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
+    }
+
+    public Flux<OrderCanonical> getOrdersByStatus(String status) {
+
+        return Flux.fromIterable(orderTransaction.getOrdersByStatus(status).stream().map(r -> {
+            OrderCanonical orderCanonical = new OrderCanonical();
+            orderCanonical.setEcommerceId(r.getEcommerceId());
+            orderCanonical.setExternalId(r.getExternalId());
+            orderCanonical.setTotalAmount(r.getTotalAmount());
+            orderCanonical.setCompany(r.getCompany());
+            orderCanonical.setLocal(r.getLocal());
+            orderCanonical.setLocalCode(r.getLocalCode());
+
+            return orderCanonical;
+        }).collect(Collectors.toList()));
+
     }
 
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
