@@ -81,6 +81,7 @@ public class OrderTransaction {
 
         // Set the values of return of transaction as wrapped
         OrderWrapperResponse orderWrapperResponse = new OrderWrapperResponse();
+        orderWrapperResponse.setFulfillmentId(orderFulfillmentResp.getId());
         orderWrapperResponse.setTrackerId(orderFulfillmentResp.getId());
         orderWrapperResponse.setOrderStatusCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getOrderStatus().getCode());
         orderWrapperResponse.setOrderStatusName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getOrderStatus().getType());

@@ -5,21 +5,29 @@ import java.time.LocalDateTime;
 
 public interface IOrderFulfillment {
 
-    String getCompany();
     Long getOrderId();
     Long getEcommerceId();
     Long getTrackerId();
     Long getExternalId();
 
-    String getLocalCode();
-    String getLocal();
-    String getStatusCode();
-    String getStatus();
-    String getStatusDetail();
-    String getPaymentMethod();
-    LocalDateTime getLeadTime();
+    LocalDateTime getCreatedOrder();
+    LocalDateTime getScheduledTime();
+
     String getDocumentNumber();
     BigDecimal getTotalAmount();
+    String getPaymentMethod();
+
+    String getLocalCode();
+    String getLocal();
+    String getCompany();
+
+    String getStatusCode();
+    String getStatusType();
+    String getStatusDetail();
+
+    LocalDateTime getLeadTime();
+
+
     Integer getAttempt();
     Integer getAttemptTracker();
 

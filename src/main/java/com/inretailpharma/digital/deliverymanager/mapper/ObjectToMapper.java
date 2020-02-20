@@ -128,15 +128,7 @@ public class ObjectToMapper {
             orderCanonical.setTrackerId(s.getTrackerId());
             orderCanonical.setExternalId(s.getExternalId());
 
-            Optional.ofNullable(s.getStatus()).ifPresent(r -> {
-                Constant.OrderStatus orderStatus = Constant.OrderStatus.getByCode(r);
 
-                OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
-                orderStatusCanonical.setCode(orderStatus.getCode());
-                orderStatusCanonical.setName(orderStatus.name());
-
-                orderCanonical.setOrderStatus(orderStatusCanonical);
-            });
 
 
 

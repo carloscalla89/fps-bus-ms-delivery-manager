@@ -74,6 +74,9 @@ public class DeliveryManagerFacade {
 
                             OrderWrapperResponse r =  orderTransaction.createOrderTransaction(a, orderDto);
 
+                            //set fulfillmentID
+                            b.setId(r.getFulfillmentId());
+
                             // set tracker ID
                             b.setTrackerId(r.getTrackerId());
 
@@ -110,7 +113,10 @@ public class DeliveryManagerFacade {
 
                             a.setOrderStatus(b.getOrderStatus());
 
-                            orderExternalServiceAudit.updateOrderReactive(a).subscribeOn(Schedulers.parallel());
+                            Mono.just(a).subscribe(au -> {
+                                orderTransaction.updateStatusOrder(au.getId(), au.getOrderStatus().getCode(), au.getOrderStatus().getDetail());
+                                orderExternalServiceAudit.updateOrderReactive(au);
+                            });
 
                             return a;
                 })).doOnSuccess(r -> log.info("[END] createOrder facade"));

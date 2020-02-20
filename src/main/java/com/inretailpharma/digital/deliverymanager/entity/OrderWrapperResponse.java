@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class OrderWrapperResponse {
 
+    private Long fulfillmentId;
     private Long trackerId;
     private String orderStatusCode;
     private String orderStatusName;
