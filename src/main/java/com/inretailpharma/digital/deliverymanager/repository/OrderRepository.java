@@ -33,13 +33,27 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
     OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 
-    @Query(value = "select o.id as orderId, o.tracker_id as trackerId, o.external_purchase_id as externalId, " +
-            "o.ecommerce_purchase_id as ecommerceId," +
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, " +
+            "o.external_purchase_id as externalId, o.bridge_purchase_id as bridgePurchaseId, " +
+            "o.total_cost as totalCost, o.delivery_cost as deliveryCost, o.created_order as createdOrder, " +
+            "o.scheduled_time as scheduledTime, " +
+            "c.first_name as firstName, c.last_name as lastName, c.email, c.document_number as documentNumber, " +
+            "c.phone, c.birth_date as birthDate, c.anonimous, " +
+            "ccf.center_code as centerCode, ccf.center_name as centerName, ccf.company_code as company_code, ccf.company_name as companyName," +
+            "s.lead_time as leadTime, s.start_hour as startHour, s.end_hour as endHour," +
             "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
-            "st.code as serviceTypeCode, st.name as serviceTypeName " +
+            "st.code as serviceTypeCode, st.name as serviceTypeName, " +
+            "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, pm.change_amount as changeAmount, " +
+            "rt.name as receiptType, rt.document_number as documentNumber, rt.ruc as ruc, rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt," +
+            "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, af.department, af.notes, af.latitude, af.longitude " +
             "from order_fulfillment o " +
+            "inner join client c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
+            "inner join center_company_fulfillment ccf on ccf.center_code = s.center_code and ccf.company_code = s.company_code " +
             "inner join service_type st on s.service_type_code = st.code " +
+            "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
+            "inner join receipt_type rt on rt.order_fulfillment_id = o.id " +
+            "inner join address_fulfillment af on af.order_fulfillment_id = o.id " +
             "where o.ecommerce_purchase_id = :ecommerceId",
             nativeQuery = true
     )

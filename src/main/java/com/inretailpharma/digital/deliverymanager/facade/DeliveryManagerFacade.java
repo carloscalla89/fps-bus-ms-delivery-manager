@@ -108,9 +108,12 @@ public class DeliveryManagerFacade {
 
                             return b;
                         })
-                .flatMap(r ->
-                        Mono.just(r).zipWith(orderExternalServiceOrderTracker.sendOrderReactiveWithOrderDto(r), (a, b) -> {
+                .flatMap(r ->{
 
+                    if (r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS.getCode())
+                       || r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.SUCCESS_RESERVED_ORDER.getCode())) {
+
+                        return Mono.just(r).zipWith(orderExternalServiceOrderTracker.sendOrderReactiveWithOrderDto(r), (a, b) -> {
                             a.setOrderStatus(b.getOrderStatus());
 
                             Mono.just(a).subscribe(au -> {
@@ -119,7 +122,14 @@ public class DeliveryManagerFacade {
                             });
 
                             return a;
-                })).doOnSuccess(r -> log.info("[END] createOrder facade"));
+                        });
+
+                    } else {
+                        return Mono.just(r);
+                    }
+
+
+                }).doOnSuccess(r -> log.info("[END] createOrder facade"));
 
     }
 
@@ -257,6 +267,11 @@ public class DeliveryManagerFacade {
                     resultCanonical.setEcommerceId(ecommercePurchaseId);
                     resultCanonical.setExternalId(iOrderFulfillment.getExternalId());
                     resultCanonical.setTrackerId(iOrderFulfillment.getTrackerId());
+                    break;
+
+                case 5:
+                    resultCanonical = orderExternalServiceOrderTracker.sendOrderReactiveWithOrderDto();
+
                     break;
 
                 default:

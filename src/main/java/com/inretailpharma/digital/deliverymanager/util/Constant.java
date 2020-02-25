@@ -15,6 +15,9 @@ public interface Constant {
     interface ApplicationsParameters {
         String ACTIVATED_AUDIT_VALUE = "1";
         String ACTIVATED_AUDIT = "ACTIVATED_AUDIT";
+
+        String ACTIVATED_ORDER_TRACKER_VALUE = "1";
+        String ACTIVATED_ORDER_TRACKER = "ACTIVATED_ORDER_TRACKER";
     }
 
     interface InsinkErrorCode {
@@ -49,6 +52,9 @@ public interface Constant {
         CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como entregada"),
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada"),
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger"),
+
+        ATTEMPT_ORDER_TRACKER(5, "reintento para enviar al order tracker"),
+
 
         NONE(0, "");
 
@@ -88,7 +94,7 @@ public interface Constant {
         ERROR_RELEASE_ORDER("04"),
         ERROR_UPDATE_TRACKER_BILLING("05"),
         ERROR_UPDATE_ORDER("06"),
-        ERROR_SHIPPER_TRACKER_ORDER("07"),
+        ERROR_SHIPPER_ORDER_TRACKER("07"),
 
 
         SUCCESS_RESERVED_ORDER("10"),
@@ -97,7 +103,7 @@ public interface Constant {
         DELIVERED_ORDER("12"),
         READY_PICKUP_ORDER("13"),
         RELEASED_ORDER("14"),
-        SHIPPED_TRACKER_ORDER("15"),
+        SHIPPED_ORDER_TRACKER("15"),
 
         PENDING_CANCEL_ORDER("21"),
         PENDING_DELIVERY_ORDER("22"),
