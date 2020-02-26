@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.transactions;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -161,6 +162,11 @@ public class OrderTransaction {
 
     public IOrderFulfillment getOrderByecommerceId(Long ecommerceId) {
         return orderRepositoryService.getOrderByecommerceId(ecommerceId);
+    }
+
+
+    public List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId) {
+        return orderRepositoryService.getOrderItemByOrderFulfillmentId(orderFulfillmentId);
     }
 
     public List<IOrderFulfillment> getOrdersByStatus(String status){

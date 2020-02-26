@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.repository;
 
 import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -58,6 +59,15 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true
     )
     IOrderFulfillment getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
+
+    @Query(value ="select oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
+            "oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, oi.unit_price as unitPrice," +
+            "oi.total_price as totalPrice, oi.fractionated " +
+            "from order_fulfillment_item oi " +
+            "where oi.order_fulfillment_id = :orderFulfillmentId",
+            nativeQuery = true
+    )
+    List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(@Param("orderFulfillmentId") Long orderFulfillmentId);
 
     @Modifying
     @Transactional

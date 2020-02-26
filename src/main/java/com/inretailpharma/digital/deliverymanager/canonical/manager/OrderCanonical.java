@@ -48,4 +48,8 @@ public class OrderCanonical {
     // Canonical serviceType
     private OrderDetailCanonical orderDetail;
 
+    // versión anterior
+    private Integer attempt;
+    private Integer attemptTracker;
+
 }

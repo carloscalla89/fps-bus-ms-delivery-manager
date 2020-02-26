@@ -9,7 +9,7 @@ public interface IOrderItemFulfillment {
     String getProductSapCode();
     String getNameProduct();
     String getShortDescriptionProduct();
-    String getBrand();
+    String getBrandProduct();
     Integer getQuantity();
     BigDecimal getUnitPrice();
     BigDecimal getTotalPrice();

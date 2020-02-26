@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.service.impl;
 
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.repository.*;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     @Override
     public List<IOrderFulfillment> getListOrdersByStatus(Set<String> status) {
         return orderRepository.getListOrdersByStatus(status);
+    }
+
+    @Override
+    public List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId) {
+        return orderRepository.getOrderItemByOrderFulfillmentId(orderFulfillmentId);
     }
 
     @Override

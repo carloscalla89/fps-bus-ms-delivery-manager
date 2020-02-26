@@ -52,11 +52,6 @@ public class DeliveryManagerFacade {
             OrderCanonical orderCanonical = new OrderCanonical();
             orderCanonical.setEcommerceId(r.getEcommerceId());
             orderCanonical.setExternalId(r.getExternalId());
-            orderCanonical.setTotalAmount(r.getTotalAmount());
-            orderCanonical.setCompany(r.getCompany());
-            orderCanonical.setLocal(r.getLocal());
-            orderCanonical.setLocalCode(r.getLocalCode());
-
             return orderCanonical;
         }).collect(Collectors.toList()));
 
@@ -103,6 +98,10 @@ public class DeliveryManagerFacade {
 
                             // set Payment
                             b.getPaymentMethod().setType(r.getPaymentMethodName());
+
+                            // attempts
+                            b.setAttemptTracker(r.getAttemptTracker());
+                            b.setAttempt(r.getAttemptBilling());
 
                             Mono.just(b).subscribe(au -> orderExternalServiceAudit.sendOrderReactive(au));
 
@@ -270,9 +269,8 @@ public class DeliveryManagerFacade {
                     break;
 
                 case 5:
-                    resultCanonical = orderExternalServiceOrderTracker.sendOrderReactiveWithOrderDto();
-
-                    break;
+                    // para reintentar al order-tracker
+                    //resultCanonical = orderExternalServiceOrderTracker.sendOrderReactiveWithOrderDto();
 
                 default:
                     resultCanonical = new OrderCanonical();
