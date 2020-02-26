@@ -51,6 +51,7 @@ public interface IOrderFulfillment {
     BigDecimal getChangeAmount();
 
     String getReceiptType();
+    String getDocumentNumberReceipt();
     String getRuc();
     String getCompanyNameReceipt();
     String getCompanyAddressReceipt();
