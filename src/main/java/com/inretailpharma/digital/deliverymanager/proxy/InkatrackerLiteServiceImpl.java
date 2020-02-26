@@ -113,30 +113,5 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                     return Mono.just(orderCanonical);
                 }).block();
 
-        /*
-        webClient.subscribe(r -> {
-            log.info("Response inkatracker lite {} ",r);
-
-            try {
-
-                r.setEcommerceId(ecommerceId);
-
-                ApplicationParameter activatedAudit = applicationParameterService
-                        .findApplicationParameterByCode(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
-
-                log.info("Call for uS-Audit:{}",activatedAudit);
-
-                Optional
-                        .ofNullable(activatedAudit)
-                        .map(s -> s.getCode().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
-                        .ifPresent(s -> orderExternalServiceAudit.updateOrder(r));
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("Error to send at uS-Audit to update error:{}",e.getMessage());
-            }
-        });
-         */
-
     }
 }

@@ -168,6 +168,8 @@ public class DeliveryManagerFacade {
                     orderDetail.setAttemptTracker(attemptTracker);
                     resultCanonical.setOrderDetail(orderDetail);
 
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribeOn(Schedulers.parallel());
+
                     break;
                 case 2:
                     // Result of call to reattempt to insink
@@ -193,6 +195,9 @@ public class DeliveryManagerFacade {
                     orderDetail.setAttemptTracker(attemptTracker);
 
                     resultCanonical.setOrderDetail(orderDetail);
+
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribeOn(Schedulers.parallel());
+
                     break;
 
                 case 3:
@@ -235,6 +240,8 @@ public class DeliveryManagerFacade {
 
                     resultCanonical.setOrderDetail(orderDetail);
 
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribeOn(Schedulers.parallel());
+
                     break;
 
                 case 4:
@@ -265,6 +272,9 @@ public class DeliveryManagerFacade {
                     resultCanonical.setEcommerceId(ecommercePurchaseId);
                     resultCanonical.setExternalId(iOrderFulfillment.getExternalId());
                     resultCanonical.setTrackerId(iOrderFulfillment.getTrackerId());
+
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribeOn(Schedulers.parallel());
+
                     break;
 
                 case 5:
