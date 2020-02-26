@@ -178,10 +178,10 @@ public class DeliveryManagerFacade {
 
                     log.info("Action value {} ",Constant.ActionOrder.getByName(actionDto.getAction()).getCode());
 
-                    attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0) + 1;
+                    attempt = Optional.of(attempt).orElse(0) + 1;
 
                     if (!resultCanonical.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())) {
-                        attemptTracker = Optional.ofNullable(resultCanonical.getOrderDetail().getAttemptTracker()).orElse(0) + 1;
+                        attemptTracker = Optional.of(attemptTracker).orElse(0) + 1;
                     }
 
                     orderTransaction.updateOrderRetrying(
@@ -215,7 +215,7 @@ public class DeliveryManagerFacade {
                     attempt = attempt + 1;
 
                     if (!orderStatusEntity.getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode())) {
-                        attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0) + 1;
+                        attemptTracker = Optional.ofNullable(attemptTracker).orElse(0) + 1;
                     }
 
                     orderTransaction.updateReservedOrder(
