@@ -177,17 +177,22 @@ public class ObjectToMapper {
 
         // set Address
         AddressCanonical address = new AddressCanonical();
-        address.setName(
 
-                Optional.ofNullable(orderDto.getAddress().getName()).orElse(StringUtils.EMPTY)
-                        + StringUtils.SPACE
-                + Optional.ofNullable(orderDto.getAddress().getStreet()).orElse(StringUtils.EMPTY)
-                        + StringUtils.SPACE
-                + Optional.ofNullable(orderDto.getAddress().getNumber()).orElse(StringUtils.EMPTY)
-        );
-        address.setDistrict(orderDto.getAddress().getDistrict());
-        address.setDepartment(orderDto.getAddress().getDepartment());
-        address.setCountry(orderDto.getAddress().getCountry());
+        Optional.ofNullable(orderDto.getAddress()).ifPresent(r -> {
+            address.setName(
+
+                    Optional.ofNullable(r.getName()).orElse(StringUtils.EMPTY)
+                            + StringUtils.SPACE
+                            + Optional.ofNullable(r.getStreet()).orElse(StringUtils.EMPTY)
+                            + StringUtils.SPACE
+                            + Optional.ofNullable(r.getNumber()).orElse(StringUtils.EMPTY)
+            );
+            address.setDistrict(r.getDistrict());
+            address.setDepartment(r.getDepartment());
+            address.setCountry(r.getCountry());
+        });
+
+
         orderCanonical.setAddress(address);
 
         // set items

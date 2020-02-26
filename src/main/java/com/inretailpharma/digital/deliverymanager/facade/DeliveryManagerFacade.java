@@ -66,7 +66,6 @@ public class DeliveryManagerFacade {
                 .zipWith(
                         objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) ->
                         {
-
                             OrderWrapperResponse r =  orderTransaction.createOrderTransaction(a, orderDto);
 
                             //set fulfillmentID
