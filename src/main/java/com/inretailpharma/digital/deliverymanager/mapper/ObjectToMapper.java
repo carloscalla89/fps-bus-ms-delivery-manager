@@ -73,17 +73,21 @@ public class ObjectToMapper {
 
         // object address
         Address address = new Address();
-        address.setName(orderDto.getAddress().getName());
-        address.setNumber(orderDto.getAddress().getNumber());
-        address.setApartment(orderDto.getAddress().getApartment());
-        address.setCity(orderDto.getAddress().getCity());
-        address.setDistrict(orderDto.getAddress().getDistrict());
-        address.setProvince(orderDto.getAddress().getProvince());
-        address.setDepartment(orderDto.getAddress().getDepartment());
-        address.setCountry(orderDto.getAddress().getCountry());
-        address.setNotes(orderDto.getAddress().getNotes());
-        address.setLatitude(orderDto.getAddress().getLatitude());
-        address.setLongitude(orderDto.getAddress().getLongitude());
+
+        Optional.ofNullable(orderDto.getAddress()).ifPresent(r -> {
+            address.setName(r.getName());
+            address.setNumber(r.getNumber());
+            address.setApartment(r.getApartment());
+            address.setCity(r.getCity());
+            address.setDistrict(r.getDistrict());
+            address.setProvince(r.getProvince());
+            address.setDepartment(r.getDepartment());
+            address.setCountry(r.getCountry());
+            address.setNotes(r.getNotes());
+            address.setLatitude(r.getLatitude());
+            address.setLongitude(r.getLongitude());
+        });
+
         orderFulfillment.setAddress(address);
 
         // object payment_method
