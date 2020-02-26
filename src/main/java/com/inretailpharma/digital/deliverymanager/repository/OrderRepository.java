@@ -48,7 +48,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "rt.name as receiptType, rt.document_number as documentNumber, rt.ruc as ruc, rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt," +
             "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, af.department, af.notes, af.latitude, af.longitude " +
             "from order_fulfillment o " +
-            "inner join client c on c.id = o.client_id " +
+            "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
             "inner join center_company_fulfillment ccf on ccf.center_code = s.center_code and ccf.company_code = s.company_code " +
             "inner join service_type st on s.service_type_code = st.code " +
