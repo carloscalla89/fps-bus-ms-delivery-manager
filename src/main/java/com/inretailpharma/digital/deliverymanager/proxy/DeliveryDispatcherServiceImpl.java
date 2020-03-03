@@ -16,6 +16,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -36,7 +37,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderCanonical) {
+    public Mono<Void> sendOrderReactive(OrderCanonical orderCanonical) {
         return null;
     }
 
@@ -46,7 +47,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public Mono<OrderCanonical> updateOrderReactive(OrderCanonical orderCanonical) {
+    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
         return null;
     }
 

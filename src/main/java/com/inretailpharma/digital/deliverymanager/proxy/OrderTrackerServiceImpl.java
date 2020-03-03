@@ -30,7 +30,7 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderCanonical) {
+    public Mono<Void> sendOrderReactive(OrderCanonical orderCanonical) {
         return null;
 
     }
@@ -91,7 +91,7 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
 
 
     @Override
-    public Mono<OrderCanonical> updateOrderReactive(OrderCanonical orderCanonical) {
+    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
         return null;
     }
 

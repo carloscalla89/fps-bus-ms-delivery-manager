@@ -10,6 +10,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -24,7 +25,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderCanonical) {
+    public Mono<Void> sendOrderReactive(OrderCanonical orderCanonical) {
         return null;
     }
 
@@ -34,7 +35,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> updateOrderReactive(OrderCanonical orderCanonical) {
+    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
         return null;
     }
 

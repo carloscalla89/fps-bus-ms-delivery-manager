@@ -55,14 +55,19 @@ public class DeliveryManagerRest {
             @ApiResponse(code = 200, message = "Orden creado", response = OrderDto.class),
             @ApiResponse(code = 500, message = "No creado") })
     @PostMapping(value = "/order")
-    public ResponseEntity<Mono<OrderCanonical>> createOrderReactive(@RequestBody OrderDto orderDto) {
+    public Mono<ResponseEntity<OrderCanonical>> createOrderReactive(@RequestBody OrderDto orderDto) {
         log.info("[START] endpoint /fulfillment/order - orderDto:{}",orderDto);
 
-        return new ResponseEntity<>(
-                deliveryManagerFacade.createOrder(orderDto)
-                        .doOnSuccess(r -> log.info("[END] endpoint /fulfillment/order"))
-                        .subscribeOn(Schedulers.parallel()), HttpStatus.CREATED
-        );
+        return deliveryManagerFacade
+                .createOrder(orderDto)
+                .map(r -> ResponseEntity
+                                .status(HttpStatus.CREATED)
+                                .contentType(MediaType.APPLICATION_STREAM_JSON)
+                                .body(r)
+                )
+                .doOnSuccess(r -> log.info("[END] endpoint /fulfillment/order"))
+                .subscribeOn(Schedulers.parallel());
+
     }
 
     @ApiOperation(value = "Actualizar una orden en el dominio fulfillment segun una acción a realizar", tags = { "Controlador DeliveryManager" })
@@ -70,7 +75,7 @@ public class DeliveryManagerRest {
             @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
             @ApiResponse(code = 500, message = "No creado") })
     @PatchMapping("/order/{ecommerceId}")
-    public ResponseEntity<?> updateStatusOrder(
+    public Mono<ResponseEntity<OrderCanonical>> updateStatusOrder(
             @ApiParam(value = "Identificador e-commerce")
             @PathVariable(value = "ecommerceId") String ecommerceId,
             @ApiParam(value = "Accción a realizar de la orden")
@@ -79,7 +84,14 @@ public class DeliveryManagerRest {
         log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - action {}"
                 ,ecommerceId,action);
 
-        return new ResponseEntity<>(deliveryManagerFacade.getUpdateOrder(action, ecommerceId), HttpStatus.OK);
+        return deliveryManagerFacade
+                .getUpdateOrder(action, ecommerceId)
+                .map(r -> ResponseEntity
+                            .status(HttpStatus.OK).contentType(MediaType.APPLICATION_STREAM_JSON)
+                            .body(r))
+                .doOnSuccess(r -> log.info("[END] endpoint updateStatus /order/{ecommerceId}"))
+                .subscribeOn(Schedulers.parallel());
+
     }
 
 

@@ -102,7 +102,7 @@ public class DeliveryManagerFacade {
                             b.setAttemptTracker(r.getAttemptTracker());
                             b.setAttempt(r.getAttemptBilling());
 
-                            Mono.just(b).subscribe(au -> orderExternalServiceAudit.sendOrderReactive(au));
+                            orderExternalServiceAudit.sendOrderReactive(b).subscribe();
 
                             return b;
                         })
@@ -116,7 +116,7 @@ public class DeliveryManagerFacade {
 
                             Mono.just(a).subscribe(au -> {
                                 orderTransaction.updateStatusOrder(au.getId(), au.getOrderStatus().getCode(), au.getOrderStatus().getDetail());
-                                orderExternalServiceAudit.updateOrderReactive(au);
+                                orderExternalServiceAudit.updateOrderReactive(au).subscribe();
                             });
 
                             return a;
@@ -131,7 +131,7 @@ public class DeliveryManagerFacade {
 
     }
 
-    public OrderCanonical getUpdateOrder(ActionDto actionDto, String ecommerceId) {
+    public Mono<OrderCanonical> getUpdateOrder(ActionDto actionDto, String ecommerceId) {
         log.info("[START] getUpdateOrder action:{}",actionDto);
 
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
@@ -168,7 +168,7 @@ public class DeliveryManagerFacade {
                     orderDetail.setAttemptTracker(attemptTracker);
                     resultCanonical.setOrderDetail(orderDetail);
 
-                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribeOn(Schedulers.parallel());
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribe();
 
                     break;
                 case 2:
@@ -196,7 +196,7 @@ public class DeliveryManagerFacade {
 
                     resultCanonical.setOrderDetail(orderDetail);
 
-                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribeOn(Schedulers.parallel());
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribe();
 
                     break;
 
@@ -240,7 +240,7 @@ public class DeliveryManagerFacade {
 
                     resultCanonical.setOrderDetail(orderDetail);
 
-                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribeOn(Schedulers.parallel());
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribe();
 
                     break;
 
@@ -273,7 +273,7 @@ public class DeliveryManagerFacade {
                     resultCanonical.setExternalId(iOrderFulfillment.getExternalId());
                     resultCanonical.setTrackerId(iOrderFulfillment.getTrackerId());
 
-                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribeOn(Schedulers.parallel());
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribe();
 
                     break;
 
@@ -301,7 +301,7 @@ public class DeliveryManagerFacade {
             resultCanonical.setEcommerceId(ecommercePurchaseId);
         }
 
-        return resultCanonical;
+        return Mono.just(resultCanonical);
 
     }
 

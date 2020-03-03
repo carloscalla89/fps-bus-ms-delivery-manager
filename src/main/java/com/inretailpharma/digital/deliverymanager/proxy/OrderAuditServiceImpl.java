@@ -9,6 +9,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -29,15 +30,30 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactive(OrderCanonical orderAuditCanonical) {
+    public Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical) {
         log.info("[START] service to call api audit to createOrder - uri:{} - body:{}",
                 externalServicesProperties.getUriApiService(), orderAuditCanonical);
 
-        ApplicationParameter activatedAudit = applicationParameterService
-                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
+        return Mono
+                .justOrEmpty(
+                        applicationParameterService
+                                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT)
+                )
+                .filter(r -> {
+                    log.info("Parameter to call uS-Audit:{}",r.getValue());
 
-        log.info("Parameter to Call uS-Audit - activated=1 - Not activated=0 activatedAudit-{}",activatedAudit);
+                    return r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
+                }).map(r -> WebClient
+                                .create(externalServicesProperties.getUriApiService())
+                                .post()
+                                .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .subscribeOn(Schedulers.parallel())
+                                .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
+                ).then();
 
+        /*
         Optional
                 .ofNullable(applicationParameterService
                         .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
@@ -53,6 +69,8 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
 
         return Mono.just(orderAuditCanonical);
+
+         */
     }
 
     @Override
@@ -61,15 +79,31 @@ public class OrderAuditServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> updateOrderReactive(OrderCanonical orderAuditCanonical) {
+    public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
         log.info("[START] service to call api audit to createOrder - value:{} - body:{}",
                 externalServicesProperties, orderAuditCanonical);
 
-        ApplicationParameter activatedAudit = applicationParameterService
-                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
+        return Mono
+                .justOrEmpty(
+                        applicationParameterService
+                                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT)
+                )
+                .filter(r -> {
+                    log.info("Parameter to call uS-Audit:{}",r.getValue());
 
-        log.info("Parameter to Call uS-Audit - activated=1 - Not activated=0 activatedAudit-{}",activatedAudit);
+                    return r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
+                })
+                .map(r -> WebClient
+                            .create(externalServicesProperties.getUriApiService())
+                            .patch()
+                            .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .subscribeOn(Schedulers.parallel())
+                            .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
+                ).then();
 
+/*
         Optional
                 .ofNullable(applicationParameterService
                         .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
@@ -84,7 +118,8 @@ public class OrderAuditServiceImpl implements OrderExternalService {
                         .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s)));
 
 
-        return Mono.just(orderAuditCanonical);
+ */
+
     }
 
     @Override
