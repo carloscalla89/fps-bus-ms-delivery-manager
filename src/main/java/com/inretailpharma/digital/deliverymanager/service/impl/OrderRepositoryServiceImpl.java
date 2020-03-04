@@ -135,4 +135,9 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return clientRepository.save(client);
     }
 
+    @Override
+    public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
+        return orderStatusRepository.getOrderStatusByTypeIs(statusName);
+    }
+
 }

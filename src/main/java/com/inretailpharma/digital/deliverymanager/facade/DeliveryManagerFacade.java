@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.facade;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
@@ -9,6 +10,7 @@ import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -57,6 +59,8 @@ public class DeliveryManagerFacade {
 
     }
 
+
+
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
 
         log.info("[START] createOrder facade");
@@ -102,32 +106,13 @@ public class DeliveryManagerFacade {
                             b.setAttemptTracker(r.getAttemptTracker());
                             b.setAttempt(r.getAttemptBilling());
 
+                            b.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
+
                             orderExternalServiceAudit.sendOrderReactive(b).subscribe();
 
                             return b;
                         })
-                .flatMap(r ->{
-
-                    if (r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS.getCode())
-                       || r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.SUCCESS_RESERVED_ORDER.getCode())) {
-
-                        return Mono.just(r).zipWith(orderExternalServiceOrderTracker.sendOrderReactiveWithOrderDto(r), (a, b) -> {
-                            a.setOrderStatus(b.getOrderStatus());
-
-                            Mono.just(a).subscribe(au -> {
-                                orderTransaction.updateStatusOrder(au.getId(), au.getOrderStatus().getCode(), au.getOrderStatus().getDetail());
-                                orderExternalServiceAudit.updateOrderReactive(au).subscribe();
-                            });
-
-                            return a;
-                        });
-
-                    } else {
-                        return Mono.just(r);
-                    }
-
-
-                }).doOnSuccess(r -> log.info("[END] createOrder facade"));
+                .doOnSuccess(r -> log.info("[END] createOrder facade"));
 
     }
 
@@ -136,8 +121,10 @@ public class DeliveryManagerFacade {
 
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
         OrderCanonical resultCanonical;
+        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
         IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
+        Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
 
         if (Optional.ofNullable(iOrderFulfillment).isPresent()) {
 
@@ -146,10 +133,10 @@ public class DeliveryManagerFacade {
             int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
             int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0);
 
-            switch (Constant.ActionOrder.getByName(actionDto.getAction()).getCode()) {
+            switch (action.getCode()) {
 
                 case 1:
-                    // Result of call to reattempt at inkatracker
+                    // Reattempt to send the order some inkatracker
                     resultCanonical = orderExternalServiceDispatcher
                             .getResultfromExternalServices(ecommercePurchaseId, actionDto);
 
@@ -172,7 +159,7 @@ public class DeliveryManagerFacade {
 
                     break;
                 case 2:
-                    // Result of call to reattempt to insink
+                    // Reattempt to send the order at insink
                     resultCanonical = orderExternalServiceDispatcher
                             .getResultfromExternalServices(ecommercePurchaseId, actionDto);
 
@@ -201,7 +188,7 @@ public class DeliveryManagerFacade {
                     break;
 
                 case 3:
-                    // Update the status when the order was released in Dispatcher
+                    // Update the status when the order was released from Dispatcher
 
                     log.info("Starting to update the released order when the order come from dispatcher");
 
@@ -278,12 +265,46 @@ public class DeliveryManagerFacade {
                     break;
 
                 case 5:
-                    // para reintentar al order-tracker
-                    //resultCanonical = orderExternalServiceOrderTracker.sendOrderReactiveWithOrderDto();
+                    log.info("[START] to update order");
+                    resultCanonical = new OrderCanonical();
+
+                    try {
+                        // Update the status order
+                        orderTransaction.updateStatusOrder(
+                                iOrderFulfillment.getOrderId(),
+                                action.getOrderSuccessStatusCode(),
+                                null
+                        );
+
+                        orderStatus.setCode(Constant.OrderStatus.getByCode(action.getOrderSuccessStatusCode()).getCode());
+                        orderStatus.setName(Constant.OrderStatus.getByCode(action.getOrderSuccessStatusCode()).name());
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                        log.error("Error during update the fulfillment delivery database:{}",e.getMessage());
+
+                        // Update the status order
+                        orderTransaction.updateStatusOrder(
+                                iOrderFulfillment.getOrderId(),
+                                Constant.ActionOrder.getByName(actionDto.getAction()).getOrderErrorStatusCode(),
+                                e.getMessage()
+                        );
+
+                        orderStatus.setCode(Constant.OrderStatus.getByCode(action.getOrderErrorStatusCode()).getCode());
+                        orderStatus.setName(Constant.OrderStatus.getByCode(action.getOrderErrorStatusCode()).name());
+                        orderStatus.setDetail(e.getMessage());
+
+                    }
+
+                    resultCanonical.setOrderStatus(orderStatus);
+                    resultCanonical.setEcommerceId(ecommercePurchaseId);
+
+                    orderExternalServiceAudit.updateOrderReactive(resultCanonical).subscribe();
+
+                    break;
 
                 default:
                     resultCanonical = new OrderCanonical();
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
                     orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
                     orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
                     resultCanonical.setOrderStatus(orderStatus);
@@ -293,8 +314,8 @@ public class DeliveryManagerFacade {
             }
 
         } else {
+
             resultCanonical = new OrderCanonical();
-            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
             orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
             orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
             resultCanonical.setOrderStatus(orderStatus);

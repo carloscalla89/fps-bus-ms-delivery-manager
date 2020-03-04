@@ -61,8 +61,8 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
                             Constant.OrderStatus status = Optional
                                     .ofNullable(r.getCode())
                                     .filter(s -> s.equals(Constant.OrderTrackerResponseCode.SUCCESS_CODE))
-                                    .map(s-> Constant.OrderStatus.SHIPPED_ORDER_TRACKER)
-                                    .orElse(Constant.OrderStatus.ERROR_SHIPPER_ORDER_TRACKER);
+                                    .map(s-> Constant.OrderStatus.ERROR_ON_STORE)
+                                    .orElse(Constant.OrderStatus.ERROR_ON_STORE);
 
                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                             orderStatus.setCode(status.getCode());
@@ -79,8 +79,8 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
                             log.error("[END] Error calling uS-Order-Tracker: {} ",e.getMessage());
 
                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                            orderStatus.setCode(Constant.OrderStatus.ERROR_SHIPPER_ORDER_TRACKER.getCode());
-                            orderStatus.setName(Constant.OrderStatus.ERROR_SHIPPER_ORDER_TRACKER.name());
+                            orderStatus.setCode(Constant.OrderStatus.ERROR_ON_STORE.getCode());
+                            orderStatus.setName(Constant.OrderStatus.ERROR_ON_STORE.name());
                             orderStatus.setDetail(e.getMessage());
 
                             orderCanonical.setOrderStatus(orderStatus);

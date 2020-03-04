@@ -35,5 +35,7 @@ public interface OrderRepositoryService {
 
     Client saveClient(Client client);
 
+    List<OrderStatus> getOrderStatusByTypeIs(String statusName);
+
 
 }

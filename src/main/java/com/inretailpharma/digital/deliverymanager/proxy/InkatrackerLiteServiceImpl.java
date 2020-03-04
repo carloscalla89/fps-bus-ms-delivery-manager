@@ -45,35 +45,35 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                 ecommerceId, actionDto.getAction());
 
         String actionInkatrackerLite;
-        Constant.OrderStatus pending;
+        Constant.OrderStatus errorResponse;
         Constant.OrderStatus successResponse;
 
         switch (actionDto.getAction()) {
 
             case Constant.ActionName.RELEASE_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_BILLING;
-                pending = Constant.OrderStatus.PENDING_RELEASE_ORDER;
                 successResponse = Constant.OrderStatus.RELEASED_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_RELEASE_ORDER;
                 break;
             case Constant.ActionName.CANCEL_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.CANCELLED;
-                pending = Constant.OrderStatus.PENDING_CANCEL_ORDER;
                 successResponse = Constant.OrderStatus.CANCELLED_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_CANCEL;
                 break;
             case Constant.ActionName.DELIVER_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.DELIVERED;
-                pending = Constant.OrderStatus.PENDING_DELIVERY_ORDER;
                 successResponse = Constant.OrderStatus.DELIVERED_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_DELIVER;
                 break;
             case Constant.ActionName.READY_PICKUP_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_PICKUP;
-                pending = Constant.OrderStatus.PENDING_READY_PICKUP_ORDER;
                 successResponse = Constant.OrderStatus.READY_PICKUP_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_PICKUP;
                 break;
             default:
                 actionInkatrackerLite = Constant.OrderStatus.NOT_FOUND_ACTION.name();
-                pending = Constant.OrderStatus.NOT_DEFINED_STATUS;
                 successResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
+                errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
         }
 
 
@@ -105,8 +105,8 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                     OrderCanonical orderCanonical = new OrderCanonical();
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(Constant.OrderStatus.ERROR_UPDATE_ORDER.getCode());
-                    orderStatus.setName(Constant.OrderStatus.ERROR_UPDATE_ORDER.name());
+                    orderStatus.setCode(errorResponse.getCode());
+                    orderStatus.setName(errorResponse.name());
                     orderStatus.setDetail(e.getMessage());
 
                     orderCanonical.setOrderStatus(orderStatus);

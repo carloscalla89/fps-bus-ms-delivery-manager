@@ -177,6 +177,10 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderFulfillmentById(id);
     }
 
+    public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
+        return orderRepositoryService.getOrderStatusByTypeIs(statusName);
+    }
+
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateOrderRetrying(Long orderFulfillmentId, Integer attempt, Integer attemptTracker,
                                     String orderStatusCode, String statusDetail, Long externalPurchaseId,
