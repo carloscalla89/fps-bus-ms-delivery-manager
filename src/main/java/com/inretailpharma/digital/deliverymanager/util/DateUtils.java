@@ -46,6 +46,10 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
                 );
     }
 
+    public static String getLocalDateTimeNow() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
+    }
+
     public static LocalTime getLocalTimeNow() {
         return LocalTime.parse(LocalTime.now().format(DateTimeFormatter.ofPattern(TIME_TEMPLATE)));
     }

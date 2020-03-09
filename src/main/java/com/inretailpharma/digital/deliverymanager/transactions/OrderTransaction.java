@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.transactions;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -12,8 +13,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -30,11 +30,15 @@ public class OrderTransaction {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public ServiceLocalOrder createOrder(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+    public OrderWrapperResponse createOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto) {
 
-        log.info("[START] createOrder");
+        log.info("[START ] createOrderReactive");
 
-        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment, orderDto);
+        Client client = orderRepositoryService.saveClient(orderFulfillment.getClient());
+
+        orderFulfillment.setClient(client);
+
+        OrderFulfillment orderFulfillmentResp = orderRepositoryService.createOrder(orderFulfillment);
 
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
@@ -44,7 +48,6 @@ public class OrderTransaction {
                         .ofNullable(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(orderDto.getLocalCode(), orderDto.getCompanyCode()))
                         .orElse(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(Constant.Constans.NOT_DEFINED_CENTER, Constant.Constans.NOT_DEFINED_COMPANY))
         );
-
 
         serviceLocalOrderIdentity.setServiceType(
                 Optional
@@ -62,12 +65,12 @@ public class OrderTransaction {
         // Create and set object ServiceLocalOrder
         ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
-        serviceLocalOrder.setDaysToPickup(0);
 
         // Set attempt of attempt to insink and tracker
         serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
+
         if (!(serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-            || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
+                || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
             serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
         }
 
@@ -75,11 +78,29 @@ public class OrderTransaction {
                 .ofNullable(orderDto.getOrderStatusDto())
                 .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
 
-        orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
+        ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
-        log.info("[END] createOrder");
-        return serviceLocalOrder;
+        // Set the values of return of transaction as wrapped
+        OrderWrapperResponse orderWrapperResponse = new OrderWrapperResponse();
+        orderWrapperResponse.setFulfillmentId(orderFulfillmentResp.getId());
+        orderWrapperResponse.setTrackerId(orderFulfillmentResp.getId());
+        orderWrapperResponse.setOrderStatusCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getOrderStatus().getCode());
+        orderWrapperResponse.setOrderStatusName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getOrderStatus().getType());
+        orderWrapperResponse.setOrderStatusDetail(serviceLocalOrderResponse.getStatusDetail());
+        orderWrapperResponse.setServiceCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getCode());
+        orderWrapperResponse.setServiceName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getName());
+        orderWrapperResponse.setServiceType(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getType());
+        orderWrapperResponse.setAttemptBilling(serviceLocalOrderResponse.getAttempt());
+        orderWrapperResponse.setAttemptTracker(serviceLocalOrderResponse.getAttemptTracker());
+        orderWrapperResponse.setLocalName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterName());
+        orderWrapperResponse.setCompanyName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCompanyName());
+        orderWrapperResponse.setPaymentMethodName(orderFulfillmentResp.getPaymentMethod().getPaymentType().name());
+        orderWrapperResponse.setReceiptName(orderFulfillmentResp.getReceiptType().getName());
+        log.info("[END] createOrderReactive");
+
+        return orderWrapperResponse;
     }
+
 
     public OrderStatus  getStatusOrderFromDeliveryDispatcher(OrderDto orderDto) {
         OrderStatus orderStatus;
@@ -143,8 +164,21 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderByecommerceId(ecommerceId);
     }
 
+
+    public List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId) {
+        return orderRepositoryService.getOrderItemByOrderFulfillmentId(orderFulfillmentId);
+    }
+
+    public List<IOrderFulfillment> getOrdersByStatus(String status){
+        return orderRepositoryService.getListOrdersByStatus(new HashSet<>(Collections.singletonList(status)));
+    }
+
     public OrderFulfillment getOrderFulfillmentById(Long id) {
         return orderRepositoryService.getOrderFulfillmentById(id);
+    }
+
+    public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
+        return orderRepositoryService.getOrderStatusByTypeIs(statusName);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
