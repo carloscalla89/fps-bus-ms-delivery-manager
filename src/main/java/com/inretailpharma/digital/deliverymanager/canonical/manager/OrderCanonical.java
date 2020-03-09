@@ -1,38 +1,37 @@
 package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
-import com.inretailpharma.digital.deliverymanager.canonical.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class OrderCanonical {
 
+    // Canonical IDs
     private Long id;
     private Long ecommerceId;
     private Long trackerId;
     private Long externalId;
+    private Long bridgePurchaseId;
 
-    //
-    private String clientFullName;
-    private String documentNumber;
-    private String leadTime;
+
+    // Canonical cost
+    private BigDecimal deliveryCost;
+    private BigDecimal discountApplied;
+    private BigDecimal subTotalCost;
     private BigDecimal totalAmount;
-
-    private Integer attempt;
-    private Integer attemptTracker;
 
     // Canonical local and company
     private String localCode;
     private String local;
     private String company;
 
+    // canonical client
+    private ClientCanonical client;
+
     // canonical status
     private OrderStatusCanonical  orderStatus;
-
-    // Canonical serviceType
-    private ServiceTypeCanonical serviceType;
-
 
     // Canonical receipt
     private ReceiptCanonical receipt;
@@ -41,7 +40,16 @@ public class OrderCanonical {
     private PaymentMethodCanonical paymentMethod;
 
     // Canonical Address delivery
-    private AddressDeliveryCanonical addressDelivery;
+    private AddressCanonical address;
 
+    // Canonical items
+    private List<OrderItemCanonical> orderItems;
+
+    // Canonical serviceType
+    private OrderDetailCanonical orderDetail;
+
+    // versión anterior
+    private Integer attempt;
+    private Integer attemptTracker;
 
 }

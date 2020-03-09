@@ -11,6 +11,7 @@ public class ServiceType {
     @Id
     private String code;
     private String name;
+    private String type;
     private String description;
 
 }

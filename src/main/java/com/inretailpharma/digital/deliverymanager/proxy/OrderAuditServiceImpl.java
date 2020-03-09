@@ -9,7 +9,9 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Optional;
 
@@ -28,90 +30,95 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
 
     @Override
-    public void sendOrder(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to createOrder - value:{} - body:{}",
-                externalServicesProperties, orderAuditCanonical);
+    public Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical) {
+        log.info("[START] service to call api audit to createOrder - uri:{} - body:{}",
+                externalServicesProperties.getUriApiService(), orderAuditCanonical);
 
-        try {
+        return Mono
+                .justOrEmpty(
+                        applicationParameterService
+                                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT)
+                )
+                .filter(r -> {
+                    log.info("Parameter to call uS-Audit:{}",r.getValue());
 
-            ApplicationParameter activatedAudit = applicationParameterService
-                    .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
-
-            log.info("Parameter to Call uS-Audit - activated=1 - Not activated=0 activatedAudit-{}",activatedAudit);
-
-            Optional
-                    .ofNullable(activatedAudit)
-                    .filter(s -> s.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
-                    .ifPresent(s -> {
-
-                        Mono<String> response = WebClient
+                    return r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
+                }).map(r -> WebClient
                                 .create(externalServicesProperties.getUriApiService())
                                 .post()
                                 .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
                                 .retrieve()
                                 .bodyToMono(String.class)
-                                .map(r -> r)
-                                .onErrorResume(e -> {
-                                    e.printStackTrace();
-                                    log.error("Error in audit call {} ",e.getMessage());
+                                .subscribeOn(Schedulers.parallel())
+                                .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
+                ).then();
 
-                                    return Mono.just("ERROR");
-                                });
+        /*
+        Optional
+                .ofNullable(applicationParameterService
+                        .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
+                .filter(r -> r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
+                .ifPresent(r -> WebClient
+                        .create(externalServicesProperties.getUriApiService())
+                        .post()
+                        .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .subscribeOn(Schedulers.parallel())
+                        .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s)));
 
-                        response.subscribe(log::info);
-                        log.info("[END] Exiting NON-BLOCKING service to call api audit to createOrder");
 
-                    });
+        return Mono.just(orderAuditCanonical);
 
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Error to send at uS-Audit - error:{}",e.getMessage());
-        }
-
-
+         */
     }
 
     @Override
-    public void updateOrder(OrderCanonical orderCanonical) {
-        log.info("[START] service to call api audit to updateOrder  - value:{} - body:{}",
-                externalServicesProperties, orderCanonical);
+    public Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical) {
+        return null;
+    }
 
-        try {
+    @Override
+    public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
+        log.info("[START] service to call api audit to createOrder - value:{} - body:{}",
+                externalServicesProperties, orderAuditCanonical);
 
-            ApplicationParameter activatedAudit = applicationParameterService
-                    .findApplicationParameterByCode(Constant.ApplicationsParameters.ACTIVATED_AUDIT);
+        return Mono
+                .justOrEmpty(
+                        applicationParameterService
+                                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT)
+                )
+                .filter(r -> {
+                    log.info("Parameter to call uS-Audit:{}",r.getValue());
 
-            log.info("Parameter to Call uS-Audit - activated=1 - Not activated=0 activatedAudit-{}", activatedAudit);
+                    return r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
+                })
+                .map(r -> WebClient
+                            .create(externalServicesProperties.getUriApiService())
+                            .patch()
+                            .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .subscribeOn(Schedulers.parallel())
+                            .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
+                ).then();
 
-            Optional
-                    .ofNullable(activatedAudit)
-                    .filter(s -> s.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
-                    .ifPresent(s -> {
+/*
+        Optional
+                .ofNullable(applicationParameterService
+                        .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
+                .filter(r -> r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
+                .ifPresent(r -> WebClient
+                        .create(externalServicesProperties.getUriApiService())
+                        .patch()
+                        .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .subscribeOn(Schedulers.parallel())
+                        .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s)));
 
-                        Mono<String> response = WebClient
-                                .create(externalServicesProperties.getUriApiService())
-                                .patch()
-                                .body(Mono.just(orderCanonical), OrderCanonical.class)
-                                .retrieve()
-                                .bodyToMono(String.class)
-                                .map(r -> r)
-                                .onErrorResume(e -> {
-                                    e.printStackTrace();
-                                    log.error("Error in audit call {} ",e.getMessage());
 
-                                    return Mono.just("ERROR");
-                                });
-
-                        response.subscribe(log::info);
-                        log.info("[END] Exiting NON-BLOCKING service to call api audit to updateOrder ");
-
-                    });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Error to send at uS-Audit - error:{}",e.getMessage());
-        }
+ */
 
     }
 

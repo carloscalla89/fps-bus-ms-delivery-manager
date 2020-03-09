@@ -22,4 +22,3 @@ CREATE TABLE `order_fulfillment_cancelled` (
   CONSTRAINT `order_fulfillment_id_ibfk_1` FOREIGN KEY (`order_fulfillment_id`) REFERENCES `order_fulfillment` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `code_cancellation_ibfk_1` FOREIGN KEY (`code_cancellation`) REFERENCES `cancellation_code_reason` (`code`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-

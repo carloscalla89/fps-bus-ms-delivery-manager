@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 
 @Slf4j
-@Aspect
-@Configuration
+//@Aspect
+//@Configuration
 public class OrderAuditProcess {
 
     private final OrderExternalService orderExternalService;
@@ -20,20 +20,19 @@ public class OrderAuditProcess {
         this.orderExternalService = orderExternalService;
     }
 
-    @AfterReturning(value = "execution(* com.inretailpharma.digital.deliverymanager.facade.OrderProcessFacade.createOrder(..))", returning="retVal")
+    //@AfterReturning(value = "execution(* com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade.createOrder(..))", returning="retVal")
     public void afterCreateOrderFulfillment(JoinPoint joinPoint, Object retVal) {
         log.info("Success aop process afterCreateOrderFulfillment {} - {}",joinPoint.getTarget(), retVal);
 
-            orderExternalService.sendOrder((OrderCanonical)retVal);
-
+            //orderExternalService.sendOrder((OrderCanonical)retVal);
     }
 
-    @AfterReturning(value = "execution(* com.inretailpharma.digital.deliverymanager.facade.OrderProcessFacade.getUpdateOrder(..))", returning="retVal")
+    //@AfterReturning(value = "execution(* com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade.getUpdateOrder(..))", returning="retVal")
     public void afterUpdateOrderFulfillment(JoinPoint joinPoint, Object retVal) {
         log.info("Success aop process afterCreateOrderFulfillment {} - {}",joinPoint.getTarget(), retVal);
 
         // send to audit microservice to update the order
-        orderExternalService.updateOrder((OrderCanonical)retVal);
+        //orderExternalService.updateOrder((OrderCanonical)retVal);
     }
 
 }

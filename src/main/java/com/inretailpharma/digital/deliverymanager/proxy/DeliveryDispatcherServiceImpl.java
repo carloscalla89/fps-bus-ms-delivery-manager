@@ -1,12 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.OrderFulfillmentCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerResponseDto;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,6 +16,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.Disposable;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +28,6 @@ import java.util.Optional;
 public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
     private ExternalServicesProperties externalServicesProperties;
-
     private RestTemplate restTemplate;
 
     public DeliveryDispatcherServiceImpl(ExternalServicesProperties externalServicesProperties,
@@ -36,13 +37,18 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public void sendOrder(OrderCanonical orderAuditCanonical) {
-
+    public Mono<Void> sendOrderReactive(OrderCanonical orderCanonical) {
+        return null;
     }
 
     @Override
-    public void updateOrder(OrderCanonical orderCanonical) {
+    public Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical) {
+        return null;
+    }
 
+    @Override
+    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
+        return null;
     }
 
     @Override
