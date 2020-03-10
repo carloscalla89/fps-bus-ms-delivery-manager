@@ -307,11 +307,14 @@ public class DeliveryManagerFacade {
     }
 
     public Flux<OrderCancelledCanonical> cancelOrderProcess(CancellationDto cancellationDto) {
+        log.info("[START] cancelOrderProcess");
         return Flux
                 .fromIterable(orderTransaction.getListOrdersToCancel(cancellationDto.getStatusType(), cancellationDto.getServiceType()))
                 .parallel()
                 .runOn(Schedulers.elastic())
                 .map(r -> {
+
+                    log.info("order ecommerceId:{}",r.getEcommerceId());
 
                     ActionDto actionDto = new ActionDto();
                     actionDto.setAction(Constant.ActionOrder.CANCEL_ORDER.name());
@@ -323,10 +326,11 @@ public class DeliveryManagerFacade {
                     orderExternalServiceInkatrackerLite
                             .getResultfromExternalServices(r.getEcommerceId(), actionDto)
                             .doOnSuccess(s -> {
+                                log.info("Success update status inkatracker-lite ");
+
                                 orderTransaction.updateStatusOrder(r.getOrderId(), s.getOrderStatus().getCode(),
                                         s.getOrderStatus().getDetail());
 
-                                log.info("[START] to registar cancelled order ");
                                 if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
                                     OrderFulfillment orderFulfillment = orderTransaction.getOrderFulfillmentById(r.getOrderId());
