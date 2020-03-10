@@ -229,7 +229,7 @@ public class ObjectToMapper {
 
         if (orderDto.getCreatedOrder() != null && orderDto.getScheduledTime() != null) {
             orderDetailCanonical.setConfirmedSchedule(orderDto.getScheduledTime());
-            orderDetailCanonical.setCreatedOrder(orderDto.getScheduledTime());
+            orderDetailCanonical.setCreatedOrder(orderDto.getCreatedOrder());
         }
 
         orderCanonical.setOrderDetail(orderDetailCanonical);
