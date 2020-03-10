@@ -19,8 +19,8 @@ external-service:
   inkatracker-lite:
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
-      connect-timeout: 10000
-      read-timeout: 120000
+      connect-timeout: 240
+      read-timeout: 360
   order-tracker:
     create-order:
       uri: http://us-ordertracker/ordertracker

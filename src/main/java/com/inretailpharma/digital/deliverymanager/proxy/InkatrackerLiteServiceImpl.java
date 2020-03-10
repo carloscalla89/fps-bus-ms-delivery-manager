@@ -86,10 +86,18 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
         log.info("url inkatracket-lite:{}",externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
         TcpClient tcpClient = TcpClient
-                                .create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // Connection Timeout
-                .doOnConnected(connection ->
-                        connection.addHandlerLast(new ReadTimeoutHandler(10)) // Read Timeout
-                                .addHandlerLast(new WriteTimeoutHandler(10))); // Write Timeout
+                                .create()
+                                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
+                                        Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderConnectTimeOut())
+                                ) // Connection Timeout
+                                .doOnConnected(connection ->
+                                        connection.addHandlerLast(
+                                                new ReadTimeoutHandler(
+                                                        Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
+                                                )
+                                        )
+                                ); // Read Timeout
+
 
         return WebClient
                 .builder()
