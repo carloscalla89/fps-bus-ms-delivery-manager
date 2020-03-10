@@ -260,6 +260,8 @@ public class OrderTransaction {
                  "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
                  ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
 
+        orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation,
+                orderStatusCode, orderFulfillmentId);
     }
 
 }
