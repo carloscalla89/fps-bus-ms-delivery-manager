@@ -125,12 +125,4 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     void updateExternalIdToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
                                     @Param("externalPurchaseId") Long externalPurchaseId);
 
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_process_status " +
-            " set order_status_code = :orderStatusCode " +
-            " where order_fulfillment_id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateStatusCancelledOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                    @Param("orderStatusCode") String orderStatusCode);
 }

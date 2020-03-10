@@ -249,15 +249,17 @@ public class OrderTransaction {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void insertCancelledOrder(OrderCancelled orderCancelled) {
-        log.info("[START] insertCancelledOrder - orderCancelled-{}",orderCancelled);
+        log.info("[START] insertCancelledOrder transactional- orderCancelled-{}",orderCancelled);
         orderCancellationService.insertCancelledOrder(orderCancelled);
     }
 
-
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateStatusCancelledOrder(Long orderFulfillmentId, String orderStatusCode) {
-        log.info("[START] updateStatusCancelledOrder - orderCancelled:{} - status:{}",orderFulfillmentId,orderStatusCode);
-        orderRepositoryService.updateStatusCancelledOrder(orderFulfillmentId, orderStatusCode);
+    public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation,
+                                           String orderStatusCode, Long orderFulfillmentId) {
+        log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
+                 "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
+                 ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
+
     }
 
 }

@@ -31,9 +31,8 @@ public interface OrderRepositoryService {
                                      String statusDetail);
     void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
 
-    void updateStatusCancelledOrder(Long orderFulfillmentId, String orderStatusCode);
-
-    OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
+    void updateStatusCancelledOrder(String statusDetail, String cancellationObservation,
+                                    String orderStatusCode, Long orderFulfillmentId);
 
     Client saveClient(Client client);
 

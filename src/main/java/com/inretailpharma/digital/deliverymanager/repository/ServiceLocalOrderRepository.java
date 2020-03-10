@@ -13,19 +13,6 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
     @Modifying
     @Transactional
     @Query(value = "Update order_process_status " +
-            " set attempt = :attempt, " +
-            " order_status_code = :orderStatusCode, status_detail = :statusDetail " +
-            " where order_fulfillment_id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateReattemtpInsink(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                               @Param("attempt") Integer attempt,
-                               @Param("orderStatusCode") String orderStatusCode,
-                               @Param("statusDetail") String statusDetail
-    );
-
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_process_status " +
             " set attempt_tracker = :attemptTracker, " +
             " order_status_code = :orderStatusCode, status_detail = :statusDetail " +
             " where order_fulfillment_id = :orderFulfillmentId",
@@ -74,6 +61,20 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
     void updateStatusOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
                            @Param("orderStatusCode") String orderStatusCode,
                            @Param("statusDetail") String statusDetail
+    );
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_process_status " +
+            " set order_status_code = :orderStatusCode, status_detail = :statusDetail, " +
+            " cancellation_observation = :cancellationObservation " +
+            " where order_fulfillment_id = :orderFulfillmentId",
+            nativeQuery = true)
+    void updateStatusCancelledOrder(@Param("orderStatusCode") String orderStatusCode,
+                                    @Param("statusDetail") String statusDetail,
+                                    @Param("cancellationObservation") String cancellationObservation,
+                                    @Param("orderFulfillmentId") Long orderFulfillmentId
+
     );
 
 }

@@ -324,26 +324,12 @@ public class DeliveryManagerFacade {
                     OrderCanonical orderCanonical = orderExternalServiceInkatrackerLite
                                                             .getResultfromExternalServices(r.getEcommerceId(), actionDto)
                                                             .map(s -> {
-                                                                orderTransaction.updateStatusOrder(r.getOrderId(), s.getOrderStatus().getCode(),
-                                                                        s.getOrderStatus().getDetail());
+                                                                log.info("[START] Processing the updating of cancelled order");
 
-                                                                log.info("[START] to registar cancelled order");
-                                                                if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
-
-                                                                    OrderFulfillment orderFulfillment = orderTransaction.getOrderFulfillmentById(r.getOrderId());
-                                                                    OrderCancelledIdentity orderCancelledIdentity = new OrderCancelledIdentity();
-                                                                    orderCancelledIdentity.setOrderFulfillment(orderFulfillment);
-
-                                                                    CancellationCodeReason codeReason = orderTransaction.getCancellationCodeReasonByCode(actionDto.getOrderCancelCode());
-
-                                                                    OrderCancelled orderCancelled = new OrderCancelled();
-                                                                    orderCancelled.setOrderCancelledIdentity(orderCancelledIdentity);
-                                                                    orderCancelled.setCancellationCodeReason(codeReason);
-                                                                    orderCancelled.setObservation(actionDto.getOrderCancelObservation());
-
-                                                                    orderTransaction.insertCancelledOrder(orderCancelled);
-                                                                }
-                                                                log.info("[START] to registar cancelled order");
+                                                                orderTransaction.updateStatusCancelledOrder(
+                                                                        s.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
+                                                                        s.getOrderStatus().getCode(), r.getOrderId()
+                                                                );
 
                                                                 return s;
                                                             }).block();
