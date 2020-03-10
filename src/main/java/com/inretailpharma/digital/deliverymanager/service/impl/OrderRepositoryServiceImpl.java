@@ -74,6 +74,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public List<IOrderFulfillment> getListOrdersToCancel(Set<String> status, String serviceType) {
+        return orderRepository.getListOrdersToCancel(status, serviceType);
+    }
+
+    @Override
     public List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId) {
         return orderRepository.getOrderItemByOrderFulfillmentId(orderFulfillmentId);
     }
@@ -126,6 +131,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public void updateStatusCancelledOrder(Long orderFulfillmentId, String orderStatusCode) {
+        orderRepository.updateStatusCancelledOrder(orderFulfillmentId, orderStatusCode);
+    }
+
+    @Override
     public OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId) {
         return orderRepository.getOrderFulfillmentByEcommercePurchaseIdIs(ecommerceId);
     }
@@ -139,5 +149,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
         return orderStatusRepository.getOrderStatusByTypeIs(statusName);
     }
+
+
 
 }

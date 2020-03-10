@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.websocket.server.PathParam;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +32,22 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true
     )
     List<IOrderFulfillment> getListOrdersByStatus(@Param("status") Set<String> status);
+
+
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.external_purchase_id as externalId, " +
+            "ccf.center_code as centerCode, ccf.center_name as centerName, ccf.company_name as companyName, " +
+            "st.code as serviceTypeCode, st.name as serviceTypeName, st.type as serviceType, " +
+            "o.scheduled_time as confirmedSchedule " +
+            "from order_fulfillment o " +
+            "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
+            "inner join order_status os on os.code = ops.order_status_code " +
+            "inner join service_type st on st.code = ops.service_type_code " +
+            "inner join center_company_fulfillment ccf on ccf.center_code = ops.center_code and ccf.company_code = ops.company_code " +
+            "where DATE_FORMAT(DATE_ADD(o.scheduled_time, INTERVAL 1 DAY), '%Y-%m-%d') < DATE_FORMAT(NOW(), '%Y-%m-%d') " +
+            "and os.type in :status and st.type = :serviceType",
+            nativeQuery = true
+    )
+    List<IOrderFulfillment> getListOrdersToCancel(@Param("status") Set<String> status, @Param("serviceType") String serviceType);
 
     OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 
@@ -107,4 +124,13 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true)
     void updateExternalIdToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
                                     @Param("externalPurchaseId") Long externalPurchaseId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_process_status " +
+            " set order_status_code = :orderStatusCode " +
+            " where order_fulfillment_id = :orderFulfillmentId",
+            nativeQuery = true)
+    void updateStatusCancelledOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
+                                    @Param("orderStatusCode") String orderStatusCode);
 }

@@ -253,16 +253,16 @@ public class ObjectToMapper {
 
     }
 
-    public List<OrderCancellationCanonical> convertEntityOrderCancellationToCanonical(
+    public List<CancellationCanonical> convertEntityOrderCancellationToCanonical(
             List<CancellationCodeReason> cancelReasons) {
 
         return cancelReasons.stream().map(r -> {
-            OrderCancellationCanonical orderCancellationCanonical = new OrderCancellationCanonical();
-            orderCancellationCanonical.setCode(r.getCode());
-            orderCancellationCanonical.setType(r.getType());
-            orderCancellationCanonical.setDescription(r.getReason());
+            CancellationCanonical cancellationCanonical = new CancellationCanonical();
+            cancellationCanonical.setCode(r.getCode());
+            cancellationCanonical.setType(r.getType());
+            cancellationCanonical.setDescription(r.getReason());
 
-            return orderCancellationCanonical;
+            return cancellationCanonical;
         }).collect(Collectors.toList());
 
     }

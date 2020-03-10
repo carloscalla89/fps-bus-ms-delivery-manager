@@ -18,6 +18,7 @@ public interface IOrderFulfillment {
 
     LocalDateTime getCreatedOrder();
     LocalDateTime getScheduledTime();
+    LocalDateTime getConfirmedSchedule();
 
     String getFirstName();
     String getLastName();
@@ -44,6 +45,7 @@ public interface IOrderFulfillment {
 
     String getServiceTypeCode();
     String getServiceTypeName();
+    String getServiceType();
 
     String getPaymentType();
     String getCardProvider();

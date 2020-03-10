@@ -173,6 +173,10 @@ public class OrderTransaction {
         return orderRepositoryService.getListOrdersByStatus(new HashSet<>(Collections.singletonList(status)));
     }
 
+    public List<IOrderFulfillment> getListOrdersToCancel(String statusName, String serviceType) {
+        return orderRepositoryService.getListOrdersToCancel(new HashSet<>(Collections.singletonList(statusName)), serviceType);
+    }
+
     public OrderFulfillment getOrderFulfillmentById(Long id) {
         return orderRepositoryService.getOrderFulfillmentById(id);
     }
@@ -180,6 +184,8 @@ public class OrderTransaction {
     public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
         return orderRepositoryService.getOrderStatusByTypeIs(statusName);
     }
+
+
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateOrderRetrying(Long orderFulfillmentId, Integer attempt, Integer attemptTracker,
@@ -245,6 +251,13 @@ public class OrderTransaction {
     public void insertCancelledOrder(OrderCancelled orderCancelled) {
         log.info("[START] insertCancelledOrder - orderCancelled-{}",orderCancelled);
         orderCancellationService.insertCancelledOrder(orderCancelled);
+    }
+
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateStatusCancelledOrder(Long orderFulfillmentId, String orderStatusCode) {
+        log.info("[START] updateStatusCancelledOrder - orderCancelled:{} - status:{}",orderFulfillmentId,orderStatusCode);
+        orderRepositoryService.updateStatusCancelledOrder(orderFulfillmentId, orderStatusCode);
     }
 
 }

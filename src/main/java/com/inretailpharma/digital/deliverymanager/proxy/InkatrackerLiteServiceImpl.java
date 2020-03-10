@@ -40,7 +40,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public OrderCanonical getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
@@ -112,7 +112,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                     orderCanonical.setOrderStatus(orderStatus);
 
                     return Mono.just(orderCanonical);
-                }).block();
+                });
 
     }
 }

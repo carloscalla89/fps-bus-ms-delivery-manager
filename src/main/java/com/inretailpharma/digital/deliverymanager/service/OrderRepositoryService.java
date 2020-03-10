@@ -1,6 +1,5 @@
 package com.inretailpharma.digital.deliverymanager.service;
 
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
@@ -17,6 +16,7 @@ public interface OrderRepositoryService {
     OrderStatus getOrderStatusByCode(String code);
     ServiceLocalOrder saveServiceLocalOrder(ServiceLocalOrder serviceLocalOrder);
     List<IOrderFulfillment> getListOrdersByStatus(Set<String> status);
+    List<IOrderFulfillment> getListOrdersToCancel(Set<String> status, String serviceType);
     List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId);
     IOrderFulfillment getOrderByecommerceId(Long ecommerceId);
     void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,
@@ -30,6 +30,8 @@ public interface OrderRepositoryService {
     void updateStatusToReservedOrder(Long orderFulfillmentId, Integer attempt, String orderStatusCode,
                                      String statusDetail);
     void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
+
+    void updateStatusCancelledOrder(Long orderFulfillmentId, String orderStatusCode);
 
     OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 
