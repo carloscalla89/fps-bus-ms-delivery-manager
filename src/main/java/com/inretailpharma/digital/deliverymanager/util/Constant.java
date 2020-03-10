@@ -116,12 +116,12 @@ public interface Constant {
         ERROR_PREPARED("08"),
         ERROR_ON_ROUTE("09"),
 
-        ERROR_ARRIVE("30"),
-        ERROR_REJECT("31"),
-        ERROR_CANCEL("32"),
-        ERROR_DELIVER("33"),
-        ERROR_PICKUP("34"),
-        ERROR_UPDATE("35"),
+        ERROR_ARRIVE("31"),
+        ERROR_REJECT("32"),
+        ERROR_CANCEL("33"),
+        ERROR_DELIVER("34"),
+        ERROR_PICKUP("35"),
+        ERROR_UPDATE("36"),
 
         SUCCESS_RESERVED_ORDER("10"),
 

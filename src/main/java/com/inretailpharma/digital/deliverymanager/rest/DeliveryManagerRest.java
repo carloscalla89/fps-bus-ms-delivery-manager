@@ -113,19 +113,12 @@ public class DeliveryManagerRest {
             @ApiResponse(code = 200, message = "Órdenes canceladas correctamente", response = OrderCancelledCanonical.class),
             @ApiResponse(code = 500, message = "No creado") })
     @PutMapping("/cancellation/orders")
-    public Mono<ResponseEntity<Flux<OrderCancelledCanonical>>> cancelOrderProcess(
+    public Flux<OrderCancelledCanonical> cancelOrderProcess(
             @RequestBody CancellationDto cancellationDto) {
         log.info("[START] endpoint cancelOrderProcess /cancellation/orders - cancellationDto {}",cancellationDto);
 
-        Flux<OrderCancelledCanonical> fl = deliveryManagerFacade.cancelOrderProcess(cancellationDto);
-
-        return  Mono
-                .just(ResponseEntity
-                        .ok()
-                        .contentType(MediaType.APPLICATION_STREAM_JSON)
-                        .body(fl))
-                .doOnSuccess(r -> log.info("[END] endpoint cancelOrderProcess /cancellation/orders"));
-
+       return deliveryManagerFacade.cancelOrderProcess(cancellationDto)
+               .doOnComplete(() -> log.info("[END] endpoint cancelOrderProcess /cancellation/orders"));
     }
 
 

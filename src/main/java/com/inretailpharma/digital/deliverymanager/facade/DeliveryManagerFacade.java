@@ -321,42 +321,34 @@ public class DeliveryManagerFacade {
                     actionDto.setOrderCancelCode(cancellationDto.getCancellationCode());
                     actionDto.setOrderCancelObservation(cancellationDto.getObservation());
 
+                    OrderCanonical orderCanonical = orderExternalServiceInkatrackerLite
+                                                            .getResultfromExternalServices(r.getEcommerceId(), actionDto)
+                                                            .map(s -> {
+                                                                orderTransaction.updateStatusOrder(r.getOrderId(), s.getOrderStatus().getCode(),
+                                                                        s.getOrderStatus().getDetail());
+
+                                                                log.info("[START] to registar cancelled order");
+                                                                if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
+
+                                                                    OrderFulfillment orderFulfillment = orderTransaction.getOrderFulfillmentById(r.getOrderId());
+                                                                    OrderCancelledIdentity orderCancelledIdentity = new OrderCancelledIdentity();
+                                                                    orderCancelledIdentity.setOrderFulfillment(orderFulfillment);
+
+                                                                    CancellationCodeReason codeReason = orderTransaction.getCancellationCodeReasonByCode(actionDto.getOrderCancelCode());
+
+                                                                    OrderCancelled orderCancelled = new OrderCancelled();
+                                                                    orderCancelled.setOrderCancelledIdentity(orderCancelledIdentity);
+                                                                    orderCancelled.setCancellationCodeReason(codeReason);
+                                                                    orderCancelled.setObservation(actionDto.getOrderCancelObservation());
+
+                                                                    orderTransaction.insertCancelledOrder(orderCancelled);
+                                                                }
+                                                                log.info("[START] to registar cancelled order");
+
+                                                                return s;
+                                                            }).block();
+
                     OrderCancelledCanonical orderCancelledCanonical = new OrderCancelledCanonical();
-
-                    orderExternalServiceInkatrackerLite
-                            .getResultfromExternalServices(r.getEcommerceId(), actionDto)
-                            .doOnSuccess(s -> {
-                                log.info("Success update status inkatracker-lite ");
-
-                                orderTransaction.updateStatusOrder(r.getOrderId(), s.getOrderStatus().getCode(),
-                                        s.getOrderStatus().getDetail());
-
-                                if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
-
-                                    OrderFulfillment orderFulfillment = orderTransaction.getOrderFulfillmentById(r.getOrderId());
-                                    OrderCancelledIdentity orderCancelledIdentity = new OrderCancelledIdentity();
-                                    orderCancelledIdentity.setOrderFulfillment(orderFulfillment);
-
-                                    CancellationCodeReason codeReason = orderTransaction.getCancellationCodeReasonByCode(actionDto.getOrderCancelCode());
-
-                                    OrderCancelled orderCancelled = new OrderCancelled();
-                                    orderCancelled.setOrderCancelledIdentity(orderCancelledIdentity);
-                                    orderCancelled.setCancellationCodeReason(codeReason);
-                                    orderCancelled.setObservation(actionDto.getOrderCancelObservation());
-
-                                    orderTransaction.insertCancelledOrder(orderCancelled);
-                                }
-
-                                orderCancelledCanonical.setStatusCode(s.getOrderStatus().getCode());
-                                orderCancelledCanonical.setStatusName(s.getOrderStatus().getName());
-                                orderCancelledCanonical.setStatusDetail(s.getOrderStatus().getDetail());
-                            }).doOnError(t -> {
-                                t.printStackTrace();
-                                log.error("Error during cancel orders:{}",t.getMessage());
-                                orderCancelledCanonical.setStatusCode(Constant.OrderStatus.ERROR_CANCEL.getCode());
-                                orderCancelledCanonical.setStatusName(Constant.OrderStatus.ERROR_CANCEL.name());
-                                orderCancelledCanonical.setStatusDetail(t.getMessage());
-                            });
 
                     orderCancelledCanonical.setEcommerceId(r.getEcommerceId());
                     orderCancelledCanonical.setExternalId(r.getExternalId());
@@ -367,6 +359,16 @@ public class DeliveryManagerFacade {
                     orderCancelledCanonical.setServiceCode(r.getServiceTypeCode());
                     orderCancelledCanonical.setServiceName(r.getServiceTypeName());
                     orderCancelledCanonical.setServiceType(r.getServiceType());
+
+                    orderCancelledCanonical.setStatusCode(orderCanonical.getOrderStatus().getCode());
+                    orderCancelledCanonical.setStatusName(orderCanonical.getOrderStatus().getName());
+                    orderCancelledCanonical.setStatusDetail(orderCanonical.getOrderStatus().getDetail());
+
+                    orderCanonical.setEcommerceId(r.getEcommerceId());
+                    orderCanonical.setExternalId(r.getExternalId());
+                    orderCanonical.setTrackerId(r.getTrackerId());
+
+                    orderExternalServiceAudit.updateOrderReactive(orderCanonical).subscribe();
 
                     return orderCancelledCanonical;
 
