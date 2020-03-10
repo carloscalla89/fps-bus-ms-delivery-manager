@@ -7,12 +7,20 @@ import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServ
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.tcp.TcpClient;
+
+import java.time.Duration;
 
 @Slf4j
 @Service("inkatrackerlite")
@@ -77,9 +85,17 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
         }
 
         log.info("url inkatracket-lite:{}",externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
+        TcpClient tcpClient = TcpClient
+                                .create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // Connection Timeout
+                .doOnConnected(connection ->
+                        connection.addHandlerLast(new ReadTimeoutHandler(10)) // Read Timeout
+                                .addHandlerLast(new WriteTimeoutHandler(10))); // Write Timeout
 
         return WebClient
-                .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
+                .builder()
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                .baseUrl(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
+                .build()
                 .patch()
                 .uri(builder ->
                         builder
@@ -114,6 +130,49 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
                     return Mono.just(orderCanonical);
                 });
+
+
+
+                /*
+        return  WebClient
+                .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
+                .patch()
+                .uri(builder ->
+                        builder
+                                .path("/{orderExternalId}")
+                                .queryParam("action",actionInkatrackerLite)
+                                .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
+                                .build(ecommerceId)
+                )
+                .retrieve()
+                .bodyToMono(OrderInfoCanonical.class)
+                .map(r -> {
+                    log.info("response:{}", r);
+                    OrderCanonical orderCanonical = new OrderCanonical();
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(successResponse.getCode());
+                    orderStatus.setName(successResponse.name());
+                    orderCanonical.setOrderStatus(orderStatus);
+
+                    return orderCanonical;
+                })
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    log.error("Error in inkatrackerlite call {} ",e.getMessage());
+                    OrderCanonical orderCanonical = new OrderCanonical();
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(errorResponse.getCode());
+                    orderStatus.setName(errorResponse.name());
+                    orderStatus.setDetail(e.getMessage());
+
+                    orderCanonical.setOrderStatus(orderStatus);
+
+                    return Mono.just(orderCanonical);
+                });
+
+                 */
 
     }
 }
