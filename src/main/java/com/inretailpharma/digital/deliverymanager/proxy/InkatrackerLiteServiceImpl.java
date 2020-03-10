@@ -76,6 +76,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                 errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
         }
 
+        log.info("url inkatracket-lite:{}",externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
 
         return WebClient
                 .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
@@ -88,8 +89,8 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                                 .build(ecommerceId))
                 .retrieve()
                 .bodyToMono(OrderInfoCanonical.class)
-                .subscribeOn(Schedulers.parallel())
                 .map(r -> {
+                    log.info("response:{}", r);
                     OrderCanonical orderCanonical = new OrderCanonical();
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
