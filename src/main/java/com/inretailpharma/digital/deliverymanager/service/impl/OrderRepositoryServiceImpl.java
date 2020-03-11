@@ -74,8 +74,8 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public List<IOrderFulfillment> getListOrdersToCancel(Set<String> status, String serviceType) {
-        return orderRepository.getListOrdersToCancel(status, serviceType);
+    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, Integer maxDayPickup) {
+        return orderRepository.getListOrdersToCancel(serviceType, maxDayPickup);
     }
 
     @Override

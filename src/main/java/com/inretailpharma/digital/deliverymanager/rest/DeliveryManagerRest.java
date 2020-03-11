@@ -89,7 +89,7 @@ public class DeliveryManagerRest {
         return deliveryManagerFacade
                 .getUpdateOrder(action, ecommerceId)
                 .map(r -> ResponseEntity
-                            .status(HttpStatus.ACCEPTED).contentType(MediaType.APPLICATION_STREAM_JSON)
+                            .status(HttpStatus.ACCEPTED).contentType(MediaType.APPLICATION_JSON)
                             .body(r))
                 .doOnSuccess(r -> log.info("[END] endpoint updateStatus /order/{ecommerceId}"))
                 .subscribeOn(Schedulers.parallel());

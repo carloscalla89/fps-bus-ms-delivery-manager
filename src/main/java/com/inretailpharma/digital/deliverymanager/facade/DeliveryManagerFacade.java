@@ -6,6 +6,7 @@ import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
@@ -33,19 +34,22 @@ public class DeliveryManagerFacade {
     private OrderExternalService orderExternalServiceInkatrackerLite;
     private OrderExternalService orderExternalServiceOrderTracker;
     private OrderExternalService orderExternalServiceAudit;
+    private ApplicationParameterService applicationParameterService;
 
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  ObjectToMapper objectToMapper,
                                  @Qualifier("deliveryDispatcher") OrderExternalService orderExternalServiceDispatcher,
                                  @Qualifier("inkatrackerlite") OrderExternalService orderExternalServiceInkatrackerLite,
                                  @Qualifier("orderTracker") OrderExternalService orderExternalServiceOrderTracker,
-                                 @Qualifier("audit") OrderExternalService orderExternalServiceAudit) {
+                                 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
+                                 ApplicationParameterService applicationParameterService) {
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceDispatcher = orderExternalServiceDispatcher;
         this.orderExternalServiceInkatrackerLite = orderExternalServiceInkatrackerLite;
         this.orderExternalServiceOrderTracker = orderExternalServiceOrderTracker;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
+        this.applicationParameterService = applicationParameterService;
     }
 
     public Flux<OrderCanonical> getOrdersByStatus(String status) {
@@ -314,8 +318,14 @@ public class DeliveryManagerFacade {
 
     public Flux<OrderCancelledCanonical> cancelOrderProcess(CancellationDto cancellationDto) {
         log.info("[START] cancelOrderProcess");
+
+        ApplicationParameter daysValue = applicationParameterService
+                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.DAYS_PICKUP_MAX_RET);
+
         return Flux
-                .fromIterable(orderTransaction.getListOrdersToCancel(cancellationDto.getStatusType(), cancellationDto.getServiceType()))
+                .fromIterable(orderTransaction
+                                .getListOrdersToCancel(cancellationDto.getServiceType(), Integer.parseInt(daysValue.getValue()))
+                )
                 .parallel()
                 .runOn(Schedulers.elastic())
                 .map(r -> {

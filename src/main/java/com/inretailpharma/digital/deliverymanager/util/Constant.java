@@ -18,6 +18,8 @@ public interface Constant {
 
         String ACTIVATED_ORDER_TRACKER_VALUE = "1";
         String ACTIVATED_ORDER_TRACKER = "ACTIVATED_ORDER_TRACKER";
+
+        String DAYS_PICKUP_MAX_RET = "DAYS_PICKUP_MAX_RET";
     }
 
     interface InsinkErrorCode {
