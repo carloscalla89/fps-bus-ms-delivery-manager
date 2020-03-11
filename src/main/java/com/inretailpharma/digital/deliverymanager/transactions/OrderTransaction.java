@@ -151,7 +151,17 @@ public class OrderTransaction {
 
         } else if (Optional
                     .ofNullable(orderDto.getOrderStatusDto().getCode())
-                    .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
+                    .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
+                    && Optional
+                        .ofNullable(orderDto.getPayment().getType())
+                        .orElse(PaymentMethod.PaymentType.CASH.name())
+                        .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.getCode());
+
+        } else if (Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER.getCode());
 

@@ -123,6 +123,7 @@ public interface Constant {
         ERROR_DELIVER("34"),
         ERROR_PICKUP("35"),
         ERROR_UPDATE("36"),
+        CANCELLED_ORDER_ONLINE_PAYMENT("37"),
 
         SUCCESS_RESERVED_ORDER("10"),
 
