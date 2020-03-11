@@ -23,6 +23,7 @@ public interface Constant {
     interface InsinkErrorCode {
         String CODE_ERROR_GENERAL = "E-0";
         String CODE_ERROR_CLIENT_CONNECTION = "C-0";
+        String CODE_ERROR_STOCK = "E-1";
     }
 
     interface ActionName {

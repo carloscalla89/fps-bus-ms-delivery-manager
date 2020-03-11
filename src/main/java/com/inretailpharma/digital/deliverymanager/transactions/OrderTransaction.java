@@ -149,6 +149,12 @@ public class OrderTransaction {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING.getCode());
 
+        } else if (Optional
+                    .ofNullable(orderDto.getOrderStatusDto().getCode())
+                    .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER.getCode());
+
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
