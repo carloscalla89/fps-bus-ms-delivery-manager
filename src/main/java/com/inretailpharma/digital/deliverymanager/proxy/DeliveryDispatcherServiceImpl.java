@@ -47,77 +47,78 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
         switch (Constant.ActionOrder.getByName(actionDto.getAction()).getCode()) {
             case 1:
                 // reattempt to send from delivery dispatcher at inkatracker or inkatrackerlite
+                log.info("url dispatcher:{}",externalServicesProperties.getDispatcherTrackerUri());
+                return     WebClient
+                            .create(externalServicesProperties.getDispatcherTrackerUri())
+                            .get()
+                            .uri(builder ->
+                                    builder
+                                            .path("/{orderId}")
+                                            .queryParam("action",actionDto.getAction())
+                                            .build(ecommerceId))
+                            .retrieve()
+                            .bodyToMono(TrackerResponseDto.class)
+                            .subscribeOn(Schedulers.parallel())
+                            .map(r -> {
 
-            return     WebClient
-                        .create(externalServicesProperties.getDispatcherTrackerUri())
-                        .get()
-                        .uri(builder ->
-                                builder
-                                        .path("/{ecommerceId}")
-                                        .queryParam("action",actionDto.getAction())
-                                        .build(ecommerceId))
-                        .retrieve()
-                        .bodyToMono(TrackerResponseDto.class)
-                        .subscribeOn(Schedulers.parallel())
-                        .map(r -> {
+                                OrderCanonical resultCanonical = new OrderCanonical();
 
-                            OrderCanonical resultCanonical = new OrderCanonical();
+                                resultCanonical.setTrackerId(r.getId());
 
-                            resultCanonical.setTrackerId(r.getId());
+                                Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getId())
+                                        .map(s ->
+                                                Optional
+                                                        .ofNullable(r.getCode())
+                                                        .map(Constant.OrderStatus::getByName)
+                                                        .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS)
+                                        )
+                                        .orElseGet(() ->
+                                                Constant.OrderStatus.getByName(
+                                                        Optional.ofNullable(r.getCode())
+                                                                .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())
+                                                )
+                                        );
 
-                            Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getId())
-                                    .map(s ->
-                                            Optional
-                                                    .ofNullable(r.getCode())
-                                                    .map(Constant.OrderStatus::getByName)
-                                                    .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS)
-                                    )
-                                    .orElseGet(() ->
-                                            Constant.OrderStatus.getByName(
-                                                    Optional.ofNullable(r.getCode())
-                                                            .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())
-                                            )
-                                    );
+                                OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
-                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                orderStatus.setCode(orderStatusUtil.getCode());
+                                orderStatus.setName(orderStatusUtil.name());
+                                orderStatus.setDetail(r.getDetail());
 
-                            orderStatus.setCode(orderStatusUtil.getCode());
-                            orderStatus.setName(orderStatusUtil.name());
-                            orderStatus.setDetail(r.getDetail());
+                                resultCanonical.setOrderStatus(orderStatus);
 
-                            resultCanonical.setOrderStatus(orderStatus);
-
-                            return resultCanonical;
+                                return resultCanonical;
 
 
-                        })
-                        .onErrorResume(e -> {
-                            e.printStackTrace();
+                            })
+                            .onErrorResume(e -> {
+                                e.printStackTrace();
 
-                            String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherTrackerUri() +
-                                    "':" + e.getMessage();
-                            log.error(errorMessage);
-                            OrderCanonical orderCanonical = new OrderCanonical();
+                                String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherTrackerUri() +
+                                        "':" + e.getMessage();
+                                log.error(errorMessage);
+                                OrderCanonical orderCanonical = new OrderCanonical();
 
-                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                            orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-                            orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
-                            orderStatus.setDetail(errorMessage);
+                                OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                                orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
+                                orderStatus.setDetail(errorMessage);
 
-                            orderCanonical.setOrderStatus(orderStatus);
+                                orderCanonical.setOrderStatus(orderStatus);
 
-                            return Mono.just(orderCanonical);
-                        });
+                                return Mono.just(orderCanonical);
+                            });
 
             case 2:
                 // reattempt to send from delivery dispatcher at insink
+                log.info("url dispatcher:{}",externalServicesProperties.getDispatcherInsinkTrackerUri());
 
                 return     WebClient
                         .create(externalServicesProperties.getDispatcherInsinkTrackerUri())
                         .get()
                         .uri(builder ->
                                 builder
-                                        .path("/{ecommerceId}")
+                                        .path("/{orderId}")
                                         .queryParam("action",actionDto.getAction())
                                         .build(ecommerceId))
                         .retrieve()
