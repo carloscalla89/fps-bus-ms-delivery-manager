@@ -9,11 +9,11 @@ external-service:
     time-out: 20000
   dispatcher:
     insink-tracker:
-      uri: http://us-dd/order/insink-tracker/{orderId}
+      uri: http://us-dd/order/insink-tracker
       connect-timeout: 360
       read-timeout: 480
     tracker:
-      uri: http://us-dd/order/tracker/{orderId}
+      uri: http://us-dd/order/tracker
       connect-timeout: 360
       read-timeout: 480
   inkatracker-lite:
