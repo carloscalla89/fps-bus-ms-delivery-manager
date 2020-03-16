@@ -59,8 +59,8 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to createOrder - value:{} - body:{}",
-                externalServicesProperties, orderAuditCanonical);
+        log.info("[START] service to call api audit to update - value:{} - body:{}",
+                externalServicesProperties.getUriApiService(), orderAuditCanonical);
 
         return Mono
                 .justOrEmpty(
@@ -79,7 +79,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
                             .retrieve()
                             .bodyToMono(String.class)
                             .subscribeOn(Schedulers.parallel())
-                            .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
+                            .subscribe(s -> log.info("[END] service to call api audit to update - s:{}",s))
                 ).then();
 
 

@@ -84,6 +84,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
                                 OrderCanonical resultCanonical = new OrderCanonical();
 
+                                resultCanonical.setEcommerceId(ecommerceId);
                                 resultCanonical.setTrackerId(r.getId());
 
                                 Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getId())
@@ -119,6 +120,8 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                         "':" + e.getMessage();
                                 log.error(errorMessage);
                                 OrderCanonical orderCanonical = new OrderCanonical();
+
+                                orderCanonical.setEcommerceId(ecommerceId);
 
                                 OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                                 orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
@@ -204,6 +207,8 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                 resultCanonical.setOrderStatus(orderStatus);
                             }
 
+                            resultCanonical.setEcommerceId(ecommerceId);
+
                             return resultCanonical;
                         })
                         .onErrorResume(e -> {
@@ -214,6 +219,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
                             OrderCanonical orderCanonical = new OrderCanonical();
 
+                            orderCanonical.setEcommerceId(ecommerceId);
                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
                             orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
