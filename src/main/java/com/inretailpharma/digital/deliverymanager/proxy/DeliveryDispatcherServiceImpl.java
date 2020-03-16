@@ -7,11 +7,16 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.tcp.TcpClient;
 
 import java.util.Optional;
 
@@ -44,12 +49,28 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
         log.info("update order actionOrder.getCode:{}", actionDto.getAction());
 
+        TcpClient tcpClient = TcpClient
+                .create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
+                        Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout())
+                ) // Connection Timeout
+                .doOnConnected(connection ->
+                        connection.addHandlerLast(
+                                new ReadTimeoutHandler(
+                                        Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
+                                )
+                        )
+                ); // Read Timeout
+
         switch (Constant.ActionOrder.getByName(actionDto.getAction()).getCode()) {
             case 1:
                 // reattempt to send from delivery dispatcher at inkatracker or inkatrackerlite
                 log.info("url dispatcher:{}",externalServicesProperties.getDispatcherTrackerUri());
                 return     WebClient
-                            .create(externalServicesProperties.getDispatcherTrackerUri())
+                            .builder()
+                            .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                            .baseUrl(externalServicesProperties.getDispatcherTrackerUri())
+                            .build()
                             .get()
                             .uri(builder ->
                                     builder
@@ -112,9 +133,11 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
             case 2:
                 // reattempt to send from delivery dispatcher at insink
                 log.info("url dispatcher:{}",externalServicesProperties.getDispatcherInsinkTrackerUri());
-
                 return     WebClient
-                        .create(externalServicesProperties.getDispatcherInsinkTrackerUri())
+                        .builder()
+                        .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                        .baseUrl(externalServicesProperties.getDispatcherInsinkTrackerUri())
+                        .build()
                         .get()
                         .uri(builder ->
                                 builder
