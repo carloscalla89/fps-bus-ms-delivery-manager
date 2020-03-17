@@ -136,6 +136,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId) {
+        serviceLocalOrderRepository.updateStatusOrderToDeletePending(orderStatusCode, orderFulfillmentId);
+    }
+
+    @Override
     public Client saveClient(Client client) {
         return clientRepository.save(client);
     }

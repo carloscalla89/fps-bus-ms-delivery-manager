@@ -4,12 +4,14 @@
   "localCode": "179",
   "companyCode": "IKF",
   "ecommercePurchaseId": 500701,
-  "trackerId": 500701,
-  "externalPurchaseId": 8,
   "deliveryCost": 5.00,
   "discountApplied": 0.00,
   "subTotalCost": 8.90,
   "totalCost": 10.90,
+  "orderStatusDto": {
+    "code": "E-1",
+    "detail": "NO HAY STOCK"
+  },
   "address":{
     "name": "Sector 1, grupo 6 manzana I",
     "street": "avenida revolucion",
@@ -20,7 +22,7 @@
     "country":"Peru"
   },
   "client":{
-    "documentNumber":"46075388",
+    "documentNumber":"46075388"
   },
   "schedules":{
     "createdOrder": "2020-01-22 16:47:58",

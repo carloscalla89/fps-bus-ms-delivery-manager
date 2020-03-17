@@ -77,4 +77,15 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
 
     );
 
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_process_status " +
+            " set order_status_code = :orderStatusCode" +
+            " where order_fulfillment_id = :orderFulfillmentId",
+            nativeQuery = true)
+    void updateStatusOrderToDeletePending(@Param("orderStatusCode") String orderStatusCode,
+                                          @Param("orderFulfillmentId") Long orderFulfillmentId
+
+    );
+
 }

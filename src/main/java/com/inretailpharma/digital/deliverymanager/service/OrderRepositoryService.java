@@ -34,6 +34,8 @@ public interface OrderRepositoryService {
     void updateStatusCancelledOrder(String statusDetail, String cancellationObservation,
                                     String orderStatusCode, Long orderFulfillmentId);
 
+    void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId);
+
     Client saveClient(Client client);
 
     List<OrderStatus> getOrderStatusByTypeIs(String statusName);

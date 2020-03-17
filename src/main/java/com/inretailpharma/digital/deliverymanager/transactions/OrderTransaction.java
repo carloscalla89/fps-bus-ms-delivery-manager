@@ -280,4 +280,11 @@ public class OrderTransaction {
                 orderStatusCode, orderFulfillmentId);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId) {
+        log.info("[START] updateStatusOrderToDeletePending - orderStatusCode:{}, orderFulfillmentId:{}"
+                ,orderStatusCode, orderFulfillmentId);
+        orderRepositoryService.updateStatusOrderToDeletePending(orderStatusCode, orderFulfillmentId);
+    }
+
 }
