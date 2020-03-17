@@ -228,10 +228,14 @@ public class DeliveryManagerFacade {
                     OrderCanonical result = new OrderCanonical();
 
                     result.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                    result.getOrderStatus().setCode(orderStatusEntity.getCode());
-                    result.getOrderStatus().setName(orderStatusEntity.getType());
-                    result.getOrderStatus().setDetail(actionDto.getOrderStatusDto().getDescription());
-                    result.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(orderStatusEntity.getCode());
+                    orderStatus.setName(orderStatusEntity.getType());
+                    orderStatus.setDetail(actionDto.getOrderStatusDto().getDescription());
+                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                    result.setOrderStatus(orderStatus);
 
                     result.setTrackerId(Optional.ofNullable(actionDto.getTrackerId()).map(Long::parseLong).orElse(null));
                     result.setExternalId(Optional.ofNullable(actionDto.getExternalBillingId()).map(Long::parseLong).orElse(null));
@@ -284,10 +288,11 @@ public class DeliveryManagerFacade {
 
                 default:
                     OrderCanonical resultDefault = new OrderCanonical();
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
-                    orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
-                    resultDefault.setOrderStatus(orderStatus);
+                    OrderStatusCanonical orderStatusNotFound = new OrderStatusCanonical();
+                    orderStatusNotFound.setCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
+                    orderStatusNotFound.setName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+                    resultDefault.setOrderStatus(orderStatusNotFound);
+
                     resultDefault.setEcommerceId(ecommercePurchaseId);
 
                     resultCanonical = Mono.just(resultDefault);
