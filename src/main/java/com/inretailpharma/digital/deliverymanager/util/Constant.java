@@ -149,7 +149,8 @@ public interface Constant {
         NOT_FOUND_ORDER("-1"),
         NOT_DEFINED_ERROR("-1"),
         NOT_DEFINED_STATUS("-1"),
-        NOT_FOUND_ACTION("-1");
+        NOT_FOUND_ACTION("-1"),
+        EMPTY_RESULT_DISPATCHER("-1");
 
         private String code;
 

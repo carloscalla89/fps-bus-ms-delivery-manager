@@ -178,6 +178,17 @@ public class DeliveryManagerFacade {
                                                     attemptTracker = Optional.of(attemptTracker).orElse(0) + 1;
                                                 }
 
+                                                // Para validar si el reintento siendo un pago en línea y una orden cancelada se ponga status 37, sino
+                                                // tal orden si es cancelada por stock, ya no se mostraría como pendiente
+                                                if (r.getOrderStatus() != null && r.getOrderStatus().getCode() != null &&
+                                                    r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode()) &&
+                                                    Optional.ofNullable(iOrderFulfillment.getPaymentType()).orElse(PaymentMethod.PaymentType.CASH.name())
+                                                    .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
+
+                                                    r.getOrderStatus().setCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.getCode());
+                                                    r.getOrderStatus().setName(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name());
+                                                }
+
                                                 orderTransaction.updateOrderRetrying(
                                                         iOrderFulfillment.getOrderId(), attempt, attemptTracker,
                                                         r.getOrderStatus().getCode(), r.getOrderStatus().getDetail(),

@@ -113,6 +113,12 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
 
                             })
+                            .defaultIfEmpty(
+                                new OrderCanonical(
+                                        ecommerceId,
+                                        Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
+                                        Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
+                            )
                             .onErrorResume(e -> {
                                 e.printStackTrace();
 
@@ -152,6 +158,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                         .subscribeOn(Schedulers.parallel())
                         .filter(r -> (r.getInsinkProcess() != null && r.getTrackerProcess() != null))
                         .map(r -> {
+                            log.info("result dispatcher to reattempt insink and tracker r:{}",r);
                             OrderCanonical resultCanonical = new OrderCanonical();
 
                             if (r.getTrackerProcess() && r.getInsinkProcess()) {
@@ -198,11 +205,19 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                 Constant.OrderStatus orderStatusUtil = r.isReleased() ?
                                         Constant.OrderStatus.ERROR_RELEASE_ORDER : Constant.OrderStatus.ERROR_INSERT_INKAVENTA;
 
+                                if (r.getInsinkResponseCanonical() != null && r.getInsinkResponseCanonical().getErrorCode() != null &&
+                                        r.getInsinkResponseCanonical().getErrorCode().equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
+                                    orderStatusUtil = Constant.OrderStatus.CANCELLED_ORDER;
+
+                                }
+
                                 OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
                                 orderStatus.setCode(orderStatusUtil.getCode());
                                 orderStatus.setName(orderStatusUtil.name());
-                                orderStatus.setDetail(r.getInsinkResponseCanonical().getMessageDetail());
+
+                                Optional.ofNullable(r.getInsinkResponseCanonical())
+                                        .ifPresent(z -> orderStatus.setDetail(z.getMessageDetail()));
 
                                 resultCanonical.setOrderStatus(orderStatus);
                             }
@@ -211,6 +226,12 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
                             return resultCanonical;
                         })
+                        .defaultIfEmpty(
+                                new OrderCanonical(
+                                        ecommerceId,
+                                        Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
+                                        Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
+                        )
                         .onErrorResume(e -> {
                             e.printStackTrace();
                             String errorMessage = "Error to invoking'" + externalServicesProperties.getDispatcherInsinkTrackerUri() +
