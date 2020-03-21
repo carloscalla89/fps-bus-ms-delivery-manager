@@ -112,8 +112,6 @@ public class DeliveryManagerFacade {
                             b.setAttemptTracker(r.getAttemptTracker());
                             b.setAttempt(r.getAttemptBilling());
 
-
-
                             orderExternalServiceAudit.sendOrderReactive(b).subscribe();
 
                             return b;
@@ -152,6 +150,7 @@ public class DeliveryManagerFacade {
                                                         Optional.ofNullable(r.getTrackerId()).orElse(null)
                                                 );
                                                 r.setExternalId(iOrderFulfillment.getExternalId());
+                                                r.setBridgePurchaseId(iOrderFulfillment.getBridgePurchaseId());
 
                                                 orderDetail.setAttempt(Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0));
                                                 orderDetail.setAttemptTracker(attemptTracker);
@@ -202,6 +201,8 @@ public class DeliveryManagerFacade {
                                                 r.setOrderDetail(orderDetail);
 
                                                 r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                                                r.setBridgePurchaseId(iOrderFulfillment.getBridgePurchaseId());
 
                                                 orderExternalServiceAudit.updateOrderReactive(r).subscribe();
 
@@ -257,6 +258,8 @@ public class DeliveryManagerFacade {
 
                     result.setOrderDetail(orderDetail);
 
+                    result.setBridgePurchaseId(iOrderFulfillment.getBridgePurchaseId());
+
                     orderExternalServiceAudit.updateOrderReactive(result).subscribe();
 
                     resultCanonical = Mono.just(result);
@@ -286,7 +289,7 @@ public class DeliveryManagerFacade {
                                                 r.setEcommerceId(ecommercePurchaseId);
                                                 r.setExternalId(iOrderFulfillment.getExternalId());
                                                 r.setTrackerId(iOrderFulfillment.getTrackerId());
-
+                                                r.setBridgePurchaseId(iOrderFulfillment.getBridgePurchaseId());
                                                 r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
 
                                                 orderExternalServiceAudit.updateOrderReactive(r).subscribe();

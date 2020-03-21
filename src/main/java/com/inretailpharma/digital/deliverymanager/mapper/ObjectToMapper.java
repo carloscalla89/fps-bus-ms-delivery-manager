@@ -156,6 +156,9 @@ public class ObjectToMapper {
         // Set insink id
         orderCanonical.setExternalId(orderDto.getExternalPurchaseId());
 
+        // Set bridge purchase id(online payment id)
+        orderCanonical.setBridgePurchaseId(orderDto.getBridgePurchaseId());
+
         // Set localCode
         orderCanonical.setLocalCode(orderDto.getLocalCode());
 
