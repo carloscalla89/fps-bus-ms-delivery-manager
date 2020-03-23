@@ -170,16 +170,20 @@ public class ObjectToMapper {
 
         // set client
         ClientCanonical client = new ClientCanonical();
-        client.setFullName(
-                Optional.ofNullable(orderDto.getClient().getLastName()).orElse(StringUtils.EMPTY)
-                + StringUtils.SPACE
-                + Optional.ofNullable(orderDto.getClient().getFirstName()).orElse(StringUtils.EMPTY)
-        );
-        client.setAnonimous(orderDto.getClient().getAnonimous());
-        client.setBirthDate(orderDto.getClient().getBirthDate());
-        client.setDocumentNumber(orderDto.getClient().getDocumentNumber());
-        client.setEmail(orderDto.getClient().getEmail());
-        client.setPhone(orderDto.getClient().getPhone());
+
+        Optional.ofNullable(orderDto.getClient()).ifPresent(r -> {
+            client.setFullName(
+                    Optional.ofNullable(r.getLastName()).orElse(StringUtils.EMPTY)
+                            + StringUtils.SPACE
+                            + Optional.ofNullable(r.getFirstName()).orElse(StringUtils.EMPTY)
+            );
+            client.setAnonimous(r.getAnonimous());
+            client.setBirthDate(r.getBirthDate());
+            client.setDocumentNumber(r.getDocumentNumber());
+            client.setEmail(r.getEmail());
+            client.setPhone(r.getPhone());
+        });
+
         orderCanonical.setClient(client);
 
         // set Address
@@ -187,18 +191,18 @@ public class ObjectToMapper {
 
         Optional.ofNullable(orderDto.getAddress()).ifPresent(r -> {
             address.setName(
-
                     Optional.ofNullable(r.getName()).orElse(StringUtils.EMPTY)
                             + StringUtils.SPACE
                             + Optional.ofNullable(r.getStreet()).orElse(StringUtils.EMPTY)
                             + StringUtils.SPACE
                             + Optional.ofNullable(r.getNumber()).orElse(StringUtils.EMPTY)
+                            + StringUtils.SPACE
+                            + Optional.ofNullable(r.getCity()).orElse(StringUtils.EMPTY)
             );
             address.setDistrict(r.getDistrict());
             address.setDepartment(r.getDepartment());
             address.setCountry(r.getCountry());
         });
-
 
         orderCanonical.setAddress(address);
 
@@ -220,22 +224,22 @@ public class ObjectToMapper {
         );
 
         // set detail order
-        OrderDetailCanonical orderDetailCanonical = new OrderDetailCanonical();
+        OrderDetailCanonical orderDetail = new OrderDetailCanonical();
 
         Optional.ofNullable(orderDto.getSchedules()).ifPresent(r -> {
-            orderDetailCanonical.setConfirmedSchedule(r.getScheduledTime());
-            orderDetailCanonical.setCreatedOrder(r.getCreatedOrder());
-            orderDetailCanonical.setStartHour(r.getStartHour());
-            orderDetailCanonical.setEndHour(r.getEndHour());
-            orderDetailCanonical.setLeadTime(r.getLeadTime());
+            orderDetail.setConfirmedSchedule(r.getScheduledTime());
+            orderDetail.setCreatedOrder(r.getCreatedOrder());
+            orderDetail.setStartHour(r.getStartHour());
+            orderDetail.setEndHour(r.getEndHour());
+            orderDetail.setLeadTime(r.getLeadTime());
         });
 
         if (orderDto.getCreatedOrder() != null && orderDto.getScheduledTime() != null) {
-            orderDetailCanonical.setConfirmedSchedule(orderDto.getScheduledTime());
-            orderDetailCanonical.setCreatedOrder(orderDto.getCreatedOrder());
+            orderDetail.setConfirmedSchedule(orderDto.getScheduledTime());
+            orderDetail.setCreatedOrder(orderDto.getCreatedOrder());
         }
 
-        orderCanonical.setOrderDetail(orderDetailCanonical);
+        orderCanonical.setOrderDetail(orderDetail);
 
         // set Receipt
         ReceiptCanonical receipt = new ReceiptCanonical();
