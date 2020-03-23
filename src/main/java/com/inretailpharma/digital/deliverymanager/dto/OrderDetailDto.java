@@ -17,4 +17,5 @@ public class OrderDetailDto {
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
     private Boolean fractionated;
+    private BigDecimal fractionalDiscount;
 }
