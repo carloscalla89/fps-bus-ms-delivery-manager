@@ -48,7 +48,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 

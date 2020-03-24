@@ -96,7 +96,7 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
         return null;
     }
 }

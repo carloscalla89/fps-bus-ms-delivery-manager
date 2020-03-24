@@ -18,6 +18,9 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.insink-tracker.uri}")
     private String dispatcherInsinkTrackerUri;
 
+    @Value("${external-service.dispatcher.insink-tracker.uri-mifarma}")
+    private String dispatcherInsinkTrackerUriMiFarma;
+
     @Value("${external-service.dispatcher.insink-tracker.connect-timeout}")
     private String dispatcherInsinkTrackerConnectTimeout;
 

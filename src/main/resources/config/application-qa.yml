@@ -10,6 +10,7 @@ external-service:
   dispatcher:
     insink-tracker:
       uri: http://us-dd/order/insink-tracker
+      uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/insink-tracker
       connect-timeout: 360
       read-timeout: 480
     tracker:

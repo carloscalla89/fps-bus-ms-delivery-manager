@@ -207,6 +207,8 @@ public interface Constant {
         String NOT_DEFINED_CENTER = "NDC";
         String NOT_DEFINED_COMPANY = "NDC";
         String NOT_DEFINED_SERVICE = "NDS";
+        String COMPANY_CODE_IFK = "IKF";
+        String COMPANY_CODE_MF = "IKF";
     }
 
     enum PaymentMethodCode {

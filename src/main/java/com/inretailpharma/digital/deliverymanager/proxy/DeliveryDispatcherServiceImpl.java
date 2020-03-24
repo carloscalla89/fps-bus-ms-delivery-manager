@@ -46,7 +46,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
         log.info("update order actionOrder.getCode:{}", actionDto.getAction());
 
         TcpClient tcpClient = TcpClient
@@ -62,14 +62,22 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                         )
                 ); // Read Timeout
 
+        String dispatcherUri;
+
+        if (Constant.Constans.COMPANY_CODE_MF.equals(Optional.ofNullable(company).orElse(Constant.Constans.COMPANY_CODE_IFK))) {
+            dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUriMiFarma();
+        } else {
+            dispatcherUri = externalServicesProperties.getDispatcherTrackerUri();
+        }
+
         switch (Constant.ActionOrder.getByName(actionDto.getAction()).getCode()) {
             case 1:
                 // reattempt to send from delivery dispatcher at inkatracker or inkatrackerlite
-                log.info("url dispatcher:{}",externalServicesProperties.getDispatcherTrackerUri());
+                log.info("url dispatcher:{} - company:{}",dispatcherUri, company);
                 return     WebClient
                             .builder()
                             .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
-                            .baseUrl(externalServicesProperties.getDispatcherTrackerUri())
+                            .baseUrl(dispatcherUri)
                             .build()
                             .get()
                             .uri(builder ->
@@ -122,7 +130,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                             .onErrorResume(e -> {
                                 e.printStackTrace();
 
-                                String errorMessage = "General Error invoking '" + externalServicesProperties.getDispatcherTrackerUri() +
+                                String errorMessage = "General Error invoking '" + dispatcherUri +
                                         "':" + e.getMessage();
                                 log.error(errorMessage);
                                 OrderCanonical orderCanonical = new OrderCanonical();
@@ -141,11 +149,11 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
             case 2:
                 // reattempt to send from delivery dispatcher at insink
-                log.info("url dispatcher:{}",externalServicesProperties.getDispatcherInsinkTrackerUri());
+                log.info("url dispatcher:{} - company:{}",dispatcherUri, company);
                 return     WebClient
                         .builder()
                         .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
-                        .baseUrl(externalServicesProperties.getDispatcherInsinkTrackerUri())
+                        .baseUrl(dispatcherUri)
                         .build()
                         .get()
                         .uri(builder ->
@@ -234,7 +242,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                         )
                         .onErrorResume(e -> {
                             e.printStackTrace();
-                            String errorMessage = "Error to invoking'" + externalServicesProperties.getDispatcherInsinkTrackerUri() +
+                            String errorMessage = "Error to invoking'" + dispatcherUri +
                                     "':" + e.getMessage();
                             log.error(errorMessage);
 

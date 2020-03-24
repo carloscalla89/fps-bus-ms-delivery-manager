@@ -139,7 +139,7 @@ public class DeliveryManagerFacade {
                 case 1:
                     // Reattempt to send the order some inkatracker
                     resultCanonical = orderExternalServiceDispatcher
-                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto)
+                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCenterCode())
                                             .map(r -> {
 
                                                 int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0)+1;
@@ -168,7 +168,7 @@ public class DeliveryManagerFacade {
                 case 2:
                     // Reattempt to send the order at insink
                     resultCanonical = orderExternalServiceDispatcher
-                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto)
+                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCenterCode())
                                             .map(r -> {
                                                 int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
                                                 int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0)+1;
@@ -270,7 +270,7 @@ public class DeliveryManagerFacade {
                 case 4:
                     // call the service inkatracker-lite to update the order status (CANCEL, READY_FOR_PICKUP, DELIVERED)
                     resultCanonical = orderExternalServiceInkatrackerLite
-                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto)
+                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCenterCode())
                                             .map(r -> {
 
                                                 log.info("[START] to update order");
@@ -357,7 +357,7 @@ public class DeliveryManagerFacade {
                     actionDto.setOrderCancelObservation(cancellationDto.getObservation());
 
                     OrderCanonical orderCanonical = orderExternalServiceInkatrackerLite
-                                                            .getResultfromExternalServices(r.getEcommerceId(), actionDto)
+                                                            .getResultfromExternalServices(r.getEcommerceId(), actionDto, "")
                                                             .map(s -> {
                                                                 log.info("[START] Processing the updating of cancelled order");
 
