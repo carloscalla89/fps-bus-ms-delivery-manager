@@ -38,12 +38,12 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical) {
+    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
         return null;
     }
 
     @Override
-    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
+    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
         return null;
     }
 

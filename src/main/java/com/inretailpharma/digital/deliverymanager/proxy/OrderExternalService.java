@@ -10,8 +10,7 @@ import reactor.core.publisher.Mono;
 public interface OrderExternalService {
 
     Mono<Void> sendOrderReactive(OrderCanonical orderCanonical);
-    Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical);
     Mono<Void> updateOrderReactive(OrderCanonical orderCanonical);
     Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company);
-
+    Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical);
 }

@@ -14,6 +14,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,24 +33,25 @@ public class DeliveryManagerFacade {
     private ObjectToMapper objectToMapper;
     private OrderExternalService orderExternalServiceDispatcher;
     private OrderExternalService orderExternalServiceInkatrackerLite;
-    private OrderExternalService orderExternalServiceOrderTracker;
     private OrderExternalService orderExternalServiceAudit;
     private ApplicationParameterService applicationParameterService;
+
+    private final ApplicationContext context;
 
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  ObjectToMapper objectToMapper,
                                  @Qualifier("deliveryDispatcher") OrderExternalService orderExternalServiceDispatcher,
                                  @Qualifier("inkatrackerlite") OrderExternalService orderExternalServiceInkatrackerLite,
-                                 @Qualifier("orderTracker") OrderExternalService orderExternalServiceOrderTracker,
                                  @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
-                                 ApplicationParameterService applicationParameterService) {
+                                 ApplicationParameterService applicationParameterService,
+                                 ApplicationContext context) {
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceDispatcher = orderExternalServiceDispatcher;
         this.orderExternalServiceInkatrackerLite = orderExternalServiceInkatrackerLite;
-        this.orderExternalServiceOrderTracker = orderExternalServiceOrderTracker;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.applicationParameterService = applicationParameterService;
+        this.context = context;
     }
 
     public Flux<OrderCanonical> getOrdersByStatus(String status) {
@@ -71,51 +73,61 @@ public class DeliveryManagerFacade {
 
         return Mono
                 .defer(() -> Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)))
-                .zipWith(
-                        objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) ->
-                        {
-                            OrderWrapperResponse r =  orderTransaction.createOrderTransaction(a, orderDto);
+                .zipWith(objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) ->
+                {
+                    OrderWrapperResponse r =  orderTransaction.createOrderTransaction(a, orderDto);
 
-                            //set fulfillmentID
-                            b.setId(r.getFulfillmentId());
+                    //set fulfillmentID
+                    b.setId(r.getFulfillmentId());
 
-                            // set tracker ID
-                            b.setTrackerId(r.getTrackerId());
+                    // set tracker ID
+                    b.setTrackerId(r.getTrackerId());
 
-                            // set status
-                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                            orderStatus.setCode(r.getOrderStatusCode());
-                            orderStatus.setName(r.getOrderStatusName());
-                            orderStatus.setDetail(r.getOrderStatusDetail());
-                            orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+                    // set status
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(r.getOrderStatusCode());
+                    orderStatus.setName(r.getOrderStatusName());
+                    orderStatus.setDetail(r.getOrderStatusDetail());
+                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                            b.setOrderStatus(orderStatus);
+                    b.setOrderStatus(orderStatus);
 
-                            // set service of delivery or pickup on store
-                            b.getOrderDetail().setServiceCode(r.getServiceCode());
-                            b.getOrderDetail().setServiceName(r.getServiceName());
-                            b.getOrderDetail().setServiceType(r.getServiceType());
-                            b.getOrderDetail().setAttempt(r.getAttemptBilling());
-                            b.getOrderDetail().setAttemptTracker(r.getAttemptTracker());
+                    // set service of delivery or pickup on store
+                    b.getOrderDetail().setServiceCode(r.getServiceCode());
+                    b.getOrderDetail().setServiceName(r.getServiceName());
+                    b.getOrderDetail().setServiceType(r.getServiceType());
+                    b.getOrderDetail().setAttempt(r.getAttemptBilling());
+                    b.getOrderDetail().setAttemptTracker(r.getAttemptTracker());
 
-                            // set local and company names;
-                            b.setCompany(r.getCompanyName());
-                            b.setLocal(r.getLocalName());
+                    // set local and company names;
+                    b.setCompany(r.getCompanyName());
+                    b.setLocal(r.getLocalName());
 
-                            // set Receipt
-                            b.getReceipt().setType(r.getReceiptName());
+                    // set Receipt
+                    b.getReceipt().setType(r.getReceiptName());
 
-                            // set Payment
-                            b.getPaymentMethod().setType(r.getPaymentMethodName());
+                    // set Payment
+                    b.getPaymentMethod().setType(r.getPaymentMethodName());
 
-                            // attempts
-                            b.setAttemptTracker(r.getAttemptTracker());
-                            b.setAttempt(r.getAttemptBilling());
+                    // attempts
+                    b.setAttemptTracker(r.getAttemptTracker());
+                    b.setAttempt(r.getAttemptBilling());
 
-                            orderExternalServiceAudit.sendOrderReactive(b).subscribe();
+                    orderExternalServiceAudit.sendOrderReactive(b).subscribe();
 
-                            return b;
-                        })
+                    return b;
+                })
+                .map(r -> {
+                    OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
+                                                                        Constant.TrackerImplementation.getByCode(r.getOrderDetail().getServiceCode()).getName()
+                                                                );
+
+                    orderExternalService.sendOrderToTracker(r);
+
+                    orderExternalServiceAudit.updateOrderReactive(r);
+
+                    return r;
+                })
                 .doOnSuccess(r -> log.info("[END] createOrder facade"));
 
     }

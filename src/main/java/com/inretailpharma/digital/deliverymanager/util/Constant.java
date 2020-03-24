@@ -6,6 +6,29 @@ import java.util.Optional;
 
 public interface Constant {
 
+    enum TrackerImplementation {
+        INKATRACKER_LITE_RAD("inkatrackerlite"), INKATRACKER_LITE_RET("inkatrackerlite"),
+        INKATRACKER_RAD("inkatracker"), TEMPORARY_RAD("temporary"), NONE("not_found");
+
+        private String name;
+
+        TrackerImplementation(String name) {
+            this.name = name;
+        }
+
+        public static TrackerImplementation getByCode(String code) {
+
+            return EnumUtils.getEnumList(TrackerImplementation.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(code))
+                    .findFirst()
+                    .orElse(NONE);
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
 
     interface OrderTrackerResponseCode {
         String SUCCESS_CODE = "0";
