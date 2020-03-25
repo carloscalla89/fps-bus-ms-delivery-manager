@@ -30,6 +30,9 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.tracker.uri}")
     private String dispatcherTrackerUri;
 
+    @Value("${external-service.dispatcher.tracker.uri-mifarma}")
+    private String dispatcherTrackerUriMifarma;
+
     @Value("${external-service.dispatcher.tracker.connect-timeout}")
     private String dispatcherTrackerConnectTimeout;
 

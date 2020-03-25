@@ -139,48 +139,5 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                     return Mono.just(orderCanonical);
                 });
 
-
-
-                /*
-        return  WebClient
-                .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
-                .patch()
-                .uri(builder ->
-                        builder
-                                .path("/{orderExternalId}")
-                                .queryParam("action",actionInkatrackerLite)
-                                .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
-                                .build(ecommerceId)
-                )
-                .retrieve()
-                .bodyToMono(OrderInfoCanonical.class)
-                .map(r -> {
-                    log.info("response:{}", r);
-                    OrderCanonical orderCanonical = new OrderCanonical();
-
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(successResponse.getCode());
-                    orderStatus.setName(successResponse.name());
-                    orderCanonical.setOrderStatus(orderStatus);
-
-                    return orderCanonical;
-                })
-                .onErrorResume(e -> {
-                    e.printStackTrace();
-                    log.error("Error in inkatrackerlite call {} ",e.getMessage());
-                    OrderCanonical orderCanonical = new OrderCanonical();
-
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(errorResponse.getCode());
-                    orderStatus.setName(errorResponse.name());
-                    orderStatus.setDetail(e.getMessage());
-
-                    orderCanonical.setOrderStatus(orderStatus);
-
-                    return Mono.just(orderCanonical);
-                });
-
-                 */
-
     }
 }

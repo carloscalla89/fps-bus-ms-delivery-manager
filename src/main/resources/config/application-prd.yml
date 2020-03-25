@@ -15,6 +15,7 @@ external-service:
       read-timeout: 480
     tracker:
       uri: http://us-dd/order/tracker
+      uri-mifarma: http://ddmfprd.backend.mifarma.com.pe/order/tracker
       connect-timeout: 360
       read-timeout: 480
   inkatracker-lite:

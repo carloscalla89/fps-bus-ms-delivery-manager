@@ -15,6 +15,7 @@ external-service:
       read-timeout: 480
     tracker:
       uri: http://us-dd/order/tracker
+      uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/tracker
       connect-timeout: 360
       read-timeout: 480
   inkatracker-lite:

@@ -139,7 +139,7 @@ public class DeliveryManagerFacade {
                 case 1:
                     // Reattempt to send the order some inkatracker
                     resultCanonical = orderExternalServiceDispatcher
-                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCenterCode())
+                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
                                             .map(r -> {
 
                                                 int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0)+1;
@@ -168,7 +168,7 @@ public class DeliveryManagerFacade {
                 case 2:
                     // Reattempt to send the order at insink
                     resultCanonical = orderExternalServiceDispatcher
-                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCenterCode())
+                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
                                             .map(r -> {
                                                 int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
                                                 int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0)+1;
@@ -270,7 +270,7 @@ public class DeliveryManagerFacade {
                 case 4:
                     // call the service inkatracker-lite to update the order status (CANCEL, READY_FOR_PICKUP, DELIVERED)
                     resultCanonical = orderExternalServiceInkatrackerLite
-                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCenterCode())
+                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
                                             .map(r -> {
 
                                                 log.info("[START] to update order");

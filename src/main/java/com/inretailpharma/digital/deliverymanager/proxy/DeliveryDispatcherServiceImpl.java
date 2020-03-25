@@ -62,17 +62,20 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                         )
                 ); // Read Timeout
 
+
         String dispatcherUri;
 
-        if (Constant.Constans.COMPANY_CODE_MF.equals(Optional.ofNullable(company).orElse(Constant.Constans.COMPANY_CODE_IFK))) {
-            dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUriMiFarma();
-        } else {
-            dispatcherUri = externalServicesProperties.getDispatcherTrackerUri();
-        }
 
         switch (Constant.ActionOrder.getByName(actionDto.getAction()).getCode()) {
             case 1:
                 // reattempt to send from delivery dispatcher at inkatracker or inkatrackerlite
+
+                if (Constant.Constans.COMPANY_CODE_MF.equals(Optional.ofNullable(company).orElse(Constant.Constans.COMPANY_CODE_IFK))) {
+                    dispatcherUri = externalServicesProperties.getDispatcherTrackerUriMifarma();
+                } else {
+                    dispatcherUri = externalServicesProperties.getDispatcherTrackerUri();
+                }
+
                 log.info("url dispatcher:{} - company:{}",dispatcherUri, company);
                 return     WebClient
                             .builder()
@@ -149,6 +152,13 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
             case 2:
                 // reattempt to send from delivery dispatcher at insink
+
+                if (Constant.Constans.COMPANY_CODE_MF.equals(Optional.ofNullable(company).orElse(Constant.Constans.COMPANY_CODE_IFK))) {
+                    dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUriMiFarma();
+                } else {
+                    dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUri();
+                }
+
                 log.info("url dispatcher:{} - company:{}",dispatcherUri, company);
                 return     WebClient
                         .builder()
