@@ -11,17 +11,17 @@ external-service:
     insink-tracker:
       uri: http://us-dd/order/insink-tracker
       uri-mifarma: http://ddmfprd.backend.mifarma.com.pe/order/insink-tracker
-      connect-timeout: 360
+      connect-timeout: 240000
       read-timeout: 480
     tracker:
       uri: http://us-dd/order/tracker
       uri-mifarma: http://ddmfprd.backend.mifarma.com.pe/order/tracker
-      connect-timeout: 360
+      connect-timeout: 240000
       read-timeout: 480
   inkatracker-lite:
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
-      connect-timeout: 240
+      connect-timeout: 240000
       read-timeout: 360
   order-tracker:
     create-order:

@@ -11,12 +11,12 @@ external-service:
     insink-tracker:
       uri: http://us-dd/order/insink-tracker
       uri-mifarma: http://ddmfci02.backend.cindyinkafarma.com/order/insink-tracker
-      connect-timeout: 360
+      connect-timeout: 240000
       read-timeout: 480
     tracker:
       uri: http://us-dd/order/tracker
       uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/tracker
-      connect-timeout: 360
+      connect-timeout: 240000
       read-timeout: 480
   inkatracker-lite:
     update-order:
