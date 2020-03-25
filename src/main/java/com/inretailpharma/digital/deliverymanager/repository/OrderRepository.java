@@ -75,7 +75,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "where o.ecommerce_purchase_id = :ecommerceId",
             nativeQuery = true
     )
-    IOrderFulfillment getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
+    List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
     @Query(value ="select oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
             "oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, oi.unit_price as unitPrice," +

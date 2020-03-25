@@ -85,7 +85,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 
     @Override
     public IOrderFulfillment getOrderByecommerceId(Long ecommerceId) {
-        return orderRepository.getOrderByecommerceId(ecommerceId);
+        return orderRepository.getOrderByecommerceId(ecommerceId).stream().findFirst().orElse(null);
     }
 
     @Override
