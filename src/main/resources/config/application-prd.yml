@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://fulfillment.prd.internal:3306/prdfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
+    url: jdbc:mysql://prdfulfillment.prd.internal:3306/prdfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
     username: operaciones
     password: Operaciones2020
 external-service:
@@ -11,20 +11,20 @@ external-service:
     insink-tracker:
       uri: http://us-dd/order/insink-tracker
       uri-mifarma: http://ddmfprd.backend.mifarma.com.pe/order/insink-tracker
-      connect-timeout: 240000
+      connect-timeout: 30000
       read-timeout: 480
     tracker:
       uri: http://us-dd/order/tracker
       uri-mifarma: http://ddmfprd.backend.mifarma.com.pe/order/tracker
-      connect-timeout: 240000
+      connect-timeout: 30000
       read-timeout: 480
   inkatracker-lite:
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
-      connect-timeout: 240000
+      connect-timeout: 30000
       read-timeout: 360
   order-tracker:
     create-order:
       uri: http://us-ordertracker/ordertracker
-      connect-timeout: 20000
+      connect-timeout: 30000
       read-timeout: 240000
