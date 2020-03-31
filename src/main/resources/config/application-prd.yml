@@ -5,7 +5,7 @@ spring:
     password: Operaciones2020
   mvc:
     async:
-      request-timeout: 150
+      request-timeout: 240000
 external-service:
   audit:
     create-order: http://us-audit/audit/order
