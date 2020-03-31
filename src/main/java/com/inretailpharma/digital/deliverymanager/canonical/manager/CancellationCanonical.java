@@ -3,7 +3,7 @@ package com.inretailpharma.digital.deliverymanager.canonical.manager;
 import lombok.Data;
 
 @Data
-public class OrderCancellationCanonical {
+public class CancellationCanonical {
 
     private String code;
     private String type;

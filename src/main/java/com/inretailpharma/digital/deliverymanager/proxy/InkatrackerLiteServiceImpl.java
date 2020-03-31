@@ -7,12 +7,20 @@ import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServ
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.tcp.TcpClient;
+
+import java.time.Duration;
 
 @Slf4j
 @Service("inkatrackerlite")
@@ -40,7 +48,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public OrderCanonical getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
@@ -76,9 +84,26 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                 errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
         }
 
+        log.info("url inkatracket-lite:{}",externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
+        TcpClient tcpClient = TcpClient
+                                .create()
+                                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
+                                        Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderConnectTimeOut())
+                                ) // Connection Timeout
+                                .doOnConnected(connection ->
+                                        connection.addHandlerLast(
+                                                new ReadTimeoutHandler(
+                                                        Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
+                                                )
+                                        )
+                                ); // Read Timeout
+
 
         return WebClient
-                .create(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
+                .builder()
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                .baseUrl(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
+                .build()
                 .patch()
                 .uri(builder ->
                         builder
@@ -88,8 +113,8 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                                 .build(ecommerceId))
                 .retrieve()
                 .bodyToMono(OrderInfoCanonical.class)
-                .subscribeOn(Schedulers.parallel())
                 .map(r -> {
+                    log.info("response:{}", r);
                     OrderCanonical orderCanonical = new OrderCanonical();
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
@@ -112,7 +137,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                     orderCanonical.setOrderStatus(orderStatus);
 
                     return Mono.just(orderCanonical);
-                }).block();
+                });
 
     }
 }

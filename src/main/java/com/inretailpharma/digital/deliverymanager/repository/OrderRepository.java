@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.websocket.server.PathParam;
 import java.util.List;
 import java.util.Set;
 
@@ -32,6 +33,22 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderFulfillment> getListOrdersByStatus(@Param("status") Set<String> status);
 
+
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.external_purchase_id as externalId, " +
+            "ccf.center_code as centerCode, ccf.center_name as centerName, ccf.company_name as companyName, " +
+            "st.code as serviceTypeCode, st.name as serviceTypeName, st.type as serviceType, " +
+            "o.scheduled_time as confirmedSchedule " +
+            "from order_fulfillment o " +
+            "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
+            "inner join order_status os on os.code = ops.order_status_code " +
+            "inner join service_type st on st.code = ops.service_type_code " +
+            "inner join center_company_fulfillment ccf on ccf.center_code = ops.center_code and ccf.company_code = ops.company_code " +
+            "where DATE_FORMAT(DATE_ADD(o.scheduled_time, INTERVAL :maxDayPickup DAY), '%Y-%m-%d') < DATE_FORMAT(NOW(), '%Y-%m-%d') " +
+            "and st.type = :serviceType and os.code in ('13')",
+            nativeQuery = true
+    )
+    List<IOrderFulfillment> getListOrdersToCancel(@Param("serviceType") String serviceType, @Param("maxDayPickup") Integer maxDayPickup);
+
     OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, " +
@@ -40,7 +57,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.scheduled_time as scheduledTime, " +
             "c.first_name as firstName, c.last_name as lastName, c.email, c.document_number as documentNumber, " +
             "c.phone, c.birth_date as birthDate, c.anonimous, " +
-            "ccf.center_code as centerCode, ccf.center_name as centerName, ccf.company_code as company_code, ccf.company_name as companyName," +
+            "ccf.center_code as centerCode, ccf.center_name as centerName, ccf.company_code as companyCode, ccf.company_name as companyName," +
             "s.lead_time as leadTime, s.start_hour as startHour, s.end_hour as endHour," +
             "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
             "st.code as serviceTypeCode, st.name as serviceTypeName, " +
@@ -58,7 +75,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "where o.ecommerce_purchase_id = :ecommerceId",
             nativeQuery = true
     )
-    IOrderFulfillment getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
+    List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
     @Query(value ="select oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
             "oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, oi.unit_price as unitPrice," +
@@ -107,4 +124,5 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true)
     void updateExternalIdToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
                                     @Param("externalPurchaseId") Long externalPurchaseId);
+
 }

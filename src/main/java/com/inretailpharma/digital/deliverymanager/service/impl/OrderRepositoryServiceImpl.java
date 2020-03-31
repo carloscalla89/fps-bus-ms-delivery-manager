@@ -74,13 +74,18 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, Integer maxDayPickup) {
+        return orderRepository.getListOrdersToCancel(serviceType, maxDayPickup);
+    }
+
+    @Override
     public List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId) {
         return orderRepository.getOrderItemByOrderFulfillmentId(orderFulfillmentId);
     }
 
     @Override
     public IOrderFulfillment getOrderByecommerceId(Long ecommerceId) {
-        return orderRepository.getOrderByecommerceId(ecommerceId);
+        return orderRepository.getOrderByecommerceId(ecommerceId).stream().findFirst().orElse(null);
     }
 
     @Override
@@ -126,8 +131,13 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId) {
-        return orderRepository.getOrderFulfillmentByEcommercePurchaseIdIs(ecommerceId);
+    public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String orderStatusCode, Long orderFulfillmentId) {
+        serviceLocalOrderRepository.updateStatusCancelledOrder(statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
+    }
+
+    @Override
+    public void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId) {
+        serviceLocalOrderRepository.updateStatusOrderToDeletePending(orderStatusCode, orderFulfillmentId);
     }
 
     @Override
@@ -139,5 +149,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
         return orderStatusRepository.getOrderStatusByTypeIs(statusName);
     }
+
+
 
 }

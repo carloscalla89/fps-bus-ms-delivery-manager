@@ -8,7 +8,7 @@ public class OrderDetailCanonical {
     // type of services
     private String serviceCode;
     private String serviceName;
-    private String serviceType; // Constants of (DELIVERY) or PICKUP(PICKUP)
+    private String serviceType; // (DELIVERY) or PICKUP(PICKUP)
 
     // schedules
     private String confirmedSchedule;
@@ -18,8 +18,7 @@ public class OrderDetailCanonical {
     private Integer attempt;
     private Integer attemptTracker;
 
-    //delivery time(lead time) and hours to delivery or pickup
-    //of store if the serviceType is DELIVERY or PICKUP, respectively
+    //delivery time(lead time) in hours to delivery or pickup
     private Integer leadTime;
     private String startHour;
     private String endHour;

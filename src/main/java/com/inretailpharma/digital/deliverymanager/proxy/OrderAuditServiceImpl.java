@@ -3,17 +3,14 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.Optional;
 
 @Slf4j
 @Service("audit")
@@ -53,24 +50,6 @@ public class OrderAuditServiceImpl implements OrderExternalService {
                                 .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
                 ).then();
 
-        /*
-        Optional
-                .ofNullable(applicationParameterService
-                        .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
-                .filter(r -> r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
-                .ifPresent(r -> WebClient
-                        .create(externalServicesProperties.getUriApiService())
-                        .post()
-                        .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .subscribeOn(Schedulers.parallel())
-                        .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s)));
-
-
-        return Mono.just(orderAuditCanonical);
-
-         */
     }
 
     @Override
@@ -80,8 +59,8 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to createOrder - value:{} - body:{}",
-                externalServicesProperties, orderAuditCanonical);
+        log.info("[START] service to call api audit to update - value:{} - body:{}",
+                externalServicesProperties.getUriApiService(), orderAuditCanonical);
 
         return Mono
                 .justOrEmpty(
@@ -100,30 +79,14 @@ public class OrderAuditServiceImpl implements OrderExternalService {
                             .retrieve()
                             .bodyToMono(String.class)
                             .subscribeOn(Schedulers.parallel())
-                            .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
+                            .subscribe(s -> log.info("[END] service to call api audit to update - s:{}",s))
                 ).then();
 
-/*
-        Optional
-                .ofNullable(applicationParameterService
-                        .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT))
-                .filter(r -> r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE))
-                .ifPresent(r -> WebClient
-                        .create(externalServicesProperties.getUriApiService())
-                        .patch()
-                        .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .subscribeOn(Schedulers.parallel())
-                        .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s)));
-
-
- */
 
     }
 
     @Override
-    public OrderCanonical getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
         return null;
     }
 
