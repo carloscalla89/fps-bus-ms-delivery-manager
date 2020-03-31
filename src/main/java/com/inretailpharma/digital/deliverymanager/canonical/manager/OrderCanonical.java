@@ -8,6 +8,18 @@ import java.util.List;
 @Data
 public class OrderCanonical {
 
+    public OrderCanonical() {
+
+    }
+
+    public OrderCanonical(Long ecommerceId, String code, String name) {
+        this.ecommerceId = ecommerceId;
+
+        this.orderStatus = new OrderStatusCanonical();
+        this.orderStatus.setCode(code);
+        this.orderStatus.setName(name);
+    }
+
     // Canonical IDs
     private Long id;
     private Long ecommerceId;

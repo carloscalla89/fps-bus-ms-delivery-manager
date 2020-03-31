@@ -35,4 +35,7 @@ public class ServiceLocalOrder {
 
     private Integer reprogrammed;
 
+    @Column(name= "cancellation_observation")
+    private String cancellationObservation;
+
 }

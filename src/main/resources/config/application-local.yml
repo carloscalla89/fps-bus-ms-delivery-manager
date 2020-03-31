@@ -9,13 +9,15 @@ external-service:
     time-out: 20000
   dispatcher:
     insink-tracker:
-      uri: http://us-dd/order/insink-tracker/{ecommerceId}
-      connect-timeout: 10000
-      read-timeout: 120000
+      uri: http://us-dd/order/insink-tracker
+      uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/insink-tracker
+      connect-timeout: 240000
+      read-timeout: 480
     tracker:
-      uri: http://us-dd/order/tracker/{ecommerceId}
-      connect-timeout: 10000
-      read-timeout: 120000
+      uri: http://us-dd/order/tracker
+      uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/tracker
+      connect-timeout: 240000
+      read-timeout: 480
   inkatracker-lite:
     update-order:
       uri: http://localhost:8283/v2/unattended-orders

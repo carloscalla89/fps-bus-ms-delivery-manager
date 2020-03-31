@@ -18,11 +18,14 @@ public interface Constant {
 
         String ACTIVATED_ORDER_TRACKER_VALUE = "1";
         String ACTIVATED_ORDER_TRACKER = "ACTIVATED_ORDER_TRACKER";
+
+        String DAYS_PICKUP_MAX_RET = "DAYS_PICKUP_MAX_RET";
     }
 
     interface InsinkErrorCode {
         String CODE_ERROR_GENERAL = "E-0";
         String CODE_ERROR_CLIENT_CONNECTION = "C-0";
+        String CODE_ERROR_STOCK = "E-1";
     }
 
     interface ActionName {
@@ -116,12 +119,14 @@ public interface Constant {
         ERROR_PREPARED("08"),
         ERROR_ON_ROUTE("09"),
 
-        ERROR_ARRIVE("30"),
-        ERROR_REJECT("31"),
-        ERROR_CANCEL("32"),
-        ERROR_DELIVER("33"),
-        ERROR_PICKUP("34"),
-        ERROR_UPDATE("35"),
+        ERROR_ARRIVE("31"),
+        ERROR_REJECT("32"),
+        ERROR_CANCEL("33"),
+        ERROR_DELIVER("34"),
+        ERROR_PICKUP("35"),
+        ERROR_UPDATE("36"),
+        CANCELLED_ORDER_ONLINE_PAYMENT("37"),
+        DELETED_PENDING_ORDER("38"),
 
         SUCCESS_RESERVED_ORDER("10"),
 
@@ -144,7 +149,8 @@ public interface Constant {
         NOT_FOUND_ORDER("-1"),
         NOT_DEFINED_ERROR("-1"),
         NOT_DEFINED_STATUS("-1"),
-        NOT_FOUND_ACTION("-1");
+        NOT_FOUND_ACTION("-1"),
+        EMPTY_RESULT_DISPATCHER("-1");
 
         private String code;
 
@@ -201,6 +207,8 @@ public interface Constant {
         String NOT_DEFINED_CENTER = "NDC";
         String NOT_DEFINED_COMPANY = "NDC";
         String NOT_DEFINED_SERVICE = "NDS";
+        String COMPANY_CODE_IFK = "IKF";
+        String COMPANY_CODE_MF = "MF";
     }
 
     enum PaymentMethodCode {

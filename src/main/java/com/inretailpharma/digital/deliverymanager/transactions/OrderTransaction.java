@@ -149,6 +149,22 @@ public class OrderTransaction {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING.getCode());
 
+        } else if (Optional
+                    .ofNullable(orderDto.getOrderStatusDto().getCode())
+                    .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
+                    && Optional
+                        .ofNullable(orderDto.getPayment().getType())
+                        .orElse(PaymentMethod.PaymentType.CASH.name())
+                        .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.getCode());
+
+        } else if (Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER.getCode());
+
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
@@ -173,6 +189,10 @@ public class OrderTransaction {
         return orderRepositoryService.getListOrdersByStatus(new HashSet<>(Collections.singletonList(status)));
     }
 
+    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, Integer maxDayPickup) {
+        return orderRepositoryService.getListOrdersToCancel(serviceType, maxDayPickup);
+    }
+
     public OrderFulfillment getOrderFulfillmentById(Long id) {
         return orderRepositoryService.getOrderFulfillmentById(id);
     }
@@ -180,6 +200,8 @@ public class OrderTransaction {
     public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
         return orderRepositoryService.getOrderStatusByTypeIs(statusName);
     }
+
+
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateOrderRetrying(Long orderFulfillmentId, Integer attempt, Integer attemptTracker,
@@ -243,8 +265,26 @@ public class OrderTransaction {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void insertCancelledOrder(OrderCancelled orderCancelled) {
-        log.info("[START] insertCancelledOrder - orderCancelled-{}",orderCancelled);
+        log.info("[START] insertCancelledOrder transactional- orderCancelled-{}",orderCancelled);
         orderCancellationService.insertCancelledOrder(orderCancelled);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation,
+                                           String orderStatusCode, Long orderFulfillmentId) {
+        log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
+                 "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
+                 ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
+
+        orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation,
+                orderStatusCode, orderFulfillmentId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId) {
+        log.info("[START] updateStatusOrderToDeletePending - orderStatusCode:{}, orderFulfillmentId:{}"
+                ,orderStatusCode, orderFulfillmentId);
+        orderRepositoryService.updateStatusOrderToDeletePending(orderStatusCode, orderFulfillmentId);
     }
 
 }
