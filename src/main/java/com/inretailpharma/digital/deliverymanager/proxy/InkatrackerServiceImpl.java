@@ -20,12 +20,16 @@ public class InkatrackerServiceImpl implements OrderExternalService{
     }
 
     @Override
-    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
         return null;
     }
 
     @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto) {
+    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
+        log.info("[START] sendOrderToTracker - orderCanonical:{}",orderCanonical);
+
         return null;
     }
+
+
 }

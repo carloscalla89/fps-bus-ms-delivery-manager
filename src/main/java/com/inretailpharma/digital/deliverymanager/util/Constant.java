@@ -204,12 +204,22 @@ public interface Constant {
 
     enum Logical {
 
-        Y(true), N(false);
+        Y(true, "1"), N(false, "0");
 
         private final boolean value;
+        private String valueString;
 
         Logical(boolean value) {
             this.value = value;
+        }
+        Logical(boolean value, String valueString) {
+
+            this.value = value;
+            this.valueString = valueString;
+        }
+
+        public String getValueString() {
+            return valueString;
         }
 
         public boolean value() {
@@ -221,6 +231,13 @@ public interface Constant {
                 return Y;
             }
             return N;
+        }
+        public static Logical getByValueString(String valueString) {
+            return EnumUtils.getEnumList(Logical.class)
+                    .stream()
+                    .filter(item -> Optional.ofNullable(valueString).orElse("0").equalsIgnoreCase(item.getValueString()))
+                    .findFirst()
+                    .orElse(N);
         }
     }
 

@@ -96,6 +96,8 @@ public class DeliveryManagerFacade {
                     b.getOrderDetail().setServiceCode(r.getServiceCode());
                     b.getOrderDetail().setServiceName(r.getServiceName());
                     b.getOrderDetail().setServiceType(r.getServiceType());
+                    b.getOrderDetail().setServiceEnabled(Constant.Logical.getByValueString(r.getServiceEnabled()).value());
+                    b.getOrderDetail().setServiceSourceChannel(r.getServiceSourcechannel());
                     b.getOrderDetail().setAttempt(r.getAttemptBilling());
                     b.getOrderDetail().setAttemptTracker(r.getAttemptTracker());
 
@@ -118,14 +120,20 @@ public class DeliveryManagerFacade {
                     return b;
                 })
                 .map(r -> {
-                    OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
-                                                                        Constant.TrackerImplementation.getByCode(r.getOrderDetail().getServiceCode()).getName()
-                                                                );
+                    log.info("[START] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",
+                            r.getOrderDetail(), r.getEcommerceId());
 
-                    orderExternalService.sendOrderToTracker(r);
+                    if (r.getOrderDetail().isServiceEnabled()) {
+                        OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
+                                Constant.TrackerImplementation.getByCode(r.getOrderDetail().getServiceCode()).getName()
+                        );
 
-                    orderExternalServiceAudit.updateOrderReactive(r);
+                        orderExternalService.sendOrderToTracker(r);
 
+                        orderExternalServiceAudit.updateOrderReactive(r);
+                    }
+                    log.info("[END] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",
+                            r.getOrderDetail(), r.getEcommerceId());
                     return r;
                 })
                 .doOnSuccess(r -> log.info("[END] createOrder facade"));

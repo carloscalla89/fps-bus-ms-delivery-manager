@@ -90,6 +90,8 @@ public class OrderTransaction {
         orderWrapperResponse.setServiceCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getCode());
         orderWrapperResponse.setServiceName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getName());
         orderWrapperResponse.setServiceType(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getType());
+        orderWrapperResponse.setServiceSourcechannel(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getSourceChannel());
+        orderWrapperResponse.setServiceEnabled(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getEnabled());
         orderWrapperResponse.setAttemptBilling(serviceLocalOrderResponse.getAttempt());
         orderWrapperResponse.setAttemptTracker(serviceLocalOrderResponse.getAttemptTracker());
         orderWrapperResponse.setLocalName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterName());
