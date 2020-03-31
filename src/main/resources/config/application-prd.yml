@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://prdfulfillment.prd.internal:3306/prdfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
+    url: jdbc:mysql://fulfillment.prd.internal:3306/prdfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
     username: operaciones
     password: Operaciones2020
 external-service:
