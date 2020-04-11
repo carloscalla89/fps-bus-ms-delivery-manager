@@ -232,8 +232,7 @@ public class DeliveryManagerFacade {
 
                 case 3:
                     // Update the status when the order was released from Dispatcher
-
-                    log.info("Starting to update the released order when the order come from dispatcher");
+                    log.info("Starting to update the released order when the order come from dispatcher:{}",ecommerceId);
 
                     int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
                     int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0) +1;
@@ -366,7 +365,7 @@ public class DeliveryManagerFacade {
                                 .getListOrdersToCancel(cancellationDto.getServiceType(), Integer.parseInt(daysValue.getValue()))
                 )
                 .parallel()
-                .runOn(Schedulers.elastic())
+                    .runOn(Schedulers.elastic())
                 .map(r -> {
 
                     log.info("order ecommerceId:{}",r.getEcommerceId());

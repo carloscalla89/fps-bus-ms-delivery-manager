@@ -21,12 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/fulfillment")
-@Api(value = "OrderManagerRest", produces = "application/json")
-/**
- * Controlador de commands
- *
- * @author
- */
+@Api(value = "DeliveryManagerRest", produces = "application/json")
 @Slf4j
 public class DeliveryManagerRest {
 
