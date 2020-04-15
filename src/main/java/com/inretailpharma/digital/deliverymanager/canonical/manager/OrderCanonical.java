@@ -26,7 +26,7 @@ public class OrderCanonical {
     private Long trackerId;
     private Long externalId;
     private Long bridgePurchaseId;
-
+    private String motorizedId;
 
     // Canonical cost
     private BigDecimal deliveryCost;
