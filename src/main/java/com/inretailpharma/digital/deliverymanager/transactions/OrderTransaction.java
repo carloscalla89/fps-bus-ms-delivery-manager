@@ -77,6 +77,9 @@ public class OrderTransaction {
         Optional
                 .ofNullable(orderDto.getOrderStatusDto())
                 .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
+        
+        Optional.ofNullable(orderDto.getSchedules())
+        		.ifPresent(s -> serviceLocalOrder.setLeadTime(s.getLeadTime()));
 
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
