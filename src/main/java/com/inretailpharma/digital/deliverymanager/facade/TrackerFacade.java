@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.facade;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
@@ -54,6 +55,10 @@ public class TrackerFacade {
         		
         		orderCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
         		orderCanonical.setOrderItems(orderItemCanonicalList);
+        		
+        		OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                orderStatus.setCode(Constant.OrderStatus.ARRIVED.name());
+                orderCanonical.setOrderStatus(orderStatus);
         		
         		orderExternalOrderTracker.sendOrderToTracker(orderCanonical);
     		}
