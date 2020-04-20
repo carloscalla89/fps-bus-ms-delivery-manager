@@ -57,7 +57,7 @@ public class TrackerFacade {
         		orderCanonical.setOrderItems(orderItemCanonicalList);
         		
         		OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                orderStatus.setCode(Constant.OrderStatus.ARRIVED.name());
+                orderStatus.setCode(Constant.OrderStatus.ASSIGNED.name());
                 orderCanonical.setOrderStatus(orderStatus);
         		
         		orderExternalOrderTracker.sendOrderToTracker(orderCanonical);
