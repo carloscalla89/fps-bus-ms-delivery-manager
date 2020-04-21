@@ -66,7 +66,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
             case Constant.ActionName.CANCEL_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.CANCELLED;
                 successResponse = Constant.OrderStatus.CANCELLED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_CANCEL;
+                errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
                 break;
             case Constant.ActionName.DELIVER_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.DELIVERED;

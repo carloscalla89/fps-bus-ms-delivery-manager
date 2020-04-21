@@ -16,7 +16,7 @@ public interface OrderRepositoryService {
     OrderStatus getOrderStatusByCode(String code);
     ServiceLocalOrder saveServiceLocalOrder(ServiceLocalOrder serviceLocalOrder);
     List<IOrderFulfillment> getListOrdersByStatus(Set<String> status);
-    List<IOrderFulfillment> getListOrdersToCancel(String serviceType, Integer maxDayPickup);
+    List<IOrderFulfillment> getListOrdersToCancel(String serviceType,String companyCode, Integer maxDayPickup);
     List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId);
     IOrderFulfillment getOrderByecommerceId(Long ecommerceId);
     void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,

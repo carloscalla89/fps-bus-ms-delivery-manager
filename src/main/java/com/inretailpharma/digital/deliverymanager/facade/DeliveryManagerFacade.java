@@ -362,13 +362,16 @@ public class DeliveryManagerFacade {
 
         return Flux
                 .fromIterable(orderTransaction
-                                .getListOrdersToCancel(cancellationDto.getServiceType(), Integer.parseInt(daysValue.getValue()))
+                                .getListOrdersToCancel(
+                                        cancellationDto.getServiceType(), cancellationDto.getCompanyCode(), Integer.parseInt(daysValue.getValue())
+                                )
                 )
                 .parallel()
                     .runOn(Schedulers.elastic())
                 .map(r -> {
 
-                    log.info("order ecommerceId:{}",r.getEcommerceId());
+                    log.info("order - companyCode:{}, centerCode:{}, ecommerceId:{}, ",
+                            r.getCompanyCode(), r.getCenterCode(), r.getEcommerceId());
 
                     ActionDto actionDto = new ActionDto();
                     actionDto.setAction(Constant.ActionOrder.CANCEL_ORDER.name());
@@ -386,7 +389,13 @@ public class DeliveryManagerFacade {
                                                                 );
                                                                 log.info("[END] Processing the updating of cancelled order");
                                                                 return s;
-                                                            }).defaultIfEmpty(new OrderCanonical()).block();
+                                                            }).defaultIfEmpty(
+                                                                    new OrderCanonical(
+                                                                            r.getEcommerceId(),
+                                                                            Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.getCode(),
+                                                                            Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name()
+                                                                    )
+                                                            ).block();
 
                     OrderCancelledCanonical orderCancelledCanonical = new OrderCancelledCanonical();
 

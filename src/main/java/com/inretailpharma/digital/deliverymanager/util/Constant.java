@@ -144,7 +144,7 @@ public interface Constant {
 
         ERROR_ARRIVE("31"),
         ERROR_REJECT("32"),
-        ERROR_CANCEL("33"),
+        ERROR_TO_CANCEL_ORDER("33"),
         ERROR_DELIVER("34"),
         ERROR_PICKUP("35"),
         ERROR_UPDATE("36"),
