@@ -370,7 +370,7 @@ public class DeliveryManagerFacade {
                     .runOn(Schedulers.elastic())
                 .map(r -> {
 
-                    log.info("order - companyCode:{}, centerCode:{}, ecommerceId:{}, ",
+                    log.info("order info- companyCode:{}, centerCode:{}, ecommerceId:{}, ",
                             r.getCompanyCode(), r.getCenterCode(), r.getEcommerceId());
 
                     ActionDto actionDto = new ActionDto();
