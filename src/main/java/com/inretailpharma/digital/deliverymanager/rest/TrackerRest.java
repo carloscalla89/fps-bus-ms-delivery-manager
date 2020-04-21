@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.rest;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.TrackerFacade;
@@ -40,6 +41,25 @@ public class TrackerRest {
 
         return new ResponseEntity<>(
                 trackerFacade.assignOrders(projectedGroupCanonical)
+                             .subscribeOn(Schedulers.parallel()),
+                HttpStatus.OK
+        );
+
+    }
+    
+    @ApiOperation(value = "Desasignar órdenes de motorizados")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Desasignar órdenes de motorizados", response = OrderDto.class),
+            @ApiResponse(code = 500, message = "No creado") })
+    @PatchMapping(value = "/orders/status/unassigned")
+    public ResponseEntity<Mono<OrderTrackerResponseCanonical>> unassignOrders(
+            @RequestBody UnassignedCanonical unassignedCanonical) {
+
+        log.info("[START] endpoint /fulfillment/tracker/orders/status/unassigned " +
+                 "- unassignedCanonical:{}", unassignedCanonical);
+
+        return new ResponseEntity<>(
+                trackerFacade.unassignOrders(unassignedCanonical)
                              .subscribeOn(Schedulers.parallel()),
                 HttpStatus.OK
         );

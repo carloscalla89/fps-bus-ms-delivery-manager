@@ -3,6 +3,8 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerResponseDto;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -294,4 +296,13 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
 
     }
 
+	@Override
+	public Mono<Void> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
+		return null;
+	}
+
+	@Override
+	public Mono<Void> unassignOrders(UnassignedCanonical unassignedCanonical) {
+		return null;
+	}
 }

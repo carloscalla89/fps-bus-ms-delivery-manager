@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
@@ -14,6 +15,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -61,8 +63,27 @@ public class TrackerFacade {
                 orderCanonical.setOrderStatus(orderStatus);
         		
         		orderExternalOrderTracker.sendOrderToTracker(orderCanonical);
+        		order.setOrderId(orderCanonical.getExternalId());
     		}
     	});
+    	
+    	orderExternalOrderTracker.assignOrders(projectedGroupCanonical);
+    	
+    	OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
+    	response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
+        return Mono.just(response);
+    }
+    
+    public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
+    	List<Long> orderIds = new ArrayList<>();
+    	unassignedCanonical.getOrders().stream().forEach(ecommerceId -> {
+    		IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(ecommerceId);    		
+    		if (Optional.ofNullable(orderDto).isPresent()) {
+    			orderIds.add(orderDto.getExternalId());
+    		}
+    	});
+    	unassignedCanonical.setOrders(orderIds);
+    	orderExternalOrderTracker.unassignOrders(unassignedCanonical);
     	
     	OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
     	response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);

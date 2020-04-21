@@ -1,6 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
@@ -144,6 +146,15 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
                     return Mono.just(orderCanonical);
                 });
-
     }
+    
+    @Override
+	public Mono<Void> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
+		return null;
+	}
+
+	@Override
+	public Mono<Void> unassignOrders(UnassignedCanonical unassignedCanonical) {
+		return null;
+	}
 }

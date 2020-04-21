@@ -65,11 +65,11 @@ public class ExternalServicesProperties {
     // properties to order tracker
     @Value("${external-service.order-tracker.create-order.uri}")
     private String orderTrackerCreateOrderUri;
-
-    @Value("${external-service.order-tracker.create-order.connect-timeout}")
-    private String orderTrackerCreateOrderConnectTimeOut;
-
-    @Value("${external-service.order-tracker.create-order.read-timeout}")
-    private String orderTrackerCreateOrderReadTimeOut;
+    
+    @Value("${external-service.order-tracker.assign-orders.uri}")
+    private String orderTrackerAssignOrdersUri;
+    
+    @Value("${external-service.order-tracker.unassign-orders.uri}")
+    private String orderTrackerUnassignOrdersUri;
 
 }
