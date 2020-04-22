@@ -363,7 +363,8 @@ public class DeliveryManagerFacade {
         return Flux
                 .fromIterable(orderTransaction
                                 .getListOrdersToCancel(
-                                        cancellationDto.getServiceType(), cancellationDto.getCompanyCode(), Integer.parseInt(daysValue.getValue())
+                                        cancellationDto.getServiceType(), cancellationDto.getCompanyCode(),
+                                        Integer.parseInt(daysValue.getValue()), cancellationDto.getStatusType()
                                 )
                 )
                 .parallel()

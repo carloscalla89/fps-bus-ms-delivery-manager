@@ -45,12 +45,13 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join service_type st on st.code = ops.service_type_code " +
             "inner join center_company_fulfillment ccf on ccf.center_code = ops.center_code and ccf.company_code = ops.company_code " +
             "where DATE_FORMAT(DATE_ADD(o.scheduled_time, INTERVAL :maxDayPickup DAY), '%Y-%m-%d') < DATE_FORMAT(NOW(), '%Y-%m-%d') " +
-            "and st.type = :serviceType and os.code in ('13') and ccf.company_code = :companyCode",
+            "and st.type = :serviceType and os.type = :statustype and ccf.company_code = :companyCode",
             nativeQuery = true
     )
     List<IOrderFulfillment> getListOrdersToCancel(@Param("serviceType") String serviceType,
                                                   @Param("maxDayPickup") Integer maxDayPickup,
-                                                  @Param("companyCode") String companyCode);
+                                                  @Param("companyCode") String companyCode,
+                                                  @Param("statustype") String statustype);
 
     OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 

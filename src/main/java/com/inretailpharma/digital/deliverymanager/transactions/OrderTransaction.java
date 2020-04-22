@@ -191,8 +191,8 @@ public class OrderTransaction {
         return orderRepositoryService.getListOrdersByStatus(new HashSet<>(Collections.singletonList(status)));
     }
 
-    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup) {
-        return orderRepositoryService.getListOrdersToCancel(serviceType, companyCode, maxDayPickup);
+    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup, String statustype) {
+        return orderRepositoryService.getListOrdersToCancel(serviceType, companyCode, maxDayPickup, statustype);
     }
 
     public OrderFulfillment getOrderFulfillmentById(Long id) {

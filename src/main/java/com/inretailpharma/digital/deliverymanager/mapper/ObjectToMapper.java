@@ -254,7 +254,7 @@ public class ObjectToMapper {
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
         paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
         orderCanonical.setPaymentMethod(paymentMethod);
-        log.info("[END] convertEntityToOrderCanonical:{}",orderCanonical);
+        log.info("[END] convertEntityToOrderCanonical");
 
         return Mono.just(orderCanonical);
 
