@@ -5,6 +5,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ShelfCanonical;
+
 @Data
 public class OrderCanonical {
 
@@ -59,6 +61,9 @@ public class OrderCanonical {
 
     // Canonical serviceType
     private OrderDetailCanonical orderDetail;
+    
+    // Canonical shelf
+    private List<ShelfCanonical> shelfList;
 
     // versión anterior
     private Integer attempt;
