@@ -71,5 +71,7 @@ public class ExternalServicesProperties {
     
     @Value("${external-service.order-tracker.unassign-orders.uri}")
     private String orderTrackerUnassignOrdersUri;
-
+    
+    @Value("${external-service.fulfillment-center.get-center.uri}")
+    private String fulfillmentCenterGetCenterUri;
 }

@@ -13,8 +13,7 @@ public class ProjectedGroupCanonical implements Serializable {
     private String groupName;
     private String motorizedId;
     private Integer projectedEtaReturn;
-    private Integer drugstoreId;
     private List<GroupCanonical> group;
-    private String statusDrugstore;
+    private CenterCompanyCanonical pickUpCenter;
 
 }

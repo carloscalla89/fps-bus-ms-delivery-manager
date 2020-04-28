@@ -10,6 +10,7 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
@@ -32,19 +33,24 @@ public class TrackerFacade {
 	private ObjectToMapper objectToMapper;
 	private OrderExternalService orderExternalOrderTracker;
 	private OrderExternalService orderExternalServiceAudit;
+	private CenterCompanyService centerCompanyService;
 	
 	
 	public TrackerFacade(OrderTransaction orderTransaction, 
 			ObjectToMapper objectToMapper,
 			 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
-             @Qualifier("audit") OrderExternalService orderExternalServiceAudit) {
+             @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
+             CenterCompanyService centerCompanyService) {
 		this.orderTransaction = orderTransaction;
 		this.objectToMapper = objectToMapper;
 		this.orderExternalOrderTracker = orderExternalOrderTracker;
 		this.orderExternalServiceAudit = orderExternalServiceAudit;
+		this.centerCompanyService = centerCompanyService;
 	}
 
-    public Mono<OrderTrackerResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {    	
+    public Mono<OrderTrackerResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {    
+    	
+    	List<OrderCanonical> ordersToAssign = new ArrayList<>();    	
     	projectedGroupCanonical.getGroup().stream().forEach(order -> {
     		IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(order.getOrderId());    		
     		if (Optional.ofNullable(orderDto).isPresent()) {
@@ -66,9 +72,16 @@ public class TrackerFacade {
         		
         		orderExternalOrderTracker.sendOrderToTracker(orderCanonical);
         		order.setOrderId(orderCanonical.getExternalId());
+        		
+        		ordersToAssign.add(orderCanonical);
     		}
-    	});
+    	});    	
     	
+    	ordersToAssign.stream().findFirst().ifPresent(order -> {    		
+    		projectedGroupCanonical.setPickUpCenter(
+    				centerCompanyService.getExternalInfo(order.getLocalCode()));
+    	});
+
     	orderExternalOrderTracker.assignOrders(projectedGroupCanonical);
     	
     	OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
