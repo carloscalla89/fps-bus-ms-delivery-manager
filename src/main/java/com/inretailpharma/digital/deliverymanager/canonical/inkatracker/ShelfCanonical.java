@@ -8,4 +8,5 @@ import lombok.Data;
 public class ShelfCanonical implements Serializable {
 
 	private String lockCode;
+	private String packCode;
 }

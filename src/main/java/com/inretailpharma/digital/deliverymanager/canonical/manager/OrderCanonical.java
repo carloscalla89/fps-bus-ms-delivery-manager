@@ -64,6 +64,7 @@ public class OrderCanonical {
     
     // Canonical shelf
     private List<ShelfCanonical> shelfList;
+    private String payBackEnvelope;
 
     // versión anterior
     private Integer attempt;

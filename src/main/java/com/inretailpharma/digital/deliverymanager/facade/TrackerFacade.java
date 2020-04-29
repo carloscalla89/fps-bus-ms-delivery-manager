@@ -68,8 +68,11 @@ public class TrackerFacade {
                 orderStatus.setCode(Constant.OrderStatus.ASSIGNED.name());
                 orderCanonical.setOrderStatus(orderStatus);
                 
-                orderCanonical.setShelfList(order.getShelfList());
-        		
+                Optional.ofNullable(order.getPickUpDetails()).ifPresent(pickUpDetails -> {
+                	orderCanonical.setShelfList(pickUpDetails.getShelfList());
+                	orderCanonical.setPayBackEnvelope(pickUpDetails.getPayBackEnvelope());
+                });
+                
         		orderExternalOrderTracker.sendOrderToTracker(orderCanonical);
         		order.setOrderId(orderCanonical.getExternalId());
         		

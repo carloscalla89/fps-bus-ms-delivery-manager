@@ -15,5 +15,5 @@ public class GroupCanonical implements Serializable {
     private Long orderId;
     private EtaCanonical eta;
     private Long timeRemaining;
-    private List<ShelfCanonical> shelfList;
+    private PickUpDetailsCanonical pickUpDetails;
 }
