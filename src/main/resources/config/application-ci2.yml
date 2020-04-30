@@ -26,8 +26,8 @@ external-service:
   inkatracker:
     create-order:
       uri: http://us-inkatracker/nvr/orders/create
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 10000
+      read-timeout: 120000
     update-order:
       uri: http://us-inkatracker/nvr/orders/create
       connect-timeout: 240000
@@ -39,18 +39,18 @@ external-service:
   order-tracker:
     create-order:
       uri: http://us-ordertracker/order
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 10000
+      read-timeout: 120000
     assign-orders:
       uri: http://us-ordertracker/orders/status/assigned
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 10000
+      read-timeout: 120000
     unassign-orders:
       uri: http://us-ordertracker/orders/status/unassigned
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 10000
+      read-timeout: 120000
   fulfillment-center:
     get-center:
       uri: http://fulfillment-centerci02.backend.cindibyinkafarma.com/fulfillment/store/
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 10000
+      read-timeout: 120000
