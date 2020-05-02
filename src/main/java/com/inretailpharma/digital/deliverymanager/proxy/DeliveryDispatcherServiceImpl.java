@@ -3,8 +3,6 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerResponseDto;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -19,14 +17,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.TcpClient;
 
-import java.time.Duration;
 import java.util.Optional;
 
 @Slf4j
 @Service("deliveryDispatcher")
-public class DeliveryDispatcherServiceImpl implements OrderExternalService{
+public class DeliveryDispatcherServiceImpl extends AbstractOrderService implements OrderExternalService{
 
     private ExternalServicesProperties externalServicesProperties;
 
@@ -295,14 +291,4 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
         }
 
     }
-
-	@Override
-	public Mono<Void> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
-		return null;
-	}
-
-	@Override
-	public Mono<Void> unassignOrders(UnassignedCanonical unassignedCanonical) {
-		return null;
-	}
 }

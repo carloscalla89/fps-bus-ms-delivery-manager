@@ -14,11 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Service("orderTracker")
-public class OrderTrackerServiceImpl implements OrderExternalService {
+public class OrderTrackerServiceImpl extends AbstractOrderService  implements OrderExternalService {
 
     private ExternalServicesProperties externalServicesProperties;
     private ApplicationParameterService applicationParameterService;
@@ -65,7 +64,7 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
     
     @Override
 	public Mono<Void> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
-    	log.info("[START] service to call api to assignOrdersToTravel - uri:{} - body:{}",
+    	log.info("[START] service to call api to assignOrders - uri:{} - body:{}",
                 externalServicesProperties.getOrderTrackerAssignOrdersUri(), projectedGroupCanonical);
     	
     	ResponseEntity<String> response = WebClient
@@ -76,23 +75,46 @@ public class OrderTrackerServiceImpl implements OrderExternalService {
             	.toEntity(String.class)
             	.block();
     	
-    	log.info("[END] service to call api to assignOrdersToTravel - s:{}", response.getBody());
+    	log.info("[END] service to call api to assignOrders - s:{}", response.getBody());
     	return Mono.empty();
 	}
 
 	@Override
 	public Mono<Void> unassignOrders(UnassignedCanonical unassignedCanonical) {
-		log.info("[START] service to call api to unassignOrdersFromTravel - uri:{} - body:{}",
+		log.info("[START] service to call api to unassignOrders - uri:{} - body:{}",
                 externalServicesProperties.getOrderTrackerUnassignOrdersUri(), unassignedCanonical);
+		
 		ResponseEntity<String> response = WebClient
 	        	.create(externalServicesProperties.getOrderTrackerUnassignOrdersUri())
 	        	.patch()
 	        	.bodyValue(unassignedCanonical)
 	        	.retrieve()
 	        	.toEntity(String.class)
-	        	.block();		
+	        	.block();
 		
-		log.info("[END] service to call api to unassignOrdersFromTravel - s:{}", response.getBody());
+		log.info("[END] service to call api to unassignOrders - s:{}", response.getBody());		
+		return Mono.empty();
+	}
+	
+	@Override
+	public Mono<Void> updateOrderStatus(Long ecommerceId, String status) {
+		log.info("[START] service to call api to updateOrderStatus - uri:{} - ecommerceId:{} - status:{}",
+                externalServicesProperties.getOrderTrackerUpdateOrderStatusUri(), ecommerceId, status);
+		
+		ResponseEntity<String> response = WebClient
+				.builder()
+                .baseUrl(externalServicesProperties.getOrderTrackerUpdateOrderStatusUri())
+                .build()
+                .patch()
+                .uri(builder ->
+                		builder
+                				.path("/{ecommerceId}/status/{status}")
+                                .build(ecommerceId, status))
+                .retrieve()
+                .toEntity(String.class)
+            	.block();
+		
+		log.info("[END] service to call api to updateOrderStatus - s:{}", response.getBody());
 		return Mono.empty();
 	}
 }

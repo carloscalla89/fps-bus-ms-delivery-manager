@@ -64,13 +64,16 @@ public class ExternalServicesProperties {
 
     // properties to order tracker
     @Value("${external-service.order-tracker.create-order.uri}")
-    private String orderTrackerCreateOrderUri;
+    private String orderTrackerCreateOrderUri; 
     
     @Value("${external-service.order-tracker.assign-orders.uri}")
     private String orderTrackerAssignOrdersUri;
     
     @Value("${external-service.order-tracker.unassign-orders.uri}")
     private String orderTrackerUnassignOrdersUri;
+    
+    @Value("${external-service.order-tracker.update-order-status.uri}")
+    private String orderTrackerUpdateOrderStatusUri;
     
     @Value("${external-service.fulfillment-center.get-center.uri}")
     private String fulfillmentCenterGetCenterUri;

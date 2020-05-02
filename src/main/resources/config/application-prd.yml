@@ -52,6 +52,10 @@ external-service:
       uri: http://us-ordertracker/orders/status/unassigned
       connect-timeout: 10000
       read-timeout: 120000
+    update-order-status:
+      uri: http://us-ordertracker/order
+      connect-timeout: 10000
+      read-timeout: 120000
   fulfillment-center:
     get-center:
       uri: http://fulfillment-centerci02.backend.cindibyinkafarma.com/fulfillment/store/

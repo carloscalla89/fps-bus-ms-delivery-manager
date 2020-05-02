@@ -27,7 +27,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service("inkatracker")
-public class InkatrackerServiceImpl implements OrderExternalService{
+public class InkatrackerServiceImpl extends AbstractOrderService implements OrderExternalService{
 
     private ExternalServicesProperties externalServicesProperties;
 
@@ -155,14 +155,4 @@ public class InkatrackerServiceImpl implements OrderExternalService{
 
         return null;
     }
-
-    @Override
-	public Mono<Void> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
-		return null;
-	}
-
-	@Override
-	public Mono<Void> unassignOrders(UnassignedCanonical unassignedCanonical) {
-		return null;
-	}
 }

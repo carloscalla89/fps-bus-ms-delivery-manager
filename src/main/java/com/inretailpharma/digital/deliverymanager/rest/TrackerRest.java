@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.rest;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.TrackerFacade;
@@ -60,6 +61,26 @@ public class TrackerRest {
 
         return new ResponseEntity<>(
                 trackerFacade.unassignOrders(unassignedCanonical)
+                             .subscribeOn(Schedulers.parallel()),
+                HttpStatus.OK
+        );
+
+    }
+    
+    @ApiOperation(value = "Cambiar el estado de una orden")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "Estado de orden actualizado", response = OrderDto.class),
+            @ApiResponse(code = 500, message = "No actualizado") })
+    @PatchMapping(value = "/order/{ecommerceId}/status/{status}")
+    public ResponseEntity<Mono<OrderTrackerResponseCanonical>> updateOrderStatus(
+    		@PathVariable(name = "ecommerceId") Long ecommerceId,
+    		@PathVariable(name = "status") String status) {
+
+        log.info("[START] endpoint /order/{ecommerceId}/status/{status} " +
+                 "- ecommerceId {} - status:{}", ecommerceId, status);
+
+        return new ResponseEntity<>(
+                trackerFacade.updateOrderStatus(ecommerceId, status)
                              .subscribeOn(Schedulers.parallel()),
                 HttpStatus.OK
         );

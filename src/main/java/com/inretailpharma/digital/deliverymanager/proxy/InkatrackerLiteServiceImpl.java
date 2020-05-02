@@ -1,32 +1,24 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.TcpClient;
 
-import java.time.Duration;
-
 @Slf4j
 @Service("inkatrackerlite")
-public class InkatrackerLiteServiceImpl implements OrderExternalService {
+public class InkatrackerLiteServiceImpl extends AbstractOrderService implements OrderExternalService {
 
     private ExternalServicesProperties externalServicesProperties;
 
@@ -147,14 +139,4 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
                     return Mono.just(orderCanonical);
                 });
     }
-    
-    @Override
-	public Mono<Void> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
-		return null;
-	}
-
-	@Override
-	public Mono<Void> unassignOrders(UnassignedCanonical unassignedCanonical) {
-		return null;
-	}
 }

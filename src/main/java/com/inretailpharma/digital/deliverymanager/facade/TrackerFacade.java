@@ -107,4 +107,13 @@ public class TrackerFacade {
     	response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
         return Mono.just(response);
     }
+    
+    public Mono<OrderTrackerResponseCanonical> updateOrderStatus(Long ecommerceId, String status) {
+    	
+    	orderExternalOrderTracker.updateOrderStatus(ecommerceId, status);
+    	
+    	OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
+    	response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
+        return Mono.just(response);
+    }
 }
