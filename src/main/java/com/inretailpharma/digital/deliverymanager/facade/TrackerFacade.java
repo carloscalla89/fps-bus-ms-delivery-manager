@@ -74,7 +74,7 @@ public class TrackerFacade {
                 });
                 
         		orderExternalOrderTracker.sendOrderToTracker(orderCanonical);
-        		order.setOrderId(orderCanonical.getExternalId());
+        		//order.setOrderId(orderCanonical.getExternalId());
         		
         		ordersToAssign.add(orderCanonical);
     		}
