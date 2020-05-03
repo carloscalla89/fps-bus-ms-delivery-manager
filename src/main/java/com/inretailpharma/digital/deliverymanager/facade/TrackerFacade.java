@@ -93,14 +93,14 @@ public class TrackerFacade {
     }
     
     public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
-    	List<Long> orderIds = new ArrayList<>();
+    	/*List<Long> orderIds = new ArrayList<>();
     	unassignedCanonical.getOrders().stream().forEach(ecommerceId -> {
     		IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(ecommerceId);    		
     		if (Optional.ofNullable(orderDto).isPresent()) {
     			orderIds.add(orderDto.getExternalId());
     		}
     	});
-    	unassignedCanonical.setOrders(orderIds);
+    	unassignedCanonical.setOrders(orderIds);*/
     	orderExternalOrderTracker.unassignOrders(unassignedCanonical);
     	
     	OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
