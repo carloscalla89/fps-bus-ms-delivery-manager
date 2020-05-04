@@ -90,6 +90,8 @@ public class OrderTransaction {
         orderWrapperResponse.setServiceCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getCode());
         orderWrapperResponse.setServiceName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getName());
         orderWrapperResponse.setServiceType(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getType());
+        orderWrapperResponse.setServiceSourcechannel(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getSourceChannel());
+        orderWrapperResponse.setServiceEnabled(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getEnabled());
         orderWrapperResponse.setAttemptBilling(serviceLocalOrderResponse.getAttempt());
         orderWrapperResponse.setAttemptTracker(serviceLocalOrderResponse.getAttemptTracker());
         orderWrapperResponse.setLocalName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterName());
@@ -189,8 +191,8 @@ public class OrderTransaction {
         return orderRepositoryService.getListOrdersByStatus(new HashSet<>(Collections.singletonList(status)));
     }
 
-    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, Integer maxDayPickup) {
-        return orderRepositoryService.getListOrdersToCancel(serviceType, maxDayPickup);
+    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup, String statustype) {
+        return orderRepositoryService.getListOrdersToCancel(serviceType, companyCode, maxDayPickup, statustype);
     }
 
     public OrderFulfillment getOrderFulfillmentById(Long id) {

@@ -12,6 +12,9 @@ public class ServiceType {
     private String code;
     private String name;
     private String type;
+    @Column(name="source_channel")
+    private String sourceChannel;
     private String description;
+    private String enabled;
 
 }

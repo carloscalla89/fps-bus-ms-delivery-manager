@@ -38,12 +38,12 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical) {
+    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
         return null;
     }
 
     @Override
-    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
+    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
         return null;
     }
 
@@ -66,7 +66,7 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
             case Constant.ActionName.CANCEL_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.CANCELLED;
                 successResponse = Constant.OrderStatus.CANCELLED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_CANCEL;
+                errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
                 break;
             case Constant.ActionName.DELIVER_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.DELIVERED;

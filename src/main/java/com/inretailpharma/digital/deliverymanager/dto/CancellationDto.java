@@ -6,6 +6,7 @@ import lombok.Data;
 public class CancellationDto {
 
     private String serviceType;
+    private String companyCode;
     private String statusType;
     private String cancellationCode;
     private String observation;

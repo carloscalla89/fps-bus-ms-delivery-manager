@@ -7,4 +7,6 @@ import lombok.Data;
 public class ShipperDto {
 
     private String code;
+    private String userId;
+    private String name;
 }

@@ -6,6 +6,29 @@ import java.util.Optional;
 
 public interface Constant {
 
+    enum TrackerImplementation {
+        INKATRACKER_LITE_RAD("inkatrackerlite"), INKATRACKER_LITE_RET("inkatrackerlite"),
+        INKATRACKER_RAD("inkatracker"), TEMPORARY_RAD("temporary"), NONE("not_found");
+
+        private String name;
+
+        TrackerImplementation(String name) {
+            this.name = name;
+        }
+
+        public static TrackerImplementation getByCode(String code) {
+
+            return EnumUtils.getEnumList(TrackerImplementation.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(code))
+                    .findFirst()
+                    .orElse(NONE);
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
 
     interface OrderTrackerResponseCode {
         String SUCCESS_CODE = "0";
@@ -56,7 +79,7 @@ public interface Constant {
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada", null, null),
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger", null, null),
 
-        ON_STORE_ORDER(5, "Acción para actualizar el estado en tienda", "16","06"),
+        ON_STORE_ORDER(2, "Acción para actualizar el estado en tienda", "16","06"),
         ON_ROUTE_ORDER(5, "Acción para actualizar el estado en tienda","19", "09"),
         PICK_ORDER(5, "Acción para actualizar el estado en tienda", null, null),
         PREPARE_ORDER(5, "Acción para actualizar el estado en tienda", "18", "08"),
@@ -121,7 +144,7 @@ public interface Constant {
 
         ERROR_ARRIVE("31"),
         ERROR_REJECT("32"),
-        ERROR_CANCEL("33"),
+        ERROR_TO_CANCEL_ORDER("33"),
         ERROR_DELIVER("34"),
         ERROR_PICKUP("35"),
         ERROR_UPDATE("36"),
@@ -181,12 +204,22 @@ public interface Constant {
 
     enum Logical {
 
-        Y(true), N(false);
+        Y(true, "1"), N(false, "0");
 
         private final boolean value;
+        private String valueString;
 
         Logical(boolean value) {
             this.value = value;
+        }
+        Logical(boolean value, String valueString) {
+
+            this.value = value;
+            this.valueString = valueString;
+        }
+
+        public String getValueString() {
+            return valueString;
         }
 
         public boolean value() {
@@ -198,6 +231,13 @@ public interface Constant {
                 return Y;
             }
             return N;
+        }
+        public static Logical getByValueString(String valueString) {
+            return EnumUtils.getEnumList(Logical.class)
+                    .stream()
+                    .filter(item -> Optional.ofNullable(valueString).orElse("0").equalsIgnoreCase(item.getValueString()))
+                    .findFirst()
+                    .orElse(N);
         }
     }
 
