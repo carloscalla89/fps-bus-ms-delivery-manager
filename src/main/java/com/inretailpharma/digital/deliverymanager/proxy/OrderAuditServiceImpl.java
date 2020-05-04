@@ -52,10 +52,6 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
     }
 
-    @Override
-    public Mono<OrderCanonical> sendOrderReactiveWithOrderDto(OrderCanonical orderCanonical) {
-        return null;
-    }
 
     @Override
     public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
@@ -89,6 +85,13 @@ public class OrderAuditServiceImpl implements OrderExternalService {
     public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
         return null;
     }
+
+    @Override
+    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
+        return null;
+    }
+
+
 
 
 

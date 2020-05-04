@@ -14,6 +14,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,24 +33,25 @@ public class DeliveryManagerFacade {
     private ObjectToMapper objectToMapper;
     private OrderExternalService orderExternalServiceDispatcher;
     private OrderExternalService orderExternalServiceInkatrackerLite;
-    private OrderExternalService orderExternalServiceOrderTracker;
     private OrderExternalService orderExternalServiceAudit;
     private ApplicationParameterService applicationParameterService;
+
+    private final ApplicationContext context;
 
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  ObjectToMapper objectToMapper,
                                  @Qualifier("deliveryDispatcher") OrderExternalService orderExternalServiceDispatcher,
                                  @Qualifier("inkatrackerlite") OrderExternalService orderExternalServiceInkatrackerLite,
-                                 @Qualifier("orderTracker") OrderExternalService orderExternalServiceOrderTracker,
                                  @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
-                                 ApplicationParameterService applicationParameterService) {
+                                 ApplicationParameterService applicationParameterService,
+                                 ApplicationContext context) {
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceDispatcher = orderExternalServiceDispatcher;
         this.orderExternalServiceInkatrackerLite = orderExternalServiceInkatrackerLite;
-        this.orderExternalServiceOrderTracker = orderExternalServiceOrderTracker;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.applicationParameterService = applicationParameterService;
+        this.context = context;
     }
 
     public Flux<OrderCanonical> getOrdersByStatus(String status) {
@@ -71,51 +73,69 @@ public class DeliveryManagerFacade {
 
         return Mono
                 .defer(() -> Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)))
-                .zipWith(
-                        objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) ->
-                        {
-                            OrderWrapperResponse r =  orderTransaction.createOrderTransaction(a, orderDto);
+                .zipWith(objectToMapper.convertEntityToOrderCanonical(orderDto), (a,b) ->
+                {
+                    OrderWrapperResponse r =  orderTransaction.createOrderTransaction(a, orderDto);
 
-                            //set fulfillmentID
-                            b.setId(r.getFulfillmentId());
+                    //set fulfillmentID
+                    b.setId(r.getFulfillmentId());
 
-                            // set tracker ID
-                            b.setTrackerId(r.getTrackerId());
+                    // set tracker ID
+                    b.setTrackerId(r.getTrackerId());
 
-                            // set status
-                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                            orderStatus.setCode(r.getOrderStatusCode());
-                            orderStatus.setName(r.getOrderStatusName());
-                            orderStatus.setDetail(r.getOrderStatusDetail());
-                            orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+                    // set status
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(r.getOrderStatusCode());
+                    orderStatus.setName(r.getOrderStatusName());
+                    orderStatus.setDetail(r.getOrderStatusDetail());
+                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                            b.setOrderStatus(orderStatus);
+                    b.setOrderStatus(orderStatus);
 
-                            // set service of delivery or pickup on store
-                            b.getOrderDetail().setServiceCode(r.getServiceCode());
-                            b.getOrderDetail().setServiceName(r.getServiceName());
-                            b.getOrderDetail().setServiceType(r.getServiceType());
-                            b.getOrderDetail().setAttempt(r.getAttemptBilling());
-                            b.getOrderDetail().setAttemptTracker(r.getAttemptTracker());
+                    // set service of delivery or pickup on store
+                    b.getOrderDetail().setServiceCode(r.getServiceCode());
+                    b.getOrderDetail().setServiceName(r.getServiceName());
+                    b.getOrderDetail().setServiceType(r.getServiceType());
+                    b.getOrderDetail().setServiceEnabled(Constant.Logical.getByValueString(r.getServiceEnabled()).value());
+                    b.getOrderDetail().setServiceSourceChannel(r.getServiceSourcechannel());
+                    b.getOrderDetail().setAttempt(r.getAttemptBilling());
+                    b.getOrderDetail().setAttemptTracker(r.getAttemptTracker());
 
-                            // set local and company names;
-                            b.setCompany(r.getCompanyName());
-                            b.setLocal(r.getLocalName());
+                    // set local and company names;
+                    b.setCompany(r.getCompanyName());
+                    b.setLocal(r.getLocalName());
 
-                            // set Receipt
-                            b.getReceipt().setType(r.getReceiptName());
+                    // set Receipt
+                    b.getReceipt().setType(r.getReceiptName());
 
-                            // set Payment
-                            b.getPaymentMethod().setType(r.getPaymentMethodName());
+                    // set Payment
+                    b.getPaymentMethod().setType(r.getPaymentMethodName());
 
-                            // attempts
-                            b.setAttemptTracker(r.getAttemptTracker());
-                            b.setAttempt(r.getAttemptBilling());
+                    // attempts
+                    b.setAttemptTracker(r.getAttemptTracker());
+                    b.setAttempt(r.getAttemptBilling());
 
-                            orderExternalServiceAudit.sendOrderReactive(b).subscribe();
+                    orderExternalServiceAudit.sendOrderReactive(b).subscribe();
 
-                            return b;
-                        })
+                    return b;
+                })
+                .map(r -> {
+                    log.info("[START] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",
+                            r.getOrderDetail(), r.getEcommerceId());
+
+                    if (r.getOrderDetail().isServiceEnabled()) {
+                        OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
+                                Constant.TrackerImplementation.getByCode(r.getOrderDetail().getServiceCode()).getName()
+                        );
+
+                        orderExternalService.sendOrderToTracker(r);
+
+                        orderExternalServiceAudit.updateOrderReactive(r);
+                    }
+                    log.info("[END] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",
+                            r.getOrderDetail(), r.getEcommerceId());
+                    return r;
+                })
                 .doOnSuccess(r -> log.info("[END] createOrder facade"));
 
     }
@@ -212,8 +232,7 @@ public class DeliveryManagerFacade {
 
                 case 3:
                     // Update the status when the order was released from Dispatcher
-
-                    log.info("Starting to update the released order when the order come from dispatcher");
+                    log.info("Starting to update the released order when the order come from dispatcher:{}",ecommerceId);
 
                     int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
                     int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0) +1;
@@ -343,13 +362,17 @@ public class DeliveryManagerFacade {
 
         return Flux
                 .fromIterable(orderTransaction
-                                .getListOrdersToCancel(cancellationDto.getServiceType(), Integer.parseInt(daysValue.getValue()))
+                                .getListOrdersToCancel(
+                                        cancellationDto.getServiceType(), cancellationDto.getCompanyCode(),
+                                        Integer.parseInt(daysValue.getValue()), cancellationDto.getStatusType()
+                                )
                 )
                 .parallel()
-                .runOn(Schedulers.elastic())
+                    .runOn(Schedulers.elastic())
                 .map(r -> {
 
-                    log.info("order ecommerceId:{}",r.getEcommerceId());
+                    log.info("order info- companyCode:{}, centerCode:{}, ecommerceId:{}, ",
+                            r.getCompanyCode(), r.getCenterCode(), r.getEcommerceId());
 
                     ActionDto actionDto = new ActionDto();
                     actionDto.setAction(Constant.ActionOrder.CANCEL_ORDER.name());
@@ -367,7 +390,13 @@ public class DeliveryManagerFacade {
                                                                 );
                                                                 log.info("[END] Processing the updating of cancelled order");
                                                                 return s;
-                                                            }).defaultIfEmpty(new OrderCanonical()).block();
+                                                            }).defaultIfEmpty(
+                                                                    new OrderCanonical(
+                                                                            r.getEcommerceId(),
+                                                                            Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.getCode(),
+                                                                            Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name()
+                                                                    )
+                                                            ).block();
 
                     OrderCancelledCanonical orderCancelledCanonical = new OrderCancelledCanonical();
 
