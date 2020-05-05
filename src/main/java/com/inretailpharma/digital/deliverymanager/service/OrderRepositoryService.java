@@ -31,7 +31,7 @@ public interface OrderRepositoryService {
                                      String statusDetail);
     void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
 
-    void updateStatusCancelledOrder(String statusDetail, String cancellationObservation,
+    void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
                                     String orderStatusCode, Long orderFulfillmentId);
 
     void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId);
