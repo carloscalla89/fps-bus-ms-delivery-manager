@@ -297,7 +297,7 @@ public class DeliveryManagerFacade {
                                                     log.info("CANCEL order");
                                                     orderTransaction.updateStatusCancelledOrder(
                                                             r.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
-                                                            r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
+                                                            actionDto.getOrderCancelCode(), r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
                                                     );
                                                 } else {
                                                     orderTransaction.updateStatusOrder(iOrderFulfillment.getOrderId(), r.getOrderStatus().getCode(),
@@ -386,6 +386,7 @@ public class DeliveryManagerFacade {
 
                                                                 orderTransaction.updateStatusCancelledOrder(
                                                                         s.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
+                                                                        actionDto.getOrderCancelCode(),
                                                                         s.getOrderStatus().getCode(), r.getOrderId()
                                                                 );
                                                                 log.info("[END] Processing the updating of cancelled order");
