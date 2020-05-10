@@ -7,6 +7,9 @@ import com.inretailpharma.digital.deliverymanager.repository.*;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -74,8 +77,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup, String statustype) {
-        return orderRepository.getListOrdersToCancel(serviceType, maxDayPickup,companyCode, statustype);
+    public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode,
+                                                         Integer maxDayPickup, String statustype) {
+        return orderRepository.getListOrdersToCancel(serviceType, maxDayPickup,companyCode,
+                new HashSet<>(Arrays.asList(statustype.split(",")))
+        );
     }
 
     @Override
@@ -131,8 +137,10 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String orderStatusCode, Long orderFulfillmentId) {
-        serviceLocalOrderRepository.updateStatusCancelledOrder(statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
+    public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
+                                           String orderStatusCode, Long orderFulfillmentId) {
+        serviceLocalOrderRepository.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
+                orderStatusCode, orderFulfillmentId);
     }
 
     @Override
