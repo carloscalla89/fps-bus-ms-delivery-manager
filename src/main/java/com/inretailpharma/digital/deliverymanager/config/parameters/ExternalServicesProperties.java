@@ -47,13 +47,13 @@ public class ExternalServicesProperties {
     inkatracker properties
      */
 
-    @Value("${external-service.inkatracker.update-order.uri}")
+    @Value("${external-service.inkatracker.update-order-status.uri}")
     private String inkatrackerUpdateOrderUri;
 
-    @Value("${external-service.inkatracker.update-order.connect-timeout}")
+    @Value("${external-service.inkatracker.update-order-status.connect-timeout}")
     private String inkatrackerUpdateOrderConnectTimeOut;
 
-    @Value("${external-service.inkatracker.update-order.read-timeout}")
+    @Value("${external-service.inkatracker.update-order-status.read-timeout}")
     private String inkatrackerUpdateOrderReadTimeOut;
 
 
