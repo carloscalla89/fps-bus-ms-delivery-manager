@@ -86,7 +86,8 @@ public class ObjectToMapper {
             address.setCountry(r.getCountry());
             address.setNotes(r.getNotes());
             address.setLatitude(r.getLatitude());
-            address.setLongitude(r.getLongitude());
+            address.setLongitude(r.getLongitude()); 
+            address.setStreet(r.getStreet());
         });
 
         orderFulfillment.setAddress(address);
@@ -152,12 +153,17 @@ public class ObjectToMapper {
             orderDetail.setServiceName(o.getServiceTypeName());
             
             AddressCanonical address = new AddressCanonical();
-            address.setName(o.getAddressName());
+            address.setName(
+                    Optional.ofNullable(o.getStreet()).orElse(StringUtils.EMPTY)
+                            + StringUtils.SPACE
+                            + Optional.ofNullable(o.getNumber()).orElse(StringUtils.EMPTY)
+            );
             address.setDepartment(o.getDepartment());
             address.setProvince(o.getProvince());
             address.setDistrict(o.getDistrict());
             address.setLatitude(o.getLatitude());
             address.setLongitude(o.getLongitude());
+            address.setNotes(o.getNotes());
             
             ReceiptCanonical receipt = new ReceiptCanonical();
             receipt.setType(o.getReceiptType());

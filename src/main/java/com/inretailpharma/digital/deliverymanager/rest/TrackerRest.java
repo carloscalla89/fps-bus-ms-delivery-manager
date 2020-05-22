@@ -2,7 +2,6 @@ package com.inretailpharma.digital.deliverymanager.rest;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.TrackerFacade;
