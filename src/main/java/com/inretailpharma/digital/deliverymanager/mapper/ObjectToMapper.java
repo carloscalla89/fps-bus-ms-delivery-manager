@@ -164,7 +164,7 @@ public class ObjectToMapper {
             address.setLatitude(o.getLatitude());
             address.setLongitude(o.getLongitude());
             address.setNotes(o.getNotes());
-            address.setApartament(o.getApartment());
+            address.setApartment(o.getApartment());
             
             ReceiptCanonical receipt = new ReceiptCanonical();
             receipt.setType(o.getReceiptType());
