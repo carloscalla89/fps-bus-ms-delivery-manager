@@ -55,8 +55,8 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to update - value:{} - body:{}",
-                externalServicesProperties.getUriApiService(), orderAuditCanonical);
+        log.info("[START] service to call api audit to update - uri:{}",
+                externalServicesProperties.getUriApiService());
 
         return Mono
                 .justOrEmpty(
