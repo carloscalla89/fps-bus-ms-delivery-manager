@@ -10,6 +10,7 @@ import javax.validation.constraints.Pattern;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderItemCanonical {
+
     private String sku;
     private String sap;
     private String name;

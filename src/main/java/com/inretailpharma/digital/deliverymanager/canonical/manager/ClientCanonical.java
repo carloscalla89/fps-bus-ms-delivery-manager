@@ -14,4 +14,9 @@ public class ClientCanonical {
     private String birthDate;
     private Integer hasInkaClub;
     private Integer anonimous;
+
+    // For object of inkatrackerlite
+    private String firstName;
+    private String lastName;
+
 }

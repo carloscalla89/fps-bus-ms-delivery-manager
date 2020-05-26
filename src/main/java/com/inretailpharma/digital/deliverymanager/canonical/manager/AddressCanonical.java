@@ -15,6 +15,11 @@ public class AddressCanonical {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private String postalCode;
-    private String notes;
+    // For object of inkatrackerlite
+    private String nameAddress;
+    private String street;
+    private String number;
+    private String city;
     private String apartment;
+    private String notes;
 }

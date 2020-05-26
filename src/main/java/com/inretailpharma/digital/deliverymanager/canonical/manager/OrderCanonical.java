@@ -86,4 +86,6 @@ public class OrderCanonical {
     private Integer attempt;
     private Integer attemptTracker;
 
+    private String source;
+
 }

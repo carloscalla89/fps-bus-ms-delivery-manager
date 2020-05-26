@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
+<<<<<<< HEAD
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
 import com.inretailpharma.digital.deliverymanager.canonical.integration.ProductCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
@@ -7,6 +8,11 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanoni
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
+=======
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
+>>>>>>> 444a5c0... refactor to edit products and improve to attempts tracker DC
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
@@ -23,13 +29,70 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class ObjectToMapper {
 
+    public OrderInkatrackerCanonical convertOrderToOrderInkatrackerCanonical(OrderCanonical orderCanonical) {
+
+        OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
+        orderInkatrackerCanonical.setOrderExternalId(orderCanonical.getEcommerceId());
+        orderInkatrackerCanonical.setDateCreated(
+                DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getCreatedOrder()).toEpochSecond(ZoneOffset.UTC)
+        );
+        orderInkatrackerCanonical.setSource(orderCanonical.getSource());
+        Optional.ofNullable(orderCanonical.getDiscountApplied())
+                .ifPresent(r -> orderInkatrackerCanonical.setDiscountApplied(r.doubleValue()));
+        orderInkatrackerCanonical.setAddress(getFromtOrderCanonical(orderCanonical.getAddress(), orderCanonical.getOrderDetail().getLeadTime()));
+
+
+    }
+
+    private AddressInkatrackerCanonical getFromtOrderCanonical(AddressCanonical addressCanonical, Integer deliveryTime) {
+        AddressInkatrackerCanonical addressInkatrackerCanonical = new AddressInkatrackerCanonical();
+        addressInkatrackerCanonical.setName(addressCanonical.getName());
+        addressInkatrackerCanonical.setLatitude(
+                Optional.ofNullable(addressCanonical.getLatitude())
+                        .orElse((BigDecimal.ZERO)).doubleValue());
+        addressInkatrackerCanonical.setLongitude(
+                Optional.ofNullable(addressCanonical.getLongitude())
+                        .orElse((BigDecimal.ZERO)).doubleValue());
+        addressInkatrackerCanonical.setCity(addressCanonical.getNameAddress());
+        addressInkatrackerCanonical.setDistrict(addressCanonical.getDistrict());
+        addressInkatrackerCanonical.setStreet(addressCanonical.getStreet());
+        addressInkatrackerCanonical.setNumber(addressCanonical.getNumber());
+        addressInkatrackerCanonical.setApartment(addressCanonical.getApartment());
+        addressInkatrackerCanonical.setNotes(addressCanonical.getNotes());
+        addressInkatrackerCanonical.setZoneEta(deliveryTime);
+
+        return addressInkatrackerCanonical;
+
+    }
+
+
+    private ClientInkatrackerCanonical getFromtOrderCanonical(ClientCanonical clientCanonical) {
+        ClientInkatrackerCanonical clientInkatrackerCanonical = new ClientInkatrackerCanonical();
+        Optional.ofNullable(clientCanonical.getBirthDate()).ifPresent(r ->
+                clientInkatrackerCanonical.setBirthDate(DateUtils.getLocalDateFromStringDate(r).toEpochDay()));
+        clientInkatrackerCanonical.setDni(clientCanonical.getDocumentNumber());
+        clientInkatrackerCanonical.setEmail(clientCanonical.getEmail());
+        clientInkatrackerCanonical.setFirstName(clientCanonical.getFirstName());
+        clientInkatrackerCanonical.setLastName(clientCanonical.getLastName());
+        clientInkatrackerCanonical.setPhone(clientCanonical.getPhone());
+        clientInkatrackerCanonical.setIsAnonymous(clientCanonical.getAnonimous()==0?"N":"Y");
+    }
 
     public OrderFulfillment convertOrderdtoToOrderEntity(OrderDto orderDto){
         log.info("[START] map-convertOrderdtoToOrderEntity");
@@ -420,6 +483,10 @@ public class ObjectToMapper {
             client.setDocumentNumber(r.getDocumentNumber());
             client.setEmail(r.getEmail());
             client.setPhone(r.getPhone());
+
+            // For object of inkatrackerlite
+            client.setFirstName(r.getFirstName());
+            client.setLastName(r.getLastName());
         });
 
         orderCanonical.setClient(client);
@@ -440,7 +507,17 @@ public class ObjectToMapper {
             address.setDistrict(r.getDistrict());
             address.setDepartment(r.getDepartment());
             address.setCountry(r.getCountry());
+
+
+            //  For object of inkatrackerlite
+            address.setNameAddress(Optional.ofNullable(r.getName()).orElse(StringUtils.EMPTY));
+            address.setStreet(Optional.ofNullable(r.getStreet()).orElse(StringUtils.EMPTY));
+            address.setNumber(Optional.ofNullable(r.getNumber()).orElse(StringUtils.EMPTY));
+            address.setCity(Optional.ofNullable(r.getCity()).orElse(StringUtils.EMPTY));
+            address.setApartment(Optional.ofNullable(r.getApartment()).orElse(StringUtils.EMPTY));
+            address.setNotes(Optional.ofNullable(r.getNotes()).orElse(StringUtils.EMPTY));
         });
+
 
         orderCanonical.setAddress(address);
 
@@ -493,6 +570,7 @@ public class ObjectToMapper {
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
         paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
         orderCanonical.setPaymentMethod(paymentMethod);
+        orderCanonical.setSource(orderDto.getSource());
         log.info("[END] convertEntityToOrderCanonical");
 
         return Mono.just(orderCanonical);

@@ -18,6 +18,7 @@ import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -28,9 +29,13 @@ import reactor.netty.tcp.TcpClient;
 public class InkatrackerServiceImpl extends AbstractOrderService implements OrderExternalService{
 
     private ExternalServicesProperties externalServicesProperties;
+    private ApplicationParameterService applicationParameterService;
 
-    public InkatrackerServiceImpl(ExternalServicesProperties externalServicesProperties) {
+    public InkatrackerServiceImpl(ExternalServicesProperties externalServicesProperties,
+                                  ApplicationParameterService applicationParameterService) {
+
         this.externalServicesProperties = externalServicesProperties;
+        this.applicationParameterService = applicationParameterService;
     }
 
     @Override
