@@ -1,5 +1,5 @@
 ALTER TABLE `address_fulfillment`
-MODIFY `name` varchar(256) DEFAULT NULL
+MODIFY `name` varchar(256) DEFAULT NULL;
 
 ALTER TABLE `address_fulfillment`
 MODIFY `notes` varchar(256) DEFAULT NULL;
