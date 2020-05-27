@@ -46,6 +46,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
                                 .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
                                 .retrieve()
                                 .bodyToMono(String.class)
+                                .retry(3)
                                 .subscribeOn(Schedulers.parallel())
                                 .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
                 ).then();
@@ -74,6 +75,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
                             .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
                             .retrieve()
                             .bodyToMono(String.class)
+                            .retry(3)
                             .subscribeOn(Schedulers.parallel())
                             .subscribe(s -> log.info("[END] service to call api audit to update - s:{}",s))
                 ).then();
