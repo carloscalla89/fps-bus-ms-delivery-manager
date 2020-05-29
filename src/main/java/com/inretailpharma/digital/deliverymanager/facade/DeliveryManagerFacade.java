@@ -293,6 +293,8 @@ public class DeliveryManagerFacade {
                             Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
                     );
 
+                    actionDto.setExternalBillingId(Optional.ofNullable(iOrderFulfillment.getExternalId()).map(Object::toString).orElse("0"));
+
                     resultCanonical = orderExternalService
                                             .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
                                             .map(r -> {

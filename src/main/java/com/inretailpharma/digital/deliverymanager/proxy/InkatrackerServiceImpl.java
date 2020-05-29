@@ -8,6 +8,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusC
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,8 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.TcpClient;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 @Slf4j
@@ -55,6 +58,12 @@ public class InkatrackerServiceImpl implements OrderExternalService{
                 orderInkaTrackerStatus.setStatusName(Constant.ActionNameInkatrackerlite.CANCELLED);
                 successResponse = Constant.OrderStatus.CANCELLED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
+                orderInkaTrackerStatus.setStatusDate(
+                        DateUtils.getLocalDateTimeObjectNow().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                );
+                orderInkaTrackerStatus.setCode(actionDto.getOrderCancelCode());
+                orderInkaTrackerStatus.setCustomNote(actionDto.getOrderCancelObservation());
+
                 break;
             case Constant.ActionName.DELIVER_ORDER:
                 orderInkaTrackerStatus.setStatusName(Constant.ActionNameInkatrackerlite.DELIVERED);
