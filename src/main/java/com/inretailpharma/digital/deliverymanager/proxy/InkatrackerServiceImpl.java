@@ -88,26 +88,26 @@ public class InkatrackerServiceImpl implements OrderExternalService{
         TcpClient tcpClient = TcpClient
                 .create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                        Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderConnectTimeOut())
+                        Integer.parseInt(externalServicesProperties.getInkatrackerUpdateOrderConnectTimeOut())
                 ) // Connection Timeout
                 .doOnConnected(connection ->
                         connection.addHandlerLast(
                                 new ReadTimeoutHandler(
-                                        Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
+                                        Integer.parseInt(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
                                 )
                         )
                 ); // Read Timeout
-
+        log.info("body:{}",orderInkatrackerCanonical);
         return WebClient
                 .builder()
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
-                .baseUrl(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
+                .baseUrl(externalServicesProperties.getInkatrackerUpdateOrderUri())
                 .build()
                 .post()
                 .body(Mono.just(orderInkatrackerCanonical), OrderInkatrackerCanonical.class)
                 .exchange()
                 .map(r -> {
-                    log.info("response:{}", r);
+                    log.info("response:{}", r.statusCode());
 
                     OrderCanonical orderCanonical = new OrderCanonical();
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
@@ -121,7 +121,7 @@ public class InkatrackerServiceImpl implements OrderExternalService{
                         orderStatus.setName(errorResponse.name());
                         orderCanonical.setOrderStatus(orderStatus);
                     }
-
+                    log.info("orderCanonical:{}",orderCanonical);
                     return orderCanonical;
                 })
                 .defaultIfEmpty(
