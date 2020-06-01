@@ -28,8 +28,8 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to createOrder - uri:{} - body:{}",
-                externalServicesProperties.getUriApiService(), orderAuditCanonical);
+        log.info("[START] service to call api audit to createOrder - uri:{}",
+                externalServicesProperties.getUriApiService());
 
         return Mono
                 .justOrEmpty(
@@ -46,6 +46,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
                                 .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
                                 .retrieve()
                                 .bodyToMono(String.class)
+                                .retry(3)
                                 .subscribeOn(Schedulers.parallel())
                                 .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
                 ).then();
@@ -55,8 +56,8 @@ public class OrderAuditServiceImpl implements OrderExternalService {
 
     @Override
     public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to update - value:{} - body:{}",
-                externalServicesProperties.getUriApiService(), orderAuditCanonical);
+        log.info("[START] service to call api audit to update - uri:{}",
+                externalServicesProperties.getUriApiService());
 
         return Mono
                 .justOrEmpty(
@@ -74,6 +75,7 @@ public class OrderAuditServiceImpl implements OrderExternalService {
                             .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
                             .retrieve()
                             .bodyToMono(String.class)
+                            .retry(3)
                             .subscribeOn(Schedulers.parallel())
                             .subscribe(s -> log.info("[END] service to call api audit to update - s:{}",s))
                 ).then();
