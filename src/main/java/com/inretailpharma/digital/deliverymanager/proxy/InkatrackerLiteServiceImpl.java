@@ -124,6 +124,12 @@ public class InkatrackerLiteServiceImpl implements OrderExternalService {
 
                     return orderCanonical;
                 })
+                .defaultIfEmpty(
+                        new OrderCanonical(
+                                ecommerceId,
+                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(),
+                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name())
+                )
                 .onErrorResume(e -> {
                     e.printStackTrace();
                     log.error("Error in inkatrackerlite call {} ",e.getMessage());

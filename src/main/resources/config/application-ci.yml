@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://ci02fulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/cifulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
-    username: carloscalla
-    password: elpreciomasbajo
+    url: jdbc:mysql://ci01fulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/ci01fulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
+    username: cesar
+    password: cesar2020
 external-service:
   audit:
     create-order: http://us-audit/audit/order
@@ -21,6 +21,10 @@ external-service:
   inkatracker-lite:
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
+      connect-timeout: 240000
+      read-timeout: 480
+    update-status-order:
+      uri: http://us-inkatracker/nvr/orders/update
       connect-timeout: 240000
       read-timeout: 480
   order-tracker:

@@ -287,8 +287,15 @@ public class DeliveryManagerFacade {
                     break;
 
                 case 4:
-                    // call the service inkatracker-lite to update the order status (CANCEL, READY_FOR_PICKUP, DELIVERED)
-                    resultCanonical = orderExternalServiceInkatrackerLite
+                    // call the service inkatracker-lite or inkatracker to update the order status (CANCEL, READY_FOR_PICKUP, DELIVERED)
+                    log.info("Service Type Code:{}",iOrderFulfillment.getServiceTypeCode());
+                    OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
+                            Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                    );
+
+                    actionDto.setExternalBillingId(Optional.ofNullable(iOrderFulfillment.getExternalId()).map(Object::toString).orElse("0"));
+
+                    resultCanonical = orderExternalService
                                             .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
                                             .map(r -> {
 
