@@ -55,7 +55,7 @@ external-service:
       read-timeout: 120000
   fulfillment-center:
     get-center:
-      uri: http://fulfillment-center/fulfillment/store/
+      uri: http://us-fulfillment-center/fulfillment/store/
       connect-timeout: 240000
       read-timeout: 480
     
