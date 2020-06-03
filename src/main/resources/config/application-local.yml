@@ -55,7 +55,7 @@ external-service:
       read-timeout: 120000
   fulfillment-center:
     get-center:
-      uri: http://fulfillment-centerci02.backend.cindibyinkafarma.com/fulfillment/store/
+      uri: http://fulfillment-center/fulfillment/store/
       connect-timeout: 240000
       read-timeout: 480
     
