@@ -50,6 +50,9 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="scheduled_time")
     private LocalDateTime scheduledTime;
 
+    @Column(name="confirmed_order")
+    private LocalDateTime confirmedOrder;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
     private Client client;

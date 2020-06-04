@@ -35,6 +35,8 @@ public class ObjectToMapper {
         if (Optional.ofNullable(orderDto.getSchedules()).isPresent()) {
             orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
             orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
+            orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getConfirmedOrder()));
+
         } else {
             orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getCreatedOrder()));
             orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getScheduledTime()));
@@ -293,6 +295,7 @@ public class ObjectToMapper {
         Optional.ofNullable(orderDto.getSchedules()).ifPresent(r -> {
             orderDetail.setConfirmedSchedule(r.getScheduledTime());
             orderDetail.setCreatedOrder(r.getCreatedOrder());
+            orderDetail.setConfirmedOrder(r.getConfirmedOrder());
             orderDetail.setStartHour(r.getStartHour());
             orderDetail.setEndHour(r.getEndHour());
             orderDetail.setLeadTime(r.getLeadTime());
