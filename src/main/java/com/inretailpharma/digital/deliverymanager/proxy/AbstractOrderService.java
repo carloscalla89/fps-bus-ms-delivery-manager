@@ -31,17 +31,17 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
-	public Mono<Void> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
+	public Mono<String> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Mono<Void> unassignOrders(UnassignedCanonical unassignedCanonical) {
+	public Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Mono<Void> updateOrderStatus(Long ecommerceId, String status) {
+	public Mono<String> updateOrderStatus(Long ecommerceId, String status) {
 		throw new UnsupportedOperationException();
 	}
 
