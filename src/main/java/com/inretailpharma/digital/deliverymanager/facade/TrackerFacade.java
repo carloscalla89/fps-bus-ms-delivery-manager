@@ -173,15 +173,9 @@ public class TrackerFacade {
     				unassignedCanonical.getOrders().forEach(orderId -> {
     					
     					if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-	    					orderExternalServiceAudit.updateOrderReactive(
-	                        		new OrderCanonical(orderId,
-	                        				Constant.OrderStatus.PREPARED.getCode(),
-	                        				Constant.OrderStatus.PREPARED.name())).subscribe();
+    						auditOrder(orderId, Constant.OrderStatus.PREPARED);
 	    				} else {
-	    					orderExternalServiceAudit.updateOrderReactive(
-	                        		new OrderCanonical(orderId,
-	                        				Constant.OrderStatus.ERROR_PREPARED .getCode(),
-	                        				Constant.OrderStatus.ERROR_PREPARED.name())).subscribe();
+	    					auditOrder(orderId, Constant.OrderStatus.ERROR_PREPARED);
 	    				}
     				});
     				
@@ -197,15 +191,9 @@ public class TrackerFacade {
     		.map(statusCode -> {
     			log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, status, statusCode);
     			if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-					orderExternalServiceAudit.updateOrderReactive(
-                    		new OrderCanonical(ecommerceId,
-                    				Constant.OrderStatus.CANCELLED_ORDER.getCode(),
-                    				Constant.OrderStatus.CANCELLED_ORDER.name())).subscribe();
+    				auditOrder(ecommerceId, Constant.OrderStatus.CANCELLED_ORDER);
 				} else {
-					orderExternalServiceAudit.updateOrderReactive(
-                    		new OrderCanonical(ecommerceId,
-                    				Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.getCode(),
-                    				Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name())).subscribe();
+					auditOrder(ecommerceId, Constant.OrderStatus.ERROR_TO_CANCEL_ORDER);
 				}
     			
     			OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
