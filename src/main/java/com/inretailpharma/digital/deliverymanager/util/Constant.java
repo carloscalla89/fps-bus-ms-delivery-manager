@@ -154,7 +154,8 @@ public interface Constant {
         ERROR_UPDATE("36"),
         CANCELLED_ORDER_ONLINE_PAYMENT("37"),
         DELETED_PENDING_ORDER("38"),
-
+        ERROR_UNASSIGNED("39"),
+        
         SUCCESS_RESERVED_ORDER("10"),
 
         CANCELLED_ORDER("11"),
@@ -169,7 +170,7 @@ public interface Constant {
         ON_ROUTE("19"),
         ARRIVED("20"),
         REJECTED("21"),
-
+        UNASSIGNED("22"),
 
 
         NOT_FOUND_CODE("-1"),
@@ -276,6 +277,36 @@ public interface Constant {
                     .filter(item -> value.equalsIgnoreCase(item.getValue()))
                     .findFirst()
                     .orElse(NONE);
+        }
+    }
+    
+    enum OrderTrackerStatusMapper {
+    	CANCELLED(OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_TO_CANCEL_ORDER)
+    	, REJECTED(OrderStatus.REJECTED, OrderStatus.ERROR_REJECT)
+    	, NOT_DEFINED(OrderStatus.NOT_DEFINED_STATUS, OrderStatus.NOT_DEFINED_ERROR);
+
+        private OrderStatus successStatus;
+        private OrderStatus errorStatus;
+
+        public OrderStatus getSuccessStatus() {
+            return successStatus;
+        }
+        
+        public OrderStatus getErrorStatus() {
+            return errorStatus;
+        }
+
+        OrderTrackerStatusMapper(OrderStatus successStatus, OrderStatus errorStatus) {
+            this.successStatus = successStatus;
+            this.errorStatus = errorStatus;
+        }
+        
+        public static OrderTrackerStatusMapper getByName(String name) {
+            return EnumUtils.getEnumList(OrderTrackerStatusMapper.class)
+                    .stream()
+                    .filter(item -> name.equals(item.name()))
+                    .findFirst()
+                    .orElse(OrderTrackerStatusMapper.NOT_DEFINED);
         }
     }
 }

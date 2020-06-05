@@ -25,6 +25,7 @@ import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.Constant.OrderTrackerStatusMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -190,10 +191,12 @@ public class TrackerFacade {
     	return orderExternalOrderTracker.updateOrderStatus(ecommerceId, status)
     		.map(statusCode -> {
     			log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, status, statusCode);
+    			
+    			OrderTrackerStatusMapper statusMapper =  OrderTrackerStatusMapper.getByName(status);
     			if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-    				auditOrder(ecommerceId, Constant.OrderStatus.CANCELLED_ORDER);
+    				auditOrder(ecommerceId, statusMapper.getSuccessStatus());
 				} else {
-					auditOrder(ecommerceId, Constant.OrderStatus.ERROR_TO_CANCEL_ORDER);
+					auditOrder(ecommerceId, statusMapper.getErrorStatus());
 				}
     			
     			OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
