@@ -31,8 +31,12 @@ public interface Constant {
     }
 
     interface OrderTrackerResponseCode {
-        String SUCCESS_CODE = "1";
-        String ERROR_CODE = "0";
+        String SUCCESS_CODE = "0";
+        String ERROR_CODE = "1";
+        String EMPTY_CODE = "2";
+        String ASSIGN_SUCCESS_CODE = "A0";
+        String ASSIGN_PARTIAL_CODE = "A1";
+        String ASSIGN_ERROR_CODE = "A2";
     }
 
     interface ApplicationsParameters {
