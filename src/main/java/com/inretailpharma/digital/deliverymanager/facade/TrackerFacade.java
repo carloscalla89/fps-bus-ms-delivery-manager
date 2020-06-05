@@ -174,9 +174,9 @@ public class TrackerFacade {
     				unassignedCanonical.getOrders().forEach(orderId -> {
     					
     					if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-    						auditOrder(orderId, Constant.OrderStatus.PREPARED);
+    						auditOrder(orderId, Constant.OrderStatus.UNASSIGNED);
 	    				} else {
-	    					auditOrder(orderId, Constant.OrderStatus.ERROR_PREPARED);
+	    					auditOrder(orderId, Constant.OrderStatus.ERROR_UNASSIGNED);
 	    				}
     				});
     				
