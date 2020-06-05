@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ShelfCanonical;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 @Data
 public class OrderCanonical {
@@ -20,6 +21,16 @@ public class OrderCanonical {
         this.orderStatus = new OrderStatusCanonical();
         this.orderStatus.setCode(code);
         this.orderStatus.setName(name);
+    }
+    
+    public OrderCanonical(Long ecommerceId, String code, String name, String detail) {
+        this.ecommerceId = ecommerceId;
+
+        this.orderStatus = new OrderStatusCanonical();
+        this.orderStatus.setCode(code);
+        this.orderStatus.setName(name);
+        this.orderStatus.setDetail(detail);
+        this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
     }
 
     // Canonical IDs

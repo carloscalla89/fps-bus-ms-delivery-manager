@@ -16,4 +16,6 @@ public class GroupCanonical implements Serializable {
     private EtaCanonical eta;
     private Long timeRemaining;
     private PickUpDetailsCanonical pickUpDetails;
+    private String creationStatus;
+    private String creationLog;
 }

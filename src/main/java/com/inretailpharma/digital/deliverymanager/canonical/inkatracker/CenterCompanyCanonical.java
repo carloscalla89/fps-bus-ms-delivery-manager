@@ -11,6 +11,7 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CenterCompanyCanonical  implements Serializable {
 
+	private String localCode;
 	private String name;
 	private BigDecimal latitude;
 	private BigDecimal longitude;	
