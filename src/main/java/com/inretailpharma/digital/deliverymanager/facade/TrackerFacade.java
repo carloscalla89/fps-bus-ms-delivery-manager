@@ -1,11 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,7 +18,6 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
-import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.Constant.OrderTrackerStatusMapper;
@@ -40,19 +35,16 @@ public class TrackerFacade {
 	private ObjectToMapper objectToMapper;
 	private OrderExternalService orderExternalOrderTracker;
 	private OrderExternalService orderExternalServiceAudit;
-	private CenterCompanyService centerCompanyService;
 	
 	
 	public TrackerFacade(OrderTransaction orderTransaction, 
 			ObjectToMapper objectToMapper,
 			 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
-             @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
-             CenterCompanyService centerCompanyService) {
+             @Qualifier("audit") OrderExternalService orderExternalServiceAudit) {
 		this.orderTransaction = orderTransaction;
 		this.objectToMapper = objectToMapper;
 		this.orderExternalOrderTracker = orderExternalOrderTracker;
 		this.orderExternalServiceAudit = orderExternalServiceAudit;
-		this.centerCompanyService = centerCompanyService;
 	}
 
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {   
@@ -174,9 +166,9 @@ public class TrackerFacade {
     				unassignedCanonical.getOrders().forEach(orderId -> {
     					
     					if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-    						auditOrder(orderId, Constant.OrderStatus.UNASSIGNED);
+    						auditOrder(orderId, Constant.OrderStatus.PREPARED);
 	    				} else {
-	    					auditOrder(orderId, Constant.OrderStatus.ERROR_UNASSIGNED);
+	    					auditOrder(orderId, Constant.OrderStatus.ERROR_PREPARED);
 	    				}
     				});
     				

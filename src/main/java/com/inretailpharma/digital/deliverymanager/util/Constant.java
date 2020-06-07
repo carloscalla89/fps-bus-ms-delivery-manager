@@ -154,7 +154,6 @@ public interface Constant {
         ERROR_UPDATE("36"),
         CANCELLED_ORDER_ONLINE_PAYMENT("37"),
         DELETED_PENDING_ORDER("38"),
-        ERROR_UNASSIGNED("39"),
         
         SUCCESS_RESERVED_ORDER("10"),
 
@@ -170,7 +169,6 @@ public interface Constant {
         ON_ROUTE("19"),
         ARRIVED("20"),
         REJECTED("21"),
-        UNASSIGNED("22"),
 
 
         NOT_FOUND_CODE("-1"),
