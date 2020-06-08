@@ -38,15 +38,15 @@ external-service:
       read-timeout: 480
   order-tracker:
     create-order:
-      uri: http://us-ordertracker/order
+      uri: http://1us-ordertracker/order
       connect-timeout: 10000
       read-timeout: 120000
     assign-orders:
-      uri: http://us-ordertracker/orders/status/assigned
+      uri: http://1us-ordertracker/orders/status/assigned
       connect-timeout: 10000
       read-timeout: 120000
     unassign-orders:
-      uri: http://us-ordertracker/orders/status/unassigned
+      uri: http://1us-ordertracker/orders/status/unassigned
       connect-timeout: 10000
       read-timeout: 120000
     update-order-status:
