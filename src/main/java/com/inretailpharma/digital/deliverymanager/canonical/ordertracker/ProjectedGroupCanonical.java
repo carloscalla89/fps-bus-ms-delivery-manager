@@ -1,6 +1,8 @@
-package com.inretailpharma.digital.deliverymanager.canonical.inkatracker;
+package com.inretailpharma.digital.deliverymanager.canonical.ordertracker;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.CenterCompanyCanonical;
+
 import lombok.Data;
 
 import java.io.Serializable;

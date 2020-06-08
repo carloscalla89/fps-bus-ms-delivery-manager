@@ -1,4 +1,4 @@
-package com.inretailpharma.digital.deliverymanager.canonical.inkatracker;
+package com.inretailpharma.digital.deliverymanager.canonical.ordertracker;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

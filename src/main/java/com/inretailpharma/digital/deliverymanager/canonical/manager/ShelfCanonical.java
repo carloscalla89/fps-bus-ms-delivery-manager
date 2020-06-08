@@ -1,4 +1,4 @@
-package com.inretailpharma.digital.deliverymanager.canonical.inkatracker;
+package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
 import java.io.Serializable;
 
