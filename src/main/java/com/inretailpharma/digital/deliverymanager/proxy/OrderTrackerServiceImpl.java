@@ -1,16 +1,18 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ProjectedGroupCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.UnassignedCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
-import com.inretailpharma.digital.deliverymanager.util.Constant;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
+import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -39,7 +41,7 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
     }
     
     @Override
-	public Mono<String> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
+	public Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
     	log.info("[START] call to OrderTracker - assignOrders - uri:{} - body:{}",
                 externalServicesProperties.getOrderTrackerAssignOrdersUri(), projectedGroupCanonical);
     	
@@ -47,20 +49,17 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
             	.create(externalServicesProperties.getOrderTrackerAssignOrdersUri())
             	.post()
             	.bodyValue(projectedGroupCanonical)
-            	.exchange()
-	        	.map(r -> {	        		
-	        		if (r.statusCode().is2xxSuccessful()) {
-	        			log.info("[END] call to OrderTracker - assignOrders - status {}", r.statusCode());
-	        			return Constant.OrderTrackerResponseCode.SUCCESS_CODE;
-	        		} else {
-	        			log.error("[ERROR] call to OrderTracker - assignOrders - status {}", r.statusCode());
-	        			return Constant.OrderTrackerResponseCode.ERROR_CODE;
-	        		}
-	        	})
-	        	.defaultIfEmpty(Constant.OrderTrackerResponseCode.EMPTY_CODE)
+            	.retrieve()
+            	.bodyToMono(AssignedOrdersCanonical.class)
+            	.doOnSuccess(r -> log.info("[END] call to OrderTracker - assignOrders - response {}", r))
+	        	.defaultIfEmpty(
+	        		 new AssignedOrdersCanonical(new ArrayList<>(), new ArrayList<>(), Constant.OrderTrackerResponseCode.EMPTY_CODE, "EMPTY")
+	        	)
 	        	.onErrorResume(ex -> {
-                    log.error("[ERROR] call to OrderTracker - assignOrders - ",ex);
-                    return Mono.just(Constant.OrderTrackerResponseCode.ERROR_CODE);
+	        		AssignedOrdersCanonical error = new AssignedOrdersCanonical();
+	        		error.setAssigmentSuccessful(Constant.OrderTrackerResponseCode.ERROR_CODE);
+                    log.error("[ERROR] call to OrderTracker - assignOrders",ex);
+                    return Mono.just(error);
                 });
 	}
 

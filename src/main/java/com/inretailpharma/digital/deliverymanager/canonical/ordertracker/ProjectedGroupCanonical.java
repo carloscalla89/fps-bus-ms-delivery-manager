@@ -1,6 +1,7 @@
-package com.inretailpharma.digital.deliverymanager.canonical.inkatracker;
+package com.inretailpharma.digital.deliverymanager.canonical.ordertracker;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,6 +15,4 @@ public class ProjectedGroupCanonical implements Serializable {
     private String motorizedId;
     private Integer projectedEtaReturn;
     private List<GroupCanonical> group;
-    private CenterCompanyCanonical pickUpCenter;
-
 }

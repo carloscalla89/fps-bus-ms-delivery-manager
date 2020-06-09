@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.CenterCompanyCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.CenterCompanyCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 

@@ -5,7 +5,7 @@ spring:
     password: elpreciomasbajo
 external-service:
   audit:
-    create-order: http://localhost:8032/audit/order
+    create-order: http://us-audit/audit/order
     time-out: 20000
   dispatcher:
     insink-tracker:
