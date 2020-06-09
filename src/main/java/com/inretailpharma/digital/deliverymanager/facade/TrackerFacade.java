@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.FailedOrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.GroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
@@ -55,10 +56,8 @@ public class TrackerFacade {
     		.parallel()
             .runOn(Schedulers.elastic())
 	    	.map(group -> {
-	    		Long orderId = group.getOrderId();
-	    		log.info("[START] send order {} to external tracker", orderId);
 	    		
-	    		IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(orderId);    		
+	    		IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(group.getOrderId());    		
 	    		OrderCanonical orderCanonical = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderDto);
     			
     			List<IOrderItemFulfillment> orderItemDtoList = orderTransaction.getOrderItemByOrderFulfillmentId(orderDto.getOrderId());
@@ -71,86 +70,49 @@ public class TrackerFacade {
                 Optional.ofNullable(group.getPickUpDetails()).ifPresent(pickUpDetails -> {
                 	orderCanonical.setShelfList(pickUpDetails.getShelfList());
                 	orderCanonical.setPayBackEnvelope(pickUpDetails.getPayBackEnvelope());
-                });                
+                }); 
                 
-                group.setCreationStatus(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
-                orderExternalOrderTracker.sendOrderToTracker(orderCanonical)
-                .onErrorResume(ex -> {
-                	log.error("[ERROR] send order {} to external tracker", orderId, ex);  
-                	group.setCreationStatus(Constant.OrderTrackerResponseCode.ERROR_CODE);
-                	group.setCreationLog(ex.getMessage());
-                	return Mono.empty();
-                }).block();
-                log.info("[END] send order {} to external tracker", orderId);                
+                group.setOrder(orderCanonical);
                 
 	    		return group;	    		
 	    	})
 	    	.sequential()
 	    	.collectList()
-	    	.map(allOrders -> {	  
+	    	.map(allGroups -> {	  
 	    		log.info("[START] assign orders from group {} to external tracker", projectedGroupCanonical.getGroupName());
 	    		
 	    		OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
-	    		
-	    		List<Long> failedOrdersIds = allOrders.stream()
-	    				.filter(f -> !Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(f.getCreationStatus()))
-	    				.map(o -> o.getOrderId())
-	    				.collect(Collectors.toList());
-	    		
-	    		List<GroupCanonical> okOrders = allOrders.stream()
-	    				.filter(f -> Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(f.getCreationStatus()))
-	    				.collect(Collectors.toList());
-	    		
-	    		log.info("#{} orders sent to the external tracker - ok: {} - failed {}",
-	    				allOrders.size(), okOrders.size(), failedOrdersIds.size());
 
 	    		ProjectedGroupCanonical newProjectedGroupCanonical = new ProjectedGroupCanonical();
-	    		newProjectedGroupCanonical.setGroup(okOrders);
+	    		newProjectedGroupCanonical.setGroup(allGroups);
 	    		newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
 	    		newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
 	    		newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
 	    		
-	    		if (!okOrders.isEmpty()) {
-	    			orderExternalOrderTracker.assignOrders(newProjectedGroupCanonical)
-		    		.map(statusCode -> {
-		    			log.info("#assign orders from group {} to external tracker - statusCode: {}"
-		    					, projectedGroupCanonical.getGroupName(), statusCode);	 
-		    			
-		    			if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-		    				allOrders.stream().forEach(o -> {
-		    					if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(o.getCreationStatus())) {
-		    						auditOrder(o.getOrderId(), Constant.OrderStatus.ASSIGNED);
-		    					} else {
-		    						auditOrder(o.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED);
-		    					}
-		    				});
+	    		orderExternalOrderTracker.assignOrders(newProjectedGroupCanonical)
+		    		.map(r -> {
+		    			log.info("#assign orders from group {} to external tracker - response: {}"
+		    					, projectedGroupCanonical.getGroupName(), r);	
+
+		    			if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(r.getAssigmentSuccessful())) {
+		    				r.getCreatedOrders().forEach(orderId -> auditOrder(orderId, Constant.OrderStatus.ASSIGNED));
+		    				r.getFailedOrders().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, order.getReason()));
 		    					
 		    				response.setStatusCode(
-				    			failedOrdersIds.isEmpty() ? Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE 
+		    					r.getFailedOrders().isEmpty() ? Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE 
 				    			: Constant.OrderTrackerResponseCode.ASSIGN_PARTIAL_CODE
 				    		);
-				    		response.setFailedOrders(failedOrdersIds);
+				    		response.setFailedOrders(r.getFailedOrders().stream().map(FailedOrderCanonical::getOrderId).collect(Collectors.toList()));
 		    					
 		    			} else {
-		    				allOrders.stream().forEach(o -> auditOrder(o.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, o.getCreationLog()));
+		    				allGroups.stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED));
 		    				
 		    				response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
-		    				response.setFailedOrders(allOrders.stream()
-		    						.map(o -> o.getOrderId())
-		    	    				.collect(Collectors.toList())	    						
+		    				response.setFailedOrders(allGroups.stream().map(GroupCanonical::getOrderId).collect(Collectors.toList())	    						
 		    				);
 		    			}
 		    			return Mono.empty();
 		    		}).block();
-	    		} else {
-	    			allOrders.stream().forEach(o -> auditOrder(o.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED));
-	    			
-	    			response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
-    				response.setFailedOrders(allOrders.stream()
-    						.map(o -> o.getOrderId())
-    	    				.collect(Collectors.toList())	    						
-    				);
-	    		}
 	    		
 	    		log.info("[END] assign orders from group {} to external tracker", projectedGroupCanonical.getGroupName());	    		
 	            return response;
@@ -199,12 +161,12 @@ public class TrackerFacade {
     }
     
     private void auditOrder(Long ecommerceId, Constant.OrderStatus status) {
-    	orderExternalServiceAudit.updateOrderReactive(
-        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), null)).subscribe();
+    	/*orderExternalServiceAudit.updateOrderReactive(
+        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), null)).subscribe();*/
     }
     
     private void auditOrder(Long ecommerceId, Constant.OrderStatus status, String detail) {
-    	orderExternalServiceAudit.updateOrderReactive(
-        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), detail)).subscribe();
+    	/*orderExternalServiceAudit.updateOrderReactive(
+        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), detail)).subscribe();*/
     }
 }

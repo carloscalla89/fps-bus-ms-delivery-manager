@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -30,7 +31,7 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
-	public Mono<String> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
+	public Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
 		throw new UnsupportedOperationException();
 	}
 
