@@ -56,8 +56,8 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 	        		 new AssignedOrdersCanonical(new ArrayList<>(), new ArrayList<>(), Constant.OrderTrackerResponseCode.EMPTY_CODE, "EMPTY")
 	        	)
 	        	.onErrorResume(ex -> {
-	        		AssignedOrdersCanonical error = new AssignedOrdersCanonical();
-	        		error.setAssigmentSuccessful(Constant.OrderTrackerResponseCode.ERROR_CODE);
+	        		AssignedOrdersCanonical error = new AssignedOrdersCanonical(new ArrayList<>(), new ArrayList<>()
+	        				, Constant.OrderTrackerResponseCode.ERROR_CODE, ex.getMessage());
                     log.error("[ERROR] call to OrderTracker - assignOrders",ex);
                     return Mono.just(error);
                 });
