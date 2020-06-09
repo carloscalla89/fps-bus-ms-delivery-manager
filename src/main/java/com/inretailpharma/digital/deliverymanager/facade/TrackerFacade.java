@@ -114,7 +114,7 @@ public class TrackerFacade {
 		    			return Mono.empty();
 		    		}).block();
 	    		
-	    		log.info("[END] assign orders from group {} to external tracker", projectedGroupCanonical.getGroupName());	    		
+	    		log.info("[END] assign orders from group {} to external tracker - response {}", projectedGroupCanonical.getGroupName(), response);	    		
 	            return response;
 	    	});
     }
@@ -161,12 +161,12 @@ public class TrackerFacade {
     }
     
     private void auditOrder(Long ecommerceId, Constant.OrderStatus status) {
-    	/*orderExternalServiceAudit.updateOrderReactive(
-        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), null)).subscribe();*/
+    	orderExternalServiceAudit.updateOrderReactive(
+        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), null)).subscribe();
     }
     
     private void auditOrder(Long ecommerceId, Constant.OrderStatus status, String detail) {
-    	/*orderExternalServiceAudit.updateOrderReactive(
-        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), detail)).subscribe();*/
+    	orderExternalServiceAudit.updateOrderReactive(
+        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), detail)).subscribe();
     }
 }
