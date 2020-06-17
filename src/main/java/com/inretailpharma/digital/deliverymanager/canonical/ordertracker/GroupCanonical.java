@@ -17,4 +17,5 @@ public class GroupCanonical implements Serializable{
     private Long timeRemaining;
     private PickUpDetailsCanonical pickUpDetails;
     private OrderCanonical order;
+    private Long inkaDeliveryId;
 }

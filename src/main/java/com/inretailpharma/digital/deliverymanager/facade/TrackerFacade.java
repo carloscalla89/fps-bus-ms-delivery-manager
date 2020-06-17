@@ -76,6 +76,11 @@ public class TrackerFacade {
 	                	orderCanonical.setPayBackEnvelope(pickUpDetails.getPayBackEnvelope());
 	                }); 
 	                
+	                Optional<Long> externalId = Optional.ofNullable(orderCanonical.getExternalId());
+	                if (!externalId.isPresent()) {
+	                	orderCanonical.setExternalId(group.getInkaDeliveryId());
+	                }
+	                
 	                group.setOrder(orderCanonical);
 
 	                return group;
