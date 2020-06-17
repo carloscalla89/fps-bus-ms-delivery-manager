@@ -76,8 +76,6 @@ public class TrackerFacade {
 	                	orderCanonical.setPayBackEnvelope(pickUpDetails.getPayBackEnvelope());
 	                }); 
 	                
-	                orderCanonical.setExternalId(group.getInkaDeliveryId());
-	                
 	                group.setOrder(orderCanonical);
 
 	                return group;
