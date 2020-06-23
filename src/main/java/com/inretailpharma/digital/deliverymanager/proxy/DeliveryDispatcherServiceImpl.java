@@ -46,7 +46,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
     }
 
     @Override
-    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
+    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
         return null;
     }
 

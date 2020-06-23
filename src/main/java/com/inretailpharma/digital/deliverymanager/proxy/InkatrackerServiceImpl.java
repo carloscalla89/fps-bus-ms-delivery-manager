@@ -3,6 +3,9 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 import java.time.ZoneId;
 import java.util.Optional;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.DrugstoreCanonical;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,12 +33,18 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
     private ExternalServicesProperties externalServicesProperties;
     private ApplicationParameterService applicationParameterService;
+    private CenterCompanyService centerCompanyService;
+    private ObjectToMapper objectToMapper;
 
     public InkatrackerServiceImpl(ExternalServicesProperties externalServicesProperties,
-                                  ApplicationParameterService applicationParameterService) {
+                                  ApplicationParameterService applicationParameterService,
+                                  CenterCompanyService centerCompanyService,
+                                  ObjectToMapper objectToMapper) {
 
         this.externalServicesProperties = externalServicesProperties;
         this.applicationParameterService = applicationParameterService;
+        this.centerCompanyService = centerCompanyService;
+        this.objectToMapper = objectToMapper;
     }
 
     @Override
@@ -153,9 +162,83 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
     }
 
     @Override
-    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
-        log.info("[START] sendOrderToTracker - orderCanonical:{}",orderCanonical);
+    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonicalresult) {
+        log.info("[START] sendOrderToTracker - orderCanonical:{}",orderCanonicalresult);
 
-        return null;
+        return Mono.just(centerCompanyService.getExternalInfo(orderCanonicalresult.getLocalCode()))
+            .zipWith(Mono.just(objectToMapper.convertOrderToOrderInkatrackerCanonical(orderCanonicalresult)), (a,b) -> {
+                b.setDrugstore(
+                        new DrugstoreCanonical(a.getLegacyId(), a.getName(), a.getDescription(), a.getAddress(),
+                                a.getLatitude().doubleValue(), a.getLongitude().doubleValue(), 0)
+                );
+
+                log.info("Order prepared to send inkatracker - orderInkatracker:{}",b);
+
+                log.info("url inkatracket:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
+
+                TcpClient tcpClient = TcpClient
+                        .create()
+                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
+                                Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut())
+                        ) // Connection Timeout
+                        .doOnConnected(connection ->
+                                connection.addHandlerLast(
+                                        new ReadTimeoutHandler(
+                                                Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
+                                        )
+                                )
+                        ); // Read Timeout
+
+                return WebClient
+                        .builder()
+                        .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                        .baseUrl(externalServicesProperties.getInkatrackerCreateOrderUri())
+                        .build()
+                        .post()
+                        .body(Mono.just(b), OrderInkatrackerCanonical.class)
+                        .exchange()
+                        .map(r -> {
+                            log.info("response:{}", r.statusCode());
+
+                            OrderCanonical orderCanonical = new OrderCanonical();
+                            orderCanonical.setEcommerceId(orderCanonicalresult.getEcommerceId());
+                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                            if (r.statusCode().is2xxSuccessful()) {
+                                orderCanonical.setTrackerId(orderCanonicalresult.getEcommerceId());
+                                orderStatus.setCode(Constant.OrderStatus.CONFIRMED.getCode());
+                                orderStatus.setName(Constant.OrderStatus.CONFIRMED.name());
+                                orderCanonical.setOrderStatus(orderStatus);
+                            } else {
+                                orderStatus.setCode(Constant.OrderStatus.ERROR_CONFIRMED.getCode());
+                                orderStatus.setName(Constant.OrderStatus.ERROR_CONFIRMED.name());
+                                orderStatus.setDetail(r.statusCode().getReasonPhrase());
+                                orderCanonical.setOrderStatus(orderStatus);
+                            }
+                            log.info("orderCanonical RESPONSE from inkatracker:{}",orderCanonical);
+                            return orderCanonical;
+                        })
+                        .defaultIfEmpty(
+                                new OrderCanonical(
+                                        orderCanonicalresult.getEcommerceId(),
+                                        Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(),
+                                        Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name())
+                        )
+                        .onErrorResume(e -> {
+                            e.printStackTrace();
+                            log.error("Error in inkatracker call {} ",e.getMessage());
+                            OrderCanonical orderCanonical = new OrderCanonical();
+
+                            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                            orderStatus.setCode(Constant.OrderStatus.ERROR_CONFIRMED.getCode());
+                            orderStatus.setName(Constant.OrderStatus.ERROR_CONFIRMED.name());
+                            orderStatus.setDetail(e.getMessage());
+
+                            orderCanonical.setOrderStatus(orderStatus);
+
+                            return Mono.just(orderCanonical);
+                        });
+
+            }).flatMap(r -> r);
     }
 }

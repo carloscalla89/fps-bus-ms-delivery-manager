@@ -9,6 +9,7 @@ public class OrderItemCanonical {
 
     private String productCode;
     private String productName;
+    private String productEan;
     private String shortDescription;
     private String brand;
     private Integer quantity;

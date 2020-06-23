@@ -22,8 +22,8 @@ public class OrderInkatrackerCanonical {
     private AddressInkatrackerCanonical address;
     private DrugstoreCanonical drugstore;
     private Long drugstoreId;
-    private PaymentMethodCanonical paymentMethod;
-    private List<OrderItemCanonical> orderItems;
+    private PaymentMethodInkatrackerCanonical paymentMethod;
+    private List<OrderItemInkatrackerCanonical> orderItems;
     private GroupCanonical group;
     private String motorizedId;
     private String statusDrugstore;
@@ -31,7 +31,7 @@ public class OrderInkatrackerCanonical {
     private Integer eta;
     private String note;
     private List<PreviousStatusCanonical> previousStatus;
-    private ReceiptCanonical receipt;
+    private ReceiptInkatrackerCanonical receipt;
     private Double discountApplied;
     private String deliveryType;
     private String startHour;

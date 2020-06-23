@@ -135,14 +135,25 @@ public class DeliveryManagerFacade {
                     log.info("[START] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",
                             r.getOrderDetail(), r.getEcommerceId());
 
-                    if (r.getOrderDetail().isServiceEnabled()) {
+                    if (r.getOrderDetail().isServiceEnabled()
+                            && Constant.OrderStatus.getByCode(r.getOrderStatus().getCode()).isSendTracker()) {
+
+
                         OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
                                 Constant.TrackerImplementation.getByCode(r.getOrderDetail().getServiceCode()).getName()
                         );
 
-                        orderExternalService.sendOrderToTracker(r);
+                        orderExternalService.sendOrderToTracker(r)
+                                            .flatMap(s -> {
 
-                        orderExternalServiceAudit.updateOrderReactive(r);
+                                                orderTransaction.updateOrderRetryingTracker(
+                                                        r.getId(), Optional.ofNullable(s.getAttemptTracker()).orElse(0)+1,
+                                                        s.getOrderStatus().getCode(), s.getOrderStatus().getDetail(), s.getTrackerId());
+
+                                                return Mono.just(s);
+                                            })
+                                            .subscribe(s -> orderExternalServiceAudit.updateOrderReactive(s));
+
                     }
                     log.info("[END] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",
                             r.getOrderDetail(), r.getEcommerceId());

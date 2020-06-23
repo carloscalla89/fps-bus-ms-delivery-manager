@@ -37,7 +37,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
     }
 
     @Override
-    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
+    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
         return null;
     }
 
