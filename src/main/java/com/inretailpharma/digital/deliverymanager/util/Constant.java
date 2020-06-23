@@ -7,14 +7,17 @@ import java.util.Optional;
 public interface Constant {
 
     enum TrackerImplementation {
-        INKATRACKER_LITE_RAD("inkatrackerlite"), INKATRACKER_LITE_RET("inkatrackerlite"),
-        INKATRACKER_RAD("inkatracker"), TEMPORARY_RAD("temporary"), NONE("not_found");
+        INKATRACKER_LITE_RAD(4,"inkatrackerlite"), INKATRACKER_LITE_RET(4,"inkatrackerlite"),
+        INKATRACKER_RAD(3,"inkatracker"), TEMPORARY_RAD(2,"temporary"), NONE(3,"not_found");
 
+        private int id;
         private String name;
 
-        TrackerImplementation(String name) {
+        TrackerImplementation(int id, String name) {
+            this.id = id;
             this.name = name;
         }
+
 
         public static TrackerImplementation getByCode(String code) {
 
@@ -23,6 +26,10 @@ public interface Constant {
                     .filter(item -> item.name().equalsIgnoreCase(code))
                     .findFirst()
                     .orElse(NONE);
+        }
+
+        public int getId() {
+            return id;
         }
 
         public String getName() {

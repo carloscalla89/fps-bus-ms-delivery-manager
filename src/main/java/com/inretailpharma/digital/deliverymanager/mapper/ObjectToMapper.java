@@ -11,6 +11,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanon
 =======
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.DrugstoreCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
 >>>>>>> 444a5c0... refactor to edit products and improve to attempts tracker DC
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
@@ -56,7 +57,12 @@ public class ObjectToMapper {
         Optional.ofNullable(orderCanonical.getDiscountApplied())
                 .ifPresent(r -> orderInkatrackerCanonical.setDiscountApplied(r.doubleValue()));
         orderInkatrackerCanonical.setAddress(getFromtOrderCanonical(orderCanonical.getAddress(), orderCanonical.getOrderDetail().getLeadTime()));
-
+        orderInkatrackerCanonical.setDeliveryCost(
+                Optional.ofNullable(orderCanonical.getDeliveryCost())
+                        .map(BigDecimal::doubleValue)
+                        .orElse(null));
+        orderInkatrackerCanonical.setDeliveryService(Constant.TrackerImplementation.getByCode(orderCanonical.getOrderDetail().getServiceCode()).getId());
+        orderInkatrackerCanonical.setDrugstore();
 
     }
 
@@ -78,9 +84,11 @@ public class ObjectToMapper {
         addressInkatrackerCanonical.setZoneEta(deliveryTime);
 
         return addressInkatrackerCanonical;
-
     }
 
+    private DrugstoreCanonical getDrugstoreOrderCanonicalFrom(OrderCanonical orderCanonical) {
+
+    }
 
     private ClientInkatrackerCanonical getFromtOrderCanonical(ClientCanonical clientCanonical) {
         ClientInkatrackerCanonical clientInkatrackerCanonical = new ClientInkatrackerCanonical();
