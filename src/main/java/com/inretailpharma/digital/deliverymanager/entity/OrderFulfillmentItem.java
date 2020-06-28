@@ -23,15 +23,39 @@ public class OrderFulfillmentItem {
     @Column(name = "short_description")
     private String shortDescription;
     private String brand;
+
+
+
     private Integer quantity;
+
+    @Column(name = "old_quantity")
+    private Integer oldQuantity;
+
+    @Column(name = "modified_quantity")
+    private Integer modifiedQuantity;
 
     @Column(name = "unit_price")
     private BigDecimal unitPrice;
 
+    @Column(name = "unit_price_w_discount")
+    private BigDecimal unitPriceWDiscount;
+
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
+    @Column(name = "modified_total_price")
+    private BigDecimal modifiedTotalPrice;
+
     @Enumerated(EnumType.STRING)
     private Constant.Logical fractionated;
+
+    @Column(name = "old_fractionated")
+    @Enumerated(EnumType.ORDINAL)
+    private Constant.Logical oldFractionated;
+
+    private Integer partial;
+
+    @Column(name="edition_code_type")
+    private String editionCodeType;
 
 }

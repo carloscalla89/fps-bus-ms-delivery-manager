@@ -5,6 +5,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.PartialOrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade;
 import io.swagger.annotations.*;
 
@@ -116,6 +117,21 @@ public class DeliveryManagerRest {
                .doOnComplete(() -> log.info("[END] endpoint cancelOrderProcess /cancellation/orders"));
     }
 
+    @ApiOperation(value = "Actualizar los items de una orden - orden parcial")
+    @ApiResponses(value = { //
+            @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
+            @ApiResponse(code = 500, message = "No creado") })
+    @PatchMapping("/order/partial/{ecommerceId}")
+    public Flux<OrderCancelledCanonical> updatePartialOrder(
+            @ApiParam(value = "Identificador e-commerce")
+            @PathVariable(value = "ecommerceId") String ecommerceId,
+            @ApiParam(value = "Order a editar")
+            @RequestBody PartialOrderDto partialOrderDto) {
+        log.info("[START] endpoint updatePartialOrder /order/partial/{} - partialOrderDto:{}",
+                ecommerceId,partialOrderDto);
 
+        return deliveryManagerFacade.cancelOrderProcess(cancellationDto)
+                .doOnComplete(() -> log.info("[END] endpoint cancelOrderProcess /cancellation/orders"));
+    }
 
 }

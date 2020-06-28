@@ -7,15 +7,18 @@ import java.math.BigDecimal;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class OrderDetailDto {
+public class OrderItemDto {
 
     private String productCode;
     private String productName;
     private String shortDescription;
     private String brand;
     private Integer quantity;
+    private Integer oldQuantity;
+    private Integer modifiedQuantity;
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
+    private BigDecimal modifiedTotalPrice;
     private Boolean fractionated;
     private BigDecimal fractionalDiscount;
 }

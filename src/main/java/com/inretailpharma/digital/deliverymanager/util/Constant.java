@@ -271,18 +271,17 @@ public interface Constant {
 
     enum Logical {
 
-        Y(true, "1"), N(false, "0");
+        Y(true, "1", 1), N(false, "0",0);
 
         private final boolean value;
         private String valueString;
+        private int valueInt;
 
-        Logical(boolean value) {
-            this.value = value;
-        }
-        Logical(boolean value, String valueString) {
+        Logical(boolean value, String valueString, int valueInt) {
 
             this.value = value;
             this.valueString = valueString;
+            this.valueInt = valueInt;
         }
 
         public String getValueString() {
@@ -291,6 +290,14 @@ public interface Constant {
 
         public boolean value() {
             return value;
+        }
+
+        public boolean isValue() {
+            return value;
+        }
+
+        public int getValueInt() {
+            return valueInt;
         }
 
         public static Logical parse(Boolean online) {
