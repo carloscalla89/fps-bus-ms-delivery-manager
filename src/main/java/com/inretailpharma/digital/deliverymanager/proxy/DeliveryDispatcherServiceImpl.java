@@ -212,15 +212,20 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                                                 .map(Long::parseLong).orElse(null)
                                 );
 
-                                Constant.OrderStatus orderStatusUtil = r.isReleased() ?
-                                        Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING : Constant.OrderStatus.ERROR_INSERT_TRACKER;
-
                                 OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
-                                orderStatus.setCode(orderStatusUtil.getCode());
-                                orderStatus.setName(orderStatusUtil.name());
-                                orderStatus.setDetail(r.getTrackerResponseDto().getDetail());
+                                Optional.ofNullable(r.getTrackerResponseDto()).ifPresent(s -> {
+                                    Constant.OrderStatus orderStatusUtil = Constant.OrderStatus.getByCode(s.getCode());
 
+                                    orderStatus.setCode(orderStatusUtil.getCode());
+                                    orderStatus.setName(orderStatusUtil.name());
+                                    orderStatus.setDetail(s.getDetail());
+                                });
+
+                                orderStatus.setCode(Optional.ofNullable(orderStatus.getCode())
+                                        .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode()));
+                                orderStatus.setDetail(Optional.ofNullable(orderStatus.getDetail())
+                                        .orElse("Ocurrió un error inesperado al actualizar el inkatracker o inkatracker-lite"));
                                 resultCanonical.setOrderStatus(orderStatus);
 
                             } else {
