@@ -154,6 +154,7 @@ public interface Constant {
         ERROR_UPDATE("36"),
         CANCELLED_ORDER_ONLINE_PAYMENT("37"),
         DELETED_PENDING_ORDER("38"),
+        ERROR_ORDER_CANCELLED_TRACKER("39"),
         
         SUCCESS_RESERVED_ORDER("10"),
 
