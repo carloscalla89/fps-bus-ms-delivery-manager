@@ -97,7 +97,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                             //.timeout(Duration.ofMillis(100))
                             .subscribeOn(Schedulers.parallel())
                             .map(r -> {
-
+                                log.info("reattempt to tracker response:{}",r);
                                 OrderCanonical resultCanonical = new OrderCanonical();
 
                                 resultCanonical.setEcommerceId(ecommerceId);
@@ -107,13 +107,13 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                                         .map(s ->
                                                 Optional
                                                         .ofNullable(r.getCode())
-                                                        .map(Constant.OrderStatus::getByName)
+                                                        .map(Constant.OrderStatus::getByCode)
                                                         .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS)
                                         )
                                         .orElseGet(() ->
-                                                Constant.OrderStatus.getByName(
+                                                Constant.OrderStatus.getByCode(
                                                         Optional.ofNullable(r.getCode())
-                                                                .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())
+                                                                .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode())
                                                 )
                                         );
 
