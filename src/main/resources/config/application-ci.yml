@@ -29,7 +29,24 @@ external-service:
       read-timeout: 480
   order-tracker:
     create-order:
-      uri: http://us-ordertracker/ordertracker
+      uri: http://us-ordertracker/order
+      connect-timeout: 10000
+      read-timeout: 120000
+    assign-orders:
+      uri: http://us-ordertracker/orders/status/assigned
+      connect-timeout: 10000
+      read-timeout: 120000
+    unassign-orders:
+      uri: http://us-ordertracker/orders/status/unassigned
+      connect-timeout: 10000
+      read-timeout: 120000
+    update-order-status:
+      uri: http://us-ordertracker/order
+      connect-timeout: 10000
+      read-timeout: 120000
+  fulfillment-center:
+    get-center:
+      uri: http://us-fulfillment-center/fulfillment/store/
       connect-timeout: 10000
       read-timeout: 120000
 

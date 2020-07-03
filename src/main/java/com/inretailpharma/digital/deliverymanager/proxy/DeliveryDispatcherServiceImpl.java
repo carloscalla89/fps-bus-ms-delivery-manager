@@ -17,14 +17,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.TcpClient;
 
-import java.time.Duration;
 import java.util.Optional;
 
 @Slf4j
 @Service("deliveryDispatcher")
-public class DeliveryDispatcherServiceImpl implements OrderExternalService{
+public class DeliveryDispatcherServiceImpl extends AbstractOrderService implements OrderExternalService{
 
     private ExternalServicesProperties externalServicesProperties;
 
@@ -99,7 +97,7 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                             //.timeout(Duration.ofMillis(100))
                             .subscribeOn(Schedulers.parallel())
                             .map(r -> {
-
+                                log.info("reattempt to tracker response:{}",r);
                                 OrderCanonical resultCanonical = new OrderCanonical();
 
                                 resultCanonical.setEcommerceId(ecommerceId);
@@ -109,13 +107,13 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                         .map(s ->
                                                 Optional
                                                         .ofNullable(r.getCode())
-                                                        .map(Constant.OrderStatus::getByName)
+                                                        .map(Constant.OrderStatus::getByCode)
                                                         .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS)
                                         )
                                         .orElseGet(() ->
-                                                Constant.OrderStatus.getByName(
+                                                Constant.OrderStatus.getByCode(
                                                         Optional.ofNullable(r.getCode())
-                                                                .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())
+                                                                .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode())
                                                 )
                                         );
 
@@ -214,15 +212,20 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
                                                 .map(Long::parseLong).orElse(null)
                                 );
 
-                                Constant.OrderStatus orderStatusUtil = r.isReleased() ?
-                                        Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING : Constant.OrderStatus.ERROR_INSERT_TRACKER;
-
                                 OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
-                                orderStatus.setCode(orderStatusUtil.getCode());
-                                orderStatus.setName(orderStatusUtil.name());
-                                orderStatus.setDetail(r.getTrackerResponseDto().getDetail());
+                                Optional.ofNullable(r.getTrackerResponseDto()).ifPresent(s -> {
+                                    Constant.OrderStatus orderStatusUtil = Constant.OrderStatus.getByCode(s.getCode());
 
+                                    orderStatus.setCode(orderStatusUtil.getCode());
+                                    orderStatus.setName(orderStatusUtil.name());
+                                    orderStatus.setDetail(s.getDetail());
+                                });
+
+                                orderStatus.setCode(Optional.ofNullable(orderStatus.getCode())
+                                        .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode()));
+                                orderStatus.setDetail(Optional.ofNullable(orderStatus.getDetail())
+                                        .orElse("Ocurrió un error inesperado al actualizar el inkatracker o inkatracker-lite"));
                                 resultCanonical.setOrderStatus(orderStatus);
 
                             } else {
@@ -293,5 +296,4 @@ public class DeliveryDispatcherServiceImpl implements OrderExternalService{
         }
 
     }
-
 }

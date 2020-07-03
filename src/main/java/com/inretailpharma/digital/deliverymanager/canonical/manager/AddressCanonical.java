@@ -15,4 +15,6 @@ public class AddressCanonical {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private String postalCode;
+    private String notes;
+    private String apartment;
 }

@@ -14,7 +14,7 @@ import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Service("audit")
-public class OrderAuditServiceImpl implements OrderExternalService {
+public class OrderAuditServiceImpl extends AbstractOrderService  implements OrderExternalService {
 
     private final ExternalServicesProperties externalServicesProperties;
     private ApplicationParameterService applicationParameterService;
@@ -92,9 +92,4 @@ public class OrderAuditServiceImpl implements OrderExternalService {
     public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
         return null;
     }
-
-
-
-
-
 }

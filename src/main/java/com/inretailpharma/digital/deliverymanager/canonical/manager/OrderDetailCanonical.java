@@ -15,6 +15,7 @@ public class OrderDetailCanonical {
     // schedules
     private String confirmedSchedule;
     private String createdOrder;
+    private String confirmedOrder;
 
     // attempts
     private Integer attempt;

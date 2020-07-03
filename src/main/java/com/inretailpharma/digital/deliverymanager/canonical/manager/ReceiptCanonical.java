@@ -9,4 +9,5 @@ public class ReceiptCanonical {
     private String ruc;
     private String companyName;
     private String address;
+    private String note;
 }
