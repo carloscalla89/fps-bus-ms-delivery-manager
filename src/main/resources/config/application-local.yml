@@ -5,7 +5,7 @@ spring:
     password: elpreciomasbajo
 external-service:
   audit:
-    create-order: http://localhost:8032/audit/order
+    create-order: http://us-audit/audit/order
     time-out: 20000
   dispatcher:
     insink-tracker:
@@ -38,6 +38,24 @@ external-service:
       read-timeout: 480
   order-tracker:
     create-order:
-      uri: http://localhost:8030/ordertracker
+      uri: http://localhost:8030/order
+      connect-timeout: 240000
+      read-timeout: 480
+    assign-orders:
+      uri: http://localhost:8030/orders/status/assigned
+      connect-timeout: 240000
+      read-timeout: 480
+    unassign-orders:
+      uri: http://localhost:8030/orders/status/unassigned
+      connect-timeout: 240000
+      read-timeout: 480
+    update-order-status:
+      uri: http://localhost:8030/order
       connect-timeout: 10000
       read-timeout: 120000
+  fulfillment-center:
+    get-center:
+      uri: http://us-fulfillment-center/fulfillment/store/
+      connect-timeout: 240000
+      read-timeout: 480
+    

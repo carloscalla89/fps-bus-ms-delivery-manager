@@ -11,6 +11,8 @@ public class ScheduleServiceTypeDto {
 
     private String scheduledTime;
 
+    private String confirmedOrder;
+
     private String startHour;
 
     private String endHour;

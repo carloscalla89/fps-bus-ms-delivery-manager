@@ -1,15 +1,17 @@
 package com.inretailpharma.digital.deliverymanager.canonical.ordertracker;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+
 import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OrderTrackerResponseCanonical implements Serializable {
+public class FailedOrderCanonical implements Serializable {
 
-    private String statusCode;
-    private String statusDescription;
-    private String statusDetail;
+	private Long orderId;
+	private String reason;
 }

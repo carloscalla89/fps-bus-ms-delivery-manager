@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,8 @@ public class ObjectToMapper {
         if (Optional.ofNullable(orderDto.getSchedules()).isPresent()) {
             orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
             orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
+            orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getConfirmedOrder()));
+
         } else {
             orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getCreatedOrder()));
             orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getScheduledTime()));
@@ -85,7 +88,8 @@ public class ObjectToMapper {
             address.setCountry(r.getCountry());
             address.setNotes(r.getNotes());
             address.setLatitude(r.getLatitude());
-            address.setLongitude(r.getLongitude());
+            address.setLongitude(r.getLongitude()); 
+            address.setStreet(r.getStreet());
         });
 
         orderFulfillment.setAddress(address);
@@ -117,32 +121,94 @@ public class ObjectToMapper {
 
     }
 
-
-
     public OrderCanonical convertIOrderDtoToOrderFulfillmentCanonical(IOrderFulfillment iOrderFulfillment) {
+        log.debug("[START] map-convertIOrderDtoToOrderFulfillmentCanonical");
+    	
         OrderCanonical orderCanonical = new OrderCanonical();
+        Optional.ofNullable(iOrderFulfillment).ifPresent(o -> {
+        	
+        	orderCanonical.setEcommerceId(o.getEcommerceId());
+        	orderCanonical.setExternalId(o.getExternalId());
+        	orderCanonical.setBridgePurchaseId(o.getBridgePurchaseId());
+        	
+        	orderCanonical.setTotalAmount(o.getTotalCost());
+        	orderCanonical.setDeliveryCost(o.getDeliveryCost());
+        	
+        	orderCanonical.setCompany(o.getCompanyName());
+        	orderCanonical.setLocalCode(o.getCenterCode());
+        	orderCanonical.setLocal(o.getCenterName());
+        	
+        	ClientCanonical client = new ClientCanonical();
+        	client.setDocumentNumber(o.getDocumentNumber());
+        	client.setFullName(Optional.ofNullable(o.getLastName()).orElse(StringUtils.EMPTY)
+                    + StringUtils.SPACE + Optional.ofNullable(o.getFirstName()).orElse(StringUtils.EMPTY));
+        	client.setEmail(o.getEmail());
+        	client.setPhone(o.getPhone());
+        	client.setHasInkaClub(o.getInkaClub());        	
 
-        Optional.ofNullable(iOrderFulfillment).ifPresent(s -> {
-            orderCanonical.setId(s.getOrderId());
-            orderCanonical.setTrackerId(s.getOrderId());
-            orderCanonical.setExternalId(s.getExternalId());
-            orderCanonical.setBridgePurchaseId(s.getBridgePurchaseId());
-            orderCanonical.setDeliveryCost(s.getDeliveryCost());
-            //orderCanonical.setDiscountApplied(s.);
-            //orderCanonical.setSubTotalCost(s.);
-            orderCanonical.setTotalAmount(s.getTotalCost());
+            OrderDetailCanonical orderDetail = new OrderDetailCanonical();
+            Optional.ofNullable(o.getScheduledTime()).ifPresent(date -> {
+            	orderDetail.setConfirmedSchedule(DateUtils.getLocalDateTimeWithFormat(date));
+            });          
+            orderDetail.setLeadTime(o.getLeadTime());
+            orderDetail.setServiceCode(o.getServiceTypeCode());
+            orderDetail.setServiceName(o.getServiceTypeName());
+            
+            AddressCanonical address = new AddressCanonical();
+            address.setName(
+                    Optional.ofNullable(o.getStreet()).orElse(StringUtils.EMPTY)
+                            + StringUtils.SPACE
+                            + Optional.ofNullable(o.getNumber()).orElse(StringUtils.EMPTY)
+            );
+            address.setDepartment(o.getDepartment());
+            address.setProvince(o.getProvince());
+            address.setDistrict(o.getDistrict());
+            address.setLatitude(o.getLatitude());
+            address.setLongitude(o.getLongitude());
+            address.setNotes(o.getNotes());
+            address.setApartment(o.getApartment());
+            
+            ReceiptCanonical receipt = new ReceiptCanonical();
+            receipt.setType(o.getReceiptType());
+            receipt.setCompanyName(o.getCompanyNameReceipt());
+            receipt.setAddress(o.getCompanyAddressReceipt());
+            receipt.setRuc(o.getRuc());
+            receipt.setNote(o.getNoteReceipt());
+            
+            PaymentMethodCanonical paymentMethod = new PaymentMethodCanonical();
+            paymentMethod.setType(o.getPaymentType());
+            paymentMethod.setCardProvider(o.getCardProvider());
+            paymentMethod.setPaidAmount(o.getPaidAmount());
+            paymentMethod.setChangeAmount(o.getChangeAmount()); 
 
-            ClientCanonical client = new ClientCanonical();
-            client.setFullName(Optional.ofNullable(s.getLastName()).orElse("")
-                    + StringUtils.SPACE + Optional.ofNullable(s.getFirstName()).orElse(""));
-
-            // ServiceType canonical
-            OrderDetailCanonical orderDetailCanonical = new OrderDetailCanonical();
-
-
+            orderCanonical.setClient(client);
+            orderCanonical.setOrderDetail(orderDetail);
+            orderCanonical.setAddress(address);
+            orderCanonical.setReceipt(receipt);
+            orderCanonical.setPaymentMethod(paymentMethod);
         });
 
+        log.debug("[END] map-convertIOrderDtoToOrderFulfillmentCanonical:{}", orderCanonical);
         return orderCanonical;
+    }
+    
+    public OrderItemCanonical convertIOrderItemDtoToOrderItemFulfillmentCanonical(IOrderItemFulfillment iOrderItemFulfillment) {
+    	log.debug("[START] map-convertIOrderItemDtoToOrderItemFulfillmentCanonical");
+    	
+    	OrderItemCanonical orderItemCanonical = new OrderItemCanonical();
+    	Optional.ofNullable(iOrderItemFulfillment).ifPresent(o -> {
+    		orderItemCanonical.setProductCode(o.getProductCode());
+    		orderItemCanonical.setProductName(o.getNameProduct());
+    		orderItemCanonical.setShortDescription(o.getShortDescriptionProduct());
+    		orderItemCanonical.setBrand(o.getBrandProduct());
+    		orderItemCanonical.setQuantity(o.getQuantity());
+    		orderItemCanonical.setUnitPrice(o.getUnitPrice());
+    		orderItemCanonical.setTotalPrice(o.getTotalPrice());
+    		orderItemCanonical.setFractionated(Constant.Logical.Y.name().equals(o.getFractionated()));
+    	});
+    	
+    	log.debug("[END] map-convertIOrderItemDtoToOrderItemFulfillmentCanonical:{}", orderItemCanonical);
+        return orderItemCanonical;    	
     }
 
     public Mono<OrderCanonical> convertEntityToOrderCanonical(OrderDto orderDto) {
@@ -229,6 +295,7 @@ public class ObjectToMapper {
         Optional.ofNullable(orderDto.getSchedules()).ifPresent(r -> {
             orderDetail.setConfirmedSchedule(r.getScheduledTime());
             orderDetail.setCreatedOrder(r.getCreatedOrder());
+            orderDetail.setConfirmedOrder(r.getConfirmedOrder());
             orderDetail.setStartHour(r.getStartHour());
             orderDetail.setEndHour(r.getEndHour());
             orderDetail.setLeadTime(r.getLeadTime());

@@ -27,6 +27,7 @@ public interface IOrderFulfillment {
     String getPhone();
     String getBirthDate();
     String getAnonimous();
+    Integer getInkaClub();
 
     String getCenterCode();
     String getCenterName();
@@ -57,6 +58,7 @@ public interface IOrderFulfillment {
     String getRuc();
     String getCompanyNameReceipt();
     String getCompanyAddressReceipt();
+    String getNoteReceipt();
 
     String getAddressName();
     String getStreet();
@@ -66,6 +68,7 @@ public interface IOrderFulfillment {
     String getCity();
     String getDistrict();
     String getProvince();
+    String getDepartment();
     String getNotes();
     BigDecimal getLatitude();
     BigDecimal getLongitude();
