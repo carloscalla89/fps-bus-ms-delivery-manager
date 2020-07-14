@@ -44,7 +44,9 @@ public class CancellationRest {
 
         return new ResponseEntity<>(
                 cancellationFacade.getOrderCancellationList(appType)
-                        .subscribeOn(Schedulers.parallel()), HttpStatus.OK
+                        .subscribeOn(Schedulers.parallel())
+                        .doOnComplete(() -> log.info("[END] endpoint getCancellationReasonsCode"))
+                , HttpStatus.OK
         );
 
     }

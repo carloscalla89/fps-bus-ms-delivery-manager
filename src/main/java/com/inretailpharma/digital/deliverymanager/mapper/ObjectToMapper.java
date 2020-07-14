@@ -690,7 +690,6 @@ public class ObjectToMapper {
             cancellationCanonical.setCode(r.getCode());
             cancellationCanonical.setType(r.getType());
             cancellationCanonical.setDescription(r.getReason());
-            cancellationCanonical.setAppType(r.getAppType());
             return cancellationCanonical;
         }).collect(Collectors.toList());
 
