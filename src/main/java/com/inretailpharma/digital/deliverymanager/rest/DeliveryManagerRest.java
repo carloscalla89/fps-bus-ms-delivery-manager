@@ -47,7 +47,6 @@ public class DeliveryManagerRest {
 
     }
 
-
     @ApiOperation(value = "Crear una orden que viene del ecommerce")
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "Orden creado", response = OrderDto.class),
@@ -92,31 +91,6 @@ public class DeliveryManagerRest {
 
     }
 
-    @ApiOperation(value = "Obtener los códigos y descripción de cancelación de una orden", tags = { "Controlador DeliveryManager" })
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Lista obtenida correctamente", response = List.class),
-            @ApiResponse(code = 500, message = "No creado") })
-    @GetMapping("/cancellation/reason")
-    public ResponseEntity<?> getCancellationReasonsCode() {
-
-        log.info("[START] endpoint getCancellationReasonsCode");
-
-        return new ResponseEntity<>(deliveryManagerFacade.getOrderCancellationList(), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "cancelar órdenes que han excedido los días permitidos para entregar o recoger")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Órdenes canceladas correctamente", response = OrderCancelledCanonical.class),
-            @ApiResponse(code = 500, message = "No creado") })
-    @PutMapping("/cancellation/orders")
-    public Flux<OrderCancelledCanonical> cancelOrderProcess(
-            @RequestBody CancellationDto cancellationDto) {
-        log.info("[START] endpoint cancelOrderProcess /cancellation/orders - cancellationDto {}",cancellationDto);
-
-       return deliveryManagerFacade.cancelOrderProcess(cancellationDto)
-               .doOnComplete(() -> log.info("[END] endpoint cancelOrderProcess /cancellation/orders"));
-    }
-
     @ApiOperation(value = "Actualizar los items de una orden - orden parcial")
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
@@ -130,8 +104,7 @@ public class DeliveryManagerRest {
         log.info("[START] endpoint updatePartialOrder /order/partial/{} - partialOrderDto:{}",
                 ecommerceId,partialOrderDto);
 
-        return deliveryManagerFacade.cancelOrderProcess(cancellationDto)
-                .doOnComplete(() -> log.info("[END] endpoint cancelOrderProcess /cancellation/orders"));
+        return null;
     }
 
 }

@@ -24,8 +24,8 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
     }
 
     @Override
-    public List<CancellationCodeReason> getListCodeCancellationByCode() {
-        return cancellationCodeReasonRepository.findAll();
+    public List<CancellationCodeReason> getListCodeCancellationByCode(String appType) {
+        return cancellationCodeReasonRepository.findAllByAppType(appType);
     }
 
     @Override

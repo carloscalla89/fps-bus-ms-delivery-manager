@@ -4,9 +4,15 @@ import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInf
 import com.inretailpharma.digital.deliverymanager.canonical.integration.ProductCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.client.ProductClient;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderDetailCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
-import com.inretailpharma.digital.deliverymanager.entity.*;
+import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
+import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
+import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
+import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.EcommerceMapper;
@@ -23,6 +29,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
@@ -38,7 +45,6 @@ public class DeliveryManagerFacade {
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
     private OrderExternalService orderExternalServiceDispatcher;
-    private OrderExternalService orderExternalServiceInkatrackerLite;
     private OrderExternalService orderExternalServiceAudit;
     private ApplicationParameterService applicationParameterService;
     private ProductClient productClient;
@@ -49,7 +55,6 @@ public class DeliveryManagerFacade {
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  ObjectToMapper objectToMapper,
                                  @Qualifier("deliveryDispatcher") OrderExternalService orderExternalServiceDispatcher,
-                                 @Qualifier("inkatrackerlite") OrderExternalService orderExternalServiceInkatrackerLite,
                                  @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                                  ApplicationParameterService applicationParameterService,
                                  ProductClient productClient,
@@ -58,8 +63,8 @@ public class DeliveryManagerFacade {
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceDispatcher = orderExternalServiceDispatcher;
-        this.orderExternalServiceInkatrackerLite = orderExternalServiceInkatrackerLite;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
+
         this.applicationParameterService = applicationParameterService;
         this.productClient = productClient;
         this.context = context;
@@ -76,8 +81,6 @@ public class DeliveryManagerFacade {
         }).collect(Collectors.toList()));
 
     }
-
-
 
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
 

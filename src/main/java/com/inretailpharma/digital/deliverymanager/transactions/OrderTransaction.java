@@ -198,15 +198,6 @@ public class OrderTransaction {
         return orderRepositoryService.getListOrdersToCancel(serviceType, companyCode, maxDayPickup, statustype);
     }
 
-    public OrderFulfillment getOrderFulfillmentById(Long id) {
-        return orderRepositoryService.getOrderFulfillmentById(id);
-    }
-
-    public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
-        return orderRepositoryService.getOrderStatusByTypeIs(statusName);
-    }
-
-
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateOrderRetrying(Long orderFulfillmentId, Integer attempt, Integer attemptTracker,
@@ -260,12 +251,8 @@ public class OrderTransaction {
         orderRepositoryService.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
     }
 
-    public List<CancellationCodeReason> getListCancelReason() {
-        return orderCancellationService.getListCodeCancellationByCode();
-    }
-
-    public CancellationCodeReason getCancellationCodeReasonByCode(String code) {
-        return orderCancellationService.geByCode(code);
+    public List<CancellationCodeReason> getListCancelReason(String appType) {
+        return orderCancellationService.getListCodeCancellationByCode(appType);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)

@@ -127,7 +127,7 @@ public interface Constant {
 
         UPDATE_RELEASE_ORDER(3, "Actualizar el resultado al liberar unaorden desde el dispatcher", null, null),
 
-        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como entregada", null, null),
+        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada", null, null),
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada", null, null),
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger", null, null),
 
@@ -225,6 +225,7 @@ public interface Constant {
         NOT_DEFINED_ERROR("-1", null, false),
         NOT_DEFINED_STATUS("-1", null, false),
         NOT_FOUND_ACTION("-1", null, false),
+        EMPTY_RESULT_CANCELLATION("-1", null, false),
         EMPTY_RESULT_DISPATCHER("-1", null, false),
         EMPTY_RESULT_INKATRACKER("-1", null, false);
 

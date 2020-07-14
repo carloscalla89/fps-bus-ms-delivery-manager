@@ -165,16 +165,16 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
     public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonicalresult) {
         log.info("[START] sendOrderToTracker - orderCanonical:{}",orderCanonicalresult);
 
-        return Mono.just(centerCompanyService.getExternalInfo(orderCanonicalresult.getLocalCode()))
-            .zipWith(Mono.just(objectToMapper.convertOrderToOrderInkatrackerCanonical(orderCanonicalresult)), (a,b) -> {
-                b.setDrugstore(
+        return centerCompanyService.getExternalInfo(orderCanonicalresult.getLocalCode())
+                .zipWith(Mono.just(objectToMapper.convertOrderToOrderInkatrackerCanonical(orderCanonicalresult)), (a,b) -> {
+                    b.setDrugstore(
                         new DrugstoreCanonical(a.getLegacyId(), a.getName(), a.getDescription(), a.getAddress(),
                                 a.getLatitude().doubleValue(), a.getLongitude().doubleValue(), 0)
                 );
 
                 log.info("Order prepared to send inkatracker - orderInkatracker:{}",b);
 
-                log.info("url inkatracket:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
+                log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
 
                 TcpClient tcpClient = TcpClient
                         .create()

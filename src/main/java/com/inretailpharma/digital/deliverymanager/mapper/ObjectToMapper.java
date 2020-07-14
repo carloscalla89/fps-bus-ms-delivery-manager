@@ -190,7 +190,10 @@ public class ObjectToMapper {
         clientInkatrackerCanonical.setFirstName(clientCanonical.getFirstName());
         clientInkatrackerCanonical.setLastName(clientCanonical.getLastName());
         clientInkatrackerCanonical.setPhone(clientCanonical.getPhone());
-        clientInkatrackerCanonical.setIsAnonymous(clientCanonical.getAnonimous()==0?"N":"Y");
+        clientInkatrackerCanonical.setIsAnonymous(
+                Optional.ofNullable(clientCanonical.getAnonimous())
+                        .orElse(0)==0?"N":"Y"
+        );
 
         return clientInkatrackerCanonical;
     }
@@ -230,6 +233,7 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setUnitPrice(r.getUnitPrice());
                     orderFulfillmentItem.setTotalPrice(r.getTotalPrice());
                     orderFulfillmentItem.setFractionated(Constant.Logical.parse(r.getFractionated()));
+                    orderFulfillmentItem.setFractionalDiscount(r.getFractionalDiscount());
 
                     return orderFulfillmentItem;
                 }).collect(Collectors.toList())
@@ -686,7 +690,7 @@ public class ObjectToMapper {
             cancellationCanonical.setCode(r.getCode());
             cancellationCanonical.setType(r.getType());
             cancellationCanonical.setDescription(r.getReason());
-
+            cancellationCanonical.setAppType(r.getAppType());
             return cancellationCanonical;
         }).collect(Collectors.toList());
 

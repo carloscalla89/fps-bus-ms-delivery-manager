@@ -49,9 +49,11 @@ public class OrderFulfillmentItem {
     @Enumerated(EnumType.STRING)
     private Constant.Logical fractionated;
 
-    @Column(name = "old_fractionated")
-    @Enumerated(EnumType.ORDINAL)
-    private Constant.Logical oldFractionated;
+    @Column(name = "fractional_discount")
+    private BigDecimal fractionalDiscount;
+
+    @Column(name = "old_fractional_discount")
+    private BigDecimal oldFractionalDiscount;
 
     private Integer partial;
 
