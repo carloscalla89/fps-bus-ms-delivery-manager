@@ -384,8 +384,9 @@ public class DeliveryManagerFacade {
                                             .map(r -> {
 
                                                 log.info("[START] to update order");
+
                                                 if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
-                                                    log.info("CANCEL order");
+                                                    log.info("Action to cancel order");
                                                     orderTransaction.updateStatusCancelledOrder(
                                                             r.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
                                                             actionDto.getOrderCancelCode(), r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
