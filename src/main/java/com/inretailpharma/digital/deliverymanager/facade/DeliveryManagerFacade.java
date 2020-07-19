@@ -1,10 +1,14 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.integration.ProductCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.client.ProductClient;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
@@ -20,6 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +40,7 @@ public class DeliveryManagerFacade {
     private OrderExternalService orderExternalServiceInkatrackerLite;
     private OrderExternalService orderExternalServiceAudit;
     private ApplicationParameterService applicationParameterService;
+    private ProductClient productClient;
 
     private final ApplicationContext context;
 
@@ -44,6 +50,7 @@ public class DeliveryManagerFacade {
                                  @Qualifier("inkatrackerlite") OrderExternalService orderExternalServiceInkatrackerLite,
                                  @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                                  ApplicationParameterService applicationParameterService,
+                                 ProductClient productClient,
                                  ApplicationContext context) {
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
@@ -51,6 +58,7 @@ public class DeliveryManagerFacade {
         this.orderExternalServiceInkatrackerLite = orderExternalServiceInkatrackerLite;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.applicationParameterService = applicationParameterService;
+        this.productClient = productClient;
         this.context = context;
     }
 
@@ -160,12 +168,18 @@ public class DeliveryManagerFacade {
 
                     if(isSellerCenter) {
 
-
-
+                        List<IOrderItemFulfillment> orderItemDtoList = orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId());
+                        List<String> skuList = new ArrayList<>();
+                        orderItemDtoList.forEach(p ->  {
+                            skuList.add(p.getProductCode());
+                        });
+                        List<ProductCanonical> productList = productClient.getProducts(skuList);
+                        OrderInfoCanonical orderCanonical
+                                = objectToMapper.convertIOrderDtoToOrderTrackerFulfillmentCanonical(iOrderFulfillment, productList, orderItemDtoList);
 
                         // Reattempt to send the order some inkatracker
                         resultCanonical = orderExternalServiceDispatcher
-                                .getResultfromSellerExternalServices(ecommercePurchaseId)
+                                .getResultfromSellerExternalServices(orderCanonical)
                                 .map(r -> {
 
                                     int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0)+1;

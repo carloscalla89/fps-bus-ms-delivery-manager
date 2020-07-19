@@ -69,4 +69,5 @@ public class OrderInfoCanonical {
     private String companyCode;
     private String sourceCompanyName;
     private ScheduledCanonical scheduled;
+    private List<PreviousStatusCanonical> previousStatus;
 }

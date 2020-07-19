@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
@@ -26,7 +27,7 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
-	public Mono<OrderCanonical> getResultfromSellerExternalServices(Long ecommerceId) {
+	public Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical) {
 		return null;
 	}
 

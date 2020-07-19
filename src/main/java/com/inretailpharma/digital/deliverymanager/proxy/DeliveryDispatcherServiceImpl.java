@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerResponseDto;
@@ -47,7 +48,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
     }
 
     @Override
-    public Mono<OrderCanonical> getResultfromSellerExternalServices(Long ecommerceId) {
+    public Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical) {
 
         HttpClient httpClient = HttpClient
                 .create()
@@ -69,17 +70,14 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
         String inkatrackerUri = externalServicesProperties.getInkatrackerCreateOrderUri();
 
-        log.info("url dispatcher:{} - ecommerceId:{}",inkatrackerUri, ecommerceId);
+        log.info("url dispatcher:{} - ecommerceId:{}",inkatrackerUri, orderInfoCanonical.getOrderExternalId());
         return     WebClient
                 .builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .baseUrl(inkatrackerUri)
                 .build()
-                .get()
-                .uri(builder ->
-                        builder
-                                .path("/{orderId}")
-                                .build(ecommerceId))
+                .post()
+                .body(Mono.just(orderInfoCanonical), OrderInfoCanonical.class)
                 .retrieve()
                 .bodyToMono(TrackerResponseDto.class)
                 //.timeout(Duration.ofMillis(100))
@@ -88,7 +86,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                     log.info("reattempt to tracker response:{}",r);
                     OrderCanonical resultCanonical = new OrderCanonical();
 
-                    resultCanonical.setEcommerceId(ecommerceId);
+                    resultCanonical.setEcommerceId(orderInfoCanonical.getOrderExternalId());
                     resultCanonical.setTrackerId(r.getId());
 
                     Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getId())
@@ -119,7 +117,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                 })
                 .defaultIfEmpty(
                         new OrderCanonical(
-                                ecommerceId,
+                                orderInfoCanonical.getOrderExternalId(),
                                 Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
                                 Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
                 )
@@ -131,7 +129,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                     log.error(errorMessage);
                     OrderCanonical orderCanonical = new OrderCanonical();
 
-                    orderCanonical.setEcommerceId(ecommerceId);
+                    orderCanonical.setEcommerceId(orderInfoCanonical.getOrderExternalId());
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                     orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());

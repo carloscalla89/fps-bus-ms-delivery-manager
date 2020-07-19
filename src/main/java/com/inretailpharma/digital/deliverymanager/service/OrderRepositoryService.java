@@ -40,5 +40,4 @@ public interface OrderRepositoryService {
 
     List<OrderStatus> getOrderStatusByTypeIs(String statusName);
 
-
 }
