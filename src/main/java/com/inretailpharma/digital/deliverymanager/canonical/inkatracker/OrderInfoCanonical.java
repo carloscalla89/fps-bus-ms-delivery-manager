@@ -63,6 +63,7 @@ public class OrderInfoCanonical {
     private String daysToPickUp;
     private String purchaseId;
     private Drugstore drugstoreSource;
+    private Drugstore drugstore;
     private OrderStatusInkatrackerCanonical orderStatus;
     private PaymentMethodCanonical paymentMethod;
     private ReceiptCanonical receipt;

@@ -172,6 +172,9 @@ public class ObjectToMapper {
 
             Drugstore drugstore = new Drugstore();
             drugstore.setId(36L);
+            orderInfoCanonical.setDrugstore(drugstore);
+
+            orderInfoCanonical.setDrugstoreId(36L);
             orderInfoCanonical.setMaxDeliveryTime(o.getScheduledTime().plusMinutes(o.getLeadTime()).atZone(ZoneId.systemDefault()).toInstant().getEpochSecond());
 
             OrderStatusInkatrackerCanonical orderStatus = new OrderStatusInkatrackerCanonical();
