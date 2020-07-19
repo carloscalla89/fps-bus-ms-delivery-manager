@@ -170,7 +170,6 @@ public class ObjectToMapper {
             client.setPhone(o.getPhone());
             client.setHasInkaClub("N");
             client.setIsAnonymous("Y");
-
             orderInfoCanonical.setClient(client);
 
             orderInfoCanonical.setDeliveryCost(o.getDeliveryCost().doubleValue());
@@ -221,6 +220,7 @@ public class ObjectToMapper {
             ScheduledCanonical scheduled = new ScheduledCanonical();
             scheduled.setStartDate(o.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond());
             scheduled.setEndDate(orderInfoCanonical.getMaxDeliveryTime());
+            orderInfoCanonical.setScheduled(scheduled);
 
             Map<String, IOrderItemFulfillment> productMap = new HashMap<>();
             orderItemDtoList.forEach(ioProduct -> {
