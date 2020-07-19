@@ -155,35 +155,68 @@ public class DeliveryManagerFacade {
             OrderDetailCanonical orderDetail = new OrderDetailCanonical();
 
             switch (action.getCode()) {
-
                 case 1:
-                    // Reattempt to send the order some inkatracker
-                    resultCanonical = orderExternalServiceDispatcher
-                                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
-                                            .map(r -> {
+                    boolean isSellerCenter = Constant.Source.SC.name().equals(iOrderFulfillment.getSource());
 
-                                                int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0)+1;
+                    if(isSellerCenter) {
 
-                                                orderTransaction.updateOrderRetryingTracker(
-                                                        iOrderFulfillment.getOrderId(), attemptTracker,
-                                                        r.getOrderStatus().getCode(), r.getOrderStatus().getDetail(),
-                                                        Optional.ofNullable(r.getTrackerId()).orElse(null)
-                                                );
-                                                r.setExternalId(iOrderFulfillment.getExternalId());
-                                                r.setBridgePurchaseId(iOrderFulfillment.getBridgePurchaseId());
 
-                                                orderDetail.setAttempt(Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0));
-                                                orderDetail.setAttemptTracker(attemptTracker);
 
-                                                r.setOrderDetail(orderDetail);
 
-                                                r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
+                        // Reattempt to send the order some inkatracker
+                        resultCanonical = orderExternalServiceDispatcher
+                                .getResultfromSellerExternalServices(ecommercePurchaseId)
+                                .map(r -> {
 
-                                                orderExternalServiceAudit.updateOrderReactive(r).subscribe();
+                                    int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0)+1;
 
-                                                return r;
-                                            });
+                                    orderTransaction.updateOrderRetryingTracker(
+                                            iOrderFulfillment.getOrderId(), attemptTracker,
+                                            r.getOrderStatus().getCode(), r.getOrderStatus().getDetail(),
+                                            Optional.ofNullable(r.getTrackerId()).orElse(null)
+                                    );
+                                    r.setExternalId(iOrderFulfillment.getExternalId());
+                                    r.setBridgePurchaseId(iOrderFulfillment.getBridgePurchaseId());
 
+                                    orderDetail.setAttempt(Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0));
+                                    orderDetail.setAttemptTracker(attemptTracker);
+
+                                    r.setOrderDetail(orderDetail);
+
+                                    r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                                    orderExternalServiceAudit.updateOrderReactive(r).subscribe();
+
+                                    return r;
+                                });
+                    } else {
+                        // Reattempt to send the order some inkatracker
+                        resultCanonical = orderExternalServiceDispatcher
+                                .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
+                                .map(r -> {
+
+                                    int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0)+1;
+
+                                    orderTransaction.updateOrderRetryingTracker(
+                                            iOrderFulfillment.getOrderId(), attemptTracker,
+                                            r.getOrderStatus().getCode(), r.getOrderStatus().getDetail(),
+                                            Optional.ofNullable(r.getTrackerId()).orElse(null)
+                                    );
+                                    r.setExternalId(iOrderFulfillment.getExternalId());
+                                    r.setBridgePurchaseId(iOrderFulfillment.getBridgePurchaseId());
+
+                                    orderDetail.setAttempt(Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0));
+                                    orderDetail.setAttemptTracker(attemptTracker);
+
+                                    r.setOrderDetail(orderDetail);
+
+                                    r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                                    orderExternalServiceAudit.updateOrderReactive(r).subscribe();
+
+                                    return r;
+                                });
+                    }
                     break;
                 case 2:
                     // Reattempt to send the order at insink

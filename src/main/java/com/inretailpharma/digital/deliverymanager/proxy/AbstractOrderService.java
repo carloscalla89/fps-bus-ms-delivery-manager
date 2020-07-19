@@ -26,6 +26,11 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
+	public Mono<OrderCanonical> getResultfromSellerExternalServices(Long ecommerceId) {
+		return null;
+	}
+
+	@Override
 	public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
 		throw new UnsupportedOperationException();
 	}

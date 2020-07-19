@@ -47,6 +47,105 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
     }
 
     @Override
+    public Mono<OrderCanonical> getResultfromSellerExternalServices(Long ecommerceId) {
+
+        HttpClient httpClient = HttpClient
+                .create()
+                .tcpConfiguration(client ->
+                        client
+                                .option(
+                                        ChannelOption.CONNECT_TIMEOUT_MILLIS,
+                                        Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()))
+                                .doOnConnected(conn ->
+                                        conn
+                                                .addHandlerLast(
+                                                        new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())))
+                                                .addHandlerLast(
+                                                        new WriteTimeoutHandler(Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())))
+                                )
+                );
+
+
+
+        String inkatrackerUri = externalServicesProperties.getInkatrackerCreateOrderUri();
+
+        log.info("url dispatcher:{} - ecommerceId:{}",inkatrackerUri, ecommerceId);
+        return     WebClient
+                .builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .baseUrl(inkatrackerUri)
+                .build()
+                .get()
+                .uri(builder ->
+                        builder
+                                .path("/{orderId}")
+                                .build(ecommerceId))
+                .retrieve()
+                .bodyToMono(TrackerResponseDto.class)
+                //.timeout(Duration.ofMillis(100))
+                .subscribeOn(Schedulers.parallel())
+                .map(r -> {
+                    log.info("reattempt to tracker response:{}",r);
+                    OrderCanonical resultCanonical = new OrderCanonical();
+
+                    resultCanonical.setEcommerceId(ecommerceId);
+                    resultCanonical.setTrackerId(r.getId());
+
+                    Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getId())
+                            .map(s ->
+                                    Optional
+                                            .ofNullable(r.getCode())
+                                            .map(Constant.OrderStatus::getByCode)
+                                            .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS)
+                            )
+                            .orElseGet(() ->
+                                    Constant.OrderStatus.getByCode(
+                                            Optional.ofNullable(r.getCode())
+                                                    .orElse(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode())
+                                    )
+                            );
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                    orderStatus.setCode(orderStatusUtil.getCode());
+                    orderStatus.setName(orderStatusUtil.name());
+                    orderStatus.setDetail(r.getDetail());
+
+                    resultCanonical.setOrderStatus(orderStatus);
+
+                    return resultCanonical;
+
+
+                })
+                .defaultIfEmpty(
+                        new OrderCanonical(
+                                ecommerceId,
+                                Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
+                                Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
+                )
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+
+                    String errorMessage = "General Error invoking '" + inkatrackerUri +
+                            "':" + e.getMessage();
+                    log.error(errorMessage);
+                    OrderCanonical orderCanonical = new OrderCanonical();
+
+                    orderCanonical.setEcommerceId(ecommerceId);
+
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                    orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
+                    orderStatus.setDetail(errorMessage);
+
+                    orderCanonical.setOrderStatus(orderStatus);
+
+                    return Mono.just(orderCanonical);
+                });
+
+    }
+
+    @Override
     public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
         log.info("update order actionOrder.getCode:{}", actionDto.getAction());
 

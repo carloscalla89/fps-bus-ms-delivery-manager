@@ -14,6 +14,7 @@ public interface OrderExternalService {
     Mono<Void> sendOrderReactive(OrderCanonical orderCanonical);
     Mono<Void> updateOrderReactive(OrderCanonical orderCanonical);
     Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company);
+    Mono<OrderCanonical> getResultfromSellerExternalServices(Long ecommerceId);
     Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical);
     
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);

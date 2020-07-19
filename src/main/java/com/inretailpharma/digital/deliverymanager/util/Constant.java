@@ -69,6 +69,10 @@ public interface Constant {
         String READY_FOR_BILLING = "READY_FOR_BILLING";
     }
 
+    enum Source {
+        SC;
+    }
+
     enum ActionOrder {
 
         ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker", null, null),

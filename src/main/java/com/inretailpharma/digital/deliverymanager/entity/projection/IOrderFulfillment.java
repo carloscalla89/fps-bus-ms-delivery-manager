@@ -72,5 +72,6 @@ public interface IOrderFulfillment {
     String getNotes();
     BigDecimal getLatitude();
     BigDecimal getLongitude();
+    String getSource();
 
 }
