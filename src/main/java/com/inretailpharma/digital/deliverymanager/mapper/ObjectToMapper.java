@@ -153,6 +153,11 @@ public class ObjectToMapper {
             address.setLongitude(o.getLongitude().doubleValue());
             address.setNotes(o.getNotes());
             address.setApartment(o.getApartment());
+            address.setStreet(o.getStreet());
+            address.setCity(o.getCity());
+            address.setCountry(o.getCountry());
+            address.setDistrict(o.getDistrict());
+            address.setNumber(o.getNumber());
             orderInfoCanonical.setAddress(address);
 
             com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientCanonical client
@@ -165,6 +170,7 @@ public class ObjectToMapper {
             client.setPhone(o.getPhone());
             client.setHasInkaClub("N");
             client.setIsAnonymous("Y");
+
             orderInfoCanonical.setClient(client);
 
             orderInfoCanonical.setDeliveryCost(o.getDeliveryCost().doubleValue());
