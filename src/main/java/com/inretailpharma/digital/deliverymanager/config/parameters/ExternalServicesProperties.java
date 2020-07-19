@@ -87,4 +87,10 @@ public class ExternalServicesProperties {
     
     @Value("${external-service.fulfillment-center.get-center.uri}")
     private String fulfillmentCenterGetCenterUri;
+
+    //product properties
+    @Value("${external-service.product.details}")
+    private String productDetailsUri;
+    @Value("${external-service.product.timeout}")
+    private Integer productTimeout;
 }
