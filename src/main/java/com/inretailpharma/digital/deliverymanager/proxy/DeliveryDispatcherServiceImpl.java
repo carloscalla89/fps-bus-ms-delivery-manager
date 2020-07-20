@@ -79,17 +79,22 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                 .post()
                 .body(Mono.just(orderInfoCanonical), OrderInfoCanonical.class)
                 .retrieve()
-                .bodyToMono(TrackerResponseDto.class)
+                .bodyToMono(OrderInfoCanonical.class)
                 //.timeout(Duration.ofMillis(100))
                 .subscribeOn(Schedulers.parallel())
-                .map(r -> {
+                .map(order -> {
+
+                    TrackerResponseDto r = new TrackerResponseDto();
+                    r.setId(order.getOrderExternalId());
+
                     log.info("reattempt to tracker response:{}",r);
+
                     OrderCanonical resultCanonical = new OrderCanonical();
 
-                    resultCanonical.setEcommerceId(orderInfoCanonical.getOrderExternalId());
-                    resultCanonical.setTrackerId(orderInfoCanonical.getOrderExternalId());
+                    resultCanonical.setEcommerceId(order.getOrderExternalId());
+                    resultCanonical.setTrackerId(order.getOrderExternalId());
 
-                    Constant.OrderStatus orderStatusUtil = Optional.ofNullable(orderInfoCanonical.getOrderExternalId())
+                    Constant.OrderStatus orderStatusUtil = Optional.ofNullable(order.getOrderExternalId())
                             .map(s ->
                                     Optional
                                             .ofNullable(r.getCode())

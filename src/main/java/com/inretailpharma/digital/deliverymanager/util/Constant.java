@@ -72,6 +72,14 @@ public interface Constant {
     enum Source {
         SC;
     }
+    enum ReceiptType {
+        TICKET,
+        INVOICE
+    }
+    long DS_INKATRACKER = 3L;
+    long DEFAULT_DRUGSTORE_ID = 36;
+    int MAX_DELIVERY_NOTES_LENGTH = 200;
+    String NOTE_SEPARATOR = " - ";
 
     enum ActionOrder {
 
