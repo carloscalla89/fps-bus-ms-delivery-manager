@@ -2,6 +2,8 @@ package com.inretailpharma.digital.deliverymanager.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class OrderWrapperResponse {
 
@@ -23,5 +25,13 @@ public class OrderWrapperResponse {
     private String companyName;
     private String receiptName;
     private String paymentMethodName;
+
+    private Long localId;
+    private String localDescription;
+    private String localAddress;
+    private BigDecimal localLatitude;
+    private BigDecimal localLongitude;
+    private Integer localRadius;
+
 
 }

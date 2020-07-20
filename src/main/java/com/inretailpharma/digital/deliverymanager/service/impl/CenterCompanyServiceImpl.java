@@ -43,4 +43,25 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
 				.doOnSuccess(r -> log.info("[END] service to call api to CenterCompanyCanonical.getExternalInfo - {}",r));
 
 	}
+
+	@Override
+	public Mono<CenterCompanyCanonical> getExternalInfo(String companyCode, String localCode) {
+		log.info("[START] service to call api fulfillmentCenter- uri:{} - companyCode:{}, localCode:{}",
+				externalServicesProperties.getFulfillmentCenterGetCenterUri(), companyCode, localCode);
+
+		return WebClient
+				.builder()
+				.baseUrl(externalServicesProperties.getFulfillmentCenterGetCenterUri())
+				.build()
+				.get()
+				.uri(builder ->
+						builder
+								.path("/{companyCode}/{localCode}")
+								.build(companyCode,localCode)
+				)
+				.retrieve()
+				.bodyToMono(CenterCompanyCanonical.class)
+				.doOnSuccess(r -> log.info("[END] service to call api to CenterCompanyCanonical.getExternalInfo - {}",r));
+
+	}
 }

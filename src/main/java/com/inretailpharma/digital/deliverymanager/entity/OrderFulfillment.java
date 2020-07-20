@@ -41,6 +41,12 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="delivery_cost")
     private BigDecimal deliveryCost;
 
+    @Column(name="discount_applied")
+    private BigDecimal discountApplied;
+
+    @Column(name="sub_total_cost")
+    private BigDecimal subTotalCost;
+
     @Column(name="total_cost")
     private BigDecimal totalCost;
 

@@ -1,10 +1,13 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
+
 import com.inretailpharma.digital.deliverymanager.canonical.integration.ProductCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
 
@@ -36,10 +39,10 @@ import java.util.HashMap;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.List;
+
 import java.util.Map;
 import java.util.Optional;
-import java.util.Optional;
+
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -154,6 +157,10 @@ public class ObjectToMapper {
             canonical.setTotalPrice(itemCanonical.getTotalPrice().doubleValue());
             canonical.setUnitPrice(itemCanonical.getUnitPrice().doubleValue());
             canonical.setWithStock(Constant.Logical.Y.name());
+            canonical.setPresentationId(itemCanonical.getPresentationId());
+            canonical.setPresentationDescription(itemCanonical.getPresentationDescription());
+            canonical.setQuantityUnits(itemCanonical.getQuantityUnits());
+            canonical.setQuantityPresentation(itemCanonical.getQuantityPresentation());
 
             itemCanonicalList.add(canonical);
         }
@@ -194,38 +201,41 @@ public class ObjectToMapper {
                 Optional.ofNullable(clientCanonical.getAnonimous())
                         .orElse(0)==0?"N":"Y"
         );
-
+        clientInkatrackerCanonical.setHasInkaClub(
+                Optional.ofNullable(clientCanonical.getHasInkaClub())
+                        .orElse(0)==0?"N":"Y"
+        );
+        clientInkatrackerCanonical.setUserId(clientCanonical.getUserId());
+        clientInkatrackerCanonical.setNotificationToken(clientCanonical.getNotificationToken());
         return clientInkatrackerCanonical;
     }
 
     public OrderFulfillment convertOrderdtoToOrderEntity(OrderDto orderDto){
         log.info("[START] map-convertOrderdtoToOrderEntity");
+
         OrderFulfillment orderFulfillment = new OrderFulfillment();
         orderFulfillment.setSource(orderDto.getSource());
         orderFulfillment.setEcommercePurchaseId(orderDto.getEcommercePurchaseId());
         orderFulfillment.setTrackerId(orderDto.getTrackerId());
         orderFulfillment.setExternalPurchaseId(orderDto.getExternalPurchaseId());
         orderFulfillment.setBridgePurchaseId(orderDto.getBridgePurchaseId());
+        orderFulfillment.setDiscountApplied(orderDto.getDiscountApplied());
+        orderFulfillment.setSubTotalCost(orderDto.getSubTotalCost());
         orderFulfillment.setTotalCost(orderDto.getTotalCost());
         orderFulfillment.setDeliveryCost(orderDto.getDeliveryCost());
         orderFulfillment.setSourceCompanyName(orderDto.getSourceCompanyName());
 
-        if (Optional.ofNullable(orderDto.getSchedules()).isPresent()) {
-            orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
-            orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
-            orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getConfirmedOrder()));
-
-        } else {
-            orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getCreatedOrder()));
-            orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getScheduledTime()));
-        }
-
+        orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
+        orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
+        orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getConfirmedOrder()));
 
         // object orderItem
         orderFulfillment.setOrderItem(
                 orderDto.getOrderItem().stream().map(r -> {
                     OrderFulfillmentItem orderFulfillmentItem = new OrderFulfillmentItem();
                     orderFulfillmentItem.setProductCode(r.getProductCode());
+                    orderFulfillmentItem.setProductSapCode(r.getProductSapCode());
+                    orderFulfillmentItem.setEanCode(r.getEanCode());
                     orderFulfillmentItem.setProductName(r.getProductName());
                     orderFulfillmentItem.setShortDescription(r.getShortDescription());
                     orderFulfillmentItem.setBrand(r.getBrand());
@@ -234,6 +244,10 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setTotalPrice(r.getTotalPrice());
                     orderFulfillmentItem.setFractionated(Constant.Logical.parse(r.getFractionated()));
                     orderFulfillmentItem.setFractionalDiscount(r.getFractionalDiscount());
+                    orderFulfillmentItem.setPresentationId(r.getPresentationId());
+                    orderFulfillmentItem.setPresentationDescription(r.getPresentationDescription());
+                    orderFulfillmentItem.setQuantityUnits(r.getQuantity());
+                    orderFulfillmentItem.setQuantityPresentation(r.getQuantityPresentation());
 
                     return orderFulfillmentItem;
                 }).collect(Collectors.toList())
@@ -250,6 +264,7 @@ public class ObjectToMapper {
         client.setLastName(orderDto.getClient().getLastName());
         client.setPhone(orderDto.getClient().getPhone());
         client.setInkaclub(orderDto.getClient().getHasInkaClub());
+        client.setNotificationToken(orderDto.getClient().getNotificationToken());
         orderFulfillment.setClient(client);
 
 
@@ -371,8 +386,8 @@ public class ObjectToMapper {
             orderInfoCanonical.setTotalCost(o.getTotalCost().doubleValue());
             orderInfoCanonical.setSubtotal(o.getTotalCost().doubleValue() - o.getDeliveryCost().doubleValue());
 
-            com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PaymentMethodCanonical paymentMethod =
-                    new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PaymentMethodCanonical();
+            PaymentMethodInkatrackerCanonical paymentMethod =
+                    new PaymentMethodInkatrackerCanonical();
             paymentMethod.setType(o.getPaymentType());
             paymentMethod.setChangeAmount((o.getChangeAmount() != null) ? o.getChangeAmount().doubleValue() : 0);
             paymentMethod.setPaidAmount((o.getPaidAmount() != null) ? o.getChangeAmount().doubleValue() : 0);
@@ -387,8 +402,8 @@ public class ObjectToMapper {
 
             orderInfoCanonical.setInkaDeliveryId(o.getExternalId());
 
-            com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptCanonical receipt =
-                    new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptCanonical();
+            ReceiptInkatrackerCanonical receipt =
+                    new ReceiptInkatrackerCanonical();
             receipt.setType(o.getReceiptType());
             receipt.setCompanyAddress(o.getCompanyAddressReceipt());
             receipt.setCompanyId(o.getRuc());
@@ -408,11 +423,11 @@ public class ObjectToMapper {
                 productMap.put(ioProduct.getProductCode(), ioProduct);
             });
 
-            List<com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemCanonical> orderItems =
+            List<OrderItemInkatrackerCanonical> orderItems =
                     new ArrayList<>();
             productList.forEach(product -> {
-                com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemCanonical orderItem
-                        = new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemCanonical();
+                OrderItemInkatrackerCanonical orderItem
+                        = new OrderItemInkatrackerCanonical();
                 orderItem.setBrand(productMap.get(product.getId()).getBrandProduct());
                 orderItem.setFractionated(productMap.get(product.getId()).getFractionated());
                 orderItem.setName(productMap.get(product.getId()).getNameProduct());
@@ -551,7 +566,49 @@ public class ObjectToMapper {
         return orderItemCanonical;    	
     }
 
-    public Mono<OrderCanonical> convertEntityToOrderCanonical(OrderDto orderDto) {
+
+    public OrderCanonical setsOrderWrapperResponseToOrderCanonical(OrderWrapperResponse orderWrapperResponse,
+                                                                   OrderCanonical orderCanonical) {
+
+        // set status
+        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+        orderStatus.setCode(orderWrapperResponse.getOrderStatusCode());
+        orderStatus.setName(orderWrapperResponse.getOrderStatusName());
+        orderStatus.setDetail(orderWrapperResponse.getOrderStatusDetail());
+        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+        orderCanonical.setOrderStatus(orderStatus);
+
+        // set service of delivery or pickup on store
+        orderCanonical.getOrderDetail().setServiceCode(orderWrapperResponse.getServiceCode());
+        orderCanonical.getOrderDetail().setServiceName(orderWrapperResponse.getServiceName());
+        orderCanonical.getOrderDetail().setServiceType(orderWrapperResponse.getServiceType());
+        orderCanonical.getOrderDetail().setServiceEnabled(
+                Constant.Logical.getByValueString(orderWrapperResponse.getServiceEnabled()).value()
+        );
+        orderCanonical.getOrderDetail().setServiceSourceChannel(orderWrapperResponse.getServiceSourcechannel());
+        orderCanonical.getOrderDetail().setAttempt(orderWrapperResponse.getAttemptBilling());
+        orderCanonical.getOrderDetail().setAttemptTracker(orderWrapperResponse.getAttemptTracker());
+
+        // set local and company names;
+        orderCanonical.setCompany(orderWrapperResponse.getCompanyName());
+        orderCanonical.setLocal(orderWrapperResponse.getLocalName());
+        orderCanonical.setLocalCode(orderWrapperResponse.getLocalCode());
+        orderCanonical.setLocalDescription(orderWrapperResponse.getLocalDescription());
+        orderCanonical.setLocalAddress(orderWrapperResponse.getLocalAddress());
+        orderCanonical.setLocalId(orderWrapperResponse.getLocalId());
+        orderCanonical.setLocalLongitude(orderWrapperResponse.getLocalLongitude());
+        orderCanonical.setLocalLatitude(orderWrapperResponse.getLocalLatitude());
+
+        // attempts
+        orderCanonical.setAttemptTracker(orderWrapperResponse.getAttemptTracker());
+        orderCanonical.setAttempt(orderWrapperResponse.getAttemptBilling());
+
+        return orderCanonical;
+
+    }
+
+    public Mono<OrderCanonical> convertOrderDtoToOrderCanonical(OrderDto orderDto) {
         log.info("[START] convertEntityToOrderCanonical");
 
         OrderCanonical orderCanonical = new OrderCanonical();
@@ -664,13 +721,18 @@ public class ObjectToMapper {
 
         // set Receipt
         ReceiptCanonical receipt = new ReceiptCanonical();
+        receipt.setType(orderDto.getReceipt().getName());
         receipt.setAddress(orderDto.getReceipt().getCompanyAddress());
         receipt.setCompanyName(orderDto.getReceipt().getCompanyName());
         receipt.setRuc(orderDto.getReceipt().getRuc());
+
         orderCanonical.setReceipt(receipt);
 
         // set Payment
         PaymentMethodCanonical paymentMethod = new PaymentMethodCanonical();
+        paymentMethod.setType(PaymentMethod
+                .PaymentType
+                .getPaymentTypeByNameType(orderDto.getPayment().getType()).name());
         paymentMethod.setCardProvider(orderDto.getPayment().getCardProvider());
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
         paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
@@ -692,7 +754,6 @@ public class ObjectToMapper {
             cancellationCanonical.setDescription(r.getReason());
             return cancellationCanonical;
         }).collect(Collectors.toList());
-
     }
 
 

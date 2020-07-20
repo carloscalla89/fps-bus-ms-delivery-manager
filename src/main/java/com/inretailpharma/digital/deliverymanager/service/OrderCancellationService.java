@@ -8,6 +8,6 @@ import java.util.List;
 public interface OrderCancellationService {
 
     List<CancellationCodeReason> getListCodeCancellationByCode(String appType);
-    void insertCancelledOrder(OrderCancelled orderCancelled);
     CancellationCodeReason geByCode(String code);
+    CancellationCodeReason geByCodeAndAppType(String code, String appType);
 }

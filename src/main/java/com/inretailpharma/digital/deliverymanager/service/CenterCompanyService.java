@@ -6,5 +6,6 @@ import reactor.core.publisher.Mono;
 public interface CenterCompanyService {
 	
 	Mono<CenterCompanyCanonical> getExternalInfo(String localcode);
+	Mono<CenterCompanyCanonical> getExternalInfo(String companyCode, String localcode);
 
 }

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import com.inretailpharma.digital.deliverymanager.entity.Company;
 import lombok.Data;
 
 @Data
@@ -13,6 +14,7 @@ public class CenterCompanyCanonical  implements Serializable {
 
 	private Long legacyId;
 	private String localCode;
+	private Company company;
 	private String name;
 	private String description;
 	private String address;

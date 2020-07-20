@@ -15,12 +15,9 @@ import java.util.List;
 public class OrderCancellationServiceImpl implements OrderCancellationService {
 
     private CancellationCodeReasonRepository cancellationCodeReasonRepository;
-    private OrderCancelledRepository orderCancelledRepository;
 
-    public OrderCancellationServiceImpl(CancellationCodeReasonRepository cancellationCodeReasonRepository,
-                                        OrderCancelledRepository orderCancelledRepository) {
+    public OrderCancellationServiceImpl(CancellationCodeReasonRepository cancellationCodeReasonRepository) {
         this.cancellationCodeReasonRepository = cancellationCodeReasonRepository;
-        this.orderCancelledRepository = orderCancelledRepository;
     }
 
     @Override
@@ -29,12 +26,12 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
     }
 
     @Override
-    public void insertCancelledOrder(OrderCancelled orderCancelled) {
-        orderCancelledRepository.save(orderCancelled);
+    public CancellationCodeReason geByCode(String code) {
+        return cancellationCodeReasonRepository.findByCode(code);
     }
 
     @Override
-    public CancellationCodeReason geByCode(String code) {
-        return cancellationCodeReasonRepository.getOne(code);
+    public CancellationCodeReason geByCodeAndAppType(String code, String appType) {
+        return cancellationCodeReasonRepository.findByCodeAndAppType(code, appType);
     }
 }

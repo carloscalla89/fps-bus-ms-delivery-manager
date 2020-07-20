@@ -19,4 +19,7 @@ public class ClientCanonical {
     private String firstName;
     private String lastName;
 
+    private String userId;
+    private String notificationToken;
+
 }

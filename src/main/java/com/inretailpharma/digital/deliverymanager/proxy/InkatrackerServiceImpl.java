@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.DrugstoreCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderTrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -62,115 +63,102 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
         log.info("[START] connect inkatracker   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
-        Constant.OrderStatus errorResponse;
-        Constant.OrderStatus successResponse;
+        Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
 
-        OrderStatusInkatrackerCanonical orderInkaTrackerStatus = new OrderStatusInkatrackerCanonical();
-        switch (actionDto.getAction()) {
+        OrderTrackerCanonical orderTrackerCanonical = new OrderTrackerCanonical();
+        orderTrackerCanonical.setInkaDeliveryId(actionDto.getExternalBillingId());
+        orderTrackerCanonical.setCancelCode(actionDto.getOrderCancelCode());
+        orderTrackerCanonical.setCancelClientReason(actionDto.getOrderCancelClientReason());
+        orderTrackerCanonical.setCancelReason(actionDto.getOrderCancelReason());
+        orderTrackerCanonical.setCancelObservation(actionDto.getOrderCancelObservation());
 
-            case Constant.ActionName.CANCEL_ORDER:
-                orderInkaTrackerStatus.setStatusName(Constant.ActionNameInkatrackerlite.CANCELLED);
-                successResponse = Constant.OrderStatus.CANCELLED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
-                orderInkaTrackerStatus.setStatusDate(
-                        DateUtils.getLocalDateTimeObjectNow().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                );
-                orderInkaTrackerStatus.setCode(actionDto.getOrderCancelCode());
-                orderInkaTrackerStatus.setCustomNote(actionDto.getOrderCancelObservation());
-
-                break;
-            case Constant.ActionName.DELIVER_ORDER:
-                orderInkaTrackerStatus.setStatusName(Constant.ActionNameInkatrackerlite.DELIVERED);
-                successResponse = Constant.OrderStatus.DELIVERED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_DELIVER;
-                break;
-            default:
-                orderInkaTrackerStatus.setStatusName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
-                successResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
-                errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
-        }
-        OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
-        orderInkatrackerCanonical.setOrderExternalId(ecommerceId);
-        orderInkatrackerCanonical.setOrderStatus(orderInkaTrackerStatus);
-        orderInkatrackerCanonical.setInkaDeliveryId(
-                Optional.ofNullable(actionDto.getExternalBillingId())
-                        .map(Long::parseLong).orElse(0L)
-        );
-
-        log.info("url inkatracket:{}",externalServicesProperties.getInkatrackerUpdateOrderUri());
+        log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerUpdateStatusOrderUri());
 
         TcpClient tcpClient = TcpClient
-                .create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                        Integer.parseInt(externalServicesProperties.getInkatrackerUpdateOrderConnectTimeOut())
-                ) // Connection Timeout
-                .doOnConnected(connection ->
-                        connection.addHandlerLast(
-                                new ReadTimeoutHandler(
-                                        Integer.parseInt(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
-                                )
-                        )
-                ); // Read Timeout
-        log.info("body:{}",orderInkatrackerCanonical);
+                    .create()
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
+                            Integer.parseInt(externalServicesProperties.getInkatrackerUpdateStatusOrderConnectTimeOut())
+                    ) // Connection Timeout
+                    .doOnConnected(connection ->
+                            connection.addHandlerLast(
+                                    new ReadTimeoutHandler(
+                                            Integer.parseInt(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
+                                    )
+                            )
+                    ); // Read Timeout
+
+        log.info("body:{}",orderTrackerCanonical);
+
         return WebClient
                 .builder()
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
-                .baseUrl(externalServicesProperties.getInkatrackerUpdateOrderUri())
+                .baseUrl(externalServicesProperties.getInkatrackerUpdateStatusOrderUri())
                 .build()
-                .post()
-                .body(Mono.just(orderInkatrackerCanonical), OrderInkatrackerCanonical.class)
-                .exchange()
-                .map(r -> {
-                    log.info("response:{}", r.statusCode());
+                .patch()
+                .uri(builder -> builder
+                                    .path("/{orderExternalId}")
+                                    .queryParam("action",actionDto.getAction())
+                                    .build(ecommerceId))
+                                    .body(Mono.just(orderTrackerCanonical), OrderTrackerCanonical.class)
+                                    .exchange()
+                                    .map(r -> {
+                                        log.info("response:{}", r.statusCode());
 
-                    OrderCanonical orderCanonical = new OrderCanonical();
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                        OrderCanonical orderCanonical = new OrderCanonical();
 
-                    if (r.statusCode().is2xxSuccessful()) {
-                        orderStatus.setCode(successResponse.getCode());
-                        orderStatus.setName(successResponse.name());
-                        orderCanonical.setOrderStatus(orderStatus);
-                    } else {
-                        orderStatus.setCode(errorResponse.getCode());
-                        orderStatus.setName(errorResponse.name());
-                        orderCanonical.setOrderStatus(orderStatus);
-                    }
-                    log.info("orderCanonical:{}",orderCanonical);
-                    return orderCanonical;
-                })
-                .defaultIfEmpty(
-                        new OrderCanonical(
-                                ecommerceId,
-                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(),
-                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name())
-                )
-                .onErrorResume(e -> {
-                    e.printStackTrace();
-                    log.error("Error in inkatracker call {} ",e.getMessage());
-                    OrderCanonical orderCanonical = new OrderCanonical();
+                                        Constant.OrderStatus os;
 
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(errorResponse.getCode());
-                    orderStatus.setName(errorResponse.name());
-                    orderStatus.setDetail(e.getMessage());
+                                        if (r.statusCode().is2xxSuccessful()) {
 
-                    orderCanonical.setOrderStatus(orderStatus);
+                                            os = Constant.OrderStatus.getByCode(action.getOrderSuccessStatusCode());
 
-                    return Mono.just(orderCanonical);
-                });
+                                        } else {
+
+                                            os = Constant.OrderStatus.getByCode(action.getOrderErrorStatusCode());
+                                        }
+
+                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                        orderStatus.setName(os.name());
+
+                                        orderCanonical.setOrderStatus(orderStatus);
+                                        orderCanonical.setOrderStatus(orderStatus);
+
+                                        log.info("orderCanonical:{}",orderCanonical);
+
+                                        return orderCanonical;
+                                    })
+                                    .defaultIfEmpty(
+                                            new OrderCanonical(
+                                                    ecommerceId,
+                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(),
+                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name())
+                                    )
+                                    .onErrorResume(e -> {
+                                        e.printStackTrace();
+                                        log.error("Error in inkatracker call {} ",e.getMessage());
+
+                                        Constant.OrderStatus os = Constant.OrderStatus.getByCode(action.getOrderErrorStatusCode());
+
+                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                        orderStatus.setCode(os.getCode());
+                                        orderStatus.setName(os.name());
+                                        orderStatus.setDetail(e.getMessage());
+
+                                        OrderCanonical orderCanonical = new OrderCanonical();
+                                        orderCanonical.setOrderStatus(orderStatus);
+
+                                        return Mono.just(orderCanonical);
+                                    });
 
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonicalresult) {
-        log.info("[START] sendOrderToTracker - orderCanonical:{}",orderCanonicalresult);
+    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical oc) {
+        log.info("[START] sendOrderToTracker - orderCanonical:{}",oc);
 
-        return centerCompanyService.getExternalInfo(orderCanonicalresult.getLocalCode())
-                .zipWith(Mono.just(objectToMapper.convertOrderToOrderInkatrackerCanonical(orderCanonicalresult)), (a,b) -> {
-                    b.setDrugstore(
-                        new DrugstoreCanonical(a.getLegacyId(), a.getName(), a.getDescription(), a.getAddress(),
-                                a.getLatitude().doubleValue(), a.getLongitude().doubleValue(), 0)
-                );
+        return Mono
+                .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(oc))
+                .flatMap(b -> {
 
                 log.info("Order prepared to send inkatracker - orderInkatracker:{}",b);
 
@@ -201,17 +189,17 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             log.info("response:{}", r.statusCode());
 
                             OrderCanonical orderCanonical = new OrderCanonical();
-                            orderCanonical.setEcommerceId(orderCanonicalresult.getEcommerceId());
+                            orderCanonical.setEcommerceId(oc.getEcommerceId());
                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
                             if (r.statusCode().is2xxSuccessful()) {
-                                orderCanonical.setTrackerId(orderCanonicalresult.getEcommerceId());
+                                orderCanonical.setTrackerId(oc.getEcommerceId());
                                 orderStatus.setCode(Constant.OrderStatus.CONFIRMED.getCode());
                                 orderStatus.setName(Constant.OrderStatus.CONFIRMED.name());
                                 orderCanonical.setOrderStatus(orderStatus);
                             } else {
-                                orderStatus.setCode(Constant.OrderStatus.ERROR_CONFIRMED.getCode());
-                                orderStatus.setName(Constant.OrderStatus.ERROR_CONFIRMED.name());
+                                orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                                orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
                                 orderStatus.setDetail(r.statusCode().getReasonPhrase());
                                 orderCanonical.setOrderStatus(orderStatus);
                             }
@@ -220,9 +208,9 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                         })
                         .defaultIfEmpty(
                                 new OrderCanonical(
-                                        orderCanonicalresult.getEcommerceId(),
-                                        Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(),
-                                        Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name())
+                                        oc.getEcommerceId(),
+                                        Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(),
+                                        Constant.OrderStatus.ERROR_INSERT_TRACKER.name())
                         )
                         .onErrorResume(e -> {
                             e.printStackTrace();
@@ -230,8 +218,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             OrderCanonical orderCanonical = new OrderCanonical();
 
                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                            orderStatus.setCode(Constant.OrderStatus.ERROR_CONFIRMED.getCode());
-                            orderStatus.setName(Constant.OrderStatus.ERROR_CONFIRMED.name());
+                            orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+                            orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
                             orderStatus.setDetail(e.getMessage());
 
                             orderCanonical.setOrderStatus(orderStatus);
@@ -239,6 +227,6 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             return Mono.just(orderCanonical);
                         });
 
-            }).flatMap(r -> r);
+            });
     }
 }

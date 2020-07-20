@@ -67,6 +67,9 @@ public interface Constant {
         String CANCEL_ORDER = "CANCEL_ORDER";
         String DELIVER_ORDER = "DELIVER_ORDER";
         String READY_PICKUP_ORDER = "READY_PICKUP_ORDER";
+        String ATTEMPT_TRACKER_CREATE = "ATTEMPT_TRACKER_CREATE";
+        String UPDATE_TRACKER_BILLING = "UPDATE_TRACKER_BILLING";
+        String UPDATE_RELEASE_ORDER = "UPDATE_RELEASE_ORDER";
     }
 
     interface ActionNameInkatrackerlite {
@@ -74,6 +77,8 @@ public interface Constant {
         String CANCELLED = "CANCELLED";
         String DELIVERED = "DELIVERED";
         String READY_FOR_BILLING = "READY_FOR_BILLING";
+        String TRACKER_CREATE_CONFIRMED = "CONFIRMED";
+        String ON_STORE = "ON_STORE";
     }
 
     enum Source {
@@ -119,15 +124,16 @@ public interface Constant {
 
     enum ActionOrder {
 
-        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker", null, null),
-        UPDATE_TRACKER_BILLING(1, "actualizar el BILLING ID(número de pedido diario) a un tracker", null, null),
+        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker", "00", "01"),
+        UPDATE_TRACKER_BILLING(1, "actualizar el BILLING ID(número de pedido diario) a un tracker", "00", "05"),
+        ON_RELEASE_ORDER(1, "liberar una orden programada","00","05"),
 
-        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink", null, null),
-        RELEASE_ORDER(2, "Liberar orden reservada", null, null),
+        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink", "00", "02"),
+        RELEASE_ORDER(2, "Liberar orden reservada", "00", "04"),
 
-        UPDATE_RELEASE_ORDER(3, "Actualizar el resultado al liberar unaorden desde el dispatcher", null, null),
+        UPDATE_RELEASE_ORDER(3, "Actualizar el resultado al liberar unaorden desde el dispatcher", "00", "04"),
 
-        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada", null, null),
+        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada", "11", "33"),
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada", null, null),
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger", null, null),
 
@@ -177,6 +183,29 @@ public interface Constant {
                     .filter(item -> item.name().equalsIgnoreCase(name))
                     .findFirst()
                     .orElse(NONE);
+        }
+    }
+
+    enum OrderStatusInkatracker {
+        CANCEL_ORDER("CANCELLED"), DELIVER_ORDER("DELIVERED"), ATTEMPT_TRACKER_CREATE("CONFIRMED"),
+        UPDATE_TRACKER_BILLING("ON_STORE"), UPDATE_RELEASE_ORDER("ON_STORE"), NOT_FOUND_ACTION("NOT_FOUND_ACTION");
+
+        private String status;
+
+        public static OrderStatusInkatracker getByActionName(String action) {
+            return EnumUtils.getEnumList(OrderStatusInkatracker.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(action))
+                    .findFirst()
+                    .orElse(NOT_FOUND_ACTION);
+        }
+
+        OrderStatusInkatracker(String status) {
+            this.status = status;
+        }
+
+        public String getStatus() {
+            return status;
         }
     }
 

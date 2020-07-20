@@ -18,6 +18,7 @@ public class OrderItemInkatrackerCanonical {
     private String eanCode;
     private Integer presentationId;
     private String presentationDescription;
+    private boolean prescription;
     private Integer quantityUnits;
     private Integer quantityPresentation;
 

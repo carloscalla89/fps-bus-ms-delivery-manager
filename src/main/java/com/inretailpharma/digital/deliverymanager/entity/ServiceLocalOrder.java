@@ -44,4 +44,10 @@ public class ServiceLocalOrder {
     @Column(name= "cancellation_observation")
     private String cancellationObservation;
 
+    @Column(name="center_code")
+    private String centerCode;
+
+    @Column(name="company_code")
+    private String companyCode;
+
 }

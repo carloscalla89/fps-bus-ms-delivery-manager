@@ -17,13 +17,16 @@ public class OrderFulfillmentItem {
     @Column(name = "product_sap_code")
     private String productSapCode;
 
+    @Column(name = "ean_code")
+    private String eanCode;
+
     @Column(name = "name")
     private String productName;
 
     @Column(name = "short_description")
     private String shortDescription;
-    private String brand;
 
+    private String brand;
 
 
     private Integer quantity;
@@ -59,5 +62,17 @@ public class OrderFulfillmentItem {
 
     @Column(name="edition_code_type")
     private String editionCodeType;
+
+    @Column(name="presentation_id")
+    private Integer presentationId;
+
+    @Column(name="presentation_description")
+    private String presentationDescription;
+
+    @Column(name="quantity_units")
+    private Integer quantityUnits;
+
+    @Column(name="quantity_presentation")
+    private Integer quantityPresentation;
 
 }

@@ -50,35 +50,51 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
         Constant.OrderStatus errorResponse;
         Constant.OrderStatus successResponse;
 
+        String inkatrackerLiteUri;
+
         switch (actionDto.getAction()) {
 
             case Constant.ActionName.RELEASE_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_BILLING;
                 successResponse = Constant.OrderStatus.RELEASED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_RELEASE_ORDER;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
                 break;
             case Constant.ActionName.CANCEL_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.CANCELLED;
                 successResponse = Constant.OrderStatus.CANCELLED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
                 break;
             case Constant.ActionName.DELIVER_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.DELIVERED;
                 successResponse = Constant.OrderStatus.DELIVERED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_DELIVER;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
                 break;
             case Constant.ActionName.READY_PICKUP_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_PICKUP;
                 successResponse = Constant.OrderStatus.READY_PICKUP_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_PICKUP;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
                 break;
             default:
                 actionInkatrackerLite = Constant.OrderStatus.NOT_FOUND_ACTION.name();
                 successResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
                 errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
         }
 
-        log.info("url inkatracket-lite:{}",externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
+        log.info("url inkatracket-lite:{}",inkatrackerLiteUri);
         TcpClient tcpClient = TcpClient
                                 .create()
                                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,

@@ -49,4 +49,7 @@ external-service:
       uri: http://us-fulfillment-center/fulfillment/store/
       connect-timeout: 10000
       read-timeout: 120000
-
+    get-company-center:
+      uri: http://us-fulfillment-center/fulfillment/store/
+      connect-timeout: 10000
+      read-timeout: 120000

@@ -56,6 +56,11 @@ public class OrderCanonical {
     private String localCode;
     private String local;
     private String company;
+    private String localDescription;
+    private String localAddress;
+    private BigDecimal localLongitude;
+    private BigDecimal localLatitude;
+    private Long localId;
 
     // canonical client
     private ClientCanonical client;
