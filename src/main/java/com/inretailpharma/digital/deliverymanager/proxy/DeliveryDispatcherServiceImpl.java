@@ -87,9 +87,9 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                     OrderCanonical resultCanonical = new OrderCanonical();
 
                     resultCanonical.setEcommerceId(orderInfoCanonical.getOrderExternalId());
-                    resultCanonical.setTrackerId(r.getId());
+                    resultCanonical.setTrackerId(orderInfoCanonical.getOrderExternalId());
 
-                    Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getId())
+                    Constant.OrderStatus orderStatusUtil = Optional.ofNullable(orderInfoCanonical.getOrderExternalId())
                             .map(s ->
                                     Optional
                                             .ofNullable(r.getCode())
