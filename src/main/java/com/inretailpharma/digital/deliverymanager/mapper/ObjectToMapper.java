@@ -254,7 +254,7 @@ public class ObjectToMapper {
                 orderItem.setUnitPrice(productMap.get(product.getId()).getUnitPrice().doubleValue());
                 orderItem.setPresentationId(product.getPresentationId());
                 orderItem.setPresentationDescription(product.getPresentation());
-                orderItem.setQuantity(product.getQuantityUnits());
+                orderItem.setQuantityUnits(product.getQuantityUnits());
                 orderItems.add(orderItem);
             });
             orderInfoCanonical.setOrderItems(orderItems);
