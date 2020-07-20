@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -129,6 +131,14 @@ public class ObjectToMapper {
 
     }
 
+    public static void main(String[] args) {
+        Long test_timestamp = 1595127600L;
+        LocalDateTime triggerTime =
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(test_timestamp),
+                        TimeZone.getDefault().toZoneId());
+        System.out.println(triggerTime);
+
+    }
     public OrderInfoCanonical convertIOrderDtoToOrderTrackerFulfillmentCanonical(IOrderFulfillment iOrderFulfillment,
                                                                                  List<ProductCanonical> productList,
                                                                                  List<IOrderItemFulfillment> orderItemDtoList) {
@@ -180,10 +190,10 @@ public class ObjectToMapper {
             orderInfoCanonical.setDrugstore(drugstore);
 
             orderInfoCanonical.setDrugstoreId(36L);
-            orderInfoCanonical.setMaxDeliveryTime(o.getScheduledTime().plusMinutes(o.getLeadTime()).atZone(ZoneId.systemDefault()).toInstant().getEpochSecond());
+            orderInfoCanonical.setMaxDeliveryTime(o.getScheduledTime().plusMinutes(o.getLeadTime()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
             OrderStatusInkatrackerCanonical orderStatus = new OrderStatusInkatrackerCanonical();
-            orderStatus.setStatusDate(o.getConfirmedOrder().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond());
+            orderStatus.setStatusDate(o.getConfirmedOrder().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
             orderStatus.setStatusName("CONFIRMED");
             orderInfoCanonical.setOrderStatus(orderStatus);
 
@@ -218,7 +228,7 @@ public class ObjectToMapper {
             orderInfoCanonical.setCompanyCode(o.getCompanyCode());
 
             ScheduledCanonical scheduled = new ScheduledCanonical();
-            scheduled.setStartDate(o.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond());
+            scheduled.setStartDate(o.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
             scheduled.setEndDate(orderInfoCanonical.getMaxDeliveryTime());
             orderInfoCanonical.setScheduled(scheduled);
 
