@@ -268,12 +268,17 @@ public class ObjectToMapper {
 
     private String getOrderNotes(IOrderFulfillment o) {
 
-        String type = o.getReceiptType();
+        Constant.ReceiptType receiptType = Constant.ReceiptType.getByName(o.getReceiptType());
 
-        StringBuilder sb = new StringBuilder(type);
-        if (Constant.ReceiptType.INVOICE.name().equals(o.getReceiptType())) {
-            sb.append(Constant.NOTE_SEPARATOR).append(o.getCompanyNameReceipt())
-            .append(Constant.NOTE_SEPARATOR).append(o.getRuc());
+        StringBuilder sb = new StringBuilder();
+
+        if (Constant.ReceiptType.UNDEFINED != receiptType) {
+            sb.append(receiptType.getDescription());
+
+            if (Constant.ReceiptType.INVOICE.equals(receiptType)) {
+                sb.append(Constant.NOTE_SEPARATOR).append(o.getCompanyNameReceipt())
+                        .append(Constant.NOTE_SEPARATOR).append(o.getRuc());
+            }
         }
 
         if (StringUtils.isNotBlank(o.getOrderNotes())) {

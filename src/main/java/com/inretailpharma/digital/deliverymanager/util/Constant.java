@@ -73,8 +73,27 @@ public interface Constant {
         SC;
     }
     enum ReceiptType {
-        TICKET,
-        INVOICE
+        TICKET("BOLETA"),
+        INVOICE("FACTURA"),
+        UNDEFINED("NO DEFINIDO");
+
+        private final String description;
+
+        ReceiptType(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static ReceiptType getByName(String name) {
+            if (TICKET.name().equalsIgnoreCase(name))
+                return TICKET;
+            if (INVOICE.name().equalsIgnoreCase(name))
+                return INVOICE;
+            return UNDEFINED;
+        }
     }
     long DS_INKATRACKER = 3L;
     long DEFAULT_DRUGSTORE_ID = 36;
