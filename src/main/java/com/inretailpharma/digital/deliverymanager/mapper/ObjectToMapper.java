@@ -149,7 +149,7 @@ public class ObjectToMapper {
 
             orderInfoCanonical.setOrderExternalId(o.getEcommerceId());
             orderInfoCanonical.setSource(o.getSource());
-            orderInfoCanonical.setDateCreated(o.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond());
+            orderInfoCanonical.setDateCreated(o.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
             orderInfoCanonical.setDiscountApplied(new BigDecimal(0));
 
             com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressCanonical address
@@ -195,7 +195,7 @@ public class ObjectToMapper {
 
             OrderStatusInkatrackerCanonical orderStatus = new OrderStatusInkatrackerCanonical();
             orderStatus.setStatusDate(o.getConfirmedOrder().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-            orderStatus.setStatusName("CONFIRMED");
+            orderStatus.setStatusName(Constant.OrderStatus.CONFIRMED.name());
             orderInfoCanonical.setOrderStatus(orderStatus);
 
             orderInfoCanonical.setTotalCost(o.getTotalCost().doubleValue());
