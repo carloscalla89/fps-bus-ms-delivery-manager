@@ -53,6 +53,7 @@ public class OrderCanonical {
     private BigDecimal totalAmount;
 
     // Canonical local and company
+    private String localCodeCompany;
     private String localCode;
     private String local;
     private String company;

@@ -95,6 +95,22 @@ public class ObjectToMapper {
         );
         orderInkatrackerCanonical.setScheduled(scheduledCanonical);
 
+        DrugstoreCanonical drugstoreCanonical = new DrugstoreCanonical();
+        drugstoreCanonical.setId(orderCanonical.getId());
+        drugstoreCanonical.setName(orderCanonical.getLocal());
+        drugstoreCanonical.setDescription(orderCanonical.getLocalDescription());
+        drugstoreCanonical.setAddress(orderCanonical.getLocalAddress());
+        drugstoreCanonical.setLatitude(
+                Optional.ofNullable(orderCanonical.getLocalLatitude())
+                        .map(BigDecimal::doubleValue)
+                        .orElse(0.0)
+        );
+        drugstoreCanonical.setLongitude(
+                Optional.ofNullable(orderCanonical.getLocalLongitude())
+                        .map(BigDecimal::doubleValue)
+                        .orElse(0.0)
+        );
+
         return orderInkatrackerCanonical;
     }
 
