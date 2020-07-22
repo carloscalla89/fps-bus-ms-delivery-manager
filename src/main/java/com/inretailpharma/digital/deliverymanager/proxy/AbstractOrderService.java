@@ -7,6 +7,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Project
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import reactor.core.publisher.Mono;
 
 public class AbstractOrderService implements OrderExternalService {
@@ -29,6 +30,11 @@ public class AbstractOrderService implements OrderExternalService {
 	@Override
 	public Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical) {
 		return null;
+	}
+
+	@Override
+	public Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

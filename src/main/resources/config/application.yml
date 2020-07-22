@@ -40,3 +40,6 @@ external-service:
   product:
     details: http://us-product-mongo/v0/products/{ids}
     timeout: 10000
+  dispatcher:
+    retry-seller-center:
+      uri: http://us-dd/seller-center-order
