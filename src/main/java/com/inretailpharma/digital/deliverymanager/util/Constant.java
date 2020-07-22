@@ -100,7 +100,7 @@ public interface Constant {
     int MAX_DELIVERY_NOTES_LENGTH = 200;
     String NOTE_SEPARATOR = " - ";
     String DEFAULT_DS = "RAD";
-    int DEFAULT_SC_CARD_PROVIDER_ID = 3;
+    int DEFAULT_SC_CARD_PROVIDER_ID = 1;
     int DEFAULT_SC_PAYMENT_METHOD_ID = 3;
     String DEFAULT_SC_PAYMENT_METHOD_VALUE = "Pago en línea";
 
