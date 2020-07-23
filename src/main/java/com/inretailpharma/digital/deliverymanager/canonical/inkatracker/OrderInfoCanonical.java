@@ -18,7 +18,7 @@ public class OrderInfoCanonical {
     @NotNull
     private Long orderExternalId;
     @NotNull
-    @Pattern(regexp = "^(WEB|IOS|APP|CALL)$", message = "Accepted values: WEB, CALL, IOS, APP")
+    @Pattern(regexp = "^(WEB|IOS|APP|CALL|SC)$", message = "Accepted values: WEB, CALL, IOS, APP")
     private String source;
     @NotNull
     private Long dateCreated;

@@ -7,6 +7,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Project
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import reactor.core.publisher.Mono;
 
 
@@ -16,6 +17,7 @@ public interface OrderExternalService {
     Mono<Void> updateOrderReactive(OrderCanonical orderCanonical);
     Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company);
     Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical);
+    Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto);
     Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical);
     
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);

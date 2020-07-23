@@ -27,6 +27,8 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.insink-tracker.read-timeout}")
     private String dispatcherInsinkTrackerReadTimeout;
 
+    @Value("${external-service.dispatcher.retry-seller-center.uri}")
+    private String dispatcherRetrySellerCenterUri;
 
     // properties to DD endpoint tracker inka
     @Value("${external-service.dispatcher.tracker.uri}")

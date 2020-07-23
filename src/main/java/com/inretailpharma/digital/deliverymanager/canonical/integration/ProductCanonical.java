@@ -13,5 +13,8 @@ public class ProductCanonical {
     private String presentation;
     private String eanCode;
     private Integer quantityUnits;
+    private String sapCode;
+    private String familyType;
+    private double fractionatedPrice;
 
 }

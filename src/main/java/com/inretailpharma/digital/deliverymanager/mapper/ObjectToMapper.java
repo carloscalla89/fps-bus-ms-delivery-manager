@@ -124,6 +124,7 @@ public class ObjectToMapper {
         receiptType.setCompanyName(orderDto.getReceipt().getCompanyName());
         receiptType.setReceiptNote(orderDto.getReceipt().getNote());
         orderFulfillment.setReceiptType(receiptType);
+        orderFulfillment.setNotes(orderDto.getNotes());
 
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
@@ -148,7 +149,7 @@ public class ObjectToMapper {
 
             orderInfoCanonical.setOrderExternalId(o.getEcommerceId());
             orderInfoCanonical.setSource(o.getSource());
-            orderInfoCanonical.setDateCreated(o.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond());
+            orderInfoCanonical.setDateCreated(o.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
             orderInfoCanonical.setDiscountApplied(new BigDecimal(0));
 
             com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressCanonical address
@@ -178,23 +179,23 @@ public class ObjectToMapper {
             client.setLastName(o.getLastName());
             client.setEmail(o.getEmail());
             client.setPhone(o.getPhone());
-            client.setHasInkaClub("N");
-            client.setIsAnonymous("Y");
+            client.setHasInkaClub(Constant.Logical.N.name());
+            client.setIsAnonymous(Constant.Logical.Y.name());
             orderInfoCanonical.setClient(client);
 
             orderInfoCanonical.setDeliveryCost(o.getDeliveryCost().doubleValue());
-            orderInfoCanonical.setDeliveryService(3L);
+            orderInfoCanonical.setDeliveryService(Constant.DS_INKATRACKER);
 
             Drugstore drugstore = new Drugstore();
-            drugstore.setId(36L);
+            drugstore.setId(Constant.DEFAULT_DRUGSTORE_ID);
             orderInfoCanonical.setDrugstore(drugstore);
 
-            orderInfoCanonical.setDrugstoreId(36L);
+            orderInfoCanonical.setDrugstoreId(Constant.DEFAULT_DRUGSTORE_ID);
             orderInfoCanonical.setMaxDeliveryTime(o.getScheduledTime().plusMinutes(o.getLeadTime()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 
             OrderStatusInkatrackerCanonical orderStatus = new OrderStatusInkatrackerCanonical();
             orderStatus.setStatusDate(o.getConfirmedOrder().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-            orderStatus.setStatusName("CONFIRMED");
+            orderStatus.setStatusName(Constant.OrderStatus.CONFIRMED.name());
             orderInfoCanonical.setOrderStatus(orderStatus);
 
             orderInfoCanonical.setTotalCost(o.getTotalCost().doubleValue());
@@ -257,11 +258,37 @@ public class ObjectToMapper {
                 orderItem.setQuantityUnits(product.getQuantityUnits());
                 orderItems.add(orderItem);
             });
+            orderInfoCanonical.setNote(getOrderNotes(o));
             orderInfoCanonical.setOrderItems(orderItems);
         });
 
         log.debug("[END] map-convertIOrderDtoToOrderFulfillmentCanonical:{}", orderInfoCanonical);
         return orderInfoCanonical;
+    }
+
+    private String getOrderNotes(IOrderFulfillment o) {
+
+        Constant.ReceiptType receiptType = Constant.ReceiptType.getByName(o.getReceiptType());
+
+        StringBuilder sb = new StringBuilder();
+
+        if (Constant.ReceiptType.UNDEFINED != receiptType) {
+            sb.append(receiptType.getDescription());
+
+            if (Constant.ReceiptType.INVOICE.equals(receiptType)) {
+                sb.append(Constant.NOTE_SEPARATOR).append(o.getCompanyNameReceipt())
+                        .append(Constant.NOTE_SEPARATOR).append(o.getRuc());
+            }
+        }
+
+        if (StringUtils.isNotBlank(o.getOrderNotes())) {
+            sb.append(Constant.NOTE_SEPARATOR).append(o.getOrderNotes());
+        }
+
+        if (sb.length() > Constant.MAX_DELIVERY_NOTES_LENGTH) {
+            return sb.toString().substring(0, Constant.MAX_DELIVERY_NOTES_LENGTH);
+        }
+        return sb.toString();
     }
 
     public OrderCanonical convertIOrderDtoToOrderFulfillmentCanonical(IOrderFulfillment iOrderFulfillment) {

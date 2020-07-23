@@ -72,6 +72,37 @@ public interface Constant {
     enum Source {
         SC;
     }
+    enum ReceiptType {
+        TICKET("BOLETA"),
+        INVOICE("FACTURA"),
+        UNDEFINED("NO DEFINIDO");
+
+        private final String description;
+
+        ReceiptType(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static ReceiptType getByName(String name) {
+            if (TICKET.name().equalsIgnoreCase(name))
+                return TICKET;
+            if (INVOICE.name().equalsIgnoreCase(name))
+                return INVOICE;
+            return UNDEFINED;
+        }
+    }
+    long DS_INKATRACKER = 3L;
+    long DEFAULT_DRUGSTORE_ID = 36;
+    int MAX_DELIVERY_NOTES_LENGTH = 200;
+    String NOTE_SEPARATOR = " - ";
+    String DEFAULT_DS = "RAD";
+    int DEFAULT_SC_CARD_PROVIDER_ID = 1;
+    int DEFAULT_SC_PAYMENT_METHOD_ID = 3;
+    String DEFAULT_SC_PAYMENT_METHOD_VALUE = "Pago en línea";
 
     enum ActionOrder {
 

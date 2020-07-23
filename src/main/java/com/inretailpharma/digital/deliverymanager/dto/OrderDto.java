@@ -51,5 +51,5 @@ public class OrderDto {
     private String createdOrder;
 
     private String scheduledTime;
-
+    private String notes;
 }
