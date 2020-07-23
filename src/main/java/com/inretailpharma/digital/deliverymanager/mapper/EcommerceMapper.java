@@ -111,6 +111,7 @@ public class EcommerceMapper {
             orderDto.setAmount(NumberUtils.DOUBLE_ZERO);
             orderDto.setCreditCardProviderId(Constant.DEFAULT_SC_CARD_PROVIDER_ID);
             orderDto.setDeliveryType(Constant.DEFAULT_DS);
+            orderDto.setMarketplaceName(orderFulfillment.getSourceCompanyName());
         }
 
         return orderDto;
