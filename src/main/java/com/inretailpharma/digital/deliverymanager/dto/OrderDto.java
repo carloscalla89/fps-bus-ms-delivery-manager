@@ -52,4 +52,6 @@ public class OrderDto {
 
     private String scheduledTime;
     private String notes;
+
+    private String sourceCompanyName;
 }

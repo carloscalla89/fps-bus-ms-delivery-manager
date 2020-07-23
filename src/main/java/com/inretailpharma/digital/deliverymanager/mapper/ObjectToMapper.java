@@ -41,6 +41,7 @@ public class ObjectToMapper {
         orderFulfillment.setBridgePurchaseId(orderDto.getBridgePurchaseId());
         orderFulfillment.setTotalCost(orderDto.getTotalCost());
         orderFulfillment.setDeliveryCost(orderDto.getDeliveryCost());
+        orderFulfillment.setSourceCompanyName(orderDto.getSourceCompanyName());
 
         if (Optional.ofNullable(orderDto.getSchedules()).isPresent()) {
             orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
@@ -151,7 +152,7 @@ public class ObjectToMapper {
             orderInfoCanonical.setSource(o.getSource());
             orderInfoCanonical.setDateCreated(o.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
             orderInfoCanonical.setDiscountApplied(new BigDecimal(0));
-
+            orderInfoCanonical.setSourceCompanyName(o.getSourceCompanyName());
             com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressCanonical address
                     = new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressCanonical();
             address.setName(

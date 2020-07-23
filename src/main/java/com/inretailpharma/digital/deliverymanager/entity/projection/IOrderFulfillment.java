@@ -75,5 +75,6 @@ public interface IOrderFulfillment {
     BigDecimal getLongitude();
     String getSource();
     String getOrderNotes();
+    String getSourceCompanyName();
 
 }
