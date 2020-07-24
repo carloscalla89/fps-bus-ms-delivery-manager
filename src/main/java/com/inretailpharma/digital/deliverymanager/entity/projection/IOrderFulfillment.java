@@ -73,6 +73,7 @@ public interface IOrderFulfillment {
     String getNotes();
     BigDecimal getLatitude();
     BigDecimal getLongitude();
+    String getAddressReceiver();
     String getSource();
     String getOrderNotes();
     String getSourceCompanyName();
