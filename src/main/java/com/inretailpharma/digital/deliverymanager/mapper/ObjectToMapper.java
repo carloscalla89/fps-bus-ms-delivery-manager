@@ -101,6 +101,7 @@ public class ObjectToMapper {
             address.setLatitude(r.getLatitude());
             address.setLongitude(r.getLongitude()); 
             address.setStreet(r.getStreet());
+            address.setReceiver(r.getReceiver());
         });
 
         orderFulfillment.setAddress(address);
@@ -282,8 +283,8 @@ public class ObjectToMapper {
             }
         }
 
-        if (StringUtils.isNotBlank(o.getOrderNotes())) {
-            sb.append(Constant.NOTE_SEPARATOR).append(o.getOrderNotes());
+        if (StringUtils.isNotBlank(o.getAddressReceiver())) {
+            sb.append(Constant.NOTE_SEPARATOR).append(String.format(Constant.RECEIVER_FORMAT, o.getAddressReceiver()));
         }
 
         if (sb.length() > Constant.MAX_DELIVERY_NOTES_LENGTH) {

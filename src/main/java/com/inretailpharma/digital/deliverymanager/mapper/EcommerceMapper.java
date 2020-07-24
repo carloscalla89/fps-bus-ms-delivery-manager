@@ -39,6 +39,7 @@ public class EcommerceMapper {
             address.setCountry(orderFulfillment.getCountry());
             address.setDistrict(orderFulfillment.getDistrict());
             address.setNumber(orderFulfillment.getNumber());
+            address.setReceiverName(orderFulfillment.getAddressReceiver());
             orderDto.setDeliveryAddress(address);
 
             UserDto userDto = new UserDto();

@@ -103,6 +103,7 @@ public interface Constant {
     int DEFAULT_SC_CARD_PROVIDER_ID = 1;
     int DEFAULT_SC_PAYMENT_METHOD_ID = 3;
     String DEFAULT_SC_PAYMENT_METHOD_VALUE = "Pago en línea";
+    String RECEIVER_FORMAT = "Recibe: %s";
 
     enum ActionOrder {
 
