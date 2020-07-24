@@ -78,7 +78,7 @@ public class EcommerceMapper {
             receipt.setReceiptType(receiptTypeDto);
             receipt.setCompanyAddress(orderFulfillment.getCompanyAddressReceipt());
             receipt.setRuc(orderFulfillment.getRuc());
-            receipt.setCompanyName(orderFulfillment.getCompanyCode());
+            receipt.setCompanyName(orderFulfillment.getCompanyNameReceipt());
 
             orderDto.setReceipt(receipt);
             orderDto.setCompanyCode(orderFulfillment.getCompanyCode());
