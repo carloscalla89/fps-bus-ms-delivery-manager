@@ -20,4 +20,5 @@ public class AddressDto {
     private String notes;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    private String receiver;
 }

@@ -19,6 +19,7 @@ public interface IOrderFulfillment {
     LocalDateTime getCreatedOrder();
     LocalDateTime getScheduledTime();
     LocalDateTime getConfirmedSchedule();
+    LocalDateTime getConfirmedOrder();
 
     String getFirstName();
     String getLastName();
@@ -72,5 +73,9 @@ public interface IOrderFulfillment {
     String getNotes();
     BigDecimal getLatitude();
     BigDecimal getLongitude();
+    String getAddressReceiver();
+    String getSource();
+    String getOrderNotes();
+    String getSourceCompanyName();
 
 }

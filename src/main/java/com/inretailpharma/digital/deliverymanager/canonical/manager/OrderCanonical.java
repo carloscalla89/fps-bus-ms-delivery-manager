@@ -14,6 +14,12 @@ public class OrderCanonical {
 
     }
 
+    public OrderCanonical(String code, String name) {
+        this.orderStatus = new OrderStatusCanonical();
+        this.orderStatus.setCode(code);
+        this.orderStatus.setName(name);
+    }
+
     public OrderCanonical(Long ecommerceId, String code, String name) {
         this.ecommerceId = ecommerceId;
 

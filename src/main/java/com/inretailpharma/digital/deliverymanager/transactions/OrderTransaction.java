@@ -291,5 +291,4 @@ public class OrderTransaction {
                 ,orderStatusCode, orderFulfillmentId);
         orderRepositoryService.updateStatusOrderToDeletePending(orderStatusCode, orderFulfillmentId);
     }
-
 }
