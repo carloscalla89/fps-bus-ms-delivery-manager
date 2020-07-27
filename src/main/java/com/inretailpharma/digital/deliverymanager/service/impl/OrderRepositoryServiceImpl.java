@@ -157,7 +157,4 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
         return orderStatusRepository.getOrderStatusByTypeIs(statusName);
     }
-
-
-
 }

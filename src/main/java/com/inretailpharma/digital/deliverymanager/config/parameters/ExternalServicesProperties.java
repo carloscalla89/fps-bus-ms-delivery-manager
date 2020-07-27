@@ -27,6 +27,8 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.insink-tracker.read-timeout}")
     private String dispatcherInsinkTrackerReadTimeout;
 
+    @Value("${external-service.dispatcher.retry-seller-center.uri}")
+    private String dispatcherRetrySellerCenterUri;
 
     // properties to DD endpoint tracker inka
     @Value("${external-service.dispatcher.tracker.uri}")
@@ -62,6 +64,16 @@ public class ExternalServicesProperties {
     @Value("${external-service.inkatracker.update-status-order.read-timeout}")
     private String inkatrackerUpdateOrderReadTimeOut;
 
+
+    @Value("${external-service.inkatracker.create-order.uri}")
+    private String inkatrackerCreateOrderUri;
+
+    @Value("${external-service.inkatracker.create-order.connect-timeout}")
+    private String inkatrackerCreateOrderConnectTimeOut;
+
+    @Value("${external-service.inkatracker.create-order.read-timeout}")
+    private String inkatrackerCreateOrderReadTimeOut;
+
     // properties to order tracker
     @Value("${external-service.order-tracker.create-order.uri}")
     private String orderTrackerCreateOrderUri; 
@@ -77,4 +89,10 @@ public class ExternalServicesProperties {
     
     @Value("${external-service.fulfillment-center.get-center.uri}")
     private String fulfillmentCenterGetCenterUri;
+
+    //product properties
+    @Value("${external-service.product.details}")
+    private String productDetailsUri;
+    @Value("${external-service.product.timeout}")
+    private Integer productTimeout;
 }

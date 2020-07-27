@@ -1,5 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
+import com.inretailpharma.digital.deliverymanager.canonical.integration.ProductCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
@@ -12,8 +19,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,6 +41,7 @@ public class ObjectToMapper {
         orderFulfillment.setBridgePurchaseId(orderDto.getBridgePurchaseId());
         orderFulfillment.setTotalCost(orderDto.getTotalCost());
         orderFulfillment.setDeliveryCost(orderDto.getDeliveryCost());
+        orderFulfillment.setSourceCompanyName(orderDto.getSourceCompanyName());
 
         if (Optional.ofNullable(orderDto.getSchedules()).isPresent()) {
             orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
@@ -90,6 +101,7 @@ public class ObjectToMapper {
             address.setLatitude(r.getLatitude());
             address.setLongitude(r.getLongitude()); 
             address.setStreet(r.getStreet());
+            address.setReceiver(r.getReceiver());
         });
 
         orderFulfillment.setAddress(address);
@@ -114,11 +126,171 @@ public class ObjectToMapper {
         receiptType.setCompanyName(orderDto.getReceipt().getCompanyName());
         receiptType.setReceiptNote(orderDto.getReceipt().getNote());
         orderFulfillment.setReceiptType(receiptType);
+        orderFulfillment.setNotes(orderDto.getNotes());
 
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
         return orderFulfillment;
 
+    }
+
+    public static void main(String[] args) {
+        Long test_timestamp = 1595127600L;
+        LocalDateTime triggerTime =
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(test_timestamp),
+                        TimeZone.getDefault().toZoneId());
+        System.out.println(triggerTime);
+
+    }
+    public OrderInfoCanonical convertIOrderDtoToOrderTrackerFulfillmentCanonical(IOrderFulfillment iOrderFulfillment,
+                                                                                 List<ProductCanonical> productList,
+                                                                                 List<IOrderItemFulfillment> orderItemDtoList) {
+        log.debug("[START] map-convertIOrderDtoToOrderTrackerFulfillmentCanonical");
+        OrderInfoCanonical orderInfoCanonical = new OrderInfoCanonical();
+        Optional.ofNullable(iOrderFulfillment).ifPresent(o -> {
+
+            orderInfoCanonical.setOrderExternalId(o.getEcommerceId());
+            orderInfoCanonical.setSource(o.getSource());
+            orderInfoCanonical.setDateCreated(o.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+            orderInfoCanonical.setDiscountApplied(new BigDecimal(0));
+            orderInfoCanonical.setSourceCompanyName(o.getSourceCompanyName());
+            com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressCanonical address
+                    = new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressCanonical();
+            address.setName(
+                    Optional.ofNullable(o.getStreet()).orElse(StringUtils.EMPTY)
+                            + StringUtils.SPACE
+                            + Optional.ofNullable(o.getNumber()).orElse(StringUtils.EMPTY)
+            );
+            address.setDistrict(o.getDistrict());
+            address.setLatitude(o.getLatitude().doubleValue());
+            address.setLongitude(o.getLongitude().doubleValue());
+            address.setNotes(o.getNotes());
+            address.setApartment(o.getApartment());
+            address.setStreet(o.getStreet());
+            address.setCity(o.getCity());
+            address.setCountry(o.getCountry());
+            address.setDistrict(o.getDistrict());
+            address.setNumber(o.getNumber());
+            orderInfoCanonical.setAddress(address);
+
+            com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientCanonical client
+                    = new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientCanonical();
+
+            client.setDni(o.getDocumentNumber());
+            client.setFirstName(o.getFirstName());
+            client.setLastName(o.getLastName());
+            client.setEmail(o.getEmail());
+            client.setPhone(o.getPhone());
+            client.setHasInkaClub(Constant.Logical.N.name());
+            client.setIsAnonymous(Constant.Logical.Y.name());
+            orderInfoCanonical.setClient(client);
+
+            orderInfoCanonical.setDeliveryCost(o.getDeliveryCost().doubleValue());
+            orderInfoCanonical.setDeliveryService(Constant.DS_INKATRACKER);
+
+            Drugstore drugstore = new Drugstore();
+            drugstore.setId(Constant.DEFAULT_DRUGSTORE_ID);
+            orderInfoCanonical.setDrugstore(drugstore);
+
+            orderInfoCanonical.setDrugstoreId(Constant.DEFAULT_DRUGSTORE_ID);
+            orderInfoCanonical.setMaxDeliveryTime(o.getScheduledTime().plusMinutes(o.getLeadTime()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+
+            OrderStatusInkatrackerCanonical orderStatus = new OrderStatusInkatrackerCanonical();
+            orderStatus.setStatusDate(o.getConfirmedOrder().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+            orderStatus.setStatusName(Constant.OrderStatus.CONFIRMED.name());
+            orderInfoCanonical.setOrderStatus(orderStatus);
+
+            orderInfoCanonical.setTotalCost(o.getTotalCost().doubleValue());
+            orderInfoCanonical.setSubtotal(o.getTotalCost().doubleValue() - o.getDeliveryCost().doubleValue());
+
+            com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PaymentMethodCanonical paymentMethod =
+                    new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PaymentMethodCanonical();
+            paymentMethod.setType(o.getPaymentType());
+            paymentMethod.setChangeAmount((o.getChangeAmount() != null) ? o.getChangeAmount().doubleValue() : 0);
+            paymentMethod.setPaidAmount((o.getPaidAmount() != null) ? o.getChangeAmount().doubleValue() : 0);
+            paymentMethod.setProvider(o.getCardProvider());
+            paymentMethod.setCardCompany("");
+            orderInfoCanonical.setPaymentMethod(paymentMethod);
+
+            PreviousStatusCanonical previousStatusCanonical = new PreviousStatusCanonical();
+            previousStatusCanonical.setDate(orderStatus.getStatusDate());
+            previousStatusCanonical.setOrderStatus(orderStatus.getStatusName());
+            orderInfoCanonical.setPreviousStatus(Arrays.asList(previousStatusCanonical));
+
+            orderInfoCanonical.setInkaDeliveryId(o.getExternalId());
+
+            com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptCanonical receipt =
+                    new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptCanonical();
+            receipt.setType(o.getReceiptType());
+            receipt.setCompanyAddress(o.getCompanyAddressReceipt());
+            receipt.setCompanyId(o.getRuc());
+            receipt.setCompanyName(o.getCompanyCode());
+            orderInfoCanonical.setReceipt(receipt);
+
+            orderInfoCanonical.setNote(o.getNotes());
+            orderInfoCanonical.setCompanyCode(o.getCompanyCode());
+
+            ScheduledCanonical scheduled = new ScheduledCanonical();
+            scheduled.setStartDate(o.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+            scheduled.setEndDate(orderInfoCanonical.getMaxDeliveryTime());
+            orderInfoCanonical.setScheduled(scheduled);
+
+            Map<String, IOrderItemFulfillment> productMap = new HashMap<>();
+            orderItemDtoList.forEach(ioProduct -> {
+                productMap.put(ioProduct.getProductCode(), ioProduct);
+            });
+
+            List<com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemCanonical> orderItems =
+                    new ArrayList<>();
+            productList.forEach(product -> {
+                com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemCanonical orderItem
+                        = new com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemCanonical();
+                orderItem.setBrand(productMap.get(product.getId()).getBrandProduct());
+                orderItem.setFractionated(productMap.get(product.getId()).getFractionated());
+                orderItem.setName(productMap.get(product.getId()).getNameProduct());
+                orderItem.setQuantity(productMap.get(product.getId()).getQuantity());
+                orderItem.setShortDescription(productMap.get(product.getId()).getShortDescriptionProduct());
+                orderItem.setSku(productMap.get(product.getId()).getProductCode());
+                orderItem.setSap(productMap.get(product.getId()).getProductSapCode());
+                orderItem.setEanCode(product.getEanCode());
+                orderItem.setTotalPrice(productMap.get(product.getId()).getTotalPrice().doubleValue());
+                orderItem.setUnitPrice(productMap.get(product.getId()).getUnitPrice().doubleValue());
+                orderItem.setPresentationId(product.getPresentationId());
+                orderItem.setPresentationDescription(product.getPresentation());
+                orderItem.setQuantityUnits(product.getQuantityUnits());
+                orderItems.add(orderItem);
+            });
+            orderInfoCanonical.setNote(getOrderNotes(o));
+            orderInfoCanonical.setOrderItems(orderItems);
+        });
+
+        log.debug("[END] map-convertIOrderDtoToOrderFulfillmentCanonical:{}", orderInfoCanonical);
+        return orderInfoCanonical;
+    }
+
+    private String getOrderNotes(IOrderFulfillment o) {
+
+        Constant.ReceiptType receiptType = Constant.ReceiptType.getByName(o.getReceiptType());
+
+        StringBuilder sb = new StringBuilder();
+
+        if (Constant.ReceiptType.UNDEFINED != receiptType) {
+            sb.append(receiptType.getDescription());
+
+            if (Constant.ReceiptType.INVOICE.equals(receiptType)) {
+                sb.append(Constant.NOTE_SEPARATOR).append(o.getCompanyNameReceipt())
+                        .append(Constant.NOTE_SEPARATOR).append(o.getRuc());
+            }
+        }
+
+        if (StringUtils.isNotBlank(o.getAddressReceiver())) {
+            sb.append(Constant.NOTE_SEPARATOR).append(String.format(Constant.RECEIVER_FORMAT, o.getAddressReceiver()));
+        }
+
+        if (sb.length() > Constant.MAX_DELIVERY_NOTES_LENGTH) {
+            return sb.toString().substring(0, Constant.MAX_DELIVERY_NOTES_LENGTH);
+        }
+        return sb.toString();
     }
 
     public OrderCanonical convertIOrderDtoToOrderFulfillmentCanonical(IOrderFulfillment iOrderFulfillment) {
@@ -340,5 +512,6 @@ public class ObjectToMapper {
         }).collect(Collectors.toList());
 
     }
+
 
 }

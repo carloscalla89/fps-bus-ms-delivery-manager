@@ -51,4 +51,6 @@ public class Address {
     @Column(table = "address_fulfillment", name="postal_code")
     private String postalCode;
 
+    @Column(table = "address_fulfillment", name="receiver")
+    private String receiver;
 }
