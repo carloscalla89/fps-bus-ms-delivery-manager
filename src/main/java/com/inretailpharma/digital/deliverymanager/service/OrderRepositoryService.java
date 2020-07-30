@@ -10,9 +10,7 @@ import java.util.Set;
 public interface OrderRepositoryService {
 
     OrderFulfillment createOrder(OrderFulfillment orderFulfillment);
-    OrderFulfillment getOrderFulfillmentById(Long id);
     ServiceType getServiceTypeByCode(String code);
-    CenterCompanyFulfillment getCenterCompanyByCenterCodeAndCompanyCode(String centerCode, String companyCode);
     OrderStatus getOrderStatusByCode(String code);
     ServiceLocalOrder saveServiceLocalOrder(ServiceLocalOrder serviceLocalOrder);
     List<IOrderFulfillment> getListOrdersByStatus(Set<String> status);
@@ -32,9 +30,7 @@ public interface OrderRepositoryService {
     void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
 
     void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                    String orderStatusCode, Long orderFulfillmentId);
-
-    void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId);
+                                    String cancellationAppType, String orderStatusCode, Long orderFulfillmentId);
 
     Client saveClient(Client client);
 

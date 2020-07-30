@@ -44,21 +44,10 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return orderRepository.save(orderFulfillment);
     }
 
-    @Override
-    public OrderFulfillment getOrderFulfillmentById(Long id) {
-        return orderRepository.getOne(id);
-    }
 
     @Override
     public ServiceType getServiceTypeByCode(String code) {
         return serviceTypeRepository.getOne(code);
-    }
-
-
-    @Override
-    public CenterCompanyFulfillment getCenterCompanyByCenterCodeAndCompanyCode(String centerCode, String companyCode) {
-        return centerCompanyRepository.getCenterCompanyFulfillmentByCenterCompanyIdentity_CenterCodeAndCenterCompanyIdentity_CompanyCode
-                (centerCode, companyCode);
     }
 
     @Override
@@ -138,14 +127,9 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 
     @Override
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                           String orderStatusCode, Long orderFulfillmentId) {
+                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId) {
         serviceLocalOrderRepository.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
-                orderStatusCode, orderFulfillmentId);
-    }
-
-    @Override
-    public void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId) {
-        serviceLocalOrderRepository.updateStatusOrderToDeletePending(orderStatusCode, orderFulfillmentId);
+                cancellationAppType, orderStatusCode, orderFulfillmentId);
     }
 
     @Override

@@ -26,6 +26,7 @@ public class OrderCanonical {
         this.orderStatus = new OrderStatusCanonical();
         this.orderStatus.setCode(code);
         this.orderStatus.setName(name);
+        this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
     }
     
     public OrderCanonical(Long ecommerceId, String code, String name, String detail) {

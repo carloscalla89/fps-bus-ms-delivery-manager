@@ -265,19 +265,12 @@ public class OrderTransaction {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                           String orderStatusCode, Long orderFulfillmentId) {
+                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId) {
         log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
                  "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
                  ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
 
         orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
-                orderStatusCode, orderFulfillmentId);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId) {
-        log.info("[START] updateStatusOrderToDeletePending - orderStatusCode:{}, orderFulfillmentId:{}"
-                ,orderStatusCode, orderFulfillmentId);
-        orderRepositoryService.updateStatusOrderToDeletePending(orderStatusCode, orderFulfillmentId);
+                cancellationAppType, orderStatusCode, orderFulfillmentId);
     }
 }

@@ -6,6 +6,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -130,6 +131,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                     orderStatus.setCode(successResponse.getCode());
                     orderStatus.setName(successResponse.name());
+                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
                     orderCanonical.setOrderStatus(orderStatus);
 
                     return orderCanonical;
@@ -149,6 +151,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     orderStatus.setCode(errorResponse.getCode());
                     orderStatus.setName(errorResponse.name());
                     orderStatus.setDetail(e.getMessage());
+                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
                     orderCanonical.setOrderStatus(orderStatus);
 

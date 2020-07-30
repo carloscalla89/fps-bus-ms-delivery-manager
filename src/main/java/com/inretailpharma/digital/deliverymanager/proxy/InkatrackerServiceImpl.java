@@ -107,6 +107,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                         OrderCanonical orderCanonical = new OrderCanonical();
 
                                         Constant.OrderStatus os;
+                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
                                         if (r.statusCode().is2xxSuccessful()) {
 
@@ -115,12 +116,13 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                         } else {
 
                                             os = Constant.OrderStatus.getByCode(action.getOrderErrorStatusCode());
+                                            orderStatus.setDetail(r.statusCode().getReasonPhrase());
                                         }
 
-                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                        orderStatus.setCode(os.getCode());
                                         orderStatus.setName(os.name());
+                                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                                        orderCanonical.setOrderStatus(orderStatus);
                                         orderCanonical.setOrderStatus(orderStatus);
 
                                         log.info("orderCanonical:{}",orderCanonical);
@@ -143,6 +145,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                         orderStatus.setCode(os.getCode());
                                         orderStatus.setName(os.name());
                                         orderStatus.setDetail(e.getMessage());
+                                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
                                         OrderCanonical orderCanonical = new OrderCanonical();
                                         orderCanonical.setOrderStatus(orderStatus);
@@ -196,13 +199,15 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                 orderCanonical.setTrackerId(oc.getEcommerceId());
                                 orderStatus.setCode(Constant.OrderStatus.CONFIRMED.getCode());
                                 orderStatus.setName(Constant.OrderStatus.CONFIRMED.name());
-                                orderCanonical.setOrderStatus(orderStatus);
+
                             } else {
                                 orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
                                 orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
                                 orderStatus.setDetail(r.statusCode().getReasonPhrase());
-                                orderCanonical.setOrderStatus(orderStatus);
+
                             }
+                            orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+                            orderCanonical.setOrderStatus(orderStatus);
                             log.info("orderCanonical RESPONSE from inkatracker:{}",orderCanonical);
                             return orderCanonical;
                         })
@@ -221,7 +226,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
                             orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
                             orderStatus.setDetail(e.getMessage());
-
+                            orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
                             orderCanonical.setOrderStatus(orderStatus);
 
                             return Mono.just(orderCanonical);

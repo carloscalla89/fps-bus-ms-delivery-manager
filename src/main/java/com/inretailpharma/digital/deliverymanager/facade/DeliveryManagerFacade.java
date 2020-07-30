@@ -198,15 +198,32 @@ public class DeliveryManagerFacade {
                                             .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
                                             .flatMap(r -> {
 
-                                                    int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
-                                                    int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0)+1;
+                                                r.setAttempt(Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0)+1);
 
-                                                    if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())) {
-                                                        attemptTracker = Optional.of(attemptTracker).orElse(0) + 1;
-                                                    }
+                                                if (r.getOrderStatus().getCode().equalsIgnoreCase("00")
+                                                        || r.getOrderStatus().getCode().equalsIgnoreCase("10")) {
 
-                                                    // Para validar si el reintento siendo un pago en línea y una orden cancelada se ponga status 37, sino
-                                                    // tal orden si es cancelada por stock, ya no se mostraría como pendiente
+                                                    r.setAttemptTracker(Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0));
+
+                                                    OrderExternalService service = (OrderExternalService)context.getBean(
+                                                            Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                                                    );
+
+                                                    return service.sendOrderToTracker(r).flatMap(s -> {
+
+                                                        orderTransaction.updateOrderRetrying(
+                                                                iOrderFulfillment.getOrderId(), s.getAttempt(), s.getAttemptTracker(),
+                                                                s.getOrderStatus().getCode(), s.getOrderStatus().getDetail(),
+                                                                Optional.ofNullable(s.getExternalId()).orElse(null),
+                                                                Optional.ofNullable(s.getExternalId()).orElse(null)
+                                                        );
+
+                                                        orderExternalServiceAudit.updateOrderReactive(s).subscribe();
+
+                                                        return Mono.just(s);
+                                                    });
+
+                                                } else {
                                                     if (r.getOrderStatus() != null && r.getOrderStatus().getCode() != null &&
                                                             r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode()) &&
                                                             Optional.ofNullable(iOrderFulfillment.getPaymentType()).orElse(PaymentMethod.PaymentType.CASH.name())
@@ -216,25 +233,10 @@ public class DeliveryManagerFacade {
                                                         r.getOrderStatus().setName(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name());
                                                     }
 
-                                                    orderTransaction.updateOrderRetrying(
-                                                            iOrderFulfillment.getOrderId(), attempt, attemptTracker,
-                                                            r.getOrderStatus().getCode(), r.getOrderStatus().getDetail(),
-                                                            Optional.ofNullable(r.getExternalId()).orElse(null),
-                                                            Optional.ofNullable(r.getTrackerId()).orElse(null)
-                                                    );
-
-                                                    orderDetail.setAttempt(attempt);
-                                                    orderDetail.setAttemptTracker(attemptTracker);
-
-                                                    r.setOrderDetail(orderDetail);
-
-                                                    r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                                                    r.setBridgePurchaseId(iOrderFulfillment.getBridgePurchaseId());
-
                                                     orderExternalServiceAudit.updateOrderReactive(r).subscribe();
 
                                                     return Mono.just(r);
+                                                }
 
                                             });
                     break;
@@ -329,12 +331,14 @@ public class DeliveryManagerFacade {
                                                     log.info("Action to cancel order");
                                                     orderTransaction.updateStatusCancelledOrder(
                                                             r.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
-                                                            actionDto.getOrderCancelCode(), r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
+                                                            actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
+                                                            r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
                                                     );
                                                 } else {
                                                     orderTransaction.updateStatusOrder(iOrderFulfillment.getOrderId(), r.getOrderStatus().getCode(),
                                                             r.getOrderStatus().getDetail());
                                                 }
+
                                                 log.info("[END] to update order");
 
                                                 r.setEcommerceId(ecommercePurchaseId);
@@ -356,6 +360,7 @@ public class DeliveryManagerFacade {
                     OrderStatusCanonical orderStatusNotFound = new OrderStatusCanonical();
                     orderStatusNotFound.setCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
                     orderStatusNotFound.setName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+                    orderStatusNotFound.setStatusDate(DateUtils.getLocalDateTimeNow());
                     resultDefault.setOrderStatus(orderStatusNotFound);
 
                     resultDefault.setEcommerceId(ecommercePurchaseId);
@@ -371,6 +376,7 @@ public class DeliveryManagerFacade {
             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
             orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
             orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
+            orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
             resultWithoutAction.setOrderStatus(orderStatus);
             resultWithoutAction.setEcommerceId(ecommercePurchaseId);
 
