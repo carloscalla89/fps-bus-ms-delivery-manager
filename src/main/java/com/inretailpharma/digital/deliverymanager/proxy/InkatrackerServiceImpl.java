@@ -1,8 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.InvoicedOrderCanonical;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -52,6 +56,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
         Constant.OrderStatus successResponse;
 
         OrderStatusInkatrackerCanonical orderInkaTrackerStatus = new OrderStatusInkatrackerCanonical();
+        List<InvoicedOrderCanonical> invoicedList = new ArrayList<>();
         switch (actionDto.getAction()) {
 
             case Constant.ActionName.CANCEL_ORDER:
@@ -66,6 +71,14 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
                 break;
             case Constant.ActionName.DELIVER_ORDER:
+                actionDto.getInvoicedOrderList();
+                if(actionDto.getInvoicedOrderList() != null) {
+                    actionDto.getInvoicedOrderList().forEach(i -> {
+                        InvoicedOrderCanonical invoiced = new InvoicedOrderCanonical();
+                        invoiced.setInvoicedNumber(i.getInvoicedNumber());
+                        invoicedList.add(invoiced);
+                    });
+                }
                 orderInkaTrackerStatus.setStatusName(Constant.ActionNameInkatrackerlite.DELIVERED);
                 successResponse = Constant.OrderStatus.DELIVERED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_DELIVER;
@@ -82,6 +95,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                 Optional.ofNullable(actionDto.getExternalBillingId())
                         .map(Long::parseLong).orElse(0L)
         );
+        orderInkatrackerCanonical.setInvoicedList(invoicedList);
 
         log.info("url inkatracket:{}",externalServicesProperties.getInkatrackerUpdateOrderUri());
 

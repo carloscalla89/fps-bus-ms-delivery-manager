@@ -2,6 +2,8 @@ package com.inretailpharma.digital.deliverymanager.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ActionDto {
 
@@ -11,4 +13,5 @@ public class ActionDto {
     private String trackerId;
     private String orderCancelCode;
     private String orderCancelObservation;
+    private List<InvoicedOrderDto> invoicedOrderList;
 }
