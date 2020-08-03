@@ -56,7 +56,7 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
 				.get()
 				.uri(builder ->
 						builder
-								.path("/{companyCode}/{localCode}")
+								.path("/{localCode}")
 								.build(companyCode,localCode)
 				)
 				.retrieve()
