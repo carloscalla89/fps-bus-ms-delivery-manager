@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
 	}
 	
 	@Override
-	public Mono<CenterCompanyCanonical> getExternalInfo(String localCode) {
+	public Mono<StoreCenterCanonical> getExternalInfo(String localCode) {
 		
 		log.info("[START] service to call api to CenterCompanyCanonical.getExternalInfo - uri:{} - body:{}",
                 externalServicesProperties.getFulfillmentCenterGetCenterUri(), localCode);
@@ -39,13 +40,13 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
                 				.path("/{localCode}")
                                 .build(localCode))
                 .retrieve()
-				.bodyToMono(CenterCompanyCanonical.class)
+				.bodyToMono(StoreCenterCanonical.class)
 				.doOnSuccess(r -> log.info("[END] service to call api to CenterCompanyCanonical.getExternalInfo - {}",r));
 
 	}
 
 	@Override
-	public Mono<CenterCompanyCanonical> getExternalInfo(String companyCode, String localCode) {
+	public Mono<StoreCenterCanonical> getExternalInfo(String companyCode, String localCode) {
 		log.info("[START] service to call api fulfillmentCenter- uri:{} - companyCode:{}, localCode:{}",
 				externalServicesProperties.getFulfillmentCenterGetCenterUri(), companyCode, localCode);
 
@@ -60,7 +61,11 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
 								.build(localCode)
 				)
 				.retrieve()
-				.bodyToMono(CenterCompanyCanonical.class)
+				.bodyToMono(StoreCenterCanonical.class)
+				.flatMap(r -> {
+					r.setCompanyCode(companyCode);
+					return Mono.just(r);
+				})
 				.doOnSuccess(r -> log.info("[END] service to call api to CenterCompanyCanonical.getExternalInfo - {}",r))
 				.onErrorResume(r -> {
 
@@ -68,11 +73,11 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
 
 					log.error("error in get info center store:{}",r.getMessage());
 
-					CenterCompanyCanonical centerCompanyCanonical = new CenterCompanyCanonical();
-					centerCompanyCanonical.setLocalCode(localCode);
-					centerCompanyCanonical.setCompanyCode(companyCode);
+					StoreCenterCanonical storeCenterCanonical = new StoreCenterCanonical();
+					storeCenterCanonical.setLocalCode(localCode);
+					storeCenterCanonical.setCompanyCode(companyCode);
 
-					return Mono.just(centerCompanyCanonical);
+					return Mono.just(storeCenterCanonical);
 				});
 
 	}

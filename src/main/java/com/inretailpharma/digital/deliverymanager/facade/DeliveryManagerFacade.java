@@ -97,10 +97,13 @@ public class DeliveryManagerFacade {
 
         return Mono
                 .defer(() -> centerCompanyService.getExternalInfo(orderDto.getCompanyCode(), orderDto.getLocalCode()))
-                .zipWith(objectToMapper.convertOrderDtoToOrderCanonical(orderDto), (a,b) -> {
+                .zipWith(objectToMapper.convertOrderDtoToOrderCanonical(orderDto), (storeCenter,b) -> {
 
                     OrderWrapperResponse r =  orderTransaction.createOrderTransaction(
-                                                    objectToMapper.convertOrderdtoToOrderEntity(orderDto), orderDto, a);
+                                                    objectToMapper.convertOrderdtoToOrderEntity(orderDto),
+                                                    orderDto,
+                                                    storeCenter
+                                              );
 
                     OrderCanonical orderCanonicalResponse =  objectToMapper.setsOrderWrapperResponseToOrderCanonical(r, b);
 

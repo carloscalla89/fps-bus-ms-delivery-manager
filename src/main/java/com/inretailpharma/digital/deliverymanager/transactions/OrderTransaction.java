@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CenterCompanyCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
@@ -32,7 +33,7 @@ public class OrderTransaction {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public OrderWrapperResponse createOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto,
-                                                       CenterCompanyCanonical centerCompanyCanonical) {
+                                                       StoreCenterCanonical centerCompanyCanonical) {
 
         log.info("[START ] createOrderReactive");
 
