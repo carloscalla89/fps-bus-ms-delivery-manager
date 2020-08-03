@@ -57,7 +57,7 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
 				.uri(builder ->
 						builder
 								.path("/{localCode}")
-								.build(companyCode,localCode)
+								.build(localCode)
 				)
 				.retrieve()
 				.bodyToMono(CenterCompanyCanonical.class)
