@@ -607,7 +607,7 @@ public class ObjectToMapper {
         orderCanonical.getOrderDetail().setAttemptTracker(orderWrapperResponse.getAttemptTracker());
 
         // set local and company names;
-        orderCanonical.setCompany(orderWrapperResponse.getCompanyName());
+        orderCanonical.setCompany(orderWrapperResponse.getCompanyCode());
         orderCanonical.setLocal(orderWrapperResponse.getLocalName());
         orderCanonical.setLocalCode(orderWrapperResponse.getLocalCode());
         orderCanonical.setLocalDescription(orderWrapperResponse.getLocalDescription());

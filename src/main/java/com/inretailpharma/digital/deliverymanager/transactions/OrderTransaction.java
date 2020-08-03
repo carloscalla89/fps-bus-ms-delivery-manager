@@ -102,6 +102,7 @@ public class OrderTransaction {
         orderWrapperResponse.setAttemptBilling(serviceLocalOrderResponse.getAttempt());
         orderWrapperResponse.setAttemptTracker(serviceLocalOrderResponse.getAttemptTracker());
 
+        orderWrapperResponse.setCompanyCode(centerCompanyCanonical.getCompanyCode());
         orderWrapperResponse.setLocalName(centerCompanyCanonical.getName());
         orderWrapperResponse.setLocalCode(centerCompanyCanonical.getLocalCode());
         orderWrapperResponse.setLocalAddress(centerCompanyCanonical.getAddress());
