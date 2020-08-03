@@ -14,7 +14,7 @@ public class CenterCompanyCanonical  implements Serializable {
 
 	private Long legacyId;
 	private String localCode;
-	private Company company;
+	private String companyCode;
 	private String name;
 	private String description;
 	private String address;

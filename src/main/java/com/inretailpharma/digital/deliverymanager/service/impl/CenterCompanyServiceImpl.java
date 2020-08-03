@@ -61,7 +61,19 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
 				)
 				.retrieve()
 				.bodyToMono(CenterCompanyCanonical.class)
-				.doOnSuccess(r -> log.info("[END] service to call api to CenterCompanyCanonical.getExternalInfo - {}",r));
+				.doOnSuccess(r -> log.info("[END] service to call api to CenterCompanyCanonical.getExternalInfo - {}",r))
+				.onErrorResume(r -> {
+
+					r.printStackTrace();
+
+					log.error("error in get info center store:{}",r.getMessage());
+
+					CenterCompanyCanonical centerCompanyCanonical = new CenterCompanyCanonical();
+					centerCompanyCanonical.setLocalCode(localCode);
+					centerCompanyCanonical.setCompanyCode(companyCode);
+
+					return Mono.just(centerCompanyCanonical);
+				});
 
 	}
 }

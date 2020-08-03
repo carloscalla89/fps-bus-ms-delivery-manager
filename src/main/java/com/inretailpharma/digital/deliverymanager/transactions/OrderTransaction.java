@@ -62,7 +62,7 @@ public class OrderTransaction {
         ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
 
         serviceLocalOrder.setCenterCode(centerCompanyCanonical.getLocalCode());
-        serviceLocalOrder.setCompanyCode(centerCompanyCanonical.getCompany().getCode());
+        serviceLocalOrder.setCompanyCode(centerCompanyCanonical.getCompanyCode());
 
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
 
