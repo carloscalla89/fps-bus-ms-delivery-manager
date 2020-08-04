@@ -48,6 +48,7 @@ public interface IOrderFulfillment {
     String getServiceTypeCode();
     String getServiceTypeName();
     String getServiceType();
+    String getServiceEnabled();
 
     String getPaymentType();
     String getCardProvider();

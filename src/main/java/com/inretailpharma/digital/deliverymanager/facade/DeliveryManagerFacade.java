@@ -203,28 +203,31 @@ public class DeliveryManagerFacade {
 
                                                 r.setAttempt(Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0)+1);
 
-                                                if (r.getOrderStatus().getCode().equalsIgnoreCase("00")
-                                                        || r.getOrderStatus().getCode().equalsIgnoreCase("10")) {
+                                                if (Constant.Logical.getByValueString(iOrderFulfillment.getServiceEnabled()).value()
+                                                    && (r.getOrderStatus().getCode().equalsIgnoreCase("00")
+                                                        || r.getOrderStatus().getCode().equalsIgnoreCase("10"))) {
 
-                                                    r.setAttemptTracker(Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0));
+                                                    OrderCanonical o = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
+                                                    o.setAttemptTracker(Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0));
+                                                    o.setAttempt(r.getAttempt());
 
                                                     OrderExternalService service = (OrderExternalService)context.getBean(
                                                             Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
                                                     );
 
-                                                    return service.sendOrderToTracker(r).flatMap(s -> {
+                                                    return service.sendOrderToTracker(o)
+                                                                  .flatMap(s -> {
+                                                                      orderTransaction.updateOrderRetrying(
+                                                                                iOrderFulfillment.getOrderId(), s.getAttempt(), s.getAttemptTracker(),
+                                                                                s.getOrderStatus().getCode(), s.getOrderStatus().getDetail(),
+                                                                                Optional.ofNullable(s.getExternalId()).orElse(null),
+                                                                                Optional.ofNullable(s.getEcommerceId()).orElse(null)
+                                                                      );
 
-                                                        orderTransaction.updateOrderRetrying(
-                                                                iOrderFulfillment.getOrderId(), s.getAttempt(), s.getAttemptTracker(),
-                                                                s.getOrderStatus().getCode(), s.getOrderStatus().getDetail(),
-                                                                Optional.ofNullable(s.getExternalId()).orElse(null),
-                                                                Optional.ofNullable(s.getExternalId()).orElse(null)
-                                                        );
+                                                                      orderExternalServiceAudit.updateOrderReactive(s).subscribe();
 
-                                                        orderExternalServiceAudit.updateOrderReactive(s).subscribe();
-
-                                                        return Mono.just(s);
-                                                    });
+                                                                      return Mono.just(s);
+                                                                  });
 
                                                 } else {
                                                     if (r.getOrderStatus() != null && r.getOrderStatus().getCode() != null &&

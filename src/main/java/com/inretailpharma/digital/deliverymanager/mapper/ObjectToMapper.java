@@ -54,13 +54,24 @@ public class ObjectToMapper {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
         orderInkatrackerCanonical.setOrderExternalId(orderCanonical.getEcommerceId());
-        orderInkatrackerCanonical.setDateCreated(
-                DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getCreatedOrder()).toEpochSecond(ZoneOffset.UTC)
-        );
+
+        Optional.ofNullable(orderCanonical.getOrderDetail())
+                .filter(r -> r.getCreatedOrder() != null)
+                .ifPresent(r -> orderInkatrackerCanonical.setDateCreated(
+                        DateUtils.getLocalDateTimeFromStringWithFormat(r.getCreatedOrder()).toEpochSecond(ZoneOffset.UTC)
+                ));
+
         orderInkatrackerCanonical.setSource(orderCanonical.getSource());
         Optional.ofNullable(orderCanonical.getDiscountApplied())
                 .ifPresent(r -> orderInkatrackerCanonical.setDiscountApplied(r.doubleValue()));
-        orderInkatrackerCanonical.setAddress(getFromtOrderCanonical(orderCanonical.getAddress(), orderCanonical.getOrderDetail().getLeadTime()));
+
+        orderInkatrackerCanonical.setAddress(getFromtOrderCanonical(
+                orderCanonical.getAddress(),
+                Optional.ofNullable(orderCanonical.getOrderDetail())
+                        .filter(r -> r.getLeadTime() != null)
+                        .map(OrderDetailCanonical::getLeadTime)
+                        .orElse(0))
+        );
         orderInkatrackerCanonical.setClient(getFromtOrderCanonical(orderCanonical.getClient()));
         orderInkatrackerCanonical.setDeliveryCost(
                 Optional.ofNullable(orderCanonical.getDeliveryCost())
