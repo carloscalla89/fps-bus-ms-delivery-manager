@@ -175,9 +175,13 @@ public class DeliveryManagerFacade {
 
                         resultCanonical = centerCompanyService.getExternalInfo(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
                                                               .flatMap(r -> {
-                                                                 OrderCanonical orderCanonical =  objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
+                                                                 OrderCanonical orderCanonical =  objectToMapper.convertIOrderDtoToAndItemOrderFulfillmentCanonical(
+                                                                                                    iOrderFulfillment,
+                                                                                                    orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId())
+                                                                                                  );
                                                                  orderCanonical.setLocalId(r.getLegacyId());
                                                                  orderCanonical.setLocalCode(r.getLocalCode());
+                                                                 orderCanonical.setLocal(r.getName());
                                                                  orderCanonical.setLocalDescription(r.getDescription());
                                                                  orderCanonical.setLocalLatitude(r.getLatitude());
                                                                  orderCanonical.setLocalLongitude(r.getLongitude());

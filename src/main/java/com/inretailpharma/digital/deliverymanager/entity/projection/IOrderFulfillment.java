@@ -14,7 +14,8 @@ public interface IOrderFulfillment {
 
     BigDecimal getTotalCost();
     BigDecimal getDeliveryCost();
-
+    BigDecimal getDiscountApplied();
+    String getSource();
 
     LocalDateTime getCreatedOrder();
     LocalDateTime getScheduledTime();
@@ -29,6 +30,7 @@ public interface IOrderFulfillment {
     String getBirthDate();
     String getAnonimous();
     Integer getInkaClub();
+    String getNotificationToken();
 
     String getCenterCode();
     String getCenterName();
@@ -38,6 +40,7 @@ public interface IOrderFulfillment {
     Integer getLeadTime();
     LocalTime getStartHour();
     LocalTime getEndHour();
+
 
     String getStatusCode();
     Integer getAttempt();

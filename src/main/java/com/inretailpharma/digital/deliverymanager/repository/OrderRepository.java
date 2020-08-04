@@ -55,21 +55,23 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
     OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 
-    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, " +
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, o.source, " +
             "o.external_purchase_id as externalId, o.bridge_purchase_id as bridgePurchaseId, " +
-            "o.total_cost as totalCost, o.delivery_cost as deliveryCost, o.created_order as createdOrder, " +
-            "o.scheduled_time as scheduledTime, " +
+            "o.total_cost as totalCost, o.delivery_cost as deliveryCost, o.discount_applied as discountApplied, " +
+            "o.created_order as createdOrder, o.scheduled_time as scheduledTime, o.created_order as createdOrder, " +
+            "o.confirmed_order as confirmedOrder, " +
             "c.first_name as firstName, c.last_name as lastName, c.email, c.document_number as documentNumber, " +
-            "c.phone, c.birth_date as birthDate, c.anonimous, c.inkaclub, " +
+            "c.phone, c.birth_date as birthDate, c.anonimous, c.inkaclub, c.notification_token as notificationToken, " +
             "s.lead_time as leadTime, s.start_hour as startHour, s.end_hour as endHour," +
             "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
             "s.center_code as centerCode, s.company_code as companyCode, " +
             "st.code as serviceTypeCode, st.name as serviceTypeName, st.enabled as serviceEnabled," +
-            "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, pm.change_amount as changeAmount, " +
-            "rt.name as receiptType, rt.document_number as documentNumberReceipt, rt.ruc as ruc, rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt, rt.receipt_note as noteReceipt," +
-            "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, af.department, af.notes, af.latitude, af.longitude, af.receiver as addressReceiver, " +
-            "o.source as source, o.confirmed_order as confirmedOrder, o.notes as orderNotes, " +
-            "o.source_company_name as sourceCompanyName " +
+            "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
+            "pm.change_amount as changeAmount, " +
+            "rt.name as receiptType, rt.document_number as documentNumberReceipt, rt.ruc as ruc, " +
+            "rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt, rt.receipt_note as noteReceipt," +
+            "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, " +
+            "af.department, af.notes, af.latitude, af.longitude " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -84,7 +86,9 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
     @Query(value ="select oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
             "oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, oi.unit_price as unitPrice," +
-            "oi.total_price as totalPrice, oi.fractionated " +
+            "oi.total_price as totalPrice, oi.fractionated, " +
+            "oi.ean_code as eanCode, oi.presentation_id as presentationId, oi.presentation_description as presentationDescription, " +
+            "oi.quantity_units as quantityUnits, oi.quantity_presentation as quantityPresentation " +
             "from order_fulfillment_item oi " +
             "where oi.order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true
