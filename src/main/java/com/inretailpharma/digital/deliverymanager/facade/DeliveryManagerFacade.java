@@ -184,13 +184,30 @@ public class DeliveryManagerFacade {
 
                                                                  return Mono.just(orderCanonical);
 
-                                                              }).flatMap(r -> orderExternalService.sendOrderToTracker(r));
+                                                              })
+                                                              .flatMap(r ->
+                                                                      orderExternalService.sendOrderToTracker(r)
+                                                                                          .flatMap(s -> {
+                                                                                              orderExternalServiceAudit.updateOrderReactive(s).subscribe();
+
+                                                                                              return Mono.just(r);
+                                                                                          })
+                                                              );
 
 
                     } else {
                         resultCanonical = orderExternalService
                                                 .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
-                                                .map(r -> processInkatrackers(iOrderFulfillment, r));
+                                                .map(r -> processInkatrackers(iOrderFulfillment, r))
+                                                .flatMap(r ->
+                                                        orderExternalService.sendOrderToTracker(r)
+                                                                .flatMap(s -> {
+
+                                                                    orderExternalServiceAudit.updateOrderReactive(s).subscribe();
+
+                                                                    return Mono.just(r);
+                                                                })
+                                                );
                     }
 
                     break;
