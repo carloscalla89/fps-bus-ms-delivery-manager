@@ -96,7 +96,7 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setScheduled(scheduledCanonical);
 
         DrugstoreCanonical drugstoreCanonical = new DrugstoreCanonical();
-        drugstoreCanonical.setId(orderCanonical.getId());
+        drugstoreCanonical.setId(orderCanonical.getLocalId());
         drugstoreCanonical.setName(orderCanonical.getLocal());
         drugstoreCanonical.setDescription(orderCanonical.getLocalDescription());
         drugstoreCanonical.setAddress(orderCanonical.getLocalAddress());
@@ -110,6 +110,8 @@ public class ObjectToMapper {
                         .map(BigDecimal::doubleValue)
                         .orElse(0.0)
         );
+
+        orderInkatrackerCanonical.setDrugstore(drugstoreCanonical);
 
         return orderInkatrackerCanonical;
     }
