@@ -66,3 +66,4 @@ Pre requirements:
 Installation:
 
  	1. Open bash in /${artifactId}/devops and execute: ./install-local.sh
+
