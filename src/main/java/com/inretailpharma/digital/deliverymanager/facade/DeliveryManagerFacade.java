@@ -297,7 +297,6 @@ public class DeliveryManagerFacade {
 
                     resultCanonical = Mono.just(result);
 
-
                     break;
 
                 case 4:
