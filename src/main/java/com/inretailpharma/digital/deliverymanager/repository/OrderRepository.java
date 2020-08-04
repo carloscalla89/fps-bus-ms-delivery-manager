@@ -60,10 +60,10 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.total_cost as totalCost, o.delivery_cost as deliveryCost, o.created_order as createdOrder, " +
             "o.scheduled_time as scheduledTime, " +
             "c.first_name as firstName, c.last_name as lastName, c.email, c.document_number as documentNumber, " +
-            "c.phone, c.birth_date as birthDate, c.anonimous, c.inkaclub as inkaClub, " +
-            "ccf.center_code as centerCode, ccf.center_name as centerName, ccf.company_code as companyCode, ccf.company_name as companyName," +
+            "c.phone, c.birth_date as birthDate, c.anonimous, c.inkaclub, " +
             "s.lead_time as leadTime, s.start_hour as startHour, s.end_hour as endHour," +
             "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
+            "s.center_code as centerCode, s.company_code as companyCode, " +
             "st.code as serviceTypeCode, st.name as serviceTypeName, " +
             "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, pm.change_amount as changeAmount, " +
             "rt.name as receiptType, rt.document_number as documentNumberReceipt, rt.ruc as ruc, rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt, rt.receipt_note as noteReceipt," +
@@ -73,7 +73,6 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
-            "inner join center_company_fulfillment ccf on ccf.center_code = s.center_code and ccf.company_code = s.company_code " +
             "inner join service_type st on s.service_type_code = st.code " +
             "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
             "inner join receipt_type rt on rt.order_fulfillment_id = o.id " +
