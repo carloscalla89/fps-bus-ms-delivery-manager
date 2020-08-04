@@ -311,15 +311,18 @@ public class DeliveryManagerFacade {
                     if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
                         CancellationCodeReason codeReason;
                         if (actionDto.getOrderCancelCode() != null && actionDto.getOrderCancelAppType() != null) {
-                            codeReason = orderCancellationService.geByCodeAndAppType(actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType());
+                            codeReason = orderCancellationService
+                                            .geByCodeAndAppType(actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType());
                         } else {
                             codeReason = orderCancellationService.geByCode(actionDto.getOrderCancelCode());
                         }
 
-                        actionDto.setOrderCancelAppType(codeReason.getAppType());
-                        actionDto.setOrderCancelReason(codeReason.getReason());
-                        actionDto.setOrderCancelClientReason(codeReason.getClientReason());
-
+                        Optional.ofNullable(codeReason)
+                                .ifPresent(r -> {
+                                    actionDto.setOrderCancelAppType(r.getAppType());
+                                    actionDto.setOrderCancelReason(r.getReason());
+                                    actionDto.setOrderCancelClientReason(r.getClientReason());
+                                });
                     }
 
                     actionDto.setExternalBillingId(Optional.ofNullable(iOrderFulfillment.getExternalId()).map(Object::toString).orElse("0"));
