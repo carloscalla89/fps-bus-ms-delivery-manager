@@ -15,7 +15,6 @@ public interface IOrderFulfillment {
     BigDecimal getTotalCost();
     BigDecimal getDeliveryCost();
     BigDecimal getDiscountApplied();
-    String getSource();
 
     LocalDateTime getCreatedOrder();
     LocalDateTime getScheduledTime();
