@@ -482,7 +482,7 @@ public class ObjectToMapper {
                     + StringUtils.SPACE + Optional.ofNullable(o.getFirstName()).orElse(StringUtils.EMPTY));
         	client.setEmail(o.getEmail());
         	client.setPhone(o.getPhone());
-        	client.setHasInkaClub(o.getInkaClub());
+        	//client.setHasInkaClub(o.getInkaClub());
 
             OrderDetailCanonical orderDetail = new OrderDetailCanonical();
             Optional.ofNullable(o.getScheduledTime()).ifPresent(date -> {
