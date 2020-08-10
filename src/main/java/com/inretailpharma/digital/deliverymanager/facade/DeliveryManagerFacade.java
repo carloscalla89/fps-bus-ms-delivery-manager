@@ -213,7 +213,7 @@ public class DeliveryManagerFacade {
                                                         || r.getOrderStatus().getCode().equalsIgnoreCase("10"))) {
 
                                                     OrderCanonical o = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
-                                                    o.setAttemptTracker(Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0));
+                                                    o.setAttemptTracker(1);
                                                     o.setAttempt(r.getAttempt());
 
                                                     OrderExternalService service = (OrderExternalService)context.getBean(
@@ -235,6 +235,7 @@ public class DeliveryManagerFacade {
                                                                   });
 
                                                 } else {
+
                                                     if (r.getOrderStatus() != null && r.getOrderStatus().getCode() != null &&
                                                             r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode()) &&
                                                             Optional.ofNullable(iOrderFulfillment.getPaymentType()).orElse(PaymentMethod.PaymentType.CASH.name())
@@ -243,6 +244,12 @@ public class DeliveryManagerFacade {
                                                         r.getOrderStatus().setCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.getCode());
                                                         r.getOrderStatus().setName(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name());
                                                     }
+
+                                                    orderTransaction.updateOrderRetrying(
+                                                            iOrderFulfillment.getOrderId(), r.getAttempt(), 0,
+                                                            r.getOrderStatus().getCode(), r.getOrderStatus().getDetail(),
+                                                            null, ecommercePurchaseId
+                                                    );
 
                                                     orderExternalServiceAudit.updateOrderReactive(r).subscribe();
 

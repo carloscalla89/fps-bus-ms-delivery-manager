@@ -22,20 +22,17 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     private ServiceTypeRepository serviceTypeRepository;
     private OrderStatusRepository orderStatusRepository;
     private ServiceLocalOrderRepository serviceLocalOrderRepository;
-    private CenterCompanyRepository centerCompanyRepository;
     private ClientRepository clientRepository;
 
     public OrderRepositoryServiceImpl(OrderRepository orderRepository,
                                       ServiceTypeRepository serviceTypeRepository,
                                       OrderStatusRepository orderStatusRepository,
                                       ServiceLocalOrderRepository serviceLocalOrderRepository,
-                                      CenterCompanyRepository centerCompanyRepository,
                                       ClientRepository clientRepository) {
         this.orderRepository = orderRepository;
         this.serviceTypeRepository = serviceTypeRepository;
         this.orderStatusRepository = orderStatusRepository;
         this.serviceLocalOrderRepository = serviceLocalOrderRepository;
-        this.centerCompanyRepository = centerCompanyRepository;
         this.clientRepository = clientRepository;
     }
 

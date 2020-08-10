@@ -1,18 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import java.time.ZoneId;
-import java.util.Optional;
-
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.DrugstoreCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderTrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderStatusInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
@@ -22,7 +16,6 @@ import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -33,18 +26,12 @@ import reactor.netty.tcp.TcpClient;
 public class InkatrackerServiceImpl extends AbstractOrderService implements OrderExternalService{
 
     private ExternalServicesProperties externalServicesProperties;
-    private ApplicationParameterService applicationParameterService;
-    private CenterCompanyService centerCompanyService;
     private ObjectToMapper objectToMapper;
 
     public InkatrackerServiceImpl(ExternalServicesProperties externalServicesProperties,
-                                  ApplicationParameterService applicationParameterService,
-                                  CenterCompanyService centerCompanyService,
                                   ObjectToMapper objectToMapper) {
 
         this.externalServicesProperties = externalServicesProperties;
-        this.applicationParameterService = applicationParameterService;
-        this.centerCompanyService = centerCompanyService;
         this.objectToMapper = objectToMapper;
     }
 
