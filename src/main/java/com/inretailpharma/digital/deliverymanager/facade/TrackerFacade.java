@@ -59,16 +59,8 @@ public class TrackerFacade {
     		.parallel()
             .runOn(Schedulers.elastic())
 	    	.map(group -> {
-
-	    			IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(group.getOrderId());    		
-		    		OrderCanonical orderCanonical = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderDto);
-	    			
-	    			List<IOrderItemFulfillment> orderItemDtoList = orderTransaction.getOrderItemByOrderFulfillmentId(orderDto.getOrderId());
-	        		List<OrderItemCanonical> orderItemCanonicalList = orderItemDtoList.stream()
-	        				.map(objectToMapper::convertIOrderItemDtoToOrderItemFulfillmentCanonical)
-	        				.collect(Collectors.toList());
-
-	        		orderCanonical.setOrderItems(orderItemCanonicalList);
+  		
+		    		OrderCanonical orderCanonical = getOrder(group.getOrderId());
 	                
 	                Optional.ofNullable(group.getPickUpDetails()).ifPresent(pickUpDetails -> {
 	                	orderCanonical.setShelfList(pickUpDetails.getShelfList());
@@ -193,7 +185,6 @@ public class TrackerFacade {
     
     public Mono<OrderTrackerResponseCanonical> sendOrder(OrderToAssignCanonical orderToAssignCanonical) {
     	log.info("[START] sendOrder - external tracker");
-
 
     	OrderCanonical orderCanonical = this.getOrder(orderToAssignCanonical.getOrderId());
 		orderCanonical.setOrderStatus(null);
