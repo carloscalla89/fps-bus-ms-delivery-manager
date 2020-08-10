@@ -7,13 +7,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.FailedOrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.GroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderToAssignCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
@@ -190,6 +189,33 @@ public class TrackerFacade {
 	        	return Mono.just(response);
     			
     		}).block();
+    }
+    
+    public Mono<OrderTrackerResponseCanonical> sendOrder(OrderToAssignCanonical orderToAssignCanonical) {
+    	log.info("[START] sendOrder - external tracker");
+
+
+    	OrderCanonical orderCanonical = this.getOrder(orderToAssignCanonical.getOrderId());
+		orderCanonical.setOrderStatus(null);
+
+		orderExternalOrderTracker.sendOrderToTracker(orderCanonical).block();
+
+		OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
+		response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);	    		
+		return Mono.just(response);	
+    }
+    
+    private OrderCanonical getOrder(Long orderId) {
+    	IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(orderId);    		
+		OrderCanonical orderCanonical = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderDto);
+
+		List<IOrderItemFulfillment> orderItemDtoList = orderTransaction.getOrderItemByOrderFulfillmentId(orderDto.getOrderId());
+		List<OrderItemCanonical> orderItemCanonicalList = orderItemDtoList.stream()
+				.map(objectToMapper::convertIOrderItemDtoToOrderItemFulfillmentCanonical)
+				.collect(Collectors.toList());
+
+		orderCanonical.setOrderItems(orderItemCanonicalList);
+		return orderCanonical;
     }
     
     private void auditOrder(Long ecommerceId, Constant.OrderStatus status) {

@@ -32,7 +32,23 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
     	log.info("[START] call to OrderTracker - sendOrderToTracker - uri:{} - body:{}",
                 externalServicesProperties.getOrderTrackerCreateOrderUri(), orderCanonical);
     	
-		return null;
+    	return WebClient
+            	.create(externalServicesProperties.getOrderTrackerCreateOrderUri())
+            	.post()
+            	.bodyValue(orderCanonical)
+            	.retrieve()
+            	.bodyToMono(String.class)
+            	.map(body -> {
+            		log.info("[END] call to OrderTracker - sendOrderToTracker - s:{}", body);
+            		return orderCanonical;
+            	})
+            	.defaultIfEmpty(
+            			new OrderCanonical()
+            	)
+            	.onErrorResume(ex -> {
+            		log.error("[ERROR] call to OrderTracker - sendOrderToTracker", ex);
+            		return Mono.just(new OrderCanonical());
+            	});
     }
     
     @Override
