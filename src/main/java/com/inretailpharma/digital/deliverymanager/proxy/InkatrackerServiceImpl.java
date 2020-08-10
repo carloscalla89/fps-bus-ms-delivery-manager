@@ -121,6 +121,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
                                         orderStatus.setCode(os.getCode());
                                         orderStatus.setName(os.name());
+                                        orderStatus.setSuccessful(os.isSendTracker());
                                         orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
                                         orderCanonical.setOrderStatus(orderStatus);
@@ -157,7 +158,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
     @Override
     public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical oc) {
-        log.info("[START] sendOrderToTracker - orderCanonical:{}",oc);
+        log.info("[START] Create Order To Tracker - orderCanonical:{}",oc);
 
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(oc))
@@ -197,9 +198,10 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
                             if (r.statusCode().is2xxSuccessful()) {
                                 orderCanonical.setTrackerId(oc.getEcommerceId());
+
                                 orderStatus.setCode(Constant.OrderStatus.CONFIRMED.getCode());
                                 orderStatus.setName(Constant.OrderStatus.CONFIRMED.name());
-
+                                orderStatus.setSuccessful(Constant.OrderStatus.CONFIRMED.isSendTracker());
                             } else {
                                 orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
                                 orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());

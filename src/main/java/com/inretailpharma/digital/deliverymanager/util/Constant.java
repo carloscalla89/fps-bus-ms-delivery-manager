@@ -240,13 +240,13 @@ public interface Constant {
         READY_PICKUP_ORDER("13", null, false),
         RELEASED_ORDER("14", null, false),
 
-        CONFIRMED("15", null, false),
-        ON_STORE("16", null, false),
-        ASSIGNED("17", null, false),
-        PREPARED("18", null, false),
-        ON_ROUTE("19", null, false),
-        ARRIVED("20", null, false),
-        REJECTED("21", null, false),
+        CONFIRMED("15", null, true),
+        ON_STORE("16", null, true),
+        ASSIGNED("17", null, true),
+        PREPARED("18", null, true),
+        ON_ROUTE("19", null, true),
+        ARRIVED("20", null, true),
+        REJECTED("21", null, true),
 
 
         NOT_FOUND_CODE("-1", null, false),

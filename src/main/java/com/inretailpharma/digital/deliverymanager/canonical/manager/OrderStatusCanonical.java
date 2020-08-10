@@ -11,5 +11,6 @@ public class OrderStatusCanonical implements Serializable {
     private String name;
     private String detail;
     private String statusDate;
+    private boolean successful;
 
 }

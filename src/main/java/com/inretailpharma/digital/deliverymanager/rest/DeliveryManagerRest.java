@@ -82,7 +82,7 @@ public class DeliveryManagerRest {
                 ,ecommerceId,action);
 
         return deliveryManagerFacade
-                .   getUpdateOrder(action, ecommerceId)
+                .getUpdateOrder(action, ecommerceId)
                 .map(r -> ResponseEntity
                             .status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                             .body(r))
