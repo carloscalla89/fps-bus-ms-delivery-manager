@@ -36,7 +36,7 @@ external-service:
       connect-timeout: 240000
       read-timeout: 480
     update-status-order:
-      uri: http://us-inkatracker/nvr/orders/update
+      uri: http://us-inkatracker/nvr/orders
       connect-timeout: 240000
       read-timeout: 480
   order-tracker:

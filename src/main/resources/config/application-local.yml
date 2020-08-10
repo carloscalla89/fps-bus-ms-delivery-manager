@@ -33,7 +33,7 @@ external-service:
       connect-timeout: 240000
       read-timeout: 480
     update-status-order:
-      uri: http://localhost:8282/nvr/orders/update
+      uri: http://localhost:8282/nvr/orders
       connect-timeout: 240000
       read-timeout: 480
   order-tracker:
