@@ -56,6 +56,9 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
         Constant.OrderStatus successResponse;
 
         OrderStatusInkatrackerCanonical orderInkaTrackerStatus = new OrderStatusInkatrackerCanonical();
+        orderInkaTrackerStatus.setStatusDate(
+                DateUtils.getLocalDateTimeObjectNow().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        );
         List<InvoicedOrderCanonical> invoicedList = new ArrayList<>();
         switch (actionDto.getAction()) {
 
@@ -63,9 +66,6 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                 orderInkaTrackerStatus.setStatusName(Constant.ActionNameInkatrackerlite.CANCELLED);
                 successResponse = Constant.OrderStatus.CANCELLED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
-                orderInkaTrackerStatus.setStatusDate(
-                        DateUtils.getLocalDateTimeObjectNow().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                );
                 orderInkaTrackerStatus.setCode(actionDto.getOrderCancelCode());
                 orderInkaTrackerStatus.setCustomNote(actionDto.getOrderCancelObservation());
 
