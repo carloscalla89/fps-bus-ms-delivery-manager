@@ -493,11 +493,8 @@ public class ObjectToMapper {
             orderDetail.setServiceName(o.getServiceTypeName());
             
             AddressCanonical address = new AddressCanonical();
-            address.setName(
-                    Optional.ofNullable(o.getStreet()).orElse(StringUtils.EMPTY)
-                            + StringUtils.SPACE
-                            + Optional.ofNullable(o.getNumber()).orElse(StringUtils.EMPTY)
-            );
+            address.setName(Optional.ofNullable(o.getStreet()).orElse(StringUtils.EMPTY));
+            address.setNumber(Optional.ofNullable(o.getNumber()).orElse(StringUtils.EMPTY));
             address.setDepartment(o.getDepartment());
             address.setProvince(o.getProvince());
             address.setDistrict(o.getDistrict());
