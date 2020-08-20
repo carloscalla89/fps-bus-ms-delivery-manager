@@ -126,8 +126,7 @@ public interface Constant {
 
         ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker", "00", "01"),
         UPDATE_TRACKER_BILLING(1, "actualizar el BILLING ID(número de pedido diario) a un tracker", "00", "05"),
-        ON_RELEASE_ORDER(1, "liberar una orden programada","00","05"),
-
+        DESCHEDULER_ORDER(5, "Desprogramar una orden en el inkatracker", "00", "05"),
         ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink", "00", "02"),
         RELEASE_ORDER(2, "Liberar orden reservada", "00", "04"),
 
@@ -188,9 +187,11 @@ public interface Constant {
     }
 
     enum OrderStatusInkatracker {
-        CANCEL_ORDER("CANCELLED"), DELIVER_ORDER("DELIVERED"), ATTEMPT_TRACKER_CREATE("CONFIRMED"),
-        UPDATE_TRACKER_BILLING("ON_STORE"), UPDATE_RELEASE_ORDER("ON_STORE"), NOT_FOUND_ACTION("NOT_FOUND_ACTION");
+        CANCEL_ORDER("11","CANCELLED"), CANCELLED_ORDER_ONLINE_PAYMENT("37","CANCELLED"), DELIVER_ORDER("12","DELIVERED"),
+        ATTEMPT_TRACKER_CREATE("00","CONFIRMED"), UPDATE_TRACKER_BILLING("16","ON_STORE"),
+        UPDATE_RELEASE_ORDER("16","ON_STORE"), NOT_FOUND_ACTION("-1","NOT_FOUND_ACTION");
 
+        private String code;
         private String status;
 
         public static OrderStatusInkatracker getByActionName(String action) {
@@ -201,8 +202,21 @@ public interface Constant {
                     .orElse(NOT_FOUND_ACTION);
         }
 
-        OrderStatusInkatracker(String status) {
+        public static OrderStatusInkatracker getByStatusCode(String code) {
+            return EnumUtils.getEnumList(OrderStatusInkatracker.class)
+                    .stream()
+                    .filter(item -> item.getCode().equalsIgnoreCase(code))
+                    .findFirst()
+                    .orElse(NOT_FOUND_ACTION);
+        }
+
+        OrderStatusInkatracker(String code, String status) {
+            this.code = code;
             this.status = status;
+        }
+
+        public String getCode() {
+            return code;
         }
 
         public String getStatus() {
@@ -212,64 +226,58 @@ public interface Constant {
 
     enum OrderStatus {
 
-        SUCCESS_FULFILLMENT_PROCESS("00", "CONFIRMED", true),
+        SUCCESS_FULFILLMENT_PROCESS("00", true),
 
-        ERROR_INSERT_TRACKER("01",null, false),
-        ERROR_INSERT_INKAVENTA("02", null, false),
-        ERROR_RESERVED_ORDER("03", null, false),
-        ERROR_RELEASE_ORDER("04", null, false),
-        ERROR_UPDATE_TRACKER_BILLING("05", null, false),
-        ERROR_ON_STORE("06", null, false),
-        ERROR_ASSIGNED("07", null, false),
-        ERROR_PREPARED("08", null, false),
-        ERROR_ON_ROUTE("09", null, false),
+        ERROR_INSERT_TRACKER("01", false),
+        ERROR_INSERT_INKAVENTA("02", false),
+        ERROR_RESERVED_ORDER("03",  false),
+        ERROR_RELEASE_ORDER("04",  false),
+        ERROR_UPDATE_TRACKER_BILLING("05", false),
+        ERROR_ON_STORE("06",  false),
+        ERROR_ASSIGNED("07",  false),
+        ERROR_PREPARED("08",  false),
+        ERROR_ON_ROUTE("09",  false),
 
-        ERROR_CONFIRMED("30", null, false),
-        ERROR_ARRIVE("31", null, false),
-        ERROR_REJECT("32", null, false),
-        ERROR_TO_CANCEL_ORDER("33", null, false),
-        ERROR_DELIVER("34", null, false),
-        ERROR_PICKUP("35", null, false),
-        ERROR_UPDATE("36", null, false),
-        CANCELLED_ORDER_ONLINE_PAYMENT("37", null, false),
-        DELETED_PENDING_ORDER("38", null, false),
-        ERROR_INVOICED("41", null, false),
+        ERROR_CONFIRMED("30",  false),
+        ERROR_ARRIVE("31",  false),
+        ERROR_REJECT("32",  false),
+        ERROR_TO_CANCEL_ORDER("33",  false),
+        ERROR_DELIVER("34",  false),
+        ERROR_PICKUP("35",  false),
+        ERROR_UPDATE("36",  false),
+        CANCELLED_ORDER_ONLINE_PAYMENT("37",  true),
 
-        SUCCESS_RESERVED_ORDER("10", "CONFIRMED", true),
+        SUCCESS_RESERVED_ORDER("10", true),
 
-        CANCELLED_ORDER("11","CANCELLED",true),
-        DELIVERED_ORDER("12", null, false),
-        READY_PICKUP_ORDER("13", null, false),
-        RELEASED_ORDER("14", null, false),
+        CANCELLED_ORDER("11",true),
+        DELIVERED_ORDER("12",  false),
+        READY_PICKUP_ORDER("13",  true),
+        RELEASED_ORDER("14", true),
 
-        CONFIRMED("15", null, true),
-        ON_STORE("16", null, true),
-        ASSIGNED("17", null, true),
-        PREPARED("18", null, true),
-        ON_ROUTE("19", null, true),
-        ARRIVED("20", null, true),
-        REJECTED("21", null, true),
-        INVOICED("40", null, false),
+        CONFIRMED("15",  true),
+        ON_STORE("16",  true),
+        ASSIGNED("17",  true),
+        PREPARED("18",  true),
+        ON_ROUTE("19",  true),
+        ARRIVED("20",  true),
+        REJECTED("21",  true),
 
 
-        NOT_FOUND_CODE("-1", null, false),
-        NOT_FOUND_ORDER("-1", null, false),
-        NOT_DEFINED_ERROR("-1", null, false),
-        NOT_DEFINED_STATUS("-1", null, false),
-        NOT_FOUND_ACTION("-1", null, false),
-        EMPTY_RESULT_CANCELLATION("-1", null, false),
-        EMPTY_RESULT_DISPATCHER("-1", null, false),
-        EMPTY_RESULT_INKATRACKER("-1", null, false);
+        NOT_FOUND_CODE("-1",  false),
+        NOT_FOUND_ORDER("-1",  false),
+        NOT_DEFINED_ERROR("-1",  false),
+        NOT_DEFINED_STATUS("-1",  false),
+        NOT_FOUND_ACTION("-1",  false),
+        EMPTY_RESULT_CANCELLATION("-1", false),
+        EMPTY_RESULT_DISPATCHER("-1",  false),
+        EMPTY_RESULT_INKATRACKER("-1", false);
 
         private String code;
-        private String statusTracker;
-        private boolean sendTracker;
+        private boolean isSuccess;
 
-        OrderStatus(String code, String statusTracker, boolean sendTracker) {
-
+        OrderStatus(String code, boolean isSuccess) {
             this.code = code;
-            this.statusTracker = statusTracker;
-            this.sendTracker = sendTracker;
+            this.isSuccess = isSuccess;
 
         }
 
@@ -293,12 +301,8 @@ public interface Constant {
             return code;
         }
 
-        public String getStatusTracker() {
-            return statusTracker;
-        }
-
-        public boolean isSendTracker() {
-            return sendTracker;
+        public boolean isSuccess() {
+            return isSuccess;
         }
     }
 

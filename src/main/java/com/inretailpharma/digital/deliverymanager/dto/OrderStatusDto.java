@@ -8,6 +8,5 @@ public class OrderStatusDto {
 
     private String code;
     private String description;
-    private String detail;
 
 }

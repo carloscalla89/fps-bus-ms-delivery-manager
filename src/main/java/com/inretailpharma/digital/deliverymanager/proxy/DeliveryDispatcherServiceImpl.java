@@ -175,7 +175,6 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
         String dispatcherUri;
 
-
         if (Constant.ActionOrder.getByName(actionDto.getAction()).getCode() == 2) {// reattempt to send from delivery dispatcher at insink
 
             if (Constant.Constans.COMPANY_CODE_MF.equals(Optional.ofNullable(company).orElse(Constant.Constans.COMPANY_CODE_IFK))) {
