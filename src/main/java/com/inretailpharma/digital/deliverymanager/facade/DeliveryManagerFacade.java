@@ -139,7 +139,8 @@ public class DeliveryManagerFacade {
         IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
         Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
 
-        if (Optional.ofNullable(iOrderFulfillment).isPresent()) {
+        if (Optional.ofNullable(iOrderFulfillment).isPresent()
+                && !Constant.OrderStatus.getFinalStatusByCode(iOrderFulfillment.getStatusCode())) {
 
             OrderDetailCanonical orderDetail = new OrderDetailCanonical();
 
@@ -186,7 +187,8 @@ public class DeliveryManagerFacade {
                                                                     .getByCode(
                                                                             Optional
                                                                                     .ofNullable(actionDto.getOrderStatusDto())
-                                                                                    .map(OrderStatusDto::getCode).orElse("00")
+                                                                                    .map(OrderStatusDto::getCode)
+                                                                                    .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS.getCode())
                                                                     );
 
                         if (orderStatus.isSuccess()) {
@@ -209,14 +211,14 @@ public class DeliveryManagerFacade {
                                                             ecommercePurchaseId,
                                                             orderStatus.getCode(),
                                                             orderStatus.name(),
-                                                            Optional.ofNullable(actionDto.getOrderStatusDto()).map(OrderStatusDto::getCode).orElse("00")
+                                                            Optional.ofNullable(actionDto.getOrderStatusDto())
+                                                                    .map(OrderStatusDto::getCode)
+                                                                    .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS.getCode())
                                                     )
                                         )
                                     );
 
                         }
-
-
 
                     }
 

@@ -297,6 +297,16 @@ public interface Constant {
                     .orElse(NOT_FOUND_CODE);
         }
 
+        public static boolean getFinalStatusByCode(String code) {
+            return EnumUtils.getEnumList(OrderStatus.class)
+                    .stream()
+                    .anyMatch(item -> SUCCESS_FULFILLMENT_PROCESS.code.equalsIgnoreCase(code)
+                                        || SUCCESS_RESERVED_ORDER.code.equalsIgnoreCase(code)
+                                        || CANCELLED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
+                                        || CANCELLED_ORDER.code.equalsIgnoreCase(code)
+                    );
+        }
+
         public String getCode() {
             return code;
         }
