@@ -40,7 +40,7 @@ public class OrderInfoCanonical {
     private Long drugstoreId;
     @NotNull
     @Valid
-    private List<OrderItemCanonical> orderItems;
+    private List<OrderItemInkatrackerCanonical> orderItems;
     private String motorizedId;
     private String note;
     @NotNull
@@ -65,8 +65,8 @@ public class OrderInfoCanonical {
     private Drugstore drugstoreSource;
     private Drugstore drugstore;
     private OrderStatusInkatrackerCanonical orderStatus;
-    private PaymentMethodCanonical paymentMethod;
-    private ReceiptCanonical receipt;
+    private PaymentMethodInkatrackerCanonical paymentMethod;
+    private ReceiptInkatrackerCanonical receipt;
     private String companyCode;
     private String sourceCompanyName;
     private ScheduledCanonical scheduled;

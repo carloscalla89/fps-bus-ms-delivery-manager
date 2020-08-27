@@ -6,6 +6,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
     }
 
     @Override
-    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
+    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
         return null;
     }
 
@@ -50,35 +51,51 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
         Constant.OrderStatus errorResponse;
         Constant.OrderStatus successResponse;
 
+        String inkatrackerLiteUri;
+
         switch (actionDto.getAction()) {
 
             case Constant.ActionName.RELEASE_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_BILLING;
                 successResponse = Constant.OrderStatus.RELEASED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_RELEASE_ORDER;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
                 break;
             case Constant.ActionName.CANCEL_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.CANCELLED;
                 successResponse = Constant.OrderStatus.CANCELLED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
                 break;
             case Constant.ActionName.DELIVER_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.DELIVERED;
                 successResponse = Constant.OrderStatus.DELIVERED_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_DELIVER;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
                 break;
             case Constant.ActionName.READY_PICKUP_ORDER:
                 actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_PICKUP;
                 successResponse = Constant.OrderStatus.READY_PICKUP_ORDER;
                 errorResponse = Constant.OrderStatus.ERROR_PICKUP;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
                 break;
             default:
                 actionInkatrackerLite = Constant.OrderStatus.NOT_FOUND_ACTION.name();
                 successResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
                 errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
         }
 
-        log.info("url inkatracket-lite:{}",externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
+        log.info("url inkatracket-lite:{}",inkatrackerLiteUri);
         TcpClient tcpClient = TcpClient
                                 .create()
                                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
@@ -114,6 +131,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                     orderStatus.setCode(successResponse.getCode());
                     orderStatus.setName(successResponse.name());
+                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
                     orderCanonical.setOrderStatus(orderStatus);
 
                     return orderCanonical;
@@ -133,6 +151,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     orderStatus.setCode(errorResponse.getCode());
                     orderStatus.setName(errorResponse.name());
                     orderStatus.setDetail(e.getMessage());
+                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
                     orderCanonical.setOrderStatus(orderStatus);
 

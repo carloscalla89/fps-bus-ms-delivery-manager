@@ -53,27 +53,27 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                                                   @Param("companyCode") String companyCode,
                                                   @Param("statustype") Set<String> statustypes);
 
-    OrderFulfillment getOrderFulfillmentByEcommercePurchaseIdIs(Long ecommerceId);
 
-    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, " +
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, o.source, " +
             "o.external_purchase_id as externalId, o.bridge_purchase_id as bridgePurchaseId, " +
-            "o.total_cost as totalCost, o.delivery_cost as deliveryCost, o.created_order as createdOrder, " +
-            "o.scheduled_time as scheduledTime, " +
+            "o.total_cost as totalCost, o.delivery_cost as deliveryCost, o.discount_applied as discountApplied, " +
+            "o.created_order as createdOrder, o.scheduled_time as scheduledTime, " +
+            "o.confirmed_order as confirmedOrder, " +
             "c.first_name as firstName, c.last_name as lastName, c.email, c.document_number as documentNumber, " +
-            "c.phone, c.birth_date as birthDate, c.anonimous, c.inkaclub as inkaClub, " +
-            "ccf.center_code as centerCode, ccf.center_name as centerName, ccf.company_code as companyCode, ccf.company_name as companyName," +
+            "c.phone, c.birth_date as birthDate, c.anonimous, c.inkaclub as inkaClub, c.notification_token as notificationToken, " +
             "s.lead_time as leadTime, s.start_hour as startHour, s.end_hour as endHour," +
             "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
-            "st.code as serviceTypeCode, st.name as serviceTypeName, " +
-            "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, pm.change_amount as changeAmount, " +
-            "rt.name as receiptType, rt.document_number as documentNumberReceipt, rt.ruc as ruc, rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt, rt.receipt_note as noteReceipt," +
-            "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, af.department, af.notes, af.latitude, af.longitude, af.receiver as addressReceiver, " +
-            "o.source as source, o.confirmed_order as confirmedOrder, o.notes as orderNotes, " +
-            "o.source_company_name as sourceCompanyName " +
+            "s.center_code as centerCode, s.company_code as companyCode, " +
+            "st.code as serviceTypeCode, st.name as serviceTypeName, st.enabled as serviceEnabled," +
+            "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
+            "pm.change_amount as changeAmount, " +
+            "rt.name as receiptType, rt.document_number as documentNumberReceipt, rt.ruc as ruc, " +
+            "rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt, rt.receipt_note as noteReceipt," +
+            "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, " +
+            "af.department, af.notes, af.latitude, af.longitude " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
-            "inner join center_company_fulfillment ccf on ccf.center_code = s.center_code and ccf.company_code = s.company_code " +
             "inner join service_type st on s.service_type_code = st.code " +
             "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
             "inner join receipt_type rt on rt.order_fulfillment_id = o.id " +
@@ -85,22 +85,14 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
     @Query(value ="select oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
             "oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, oi.unit_price as unitPrice," +
-            "oi.total_price as totalPrice, oi.fractionated " +
+            "oi.total_price as totalPrice, oi.fractionated, " +
+            "oi.ean_code as eanCode, oi.presentation_id as presentationId, oi.presentation_description as presentationDescription, " +
+            "oi.quantity_units as quantityUnits, oi.quantity_presentation as quantityPresentation " +
             "from order_fulfillment_item oi " +
             "where oi.order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true
     )
     List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(@Param("orderFulfillmentId") Long orderFulfillmentId);
-
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_fulfillment " +
-            " set external_purchase_id = :externalPurchaseId " +
-            " where order_fulfillment_id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateExternalPurchaseId(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                  @Param("externalPurchaseId") Long externalPurchaseId
-    );
 
     @Modifying
     @Transactional

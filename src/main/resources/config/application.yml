@@ -22,7 +22,7 @@ spring:
     show-sql: false
 
     hibernate:
-      # Hibernate ddl auto (create, create-drop, updateBO): with "updateBO" the database
+      # Hibernate ddl auto (create, create-drop, updateB  O): with "updateBO" the database
       # schema will be automatically updated accordingly to java entities found in
       # the project
       ddl-auto: none

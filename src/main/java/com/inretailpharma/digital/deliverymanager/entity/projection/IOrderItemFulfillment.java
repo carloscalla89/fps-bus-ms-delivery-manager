@@ -14,4 +14,10 @@ public interface IOrderItemFulfillment {
     BigDecimal getUnitPrice();
     BigDecimal getTotalPrice();
     String getFractionated();
+    String getEanCode();
+    Integer getPresentationId();
+    String getPresentationDescription();
+    Integer getQuantityUnits();
+    String getQuantityPresentation();
+
 }

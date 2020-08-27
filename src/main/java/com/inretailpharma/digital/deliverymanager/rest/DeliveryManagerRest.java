@@ -5,6 +5,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.PartialOrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade;
 import io.swagger.annotations.*;
 
@@ -46,7 +47,6 @@ public class DeliveryManagerRest {
 
     }
 
-
     @ApiOperation(value = "Crear una orden que viene del ecommerce")
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "Orden creado", response = OrderDto.class),
@@ -82,7 +82,7 @@ public class DeliveryManagerRest {
                 ,ecommerceId,action);
 
         return deliveryManagerFacade
-                .   getUpdateOrder(action, ecommerceId)
+                .getUpdateOrder(action, ecommerceId)
                 .map(r -> ResponseEntity
                             .status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                             .body(r))
@@ -91,31 +91,20 @@ public class DeliveryManagerRest {
 
     }
 
-    @ApiOperation(value = "Obtener los códigos y descripción de cancelación de una orden", tags = { "Controlador DeliveryManager" })
+    @ApiOperation(value = "Actualizar los items de una orden - orden parcial")
     @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Lista obtenida correctamente", response = List.class),
+            @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
             @ApiResponse(code = 500, message = "No creado") })
-    @GetMapping("/cancellation/reason")
-    public ResponseEntity<?> getCancellationReasonsCode() {
+    @PatchMapping("/order/partial/{ecommerceId}")
+    public Flux<OrderCancelledCanonical> updatePartialOrder(
+            @ApiParam(value = "Identificador e-commerce")
+            @PathVariable(value = "ecommerceId") String ecommerceId,
+            @ApiParam(value = "Order a editar")
+            @RequestBody PartialOrderDto partialOrderDto) {
+        log.info("[START] endpoint updatePartialOrder /order/partial/{} - partialOrderDto:{}",
+                ecommerceId,partialOrderDto);
 
-        log.info("[START] endpoint getCancellationReasonsCode");
-
-        return new ResponseEntity<>(deliveryManagerFacade.getOrderCancellationList(), HttpStatus.OK);
+        return null;
     }
-
-    @ApiOperation(value = "cancelar órdenes que han excedido los días permitidos para entregar o recoger")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Órdenes canceladas correctamente", response = OrderCancelledCanonical.class),
-            @ApiResponse(code = 500, message = "No creado") })
-    @PutMapping("/cancellation/orders")
-    public Flux<OrderCancelledCanonical> cancelOrderProcess(
-            @RequestBody CancellationDto cancellationDto) {
-        log.info("[START] endpoint cancelOrderProcess /cancellation/orders - cancellationDto {}",cancellationDto);
-
-       return deliveryManagerFacade.cancelOrderProcess(cancellationDto)
-               .doOnComplete(() -> log.info("[END] endpoint cancelOrderProcess /cancellation/orders"));
-    }
-
-
 
 }

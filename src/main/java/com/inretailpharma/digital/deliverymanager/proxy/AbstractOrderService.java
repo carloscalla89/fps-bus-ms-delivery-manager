@@ -38,7 +38,7 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
-	public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
+	public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
 		throw new UnsupportedOperationException();
 	}
 

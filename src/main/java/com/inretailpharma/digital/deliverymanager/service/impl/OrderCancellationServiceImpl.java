@@ -15,26 +15,23 @@ import java.util.List;
 public class OrderCancellationServiceImpl implements OrderCancellationService {
 
     private CancellationCodeReasonRepository cancellationCodeReasonRepository;
-    private OrderCancelledRepository orderCancelledRepository;
 
-    public OrderCancellationServiceImpl(CancellationCodeReasonRepository cancellationCodeReasonRepository,
-                                        OrderCancelledRepository orderCancelledRepository) {
+    public OrderCancellationServiceImpl(CancellationCodeReasonRepository cancellationCodeReasonRepository) {
         this.cancellationCodeReasonRepository = cancellationCodeReasonRepository;
-        this.orderCancelledRepository = orderCancelledRepository;
     }
 
     @Override
-    public List<CancellationCodeReason> getListCodeCancellationByCode() {
-        return cancellationCodeReasonRepository.findAll();
-    }
-
-    @Override
-    public void insertCancelledOrder(OrderCancelled orderCancelled) {
-        orderCancelledRepository.save(orderCancelled);
+    public List<CancellationCodeReason> getListCodeCancellationByCode(String appType) {
+        return cancellationCodeReasonRepository.findAllByAppType(appType);
     }
 
     @Override
     public CancellationCodeReason geByCode(String code) {
-        return cancellationCodeReasonRepository.getOne(code);
+        return cancellationCodeReasonRepository.findByCode(code);
+    }
+
+    @Override
+    public CancellationCodeReason geByCodeAndAppType(String code, String appType) {
+        return cancellationCodeReasonRepository.findByCodeAndAppType(code, appType);
     }
 }

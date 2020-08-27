@@ -11,4 +11,5 @@ public class PaymentMethodCanonical {
     private String cardProvider;
     private BigDecimal paidAmount;
     private BigDecimal changeAmount;
+    private String note;
 }

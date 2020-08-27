@@ -10,5 +10,8 @@ public class ActionDto {
     private String externalBillingId;
     private String trackerId;
     private String orderCancelCode;
+    private String orderCancelReason;
+    private String orderCancelClientReason;
+    private String orderCancelAppType;
     private String orderCancelObservation;
 }

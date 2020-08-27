@@ -35,7 +35,19 @@ public class ServiceLocalOrder {
 
     private Integer reprogrammed;
 
+    @Column(name = "cancellation_code")
+    private String cancellationCode;
+
+    @Column(name = "cancellation_app_type")
+    private String cancellationAppType;
+
     @Column(name= "cancellation_observation")
     private String cancellationObservation;
+
+    @Column(name="center_code")
+    private String centerCode;
+
+    @Column(name="company_code")
+    private String companyCode;
 
 }

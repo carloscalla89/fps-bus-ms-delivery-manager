@@ -33,7 +33,7 @@ external-service:
       connect-timeout: 240000
       read-timeout: 480
     update-status-order:
-      uri: http://us-inkatracker/nvr/orders/update
+      uri: http://us-inkatracker/nvr/orders
       connect-timeout: 240000
       read-timeout: 480
   order-tracker:
@@ -55,6 +55,10 @@ external-service:
       read-timeout: 120000
   fulfillment-center:
     get-center:
+      uri: http://us-fulfillment-center/fulfillment/store/
+      connect-timeout: 10000
+      read-timeout: 120000
+    get-company-center:
       uri: http://us-fulfillment-center/fulfillment/store/
       connect-timeout: 10000
       read-timeout: 120000
