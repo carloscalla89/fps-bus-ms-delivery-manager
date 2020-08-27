@@ -2,10 +2,7 @@ package com.inretailpharma.digital.deliverymanager.service.impl;
 
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
-<<<<<<< HEAD
 import com.inretailpharma.digital.deliverymanager.dto.PaymentMethodDto;
-=======
->>>>>>> 9ce3e21... added implementation for partial_order
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;

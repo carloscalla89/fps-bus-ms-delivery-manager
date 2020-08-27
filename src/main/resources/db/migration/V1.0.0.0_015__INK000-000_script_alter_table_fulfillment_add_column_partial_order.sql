@@ -16,3 +16,4 @@ ADD COLUMN `old_fractional_discount` DECIMAL(10,2) NULL AFTER `modified_total_pr
 
 
 
+
