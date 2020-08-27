@@ -35,4 +35,7 @@ public class Client  implements Serializable {
 
     private Integer anonimous;
 
+    @Column(name="notification_token")
+    private String notificationToken;
+
 }

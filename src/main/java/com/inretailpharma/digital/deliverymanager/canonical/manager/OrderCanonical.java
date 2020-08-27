@@ -26,6 +26,7 @@ public class OrderCanonical {
         this.orderStatus = new OrderStatusCanonical();
         this.orderStatus.setCode(code);
         this.orderStatus.setName(name);
+        this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
     }
     
     public OrderCanonical(Long ecommerceId, String code, String name, String detail) {
@@ -53,9 +54,15 @@ public class OrderCanonical {
     private BigDecimal totalAmount;
 
     // Canonical local and company
+    private String localCodeCompany;
     private String localCode;
     private String local;
     private String company;
+    private String localDescription;
+    private String localAddress;
+    private BigDecimal localLongitude;
+    private BigDecimal localLatitude;
+    private Long localId;
 
     // canonical client
     private ClientCanonical client;
@@ -85,5 +92,7 @@ public class OrderCanonical {
     // versión anterior
     private Integer attempt;
     private Integer attemptTracker;
+
+    private String source;
 
 }

@@ -41,6 +41,12 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="delivery_cost")
     private BigDecimal deliveryCost;
 
+    @Column(name="discount_applied")
+    private BigDecimal discountApplied;
+
+    @Column(name="sub_total_cost")
+    private BigDecimal subTotalCost;
+
     @Column(name="total_cost")
     private BigDecimal totalCost;
 
@@ -70,6 +76,11 @@ public class OrderFulfillment extends OrderEntity<Long> {
 
     @Embedded
     private Address address;
+
+    private Integer partial;
+
+    @Column(name="partial_change")
+    private BigDecimal partialChange;
 
     @ElementCollection
     @CollectionTable(name = "order_fulfillment_item", joinColumns = @JoinColumn(name = "order_fulfillment_id"))

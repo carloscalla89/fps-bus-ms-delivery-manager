@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
@@ -18,9 +19,9 @@ public interface OrderExternalService {
     Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company);
     Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical);
     Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto);
-    Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical);
-    
+    Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical);
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
     Mono<String> updateOrderStatus(Long ecommerceId, String status);
+
 }

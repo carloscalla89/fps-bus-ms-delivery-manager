@@ -39,7 +39,7 @@ public class OrderDto {
 
     private ReceiptTypeDto receipt;
 
-    private List<OrderDetailDto> orderItem;
+    private List<OrderItemDto> orderItem;
 
     private ScheduleServiceTypeDto schedules;
 

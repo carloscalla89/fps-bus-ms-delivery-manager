@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface OrderCancellationService {
 
-    List<CancellationCodeReason> getListCodeCancellationByCode();
-    void insertCancelledOrder(OrderCancelled orderCancelled);
+    List<CancellationCodeReason> getListCodeCancellationByCode(String appType);
     CancellationCodeReason geByCode(String code);
+    CancellationCodeReason geByCodeAndAppType(String code, String appType);
 }

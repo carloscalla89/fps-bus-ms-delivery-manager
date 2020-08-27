@@ -2,13 +2,15 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 
 import java.util.ArrayList;
 
+
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
+
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
@@ -26,18 +28,11 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
     }
 
     @Override
-    public Mono<Void> sendOrderToTracker(OrderCanonical orderCanonical) {
+    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
     	log.info("[START] call to OrderTracker - sendOrderToTracker - uri:{} - body:{}",
                 externalServicesProperties.getOrderTrackerCreateOrderUri(), orderCanonical);
     	
-    	return WebClient
-            	.create(externalServicesProperties.getOrderTrackerCreateOrderUri())
-            	.post()
-            	.bodyValue(orderCanonical)
-            	.retrieve()
-            	.bodyToMono(String.class)
-            	.doOnSuccess(body -> log.info("[END] call to OrderTracker - sendOrderToTracker - s:{}", body))
-            	.then();
+		return null;
     }
     
     @Override

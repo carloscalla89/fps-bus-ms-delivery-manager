@@ -15,4 +15,5 @@ public class ClientDto {
     private String birthDate;
     private Integer hasInkaClub;
     private Integer anonimous;
+    private String notificationToken;
 }

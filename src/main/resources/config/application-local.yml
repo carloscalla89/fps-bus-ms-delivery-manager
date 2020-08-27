@@ -5,16 +5,16 @@ spring:
     password: elpreciomasbajo
 external-service:
   audit:
-    create-order: http://us-audit/audit/order
+    create-order: http://localhost:8032/audit/order
     time-out: 20000
   dispatcher:
     insink-tracker:
-      uri: http://us-dd/order/insink-tracker
+      uri: http://localhost:8082/order/insink-tracker
       uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/insink-tracker
       connect-timeout: 240000
       read-timeout: 480
     tracker:
-      uri: http://us-dd/order/tracker
+      uri: http://localhost:8082/order/tracker
       uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/tracker
       connect-timeout: 240000
       read-timeout: 480
@@ -25,15 +25,15 @@ external-service:
       read-timeout: 120000
   inkatracker:
     create-order:
-      uri: http://us-inkatracker/nvr/orders/create
+      uri: http://localhost:8282/nvr/orders/create
       connect-timeout: 240000
       read-timeout: 480
     update-order:
-      uri: http://us-inkatracker/nvr/orders/create
+      uri: http://localhost:8282/nvr/orders/create
       connect-timeout: 240000
       read-timeout: 480
     update-status-order:
-      uri: http://us-inkatracker/nvr/orders/update
+      uri: http://localhost:8282/nvr/orders
       connect-timeout: 240000
       read-timeout: 480
   order-tracker:
@@ -55,7 +55,10 @@ external-service:
       read-timeout: 120000
   fulfillment-center:
     get-center:
-      uri: http://us-fulfillment-center/fulfillment/store/
+      uri: http://fulfillment-centerci02.backend.cindibyinkafarma.com/fulfillment/store
       connect-timeout: 240000
       read-timeout: 480
-    
+    get-company-center:
+      uri: http://us-fulfillment-center/fulfillment/store/
+      connect-timeout: 10000
+      read-timeout: 120000

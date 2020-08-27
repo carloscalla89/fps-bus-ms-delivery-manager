@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
@@ -30,7 +31,8 @@ public class OrderTransaction {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public OrderWrapperResponse createOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+    public OrderWrapperResponse createOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto,
+                                                       StoreCenterCanonical centerCompanyCanonical) {
 
         log.info("[START ] createOrderReactive");
 
@@ -42,12 +44,6 @@ public class OrderTransaction {
 
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
-
-        serviceLocalOrderIdentity.setCenterCompanyFulfillment(
-                Optional
-                        .ofNullable(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(orderDto.getLocalCode(), orderDto.getCompanyCode()))
-                        .orElse(orderRepositoryService.getCenterCompanyByCenterCodeAndCompanyCode(Constant.Constans.NOT_DEFINED_CENTER, Constant.Constans.NOT_DEFINED_COMPANY))
-        );
 
         serviceLocalOrderIdentity.setServiceType(
                 Optional
@@ -64,6 +60,10 @@ public class OrderTransaction {
 
         // Create and set object ServiceLocalOrder
         ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
+
+        serviceLocalOrder.setCenterCode(centerCompanyCanonical.getLocalCode());
+        serviceLocalOrder.setCompanyCode(centerCompanyCanonical.getCompanyCode());
+
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
 
         // Set attempt of attempt to insink and tracker
@@ -85,22 +85,31 @@ public class OrderTransaction {
 
         // Set the values of return of transaction as wrapped
         OrderWrapperResponse orderWrapperResponse = new OrderWrapperResponse();
+
         orderWrapperResponse.setFulfillmentId(orderFulfillmentResp.getId());
-        orderWrapperResponse.setTrackerId(orderFulfillmentResp.getId());
+
         orderWrapperResponse.setOrderStatusCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getOrderStatus().getCode());
         orderWrapperResponse.setOrderStatusName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getOrderStatus().getType());
         orderWrapperResponse.setOrderStatusDetail(serviceLocalOrderResponse.getStatusDetail());
+
         orderWrapperResponse.setServiceCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getCode());
         orderWrapperResponse.setServiceName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getName());
         orderWrapperResponse.setServiceType(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getType());
         orderWrapperResponse.setServiceSourcechannel(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getSourceChannel());
         orderWrapperResponse.setServiceEnabled(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getEnabled());
+
         orderWrapperResponse.setAttemptBilling(serviceLocalOrderResponse.getAttempt());
         orderWrapperResponse.setAttemptTracker(serviceLocalOrderResponse.getAttemptTracker());
-        orderWrapperResponse.setLocalName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCenterName());
-        orderWrapperResponse.setCompanyName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getCenterCompanyFulfillment().getCompanyName());
-        orderWrapperResponse.setPaymentMethodName(orderFulfillmentResp.getPaymentMethod().getPaymentType().name());
-        orderWrapperResponse.setReceiptName(orderFulfillmentResp.getReceiptType().getName());
+
+        orderWrapperResponse.setCompanyCode(centerCompanyCanonical.getCompanyCode());
+        orderWrapperResponse.setLocalName(centerCompanyCanonical.getName());
+        orderWrapperResponse.setLocalCode(centerCompanyCanonical.getLocalCode());
+        orderWrapperResponse.setLocalAddress(centerCompanyCanonical.getAddress());
+        orderWrapperResponse.setLocalDescription(centerCompanyCanonical.getDescription());
+        orderWrapperResponse.setLocalId(centerCompanyCanonical.getLegacyId());
+        orderWrapperResponse.setLocalLatitude(centerCompanyCanonical.getLatitude());
+        orderWrapperResponse.setLocalLongitude(centerCompanyCanonical.getLongitude());
+
         log.info("[END] createOrderReactive");
 
         return orderWrapperResponse;
@@ -198,15 +207,6 @@ public class OrderTransaction {
         return orderRepositoryService.getListOrdersToCancel(serviceType, companyCode, maxDayPickup, statustype);
     }
 
-    public OrderFulfillment getOrderFulfillmentById(Long id) {
-        return orderRepositoryService.getOrderFulfillmentById(id);
-    }
-
-    public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
-        return orderRepositoryService.getOrderStatusByTypeIs(statusName);
-    }
-
-
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateOrderRetrying(Long orderFulfillmentId, Integer attempt, Integer attemptTracker,
@@ -260,35 +260,18 @@ public class OrderTransaction {
         orderRepositoryService.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
     }
 
-    public List<CancellationCodeReason> getListCancelReason() {
-        return orderCancellationService.getListCodeCancellationByCode();
-    }
-
-    public CancellationCodeReason getCancellationCodeReasonByCode(String code) {
-        return orderCancellationService.geByCode(code);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void insertCancelledOrder(OrderCancelled orderCancelled) {
-        log.info("[START] insertCancelledOrder transactional- orderCancelled-{}",orderCancelled);
-        orderCancellationService.insertCancelledOrder(orderCancelled);
+    public List<CancellationCodeReason> getListCancelReason(String appType) {
+        return orderCancellationService.getListCodeCancellationByCode(appType);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                           String orderStatusCode, Long orderFulfillmentId) {
+                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId) {
         log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
                  "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
                  ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
 
         orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
-                orderStatusCode, orderFulfillmentId);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateStatusOrderToDeletePending(String orderStatusCode, Long orderFulfillmentId) {
-        log.info("[START] updateStatusOrderToDeletePending - orderStatusCode:{}, orderFulfillmentId:{}"
-                ,orderStatusCode, orderFulfillmentId);
-        orderRepositoryService.updateStatusOrderToDeletePending(orderStatusCode, orderFulfillmentId);
+                cancellationAppType, orderStatusCode, orderFulfillmentId);
     }
 }
