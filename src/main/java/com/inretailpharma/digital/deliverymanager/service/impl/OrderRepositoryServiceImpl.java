@@ -2,7 +2,10 @@ package com.inretailpharma.digital.deliverymanager.service.impl;
 
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
+<<<<<<< HEAD
 import com.inretailpharma.digital.deliverymanager.dto.PaymentMethodDto;
+=======
+>>>>>>> 9ce3e21... added implementation for partial_order
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
@@ -15,13 +18,13 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.stereotype.Service;
 
 import com.inretailpharma.digital.deliverymanager.entity.Client;
 import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
@@ -179,6 +182,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         Long externalPurchaseId = orderDto.getEcommercePurchaseId();
 
          orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId,true);
+
          log.info("The order {} header was updated sucessfully",externalPurchaseId);
          return true;
     }
@@ -208,6 +212,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
                 }
             }
         }
+
         return true;
     }
 
@@ -228,4 +233,5 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         orderRepository.updatePaymentMethod(paidAmount,changeAmount,"Parcial",orderFulfillmentId);
         log.info("PaymentMethod updated succesfully");
     }
+
 }
