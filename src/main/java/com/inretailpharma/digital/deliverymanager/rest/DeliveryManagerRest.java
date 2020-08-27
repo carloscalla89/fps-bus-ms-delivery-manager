@@ -95,16 +95,12 @@ public class DeliveryManagerRest {
     @ApiResponses(value = { //
             @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
             @ApiResponse(code = 500, message = "No creado") })
-    @PatchMapping("/order/partial/{ecommerceId}")
-    public Flux<OrderCancelledCanonical> updatePartialOrder(
-            @ApiParam(value = "Identificador e-commerce")
-            @PathVariable(value = "ecommerceId") String ecommerceId,
-            @ApiParam(value = "Order a editar")
-            @RequestBody PartialOrderDto partialOrderDto) {
-        log.info("[START] endpoint updatePartialOrder /order/partial/{} - partialOrderDto:{}",
-                ecommerceId,partialOrderDto);
+    @PostMapping("/order/partial/")
+    public Mono<OrderCanonical> updatePartialOrder(@RequestBody OrderDto partialOrderDto) {
+        log.info("[START] endpoint updatePartialOrder /order/partial/{} - partialOrderDto: {}",
+                partialOrderDto);
 
-        return null;
+        return deliveryManagerFacade.getUpdatePartialOrder(partialOrderDto);
     }
 
 }

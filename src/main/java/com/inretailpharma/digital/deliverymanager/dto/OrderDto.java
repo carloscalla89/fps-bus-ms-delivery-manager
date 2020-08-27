@@ -40,6 +40,8 @@ public class OrderDto {
     private ReceiptTypeDto receipt;
 
     private List<OrderItemDto> orderItem;
+    private List<OrderItemEditedDto> itemsRetired;
+
 
     private ScheduleServiceTypeDto schedules;
 

@@ -1,13 +1,20 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.repository.*;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -137,5 +144,49 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     @Override
     public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
         return orderStatusRepository.getOrderStatusByTypeIs(statusName);
+    }
+
+    @Override
+    public boolean updatePartialOrderHeader(OrderDto orderDto) {
+        BigDecimal totalCost = orderDto.getTotalCost();
+        BigDecimal bigDecimal = orderDto.getDeliveryCost();
+        LocalDateTime dateLastUpdated =  DateUtils.getLocalDateTimeObjectNow();
+        Long externalPurchaseId = orderDto.getEcommercePurchaseId();
+
+         orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId);
+         log.info("The order {} header was updated sucessfully",externalPurchaseId);
+         return true;
+    }
+
+    @Override
+    public boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment) {
+       
+        for (OrderItemDto dto : orderDto.getOrderItem()) {
+            if (dto.isEdited()) {
+                iOrderItemFulfillment.stream()
+                        .filter(element -> element.getProductCode().equals(dto.getProductCode()))
+                        .findFirst().ifPresent(iOrderItem -> {
+                    Long orderFulfillmentId = iOrderItem.getOrderFulfillmentId();
+                    String productCode = iOrderItem.getProductCode();
+                    Integer quantity = dto.getQuantity();
+                    BigDecimal unitPrice = dto.getUnitPrice();
+                    BigDecimal totalPrice = dto.getTotalPrice();
+                    Constant.Logical fractionated = Constant.Logical.parse(dto.getFractionated());
+                   
+                    orderRepository.updateItemsPartialOrder(quantity, unitPrice, totalPrice, fractionated.getValueString(), orderFulfillmentId, productCode);
+                });
+            }
+
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean deleteItemsRetired(List<String> itemsId,Long  orderFulfillmentId) {
+        log.info("Deleting itemsId: {} from orderId: {}",itemsId.toString(),orderFulfillmentId);
+        orderRepository.deleteItemsRetired(itemsId,orderFulfillmentId);
+
+        return true;
     }
 }

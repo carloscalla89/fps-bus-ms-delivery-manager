@@ -10,7 +10,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.websocket.server.PathParam;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -83,7 +85,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
-    @Query(value ="select oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
+    @Query(value ="select oi.order_fulfillment_id as orderFulfillmentId,oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
             "oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, oi.unit_price as unitPrice," +
             "oi.total_price as totalPrice, oi.fractionated, " +
             "oi.ean_code as eanCode, oi.presentation_id as presentationId, oi.presentation_description as presentationDescription, " +
@@ -122,4 +124,48 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true)
     void updateExternalIdToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
                                     @Param("externalPurchaseId") Long externalPurchaseId);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_fulfillment_item " +
+            " set quantity = :quantity ," +
+            "  unit_Price = :unitPrice ," +
+            "  total_Price = :totalPrice ," +
+            "  fractionated = :fractionated " +
+            " where order_fulfillment_id = :orderFulfillmentId " +
+            " and product_code = :productCode",
+            nativeQuery = true)
+    void updateItemsPartialOrder(@Param("quantity") Integer quantity,
+                                 @Param("unitPrice") BigDecimal unitPrice,
+                                 @Param("totalPrice") BigDecimal totalPrice,
+                                 @Param("fractionated") String fractionated,
+                                 @Param("orderFulfillmentId") Long orderFulfillmentId,
+                                 @Param("productCode") String productCode
+                                 );
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_fulfillment " +
+            " set total_cost = :totalCost ," +
+            "  delivery_cost = :deliveryCost ," +
+            "  date_last_updated = :date_last_updated " +
+            " where ecommerce_purchase_id = :externalPurchaseId",
+            nativeQuery = true)
+    void updatePartialOrder(@Param("totalCost") BigDecimal unitPrice,
+                            @Param("deliveryCost") BigDecimal totalPrice,
+                            @Param("date_last_updated") LocalDateTime date_last_updated,
+                            @Param("externalPurchaseId") Long externalPurchaseId
+    );
+
+    @Modifying
+    @Transactional
+    @Query(value = " DELETE FROM order_fulfillment_item" +
+            " WHERE order_fulfillment_id = :id " +
+            " AND  product_code IN (:productIdsToRemove)",
+            nativeQuery = true)
+
+    void deleteItemsRetired(@Param("productIdsToRemove")List<String> itemsId,
+                            @Param("id")Long id
+                            );
 }

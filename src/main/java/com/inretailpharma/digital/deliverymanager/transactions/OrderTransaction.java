@@ -1,10 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -13,21 +15,31 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
 @Component
 public class OrderTransaction {
 
     private OrderRepositoryService orderRepositoryService;
     private OrderCancellationService orderCancellationService;
+    private ObjectToMapper objectMapper;
+
 
     public OrderTransaction(OrderRepositoryService orderRepositoryService,
-                            OrderCancellationService orderCancellationService) {
+                            OrderCancellationService orderCancellationService,
+                            ObjectToMapper objectToMapper
+                            ) {
         this.orderRepositoryService = orderRepositoryService;
         this.orderCancellationService = orderCancellationService;
+        this.objectMapper = objectToMapper;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -273,5 +285,43 @@ public class OrderTransaction {
 
         orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
                 cancellationAppType, orderStatusCode, orderFulfillmentId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updatePartialOrder(String statusDetail, String cancellationObservation, String cancellationCode,
+                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId) {
+        log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
+                        "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
+                ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
+
+
+    }
+
+    public OrderCanonical updatePartialOrder(OrderDto partialOrderDto) {
+        IOrderFulfillment iOrderFulfillment = getOrderByecommerceId(partialOrderDto.getEcommercePurchaseId());
+        List<IOrderItemFulfillment> iOrderItemFulfillment = getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId());
+        List<String> itemsCodeToDelete = getItemsToDelete(partialOrderDto, iOrderItemFulfillment);
+
+        if (!CollectionUtils.isEmpty(itemsCodeToDelete)) {
+            log.info("Items to delete : {}", itemsCodeToDelete.toString());
+            orderRepositoryService.deleteItemsRetired(itemsCodeToDelete, iOrderItemFulfillment.get(0).getOrderFulfillmentId());
+        }
+        orderRepositoryService.updatePartialOrderDetail(partialOrderDto, iOrderItemFulfillment);
+        orderRepositoryService.updatePartialOrderHeader(partialOrderDto);
+        IOrderFulfillment orderUpdated = this.getOrderByecommerceId(partialOrderDto.getEcommercePurchaseId());
+        log.info("The order {} was updated sucessfully ", orderUpdated.getOrderId());
+        return objectMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderUpdated);
+
+
+    }
+
+    private List<String> getItemsToDelete(OrderDto partialOrderDto, List<IOrderItemFulfillment> iOrderItemFulfillment) {
+
+        return partialOrderDto.getItemsRetired().stream()
+                .filter(order ->
+                        iOrderItemFulfillment.stream()
+                                .filter(itemFulFillment -> itemFulFillment.getQuantity().equals(order.getQuantity()))
+                                .findFirst().orElse(null) != null
+                ).map(item -> item.getSku()).collect(Collectors.toList());
     }
 }
