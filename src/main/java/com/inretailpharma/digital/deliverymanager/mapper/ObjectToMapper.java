@@ -284,7 +284,7 @@ public class ObjectToMapper {
         // object client
         Client client = new Client();
         //client.setId(Optional.ofNullable(orderDto.getClient().getUserId()).map(Long::parseLong).orElse(null));
-        client.setUserId(orderDto.getClient().getUserId());
+        //client.setUserId(orderDto.getClient().getUserId());
         client.setAnonimous(orderDto.getClient().getAnonimous());
         Optional.ofNullable(orderDto.getClient().getBirthDate())
                 .ifPresent(r -> client.setBirthDate(DateUtils.getLocalDateFromStringDate(r)));
