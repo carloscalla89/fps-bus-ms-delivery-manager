@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -172,4 +171,18 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     void deleteItemRetired(@Param("productIdsToRemove")String itemId,
                             @Param("id")Long id
                             );
+
+    @Modifying
+    @Transactional
+    @Query(value = " update payment_method " +
+            " set paid_amount = :paidAmount ," +
+            " change_amount = :changeAmount," +
+            " payment_note = :paymentNote " +
+            " WHERE  order_fulfillment_id = :orderId",
+            nativeQuery = true)
+    void updatePaymentMethod(@Param("paidAmount") BigDecimal paidAmount,
+                             @Param("changeAmount") BigDecimal changeAmount,
+                             @Param("paymentNote") String paymentNote,
+                             @Param("orderId") Long orderId
+    );
 }

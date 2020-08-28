@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.service.impl;
 
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
+import com.inretailpharma.digital.deliverymanager.dto.PaymentMethodDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
@@ -190,5 +191,15 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         orderRepository.deleteItemRetired(itemsId,orderFulfillmentId);
 
         return true;
+    }
+
+    @Override
+    public void updatePaymentMethod(OrderDto partialOrderDto, Long orderFulfillmentId) {
+        PaymentMethodDto paymentMethod = partialOrderDto.getPayment();
+        BigDecimal paidAmount = paymentMethod.getPaidAmount();
+        BigDecimal changeAmount = paymentMethod.getChangeAmount();
+        Long orderId = partialOrderDto.getEcommercePurchaseId();
+        orderRepository.updatePaymentMethod(paidAmount,changeAmount,"Parcial",orderFulfillmentId);
+        log.info("PaymentMethod updated succesfully");
     }
 }

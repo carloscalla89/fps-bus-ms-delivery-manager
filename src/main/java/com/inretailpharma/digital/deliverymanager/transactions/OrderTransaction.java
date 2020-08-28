@@ -303,6 +303,7 @@ public class OrderTransaction {
         List<IOrderItemFulfillment> iOrderItemFulfillment = getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId());
         orderRepositoryService.updatePartialOrderDetail(partialOrderDto, iOrderItemFulfillment);
         orderRepositoryService.updatePartialOrderHeader(partialOrderDto);
+        orderRepositoryService.updatePaymentMethod(partialOrderDto,iOrderItemFulfillment.get(0).getOrderFulfillmentId());
         IOrderFulfillment orderUpdated = this.getOrderByecommerceId(partialOrderDto.getEcommercePurchaseId());
         log.info("The order {} was updated sucessfully ", orderUpdated.getOrderId());
         return objectMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderUpdated);
