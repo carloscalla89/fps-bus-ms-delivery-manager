@@ -1,18 +1,29 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
-import com.inretailpharma.digital.deliverymanager.entity.*;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.repository.*;
-import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.stereotype.Service;
+
+import com.inretailpharma.digital.deliverymanager.entity.Client;
+import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
+import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
+import com.inretailpharma.digital.deliverymanager.entity.ServiceType;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+import com.inretailpharma.digital.deliverymanager.repository.ClientRepository;
+import com.inretailpharma.digital.deliverymanager.repository.OrderRepository;
+import com.inretailpharma.digital.deliverymanager.repository.OrderStatusRepository;
+import com.inretailpharma.digital.deliverymanager.repository.ServiceLocalOrderRepository;
+import com.inretailpharma.digital.deliverymanager.repository.ServiceTypeRepository;
+import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -138,4 +149,10 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
         return orderStatusRepository.getOrderStatusByTypeIs(statusName);
     }
+
+	@Override
+	public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
+		log.info("CALL Repository--getOrderByOrderNumber:"+orderNumber);
+		return orderRepository.getOrderByOrderNumber(orderNumber);
+	} 
 }

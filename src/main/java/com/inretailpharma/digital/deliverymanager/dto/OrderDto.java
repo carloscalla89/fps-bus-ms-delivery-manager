@@ -49,9 +49,13 @@ public class OrderDto {
 
     // campos anteriores
     private String createdOrder;
-
     private String scheduledTime;
     private String notes;
-
     private String sourceCompanyName;
+    
+    /*
+    private String payOrderDate;
+    private String transactionOrderDate;
+    private String purchaseNumber;
+    */
 }

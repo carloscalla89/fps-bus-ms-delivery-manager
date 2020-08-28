@@ -1,8 +1,9 @@
 package com.inretailpharma.digital.deliverymanager.repository;
 
-import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,9 +11,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.websocket.server.PathParam;
-import java.util.List;
-import java.util.Set;
+import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 
 @Repository
 public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
@@ -122,4 +124,9 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true)
     void updateExternalIdToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
                                     @Param("externalPurchaseId") Long externalPurchaseId);
+
+    @Query(value = "select o.pay_order_date payOrderDate, o.transaction_order_date transactionOrderDate, o.purchase_number purchaseNumber " +
+    		" from order_fulfillment o where o.ecommerce_purchase_id = :orderNumber",
+            nativeQuery = true)
+	Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
 }
