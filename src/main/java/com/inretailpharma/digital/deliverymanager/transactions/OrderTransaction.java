@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
 @Component
 public class OrderTransaction {
 
@@ -297,31 +297,16 @@ public class OrderTransaction {
 
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public OrderCanonical updatePartialOrder(OrderDto partialOrderDto) {
         IOrderFulfillment iOrderFulfillment = getOrderByecommerceId(partialOrderDto.getEcommercePurchaseId());
         List<IOrderItemFulfillment> iOrderItemFulfillment = getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId());
-        List<String> itemsCodeToDelete = getItemsToDelete(partialOrderDto, iOrderItemFulfillment);
-
-        if (!CollectionUtils.isEmpty(itemsCodeToDelete)) {
-            log.info("Items to delete : {}", itemsCodeToDelete.toString());
-            orderRepositoryService.deleteItemsRetired(itemsCodeToDelete, iOrderItemFulfillment.get(0).getOrderFulfillmentId());
-        }
         orderRepositoryService.updatePartialOrderDetail(partialOrderDto, iOrderItemFulfillment);
         orderRepositoryService.updatePartialOrderHeader(partialOrderDto);
         IOrderFulfillment orderUpdated = this.getOrderByecommerceId(partialOrderDto.getEcommercePurchaseId());
         log.info("The order {} was updated sucessfully ", orderUpdated.getOrderId());
         return objectMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderUpdated);
 
-
     }
 
-    private List<String> getItemsToDelete(OrderDto partialOrderDto, List<IOrderItemFulfillment> iOrderItemFulfillment) {
-
-        return partialOrderDto.getItemsRetired().stream()
-                .filter(order ->
-                        iOrderItemFulfillment.stream()
-                                .filter(itemFulFillment -> itemFulFillment.getQuantity().equals(order.getQuantity()))
-                                .findFirst().orElse(null) != null
-                ).map(item -> item.getSku()).collect(Collectors.toList());
-    }
 }

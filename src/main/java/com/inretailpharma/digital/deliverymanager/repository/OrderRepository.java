@@ -132,7 +132,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             " set quantity = :quantity ," +
             "  unit_Price = :unitPrice ," +
             "  total_Price = :totalPrice ," +
-            "  fractionated = :fractionated " +
+            "  fractionated = :fractionated, " +
+            " quantity_units = :quantityUnits "+
             " where order_fulfillment_id = :orderFulfillmentId " +
             " and product_code = :productCode",
             nativeQuery = true)
@@ -141,6 +142,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                                  @Param("totalPrice") BigDecimal totalPrice,
                                  @Param("fractionated") String fractionated,
                                  @Param("orderFulfillmentId") Long orderFulfillmentId,
+                                 @Param("quantityUnits") Integer quantityUnits,
                                  @Param("productCode") String productCode
                                  );
 
@@ -149,23 +151,25 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "Update order_fulfillment " +
             " set total_cost = :totalCost ," +
             "  delivery_cost = :deliveryCost ," +
-            "  date_last_updated = :date_last_updated " +
+            "  date_last_updated = :date_last_updated, " +
+            "  partial = :partial " +
             " where ecommerce_purchase_id = :externalPurchaseId",
             nativeQuery = true)
     void updatePartialOrder(@Param("totalCost") BigDecimal unitPrice,
                             @Param("deliveryCost") BigDecimal totalPrice,
                             @Param("date_last_updated") LocalDateTime date_last_updated,
-                            @Param("externalPurchaseId") Long externalPurchaseId
+                            @Param("externalPurchaseId") Long externalPurchaseId,
+                            @Param("partial") boolean partial
     );
 
     @Modifying
     @Transactional
     @Query(value = " DELETE FROM order_fulfillment_item" +
             " WHERE order_fulfillment_id = :id " +
-            " AND  product_code IN (:productIdsToRemove)",
+            " AND  product_code = :productIdsToRemove",
             nativeQuery = true)
 
-    void deleteItemsRetired(@Param("productIdsToRemove")List<String> itemsId,
+    void deleteItemRetired(@Param("productIdsToRemove")String itemId,
                             @Param("id")Long id
                             );
 }

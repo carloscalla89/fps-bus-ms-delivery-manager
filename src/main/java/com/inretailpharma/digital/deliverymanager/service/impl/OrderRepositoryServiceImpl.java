@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -153,39 +152,42 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         LocalDateTime dateLastUpdated =  DateUtils.getLocalDateTimeObjectNow();
         Long externalPurchaseId = orderDto.getEcommercePurchaseId();
 
-         orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId);
+         orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId,true);
          log.info("The order {} header was updated sucessfully",externalPurchaseId);
          return true;
     }
 
     @Override
     public boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment) {
-       
-        for (OrderItemDto dto : orderDto.getOrderItem()) {
-            if (dto.isEdited()) {
-                iOrderItemFulfillment.stream()
-                        .filter(element -> element.getProductCode().equals(dto.getProductCode()))
-                        .findFirst().ifPresent(iOrderItem -> {
-                    Long orderFulfillmentId = iOrderItem.getOrderFulfillmentId();
-                    String productCode = iOrderItem.getProductCode();
-                    Integer quantity = dto.getQuantity();
-                    BigDecimal unitPrice = dto.getUnitPrice();
-                    BigDecimal totalPrice = dto.getTotalPrice();
-                    Constant.Logical fractionated = Constant.Logical.parse(dto.getFractionated());
-                   
-                    orderRepository.updateItemsPartialOrder(quantity, unitPrice, totalPrice, fractionated.getValueString(), orderFulfillmentId, productCode);
-                });
+
+        for (IOrderItemFulfillment itemOriginal : iOrderItemFulfillment) {
+            OrderItemDto itemDto = orderDto.getOrderItem().stream().filter(dto -> dto.getProductCode()
+                    .equals(itemOriginal.getProductCode())).findFirst().orElse(null);
+            if (itemDto == null) {
+                log.info("The item {} of the order {} is removed because it does not exist in the list to update",
+                        itemOriginal.getProductCode(),orderDto.getEcommercePurchaseId());
+
+                deleteItemRetired(itemOriginal.getProductCode(), iOrderItemFulfillment.get(0).getOrderFulfillmentId());
+            } else {
+                if(itemDto.isEdited()){
+                    Long orderFulfillmentId = itemOriginal.getOrderFulfillmentId();
+                    String productCode = itemOriginal.getProductCode();
+                    Integer quantity = itemDto.getQuantity();
+                    BigDecimal unitPrice = itemDto.getUnitPrice();
+                    BigDecimal totalPrice = itemDto.getTotalPrice();
+                    Integer quantityUnits= itemDto.getQuantityUnits();
+                    Constant.Logical fractionated = Constant.Logical.parse(itemDto.getFractionated());
+                    orderRepository.updateItemsPartialOrder(quantity, unitPrice, totalPrice, fractionated.getValueString(), orderFulfillmentId,quantityUnits, productCode);
+                }
             }
-
         }
-
         return true;
     }
 
     @Override
-    public boolean deleteItemsRetired(List<String> itemsId,Long  orderFulfillmentId) {
-        log.info("Deleting itemsId: {} from orderId: {}",itemsId.toString(),orderFulfillmentId);
-        orderRepository.deleteItemsRetired(itemsId,orderFulfillmentId);
+    public boolean deleteItemRetired(String itemsId,Long  orderFulfillmentId) {
+        log.info("Deleting itemId: {} from orderId: {}",itemsId,orderFulfillmentId);
+        orderRepository.deleteItemRetired(itemsId,orderFulfillmentId);
 
         return true;
     }
