@@ -179,7 +179,6 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         Long externalPurchaseId = orderDto.getEcommercePurchaseId();
 
          orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId,true);
-
          log.info("The order {} header was updated sucessfully",externalPurchaseId);
          return true;
     }
@@ -209,7 +208,6 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
                 }
             }
         }
-
         return true;
     }
 

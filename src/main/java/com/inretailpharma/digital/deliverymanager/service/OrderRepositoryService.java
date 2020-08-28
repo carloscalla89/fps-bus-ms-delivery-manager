@@ -52,6 +52,5 @@ public interface OrderRepositoryService {
     boolean updatePartialOrderHeader(OrderDto orderDto);
     boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment);
     boolean deleteItemRetired(String itemId, Long orderFulFillmentId);
-
     void updatePaymentMethod(OrderDto partialOrderDto, Long orderFulfillmentId);
 }
