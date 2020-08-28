@@ -62,6 +62,7 @@ public class CenterCompanyServiceImpl implements CenterCompanyService {
 				)
 				.retrieve()
 				.bodyToMono(StoreCenterCanonical.class)
+				.defaultIfEmpty(new StoreCenterCanonical(localCode))
 				.flatMap(r -> {
 					r.setCompanyCode(companyCode);
 					return Mono.just(r);

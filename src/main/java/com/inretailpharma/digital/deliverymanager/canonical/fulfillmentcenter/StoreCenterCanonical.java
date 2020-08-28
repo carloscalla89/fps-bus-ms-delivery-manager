@@ -18,4 +18,12 @@ public class StoreCenterCanonical {
     private BigDecimal latitude;
     private BigDecimal longitude;
 
+    public StoreCenterCanonical() {
+
+    }
+
+    public StoreCenterCanonical(String localCode) {
+        this.localCode = localCode;
+    }
+
 }
