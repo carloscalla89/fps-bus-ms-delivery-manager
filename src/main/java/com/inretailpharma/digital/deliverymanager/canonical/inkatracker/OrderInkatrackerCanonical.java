@@ -47,4 +47,6 @@ public class OrderInkatrackerCanonical {
     private DrugstoreCanonical drugstoreSource;
     private boolean assignedDrugstoreNew;
     private String priority;
+    private List<InvoicedOrderCanonical> invoicedList;
+
 }
