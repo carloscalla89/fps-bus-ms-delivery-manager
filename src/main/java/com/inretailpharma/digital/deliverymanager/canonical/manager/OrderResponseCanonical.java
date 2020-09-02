@@ -6,9 +6,10 @@ import lombok.Data;
 @Data
 @Builder
 public class OrderResponseCanonical {
-	
-	//private Long orderNumber;
+
+    private String scheduledOrderDate;
 	private String payOrderDate;
     private String transactionOrderDate;
     private String purchaseNumber;
+    private String posCode;
 }

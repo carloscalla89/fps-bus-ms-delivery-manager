@@ -433,10 +433,12 @@ public class DeliveryManagerFacade {
 			log.info("x.get()--->:"+x.get());
 			IOrderResponseFulfillment orderResponseFulfillment=x.get();	    
 			log.info("OrderResponseFulfillment--->:"+orderResponseFulfillment);
-			OrderResponseCanonical orderResponseCanonical = OrderResponseCanonical.builder()	
+			OrderResponseCanonical orderResponseCanonical = OrderResponseCanonical.builder()
+                .scheduledOrderDate(orderResponseFulfillment.getScheduledOrderDate())
 				.payOrderDate(orderResponseFulfillment.getPayOrderDate())
 				.transactionOrderDate(orderResponseFulfillment.getTransactionOrderDate())				
 				.purchaseNumber(orderResponseFulfillment.getPurchaseNumber())
+                .posCode(orderResponseFulfillment.getPosCode())
 				.build();
 			log.info("END FACADE getOrderByOrderNumber:"+orderNumber);
 			return Mono.just(orderResponseCanonical);
