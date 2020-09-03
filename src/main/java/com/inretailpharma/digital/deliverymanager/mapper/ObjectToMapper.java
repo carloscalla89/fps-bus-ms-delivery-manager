@@ -2,10 +2,7 @@ package com.inretailpharma.digital.deliverymanager.mapper;
 
 import java.math.BigDecimal;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -345,6 +342,12 @@ public class ObjectToMapper {
         orderFulfillment.setReceiptType(receiptType);
         orderFulfillment.setNotes(orderDto.getNotes());
 
+        Optional.ofNullable(orderDto.getPayOrderDate())
+                .ifPresent(r -> orderFulfillment.setPayOrderDate(DateUtils.getLocalDateTimeFromDateWithFormat(r)));
+        Optional.ofNullable(orderDto.getScheduledOrderDate())
+                .ifPresent(r -> orderFulfillment.setScheduledOrderDate(DateUtils.getLocalDateTimeFromDateWithFormat(r)));
+        orderFulfillment.setTransactionOrderDate(orderDto.getTransactionOrderDate());
+        orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
         return orderFulfillment;
