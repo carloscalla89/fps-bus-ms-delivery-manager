@@ -136,6 +136,7 @@ public interface Constant {
         CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada", "11", "33"),
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada", null, null),
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger", null, null),
+        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada", null, null),
 
         ON_STORE_ORDER(2, "Acción para actualizar el estado en tienda", "16","06"),
         ON_ROUTE_ORDER(5, "Acción para actualizar el estado en tienda","19", "09"),
