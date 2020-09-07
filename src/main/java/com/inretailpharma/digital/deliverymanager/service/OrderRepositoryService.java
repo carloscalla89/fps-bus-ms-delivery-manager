@@ -1,11 +1,17 @@
 package com.inretailpharma.digital.deliverymanager.service;
 
-import com.inretailpharma.digital.deliverymanager.entity.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import com.inretailpharma.digital.deliverymanager.entity.Client;
+import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
+import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
+import com.inretailpharma.digital.deliverymanager.entity.ServiceType;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-
-import java.util.List;
-import java.util.Set;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 
 public interface OrderRepositoryService {
 
@@ -35,5 +41,6 @@ public interface OrderRepositoryService {
     Client saveClient(Client client);
 
     List<OrderStatus> getOrderStatusByTypeIs(String statusName);
-
+    
+    <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
 }

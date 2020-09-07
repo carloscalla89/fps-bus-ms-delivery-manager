@@ -1,50 +1,48 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
+import java.math.BigDecimal;
+import java.time.ZoneOffset;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import com.inretailpharma.digital.deliverymanager.canonical.integration.ProductCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.DrugstoreCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderStatusInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PaymentMethodInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PreviousStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ScheduledCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderDetailCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.entity.*;
+import com.inretailpharma.digital.deliverymanager.entity.Address;
+import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
+import com.inretailpharma.digital.deliverymanager.entity.Client;
+import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillmentItem;
+import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
+import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
+import com.inretailpharma.digital.deliverymanager.entity.ReceiptType;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-
-import java.util.Collections;
-import java.util.List;
-
-import java.util.Map;
-import java.util.Optional;
-
-import java.util.TimeZone;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -257,7 +255,11 @@ public class ObjectToMapper {
         orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
         orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
         orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getConfirmedOrder()));
-
+ /*       
+        orderFulfillment.setPayOrderDate(orderDto.getPayOrderDate());
+        orderFulfillment.setTransactionOrderDate(orderDto.getTransactionOrderDate());
+        orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
+*/
         // object orderItem
         orderFulfillment.setOrderItem(
                 orderDto.getOrderItem().stream().map(r -> {
@@ -340,6 +342,12 @@ public class ObjectToMapper {
         orderFulfillment.setReceiptType(receiptType);
         orderFulfillment.setNotes(orderDto.getNotes());
 
+        Optional.ofNullable(orderDto.getPayOrderDate())
+                .ifPresent(r -> orderFulfillment.setPayOrderDate(DateUtils.getLocalDateTimeFromDateWithFormat(r)));
+        Optional.ofNullable(orderDto.getScheduledOrderDate())
+                .ifPresent(r -> orderFulfillment.setScheduledOrderDate(DateUtils.getLocalDateTimeFromDateWithFormat(r)));
+        orderFulfillment.setTransactionOrderDate(orderDto.getTransactionOrderDate());
+        orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
         return orderFulfillment;
@@ -735,6 +743,4 @@ public class ObjectToMapper {
             return cancellationCanonical;
         }).collect(Collectors.toList());
     }
-
-
 }

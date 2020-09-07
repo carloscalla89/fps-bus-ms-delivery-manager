@@ -1,44 +1,35 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
-import com.inretailpharma.digital.deliverymanager.client.ProductClient;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderDetailCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
-import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
 import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
 import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.mapper.EcommerceMapper;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
-
-import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
-
 import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import reactor.core.scheduler.Schedulers;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -432,4 +423,29 @@ public class DeliveryManagerFacade {
         return r;
     }
 
+	public Mono<OrderResponseCanonical> getOrderByOrderNumber(Long orderNumber) {
+		log.info("START CALL FACADE getOrderByOrderNumber:"+orderNumber);
+    	return Mono.fromCallable(() -> orderTransaction.getOrderByOrderNumber(orderNumber))		
+		.flatMap(x -> { 
+			log.info("x--->:"+x);
+			log.info("x.isPresent()--->:"+x.isPresent());
+			if(!x.isPresent()) return Mono.empty();	
+			log.info("x.get()--->:"+x.get());
+			IOrderResponseFulfillment orderResponseFulfillment=x.get();	    
+			log.info("OrderResponseFulfillment--->:"+orderResponseFulfillment);
+			OrderResponseCanonical orderResponseCanonical = OrderResponseCanonical.builder()
+                .scheduledOrderDate(orderResponseFulfillment.getScheduledOrderDate())
+				.payOrderDate(orderResponseFulfillment.getPayOrderDate())
+				.transactionOrderDate(orderResponseFulfillment.getTransactionOrderDate())				
+				.purchaseNumber(orderResponseFulfillment.getPurchaseNumber())
+                .posCode(orderResponseFulfillment.getPosCode())
+				.build();
+			log.info("END FACADE getOrderByOrderNumber:"+orderNumber);
+			return Mono.just(orderResponseCanonical);
+		})
+		.onErrorResume(e -> {
+			log.info("ERROR ON CALL ORDEN TRANSACTION");
+			throw new RuntimeException("Error on get order by orderNumber..."+e);
+		});
+    }
 }

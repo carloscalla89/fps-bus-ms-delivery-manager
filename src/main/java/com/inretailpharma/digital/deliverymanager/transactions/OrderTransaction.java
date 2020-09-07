@@ -1,20 +1,33 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
-import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.entity.*;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
-import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
-import com.inretailpharma.digital.deliverymanager.util.Constant;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
+import com.inretailpharma.digital.deliverymanager.entity.Client;
+import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
+import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
+import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
+import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
+import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrderIdentity;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
+import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -273,5 +286,9 @@ public class OrderTransaction {
 
         orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
                 cancellationAppType, orderStatusCode, orderFulfillmentId);
+    }
+
+    public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
+        return orderRepositoryService.getOrderByOrderNumber(orderNumber);
     }
 }
