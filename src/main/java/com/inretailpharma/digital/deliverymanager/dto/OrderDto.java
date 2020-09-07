@@ -6,6 +6,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -49,9 +50,12 @@ public class OrderDto {
 
     // campos anteriores
     private String createdOrder;
-
     private String scheduledTime;
     private String notes;
-
     private String sourceCompanyName;
+
+    private Date payOrderDate;
+    private Date scheduledOrderDate;
+    private String transactionOrderDate;
+    private Integer purchaseNumber;
 }

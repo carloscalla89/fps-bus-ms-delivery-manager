@@ -80,5 +80,4 @@ public interface IOrderFulfillment {
     String getSource();
     String getOrderNotes();
     String getSourceCompanyName();
-
 }

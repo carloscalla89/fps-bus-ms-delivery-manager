@@ -24,7 +24,9 @@ import java.util.List;
 })
 public class OrderFulfillment extends OrderEntity<Long> {
 
-    private String source;
+	private static final long serialVersionUID = 1L;
+
+	private String source;
 
     @Column(name="ecommerce_purchase_id")
     private Long ecommercePurchaseId;
@@ -85,5 +87,21 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @ElementCollection
     @CollectionTable(name = "order_fulfillment_item", joinColumns = @JoinColumn(name = "order_fulfillment_id"))
     private List<OrderFulfillmentItem> orderItem;
+    
+
+    @Column(name="pay_order_date")
+    private LocalDateTime payOrderDate;
+    
+    @Column(name="transaction_order_date")
+    private String transactionOrderDate;
+    
+    @Column(name="purchase_number")
+    private Integer purchaseNumber;
+
+    @Column(name="scheduled_order_date")
+    private LocalDateTime scheduledOrderDate;
+
+    @Column(name="pos_code")
+    private String posCode;
 
 }
