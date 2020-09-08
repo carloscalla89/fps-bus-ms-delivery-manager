@@ -58,6 +58,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
         Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
 
+        log.info("response action:{}", action);
+
         OrderTrackerCanonical orderTrackerCanonical = new OrderTrackerCanonical();
         List<InvoicedOrderCanonical> invoicedList = new ArrayList<>();
         if(actionDto.getInvoicedOrderList() != null) {
@@ -105,6 +107,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                     .body(Mono.just(orderTrackerCanonical), OrderTrackerCanonical.class)
                                     .exchange()
                                     .map(r -> {
+                                        log.info("response r :{}", r);
+                                        log.info("response action :{}", action);
                                         log.info("response:{}", r.statusCode());
 
                                         OrderCanonical orderCanonical = new OrderCanonical();
