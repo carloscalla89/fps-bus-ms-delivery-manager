@@ -390,11 +390,37 @@ public class DeliveryManagerFacade {
 
         } else {
 
+
+            OrderStatusCanonical orderStatus =  Optional
+                                                    .ofNullable(iOrderFulfillment)
+                                                    .map(s -> {
+
+
+                                                        OrderStatusCanonical os = new OrderStatusCanonical();
+                                                        os.setCode(Constant.OrderStatus.END_STATUS_RESULT.getCode());
+                                                        os.setName(Constant.OrderStatus.END_STATUS_RESULT.name());
+                                                        os.setDetail("The order cant reattempted");
+                                                        os.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                                                        log.info("The order has end status:{}",os);
+
+                                                        return os;
+
+
+                                                    }).orElseGet(() -> {
+                                                        OrderStatusCanonical os = new OrderStatusCanonical();
+                                                        os.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
+                                                        os.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
+                                                        os.setDetail("Order not found");
+                                                        os.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                                                        log.info("Order not found:{}",os);
+
+                                                        return os;
+                                                    });
+
             OrderCanonical resultWithoutAction = new OrderCanonical();
-            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-            orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
-            orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
-            orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
             resultWithoutAction.setOrderStatus(orderStatus);
             resultWithoutAction.setEcommerceId(ecommercePurchaseId);
 

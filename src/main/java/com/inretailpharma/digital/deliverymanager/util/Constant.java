@@ -270,7 +270,8 @@ public interface Constant {
         NOT_FOUND_ACTION("-1",  false),
         EMPTY_RESULT_CANCELLATION("-1", false),
         EMPTY_RESULT_DISPATCHER("-1",  false),
-        EMPTY_RESULT_INKATRACKER("-1", false);
+        EMPTY_RESULT_INKATRACKER("-1", false),
+        END_STATUS_RESULT("-1",  false),;
 
         private String code;
         private boolean isSuccess;
@@ -301,9 +302,9 @@ public interface Constant {
             return EnumUtils.getEnumList(OrderStatus.class)
                     .stream()
                     .anyMatch(item -> SUCCESS_FULFILLMENT_PROCESS.code.equalsIgnoreCase(code)
-                                        || SUCCESS_RESERVED_ORDER.code.equalsIgnoreCase(code)
                                         || CANCELLED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
                                         || CANCELLED_ORDER.code.equalsIgnoreCase(code)
+                                        || DELIVERED_ORDER.code.equalsIgnoreCase(code)
                     );
         }
 
