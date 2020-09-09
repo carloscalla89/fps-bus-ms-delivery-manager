@@ -301,8 +301,7 @@ public interface Constant {
         public static boolean getFinalStatusByCode(String code) {
             return EnumUtils.getEnumList(OrderStatus.class)
                     .stream()
-                    .anyMatch(item -> SUCCESS_FULFILLMENT_PROCESS.code.equalsIgnoreCase(code)
-                                        || CANCELLED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
+                    .anyMatch(item -> CANCELLED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
                                         || CANCELLED_ORDER.code.equalsIgnoreCase(code)
                                         || DELIVERED_ORDER.code.equalsIgnoreCase(code)
                     );
