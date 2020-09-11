@@ -126,7 +126,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                                     @Param("externalPurchaseId") Long externalPurchaseId);
 
     @Query(value = "select o.pay_order_date payOrderDate, o.transaction_order_date transactionOrderDate, o.purchase_number purchaseNumber," +
-            "  o.scheduled_order_date as scheduledOrderDate, o.pos_code as posCode" +
+            "  o.scheduled_order_date as scheduledOrderDate, o.pos_code as posCode, o.payment_method_id as paymentMethodId, o.credit_card_id as creditCardId" +
     		" from order_fulfillment o where o.ecommerce_purchase_id = :orderNumber",
             nativeQuery = true)
 	Optional<IOrderResponseFulfillment> getOrderByOrderNumber(@Param("orderNumber") Long orderNumber);

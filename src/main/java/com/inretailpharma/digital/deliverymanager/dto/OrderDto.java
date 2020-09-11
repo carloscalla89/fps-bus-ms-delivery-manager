@@ -58,4 +58,6 @@ public class OrderDto {
     private Date scheduledOrderDate;
     private String transactionOrderDate;
     private Integer purchaseNumber;
+    private Long paymentMethodId;
+    private Long creditCardId;
 }
