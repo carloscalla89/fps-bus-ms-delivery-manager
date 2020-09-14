@@ -29,4 +29,5 @@ public class OrderItemDto {
     private Integer quantityUnits;
     private Integer quantityPresentation;
     private boolean edited;
+    private boolean removed;
 }

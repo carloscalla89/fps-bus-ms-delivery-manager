@@ -162,7 +162,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     public boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment) {
 
         for (IOrderItemFulfillment itemOriginal : iOrderItemFulfillment) {
-            OrderItemDto itemDto = orderDto.getOrderItem().stream().filter(dto -> dto.getProductCode()
+            OrderItemDto itemDto = orderDto.getOrderItem().stream().filter(dto-> !dto.isRemoved()) .filter(dto -> dto.getProductCode()
                     .equals(itemOriginal.getProductCode())).findFirst().orElse(null);
             if (itemDto == null) {
                 log.info("The item {} of the order {} is removed because it does not exist in the list to update",
