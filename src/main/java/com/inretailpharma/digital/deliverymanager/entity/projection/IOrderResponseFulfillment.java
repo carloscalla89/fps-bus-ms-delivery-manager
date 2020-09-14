@@ -9,4 +9,5 @@ public interface IOrderResponseFulfillment {
     String getPosCode();
     Long getPaymentMethodId();
     Long getCreditCardId();
+    String getConfirmedOrder();
 }

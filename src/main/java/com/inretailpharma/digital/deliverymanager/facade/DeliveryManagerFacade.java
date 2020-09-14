@@ -440,6 +440,7 @@ public class DeliveryManagerFacade {
                 .posCode(orderResponseFulfillment.getPosCode())
                 .creditCardId(orderResponseFulfillment.getCreditCardId())
                 .paymentMethodId(orderResponseFulfillment.getPaymentMethodId())
+                .confirmedOrder(orderResponseFulfillment.getConfirmedOrder())
 				.build();
 			log.info("END FACADE getOrderByOrderNumber:"+orderNumber);
 			return Mono.just(orderResponseCanonical);
