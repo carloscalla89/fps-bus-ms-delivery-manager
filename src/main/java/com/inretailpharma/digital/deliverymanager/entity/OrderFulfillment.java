@@ -88,7 +88,6 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @CollectionTable(name = "order_fulfillment_item", joinColumns = @JoinColumn(name = "order_fulfillment_id"))
     private List<OrderFulfillmentItem> orderItem;
     
-
     @Column(name="pay_order_date")
     private LocalDateTime payOrderDate;
     
@@ -103,5 +102,10 @@ public class OrderFulfillment extends OrderEntity<Long> {
 
     @Column(name="pos_code")
     private String posCode;
-
+    
+    @Column(name="payment_method_id")
+    private Long paymentMethodId;
+    
+    @Column(name="credit_card_id")
+    private Long creditCardId;
 }

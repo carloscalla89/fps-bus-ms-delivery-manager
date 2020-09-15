@@ -12,4 +12,7 @@ public class OrderResponseCanonical {
     private String transactionOrderDate;
     private String purchaseNumber;
     private String posCode;
+    private Long paymentMethodId;
+    private Long creditCardId;
+    private String confirmedOrder;
 }

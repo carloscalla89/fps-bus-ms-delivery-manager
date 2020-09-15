@@ -427,7 +427,6 @@ public class DeliveryManagerFacade {
 		log.info("START CALL FACADE getOrderByOrderNumber:"+orderNumber);
     	return Mono.fromCallable(() -> orderTransaction.getOrderByOrderNumber(orderNumber))		
 		.flatMap(x -> { 
-			log.info("x--->:"+x);
 			log.info("x.isPresent()--->:"+x.isPresent());
 			if(!x.isPresent()) return Mono.empty();	
 			log.info("x.get()--->:"+x.get());
@@ -439,6 +438,9 @@ public class DeliveryManagerFacade {
 				.transactionOrderDate(orderResponseFulfillment.getTransactionOrderDate())				
 				.purchaseNumber(orderResponseFulfillment.getPurchaseNumber())
                 .posCode(orderResponseFulfillment.getPosCode())
+                .creditCardId(orderResponseFulfillment.getCreditCardId())
+                .paymentMethodId(orderResponseFulfillment.getPaymentMethodId())
+                .confirmedOrder(orderResponseFulfillment.getConfirmedOrder())
 				.build();
 			log.info("END FACADE getOrderByOrderNumber:"+orderNumber);
 			return Mono.just(orderResponseCanonical);

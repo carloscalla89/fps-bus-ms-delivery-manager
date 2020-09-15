@@ -348,10 +348,10 @@ public class ObjectToMapper {
                 .ifPresent(r -> orderFulfillment.setScheduledOrderDate(DateUtils.getLocalDateTimeFromDateWithFormat(r)));
         orderFulfillment.setTransactionOrderDate(orderDto.getTransactionOrderDate());
         orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
+        orderFulfillment.setCreditCardId(orderDto.getCreditCardId());
+        orderFulfillment.setPaymentMethodId(orderDto.getPaymentMethodId());
         log.info("[END] map-convertOrderdtoToOrderEntity");
-
         return orderFulfillment;
-
     }
 
     public OrderCanonical convertIOrderDtoToAndItemOrderFulfillmentCanonical(IOrderFulfillment iOrderFulfillment,
