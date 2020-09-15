@@ -23,7 +23,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return localtime.format(DateTimeFormatter.ofPattern(TIME_TEMPLATE));
     }
 
-
     public static String getLocalDateTimeWithFormat(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
     }
