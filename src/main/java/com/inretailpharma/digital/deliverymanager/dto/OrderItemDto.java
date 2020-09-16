@@ -28,4 +28,6 @@ public class OrderItemDto {
     private String presentationDescription;
     private Integer quantityUnits;
     private Integer quantityPresentation;
+    private boolean edited;
+    private boolean removed;
 }

@@ -31,11 +31,6 @@ public class OrderFulfillmentItem {
 
     private Integer quantity;
 
-    @Column(name = "old_quantity")
-    private Integer oldQuantity;
-
-    @Column(name = "modified_quantity")
-    private Integer modifiedQuantity;
 
     @Column(name = "unit_price")
     private BigDecimal unitPrice;
@@ -46,8 +41,7 @@ public class OrderFulfillmentItem {
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @Column(name = "modified_total_price")
-    private BigDecimal modifiedTotalPrice;
+
 
     @Enumerated(EnumType.STRING)
     private Constant.Logical fractionated;
@@ -55,13 +49,6 @@ public class OrderFulfillmentItem {
     @Column(name = "fractional_discount")
     private BigDecimal fractionalDiscount;
 
-    @Column(name = "old_fractional_discount")
-    private BigDecimal oldFractionalDiscount;
-
-    private Integer partial;
-
-    @Column(name="edition_code_type")
-    private String editionCodeType;
 
     @Column(name="presentation_id")
     private Integer presentationId;

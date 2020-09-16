@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
 import com.inretailpharma.digital.deliverymanager.entity.Client;
@@ -28,6 +29,22 @@ import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
+import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -36,11 +53,16 @@ public class OrderTransaction {
 
     private OrderRepositoryService orderRepositoryService;
     private OrderCancellationService orderCancellationService;
+    private ObjectToMapper objectMapper;
+
 
     public OrderTransaction(OrderRepositoryService orderRepositoryService,
-                            OrderCancellationService orderCancellationService) {
+                            OrderCancellationService orderCancellationService,
+                            ObjectToMapper objectToMapper
+                            ) {
         this.orderRepositoryService = orderRepositoryService;
         this.orderCancellationService = orderCancellationService;
+        this.objectMapper = objectToMapper;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -290,4 +312,28 @@ public class OrderTransaction {
     public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
         return orderRepositoryService.getOrderByOrderNumber(orderNumber);
     }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updatePartialOrder(String statusDetail, String cancellationObservation, String cancellationCode,
+                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId) {
+        log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
+                        "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
+                ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
+
+
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public OrderCanonical updatePartialOrder(OrderDto partialOrderDto) {
+        IOrderFulfillment iOrderFulfillment = getOrderByecommerceId(partialOrderDto.getEcommercePurchaseId());
+        List<IOrderItemFulfillment> iOrderItemFulfillment = getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId());
+        orderRepositoryService.updatePartialOrderDetail(partialOrderDto, iOrderItemFulfillment);
+        orderRepositoryService.updatePartialOrderHeader(partialOrderDto);
+        orderRepositoryService.updatePaymentMethod(partialOrderDto,iOrderItemFulfillment.get(0).getOrderFulfillmentId());
+        IOrderFulfillment orderUpdated = this.getOrderByecommerceId(partialOrderDto.getEcommercePurchaseId());
+        log.info("The order {} was updated sucessfully ", orderUpdated.getOrderId());
+        return objectMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderUpdated);
+
+    }
+
 }

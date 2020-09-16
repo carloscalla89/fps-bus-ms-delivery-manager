@@ -1,5 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.InvoicedOrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderTrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderTrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -20,6 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.TcpClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service("inkatracker")
@@ -47,17 +53,29 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
-        log.info("[START] connect inkatracker   - ecommerceId:{} - actionOrder:{}",
+        log.info("[START]  connect inkatracker   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
         Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
 
+        log.info("response action:{}", action);
+
         OrderTrackerCanonical orderTrackerCanonical = new OrderTrackerCanonical();
+        List<InvoicedOrderCanonical> invoicedList = new ArrayList<>();
+        if(actionDto.getInvoicedOrderList() != null) {
+            actionDto.getInvoicedOrderList().forEach(i -> {
+                InvoicedOrderCanonical invoiced = new InvoicedOrderCanonical();
+                invoiced.setInvoicedNumber(i.getInvoicedNumber());
+                invoicedList.add(invoiced);
+            });
+        }
+        orderTrackerCanonical.setInvoicedList(invoicedList);
         orderTrackerCanonical.setInkaDeliveryId(actionDto.getExternalBillingId());
         orderTrackerCanonical.setCancelCode(actionDto.getOrderCancelCode());
         orderTrackerCanonical.setCancelClientReason(actionDto.getOrderCancelClientReason());
         orderTrackerCanonical.setCancelReason(actionDto.getOrderCancelReason());
         orderTrackerCanonical.setCancelObservation(actionDto.getOrderCancelObservation());
+
 
         log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerUpdateStatusOrderUri());
 
@@ -89,6 +107,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                     .body(Mono.just(orderTrackerCanonical), OrderTrackerCanonical.class)
                                     .exchange()
                                     .map(r -> {
+                                        log.info("response r :{}", r);
+                                        log.info("response action :{}", action);
                                         log.info("response:{}", r.statusCode());
 
                                         OrderCanonical orderCanonical = new OrderCanonical();
