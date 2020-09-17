@@ -54,8 +54,7 @@ public class ObjectToMapper {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
         orderInkatrackerCanonical.setOrderExternalId(orderCanonical.getEcommerceId());
-        orderInkatrackerCanonical.setInkaDeliveryId(orderCanonical.getExternalId());
-
+        orderInkatrackerCanonical.setLocalCode(orderCanonical.getLocalCode());
         Optional.ofNullable(orderCanonical.getOrderDetail())
                 .filter(r -> r.getCreatedOrder() != null)
                 .ifPresent(r -> orderInkatrackerCanonical.setDateCreated(
@@ -124,6 +123,7 @@ public class ObjectToMapper {
         );
 
         orderInkatrackerCanonical.setDrugstore(drugstoreCanonical);
+        orderInkatrackerCanonical.setDeliveryType(orderCanonical.getOrderDetail().getServiceShortCode());
 
         return orderInkatrackerCanonical;
     }
@@ -185,11 +185,8 @@ public class ObjectToMapper {
 
         orderInfo.setReceipt(getReceiptFromOrderCanonical(orderCanonical));
         orderInfo.setCallSource(orderCanonical.getSource());
-        orderInfo.setDeliveryType(
-                Constant.TrackerImplementation
-                        .getByCode(orderCanonical.getOrderDetail().getServiceCode())
-                        .getServiceTypeCode()
-        );
+        orderInfo.setDeliveryType(orderCanonical.getOrderDetail().getServiceShortCode());
+
 
         orderInfo.setStartHour(orderCanonical.getOrderDetail().getStartHour());
         orderInfo.setEndHour(orderCanonical.getOrderDetail().getEndHour());
@@ -207,6 +204,7 @@ public class ObjectToMapper {
         );
 
         orderInfo.setCompanyCode(orderCanonical.getCompanyCode());
+        orderInfo.setLocalCode(orderCanonical.getLocalCode());
 
         return orderInfo;
 
@@ -895,6 +893,7 @@ public class ObjectToMapper {
 
         // set service of delivery or pickup on store
         orderCanonical.getOrderDetail().setServiceCode(orderWrapperResponse.getServiceCode());
+        orderCanonical.getOrderDetail().setServiceShortCode(orderWrapperResponse.getServiceShortCode());
         orderCanonical.getOrderDetail().setServiceName(orderWrapperResponse.getServiceName());
         orderCanonical.getOrderDetail().setServiceType(orderWrapperResponse.getServiceType());
         orderCanonical.getOrderDetail().setServiceEnabled(

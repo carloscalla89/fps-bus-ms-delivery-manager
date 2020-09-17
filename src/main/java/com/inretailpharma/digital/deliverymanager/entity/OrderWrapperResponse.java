@@ -13,6 +13,7 @@ public class OrderWrapperResponse {
     private String orderStatusName;
     private String orderStatusDetail;
     private String serviceCode;
+    private String serviceShortCode;
     private String serviceType;
     private String serviceName;
     private String serviceSourcechannel;

@@ -69,6 +69,7 @@ public class OrderInfoInkatrackerLiteCanonical {
     private String daysToPickUp;
     private String purchaseId;
     private String drugstoreAddress;
+    private String localCode;
     private String companyCode;
     private String newUserId;
 

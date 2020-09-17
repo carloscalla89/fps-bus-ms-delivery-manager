@@ -38,6 +38,7 @@ public class OrderInkatrackerCanonical {
     private String endHour;
     private String daysToPickUp;
     private String messageToPickup;
+    private String localCode;
     private String companyCode;
     private String companyName;
     private String errorDetail;

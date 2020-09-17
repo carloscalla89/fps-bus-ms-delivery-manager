@@ -10,6 +10,8 @@ import javax.persistence.*;
 public class ServiceType {
     @Id
     private String code;
+    @Column(name = "short_code")
+    private String shortCode;
     private String name;
     private String type;
     @Column(name="source_channel")
