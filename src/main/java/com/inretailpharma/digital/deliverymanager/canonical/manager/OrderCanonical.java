@@ -20,9 +20,8 @@ public class OrderCanonical {
         this.orderStatus.setName(name);
     }
 
-
-
-    public OrderCanonical(Long ecommerceId, OrderStatusCanonical orderStatus) {
+    public OrderCanonical(Long id,Long ecommerceId, OrderStatusCanonical orderStatus) {
+        this.id = id;
         this.ecommerceId = ecommerceId;
         this.orderStatus = orderStatus;
     }
@@ -63,7 +62,7 @@ public class OrderCanonical {
     private Long ecommerceId;
     private Long trackerId;
     private Long externalId;
-    private Long bridgePurchaseId;
+    private Long purchaseId;
     private String motorizedId;
 
     // Canonical cost
@@ -73,7 +72,7 @@ public class OrderCanonical {
     private BigDecimal totalAmount;
 
     // Canonical local and company
-    private String localCodeCompany;
+    private String companyCode;
     private String localCode;
     private String local;
     private String company;

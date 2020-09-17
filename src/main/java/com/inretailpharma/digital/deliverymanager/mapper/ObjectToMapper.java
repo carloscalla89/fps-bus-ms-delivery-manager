@@ -126,6 +126,19 @@ public class ObjectToMapper {
         return orderInkatrackerCanonical;
     }
 
+    public OrderStatusCanonical getOrderStatusErrorCancel(String code, String errorDetail) {
+
+        Constant.OrderStatus status = Constant.OrderStatus.getByCode(code);
+
+        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+        orderStatus.setCode(status.getCode());
+        orderStatus.setName(status.name());
+        orderStatus.setDetail(errorDetail);
+        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+        return orderStatus;
+    }
+
     private ReceiptInkatrackerCanonical getReceiptFromOrderCanonical(OrderCanonical orderCanonical) {
         ReceiptInkatrackerCanonical receiptInkatrackerCanonical = new ReceiptInkatrackerCanonical();
         receiptInkatrackerCanonical.setType(orderCanonical.getReceipt().getType());
@@ -242,7 +255,8 @@ public class ObjectToMapper {
         orderFulfillment.setEcommercePurchaseId(orderDto.getEcommercePurchaseId());
         orderFulfillment.setTrackerId(orderDto.getTrackerId());
         orderFulfillment.setExternalPurchaseId(orderDto.getExternalPurchaseId());
-        orderFulfillment.setBridgePurchaseId(orderDto.getBridgePurchaseId());
+        orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
+
         orderFulfillment.setDiscountApplied(orderDto.getDiscountApplied());
         orderFulfillment.setSubTotalCost(orderDto.getSubTotalCost());
         orderFulfillment.setTotalCost(orderDto.getTotalCost());
@@ -252,11 +266,8 @@ public class ObjectToMapper {
         orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
         orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
         orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getConfirmedOrder()));
- /*       
-        orderFulfillment.setPayOrderDate(orderDto.getPayOrderDate());
-        orderFulfillment.setTransactionOrderDate(orderDto.getTransactionOrderDate());
-        orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
-*/
+        orderFulfillment.setTransactionOrderDate(orderDto.getSchedules().getTransactionVisaOrder());
+
         // object orderItem
         orderFulfillment.setOrderItem(
                 orderDto.getOrderItem().stream().map(r -> {
@@ -272,10 +283,13 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setTotalPrice(r.getTotalPrice());
                     orderFulfillmentItem.setFractionated(Constant.Logical.parse(r.getFractionated()));
                     orderFulfillmentItem.setFractionalDiscount(r.getFractionalDiscount());
+                    orderFulfillmentItem.setFractionatedPrice(r.getFractionatedPrice());
                     orderFulfillmentItem.setPresentationId(r.getPresentationId());
                     orderFulfillmentItem.setPresentationDescription(r.getPresentationDescription());
                     orderFulfillmentItem.setQuantityUnits(r.getQuantity());
+                    orderFulfillmentItem.setQuantityUnitMinimum(r.getQuantityUnitMinumium());
                     orderFulfillmentItem.setQuantityPresentation(r.getQuantityPresentation());
+                    orderFulfillmentItem.setFamilyType(r.getFamilyType());
 
                     return orderFulfillmentItem;
                 }).collect(Collectors.toList())
@@ -283,8 +297,7 @@ public class ObjectToMapper {
 
         // object client
         Client client = new Client();
-        //client.setId(Optional.ofNullable(orderDto.getClient().getUserId()).map(Long::parseLong).orElse(null));
-        //client.setUserId(orderDto.getClient().getUserId());
+        client.setUserId(orderDto.getClient().getUserId());
         client.setAnonimous(orderDto.getClient().getAnonimous());
         Optional.ofNullable(orderDto.getClient().getBirthDate())
                 .ifPresent(r -> client.setBirthDate(DateUtils.getLocalDateFromStringDate(r)));
@@ -295,8 +308,9 @@ public class ObjectToMapper {
         client.setPhone(orderDto.getClient().getPhone());
         client.setInkaclub(orderDto.getClient().getHasInkaClub());
         client.setNotificationToken(orderDto.getClient().getNotificationToken());
-        orderFulfillment.setClient(client);
+        client.setNewUserId(orderDto.getClient().getNewUserId());
 
+        orderFulfillment.setClient(client);
 
         // object address
         Address address = new Address();
@@ -312,7 +326,7 @@ public class ObjectToMapper {
             address.setCountry(r.getCountry());
             address.setNotes(r.getNotes());
             address.setLatitude(r.getLatitude());
-            address.setLongitude(r.getLongitude()); 
+            address.setLongitude(r.getLongitude());
             address.setStreet(r.getStreet());
             address.setReceiver(r.getReceiver());
         });
@@ -341,15 +355,8 @@ public class ObjectToMapper {
         orderFulfillment.setReceiptType(receiptType);
         orderFulfillment.setNotes(orderDto.getNotes());
 
-        Optional.ofNullable(orderDto.getPayOrderDate())
-                .ifPresent(r -> orderFulfillment.setPayOrderDate(DateUtils.getLocalDateTimeFromDateWithFormat(r)));
-        Optional.ofNullable(orderDto.getScheduledOrderDate())
-                .ifPresent(r -> orderFulfillment.setScheduledOrderDate(DateUtils.getLocalDateTimeFromDateWithFormat(r)));
-        orderFulfillment.setTransactionOrderDate(orderDto.getTransactionOrderDate());
-        orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
-        orderFulfillment.setCreditCardId(orderDto.getCreditCardId());
-        orderFulfillment.setPaymentMethodId(orderDto.getPaymentMethodId());
         log.info("[END] map-convertOrderdtoToOrderEntity");
+
         return orderFulfillment;
     }
 
@@ -362,7 +369,7 @@ public class ObjectToMapper {
 
             orderCanonical.setEcommerceId(o.getEcommerceId());
             orderCanonical.setExternalId(o.getExternalId());
-            orderCanonical.setBridgePurchaseId(o.getBridgePurchaseId());
+            orderCanonical.setPurchaseId(Optional.ofNullable(o.getPurchaseId()).map(Integer::longValue).orElse(null));
 
             orderCanonical.setTotalAmount(o.getTotalCost());
             orderCanonical.setDeliveryCost(o.getDeliveryCost());
@@ -392,7 +399,8 @@ public class ObjectToMapper {
                     Optional.ofNullable(o.getAnonimous())
                             .map(r -> r.equalsIgnoreCase("1")?1:0)
                             .orElse(0));
-            client.setUserId(o.getNotificationToken());
+            client.setUserId(o.getUserId());
+            client.setNewUserId(o.getNewUserId());
             client.setNotificationToken(o.getNotificationToken());
 
             OrderDetailCanonical orderDetail = new OrderDetailCanonical();
@@ -440,6 +448,7 @@ public class ObjectToMapper {
                 OrderItemCanonical item = new OrderItemCanonical();
                 item.setBrand(s.getBrandProduct());
                 item.setFractionated(Constant.Logical.Y.name().equals(s.getFractionated()));
+                item.setFractionatedPrice(s.getFractionatedPrice());
                 item.setProductName(s.getNameProduct());
                 item.setQuantity(s.getQuantity());
                 item.setProductCode(s.getProductCode());
@@ -474,7 +483,7 @@ public class ObjectToMapper {
         	
         	orderCanonical.setEcommerceId(o.getEcommerceId());
         	orderCanonical.setExternalId(o.getExternalId());
-        	orderCanonical.setBridgePurchaseId(o.getBridgePurchaseId());
+            orderCanonical.setPurchaseId(Optional.ofNullable(o.getPurchaseId()).map(Integer::longValue).orElse(null));
         	
         	orderCanonical.setTotalAmount(o.getTotalCost());
         	orderCanonical.setDeliveryCost(o.getDeliveryCost());
@@ -555,48 +564,7 @@ public class ObjectToMapper {
 
 
     public OrderCanonical setsOrderWrapperResponseToOrderCanonical(OrderWrapperResponse orderWrapperResponse,
-                                                                   OrderCanonical orderCanonical) {
-
-        // set status
-        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-        orderStatus.setCode(orderWrapperResponse.getOrderStatusCode());
-        orderStatus.setName(orderWrapperResponse.getOrderStatusName());
-        orderStatus.setDetail(orderWrapperResponse.getOrderStatusDetail());
-        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-        orderCanonical.setOrderStatus(orderStatus);
-
-        // set service of delivery or pickup on store
-        orderCanonical.getOrderDetail().setServiceCode(orderWrapperResponse.getServiceCode());
-        orderCanonical.getOrderDetail().setServiceName(orderWrapperResponse.getServiceName());
-        orderCanonical.getOrderDetail().setServiceType(orderWrapperResponse.getServiceType());
-        orderCanonical.getOrderDetail().setServiceEnabled(
-                Constant.Logical.getByValueString(orderWrapperResponse.getServiceEnabled()).value()
-        );
-        orderCanonical.getOrderDetail().setServiceSourceChannel(orderWrapperResponse.getServiceSourcechannel());
-        orderCanonical.getOrderDetail().setAttempt(orderWrapperResponse.getAttemptBilling());
-        orderCanonical.getOrderDetail().setAttemptTracker(orderWrapperResponse.getAttemptTracker());
-
-        // set local and company names;
-        orderCanonical.setCompany(orderWrapperResponse.getCompanyCode());
-        orderCanonical.setLocal(orderWrapperResponse.getLocalName());
-        orderCanonical.setLocalCode(orderWrapperResponse.getLocalCode());
-        orderCanonical.setLocalDescription(orderWrapperResponse.getLocalDescription());
-        orderCanonical.setLocalAddress(orderWrapperResponse.getLocalAddress());
-        orderCanonical.setLocalId(orderWrapperResponse.getLocalId());
-        orderCanonical.setLocalLongitude(orderWrapperResponse.getLocalLongitude());
-        orderCanonical.setLocalLatitude(orderWrapperResponse.getLocalLatitude());
-
-        // attempts
-        orderCanonical.setAttemptTracker(orderWrapperResponse.getAttemptTracker());
-        orderCanonical.setAttempt(orderWrapperResponse.getAttemptBilling());
-
-        return orderCanonical;
-
-    }
-
-    public Mono<OrderCanonical> convertOrderDtoToOrderCanonical(OrderDto orderDto) {
-        log.info("[START] convertEntityToOrderCanonical");
+                                                                   OrderDto orderDto) {
 
         OrderCanonical orderCanonical = new OrderCanonical();
 
@@ -607,7 +575,7 @@ public class ObjectToMapper {
         orderCanonical.setExternalId(orderDto.getExternalPurchaseId());
 
         // Set bridge purchase id(online payment id)
-        orderCanonical.setBridgePurchaseId(orderDto.getBridgePurchaseId());
+        orderCanonical.setPurchaseId(Optional.ofNullable(orderDto.getPurchaseNumber()).map(Integer::longValue).orElse(null));
 
         // Set localCode
         orderCanonical.setLocalCode(orderDto.getLocalCode());
@@ -617,6 +585,15 @@ public class ObjectToMapper {
         orderCanonical.setDiscountApplied(orderDto.getDiscountApplied());
         orderCanonical.setSubTotalCost(orderDto.getSubTotalCost());
         orderCanonical.setTotalAmount(orderDto.getTotalCost());
+
+        // set status
+        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+        orderStatus.setCode(orderWrapperResponse.getOrderStatusCode());
+        orderStatus.setName(orderWrapperResponse.getOrderStatusName());
+        orderStatus.setDetail(orderWrapperResponse.getOrderStatusDetail());
+        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+        orderCanonical.setOrderStatus(orderStatus);
 
         // set client
         ClientCanonical client = new ClientCanonical();
@@ -636,6 +613,8 @@ public class ObjectToMapper {
             // For object of inkatrackerlite
             client.setFirstName(r.getFirstName());
             client.setLastName(r.getLastName());
+            client.setUserId(r.getUserId());
+            client.setNewUserId(r.getNewUserId());
         });
 
         orderCanonical.setClient(client);
@@ -665,8 +644,9 @@ public class ObjectToMapper {
             address.setCity(Optional.ofNullable(r.getCity()).orElse(StringUtils.EMPTY));
             address.setApartment(Optional.ofNullable(r.getApartment()).orElse(StringUtils.EMPTY));
             address.setNotes(Optional.ofNullable(r.getNotes()).orElse(StringUtils.EMPTY));
+            address.setLatitude(r.getLatitude());
+            address.setLongitude(r.getLongitude());
         });
-
 
         orderCanonical.setAddress(address);
 
@@ -679,10 +659,16 @@ public class ObjectToMapper {
                     itemCanonical.setShortDescription(r.getShortDescription());
                     itemCanonical.setBrand(r.getBrand());
                     itemCanonical.setQuantity(r.getQuantity());
+                    itemCanonical.setQuantityUnits(r.getQuantityUnits());
+                    itemCanonical.setQuantityUnitMinimium(r.getQuantityUnitMinumium());
                     itemCanonical.setUnitPrice(r.getUnitPrice());
                     itemCanonical.setTotalPrice(r.getTotalPrice());
                     itemCanonical.setFractionated(r.getFractionated());
+                    itemCanonical.setFractionatedPrice(r.getFractionatedPrice());
                     itemCanonical.setFractionalDiscount(r.getFractionalDiscount());
+                    itemCanonical.setQuantityPresentation(r.getQuantityPresentation());
+                    itemCanonical.setPresentationId(r.getPresentationId());
+                    itemCanonical.setPresentationDescription(r.getPresentationDescription());
 
                     return itemCanonical;
                 }).collect(Collectors.toList())
@@ -698,6 +684,7 @@ public class ObjectToMapper {
             orderDetail.setStartHour(r.getStartHour());
             orderDetail.setEndHour(r.getEndHour());
             orderDetail.setLeadTime(r.getLeadTime());
+            orderDetail.setTransactionVisaOrder(r.getTransactionVisaOrder());
         });
 
         orderCanonical.setOrderDetail(orderDetail);
@@ -723,7 +710,35 @@ public class ObjectToMapper {
         orderCanonical.setSource(orderDto.getSource());
         log.info("[END] convertEntityToOrderCanonical");
 
-        return Mono.just(orderCanonical);
+        // -------------------------------------------------------------
+
+
+        // set service of delivery or pickup on store
+        orderCanonical.getOrderDetail().setServiceCode(orderWrapperResponse.getServiceCode());
+        orderCanonical.getOrderDetail().setServiceName(orderWrapperResponse.getServiceName());
+        orderCanonical.getOrderDetail().setServiceType(orderWrapperResponse.getServiceType());
+        orderCanonical.getOrderDetail().setServiceEnabled(
+                Constant.Logical.getByValueString(orderWrapperResponse.getServiceEnabled()).value()
+        );
+        orderCanonical.getOrderDetail().setServiceSourceChannel(orderWrapperResponse.getServiceSourcechannel());
+        orderCanonical.getOrderDetail().setAttempt(orderWrapperResponse.getAttemptBilling());
+        orderCanonical.getOrderDetail().setAttemptTracker(orderWrapperResponse.getAttemptTracker());
+
+        // set local and company names;
+        orderCanonical.setCompany(orderWrapperResponse.getCompanyCode());
+        orderCanonical.setLocal(orderWrapperResponse.getLocalName());
+        orderCanonical.setLocalCode(orderWrapperResponse.getLocalCode());
+        orderCanonical.setLocalDescription(orderWrapperResponse.getLocalDescription());
+        orderCanonical.setLocalAddress(orderWrapperResponse.getLocalAddress());
+        orderCanonical.setLocalId(orderWrapperResponse.getLocalId());
+        orderCanonical.setLocalLongitude(orderWrapperResponse.getLocalLongitude());
+        orderCanonical.setLocalLatitude(orderWrapperResponse.getLocalLatitude());
+
+        // attempts
+        orderCanonical.setAttemptTracker(orderWrapperResponse.getAttemptTracker());
+        orderCanonical.setAttempt(orderWrapperResponse.getAttemptBilling());
+
+        return orderCanonical;
 
     }
 

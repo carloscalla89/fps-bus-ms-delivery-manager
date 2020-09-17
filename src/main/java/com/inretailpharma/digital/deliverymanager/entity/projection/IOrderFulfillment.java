@@ -10,7 +10,7 @@ public interface IOrderFulfillment {
     Long getEcommerceId();
     Long getTrackerId();
     Long getExternalId();
-    Long getBridgePurchaseId();
+    Integer getPurchaseId();
 
     BigDecimal getTotalCost();
     BigDecimal getDeliveryCost();
@@ -20,6 +20,7 @@ public interface IOrderFulfillment {
     LocalDateTime getScheduledTime();
     LocalDateTime getConfirmedSchedule();
     LocalDateTime getConfirmedOrder();
+    String getTransactionOrderDate();
 
     String getFirstName();
     String getLastName();
@@ -30,6 +31,8 @@ public interface IOrderFulfillment {
     String getAnonimous();
     Integer getInkaClub();
     String getNotificationToken();
+    String getUserId();
+    String getNewUserId();
 
     String getCenterCode();
     String getCenterName();

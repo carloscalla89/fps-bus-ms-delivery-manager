@@ -24,13 +24,16 @@ public class OrderItemDto {
     private BigDecimal modifiedTotalPrice;
     private Boolean fractionated;
     private BigDecimal fractionalDiscount;
+    private BigDecimal fractionatedPrice;
 
     private String productSapCode;
     private String eanCode;
     private Integer presentationId;
     private String presentationDescription;
     private Integer quantityUnits;
+    private Integer quantityUnitMinumium;
     private Integer quantityPresentation;
+    private String familyType;
     private boolean edited;
     private boolean removed;
 }

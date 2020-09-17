@@ -16,4 +16,5 @@ public class ClientDto {
     private Integer hasInkaClub;
     private Integer anonimous;
     private String notificationToken;
+    private String newUserId;
 }

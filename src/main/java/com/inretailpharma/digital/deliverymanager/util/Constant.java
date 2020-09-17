@@ -6,6 +6,36 @@ import java.util.Optional;
 
 public interface Constant {
 
+    enum StatusDispatcherResult {
+
+        INVALID_STRUCTURE("ERROR_INSERT_INKAVENTA"),
+        ORDER_RESERVED("SUCCESS_RESERVED_ORDER"),
+        ORDER_REGISTERED("CONFIRMED"),
+        NOT_ENOUGH_STOCK("CANCELLED_ORDER"),
+        NOT_ENOUGH_STOCK_PAYMENT_ONLINE("CANCELLED_ORDER_ONLINE_PAYMENT"),
+        ORDER_FAILED("ERROR_INSERT_INKAVENTA"),
+        NONE("NOT_DEFINED_ERROR");
+
+        private String status;
+
+        StatusDispatcherResult(String status) {
+            this.status = status;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public static StatusDispatcherResult getByName(String name) {
+
+            return EnumUtils.getEnumList(StatusDispatcherResult.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(NONE);
+        }
+    }
+
     enum TrackerImplementation {
         INKATRACKER_LITE_RAD(4,"inkatrackerlite"), INKATRACKER_LITE_RET(4,"inkatrackerlite"),
         INKATRACKER_RAD(3,"inkatracker"), TEMPORARY_RAD(2,"temporary"), NONE(3,"not_found");
@@ -238,6 +268,7 @@ public interface Constant {
         ERROR_INSERT_INKAVENTA("02", false),
         ERROR_RESERVED_ORDER("03",  false),
         ERROR_RELEASE_ORDER("04",  false),
+        ERROR_RELEASE_DISPATCHER_ORDER("04",  false),
         ERROR_UPDATE_TRACKER_BILLING("05", false),
         ERROR_ON_STORE("06",  false),
         ERROR_ASSIGNED("07",  false),
@@ -262,6 +293,8 @@ public interface Constant {
         RELEASED_ORDER("14", true),
 
         CONFIRMED("15",  true),
+
+        CONFIRMED_TRACKER("16",  true),
         ON_STORE("16",  true),
         ASSIGNED("17",  true),
         PICKED_ORDER("18",  true),
@@ -269,7 +302,6 @@ public interface Constant {
         ARRIVED("20",  true),
         REJECTED("21",  true),
         INVOICED("40", false),
-
         NOT_FOUND_CODE("-1",  false),
         NOT_FOUND_ORDER("-1",  false),
         NOT_DEFINED_ERROR("-1",  false),
@@ -278,6 +310,9 @@ public interface Constant {
         EMPTY_RESULT_CANCELLATION("-1", false),
         EMPTY_RESULT_DISPATCHER("-1",  false),
         EMPTY_RESULT_INKATRACKER("-1", false),
+
+        EMPTY_RESULT_TEMPORARY("-1", false),
+        EMPTY_RESULT_INKATRACKERLITE("-1", false),
         END_STATUS_RESULT("-1",  false),;
 
         private String code;

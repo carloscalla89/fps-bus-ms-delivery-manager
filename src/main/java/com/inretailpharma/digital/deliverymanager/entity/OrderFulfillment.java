@@ -37,8 +37,8 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="external_purchase_id")
     private Long externalPurchaseId;
 
-    @Column(name="bridge_purchase_id")
-    private Long bridgePurchaseId;
+    @Column(name="purchase_number")
+    private Integer purchaseNumber;
 
     @Column(name="delivery_cost")
     private BigDecimal deliveryCost;
@@ -81,29 +81,13 @@ public class OrderFulfillment extends OrderEntity<Long> {
 
     private Integer partial;
 
-
     @ElementCollection
     @CollectionTable(name = "order_fulfillment_item", joinColumns = @JoinColumn(name = "order_fulfillment_id"))
     private List<OrderFulfillmentItem> orderItem;
-    
-    @Column(name="pay_order_date")
-    private LocalDateTime payOrderDate;
-    
+
     @Column(name="transaction_order_date")
     private String transactionOrderDate;
-    
-    @Column(name="purchase_number")
-    private Integer purchaseNumber;
-
-    @Column(name="scheduled_order_date")
-    private LocalDateTime scheduledOrderDate;
 
     @Column(name="pos_code")
     private String posCode;
-    
-    @Column(name="payment_method_id")
-    private Long paymentMethodId;
-    
-    @Column(name="credit_card_id")
-    private Long creditCardId;
 }

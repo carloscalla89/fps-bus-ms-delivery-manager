@@ -16,6 +16,8 @@ public class OrderDetailCanonical {
     private String confirmedSchedule;
     private String createdOrder;
     private String confirmedOrder;
+    private String cancelledOrder;
+    private String transactionVisaOrder;
 
     // attempts
     private Integer attempt;
@@ -25,6 +27,7 @@ public class OrderDetailCanonical {
     private Integer leadTime;
     private String startHour;
     private String endHour;
+    private Integer daysToPickup;
 
     // boolean if the order is programmed or not
     private boolean programmed;

@@ -8,7 +8,11 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Unassig
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public class AbstractOrderService implements OrderExternalService {
 
@@ -39,6 +43,12 @@ public class AbstractOrderService implements OrderExternalService {
 
 	@Override
 	public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
+												   List<IOrderItemFulfillment> itemFulfillments, String action){
 		throw new UnsupportedOperationException();
 	}
 

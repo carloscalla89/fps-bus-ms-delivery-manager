@@ -19,9 +19,11 @@ public class OrderItemCanonical {
     private BigDecimal totalPrice;
     private Boolean fractionated;
     private BigDecimal fractionalDiscount;
+    private BigDecimal fractionatedPrice;
     private Integer presentationId;
     private String presentationDescription;
     private Integer quantityUnits;
+    private Integer quantityUnitMinimium;
     private Integer quantityPresentation;
 
 

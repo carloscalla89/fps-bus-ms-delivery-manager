@@ -13,10 +13,16 @@ public class ScheduleServiceTypeDto {
 
     private String confirmedOrder;
 
+    private String cancelledOrder;
+
+    private String transactionVisaOrder;
+
     private String startHour;
 
     private String endHour;
 
     private Integer leadTime;
+
+    private Integer daysToPickup;
 
 }
