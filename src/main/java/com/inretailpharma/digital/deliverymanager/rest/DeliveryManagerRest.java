@@ -20,11 +20,6 @@ import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.PartialOrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,7 +27,6 @@ import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping(value = "/fulfillment")
-@Api(value = "DeliveryManagerRest", produces = "application/json")
 @Slf4j
 public class DeliveryManagerRest {
 
@@ -42,10 +36,6 @@ public class DeliveryManagerRest {
         this.deliveryManagerFacade = deliveryManagerFacade;
     }
 
-    @ApiOperation(value = "Lista de órdenes")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Orden creado", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "No creado") })
     @GetMapping(value = "/orders")
     public ResponseEntity<Flux<OrderCanonical>> listOrders(@RequestParam(name="status") String status) {
         log.info("[START] endpoint /orders - status:{}",status);
@@ -56,10 +46,6 @@ public class DeliveryManagerRest {
                 );
     }
 
-    @ApiOperation(value = "Crear una orden que viene del ecommerce")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Orden creado", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "No creado") })
     @PostMapping(value = "/order")
     public Mono<ResponseEntity<OrderCanonical>> createOrderReactive(@RequestBody OrderDto orderDto) {
         log.info("[START] endpoint /fulfillment/order - orderDto:{}",orderDto);
@@ -75,15 +61,9 @@ public class DeliveryManagerRest {
 
     }
 
-    @ApiOperation(value = "Actualizar una orden en el dominio fulfillment segun una acción a realizar", tags = { "Controlador DeliveryManager" })
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "No creado") })
     @PatchMapping("/order/{ecommerceId}")
     public Mono<ResponseEntity<OrderCanonical>> updateStatusOrder(
-            @ApiParam(value = "Identificador e-commerce")
             @PathVariable(value = "ecommerceId") String ecommerceId,
-            @ApiParam(value = "Accción a realizar de la orden")
             @RequestBody ActionDto action) {
 
         log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - action {}"
@@ -99,10 +79,6 @@ public class DeliveryManagerRest {
 
     }
 
-    @ApiOperation(value = "Actualizar los items de una orden - orden parcial")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "deliverymanager creado", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "No creado") })
     @PostMapping("/order/partial/")
     public Mono<OrderCanonical> updatePartialOrder(@RequestBody OrderDto partialOrderDto) {
         log.info("[START] endpoint updatePartialOrder /order/partial/{} - partialOrderDto: {}",
@@ -110,11 +86,7 @@ public class DeliveryManagerRest {
 
         return deliveryManagerFacade.getUpdatePartialOrder(partialOrderDto);
     }
-    
-    @ApiOperation(value = "obtener orden x ecommerce_purchase_id")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Consulta exitosa", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "error en la consulta") })
+
     @GetMapping(value = "/order/{orderNumber}",produces=MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<OrderResponseCanonical>> getOrderByOrderNumber(@PathVariable Long orderNumber) {
         log.info("[START] endpoint /fulfillment/order/{orderNumber}:{}",orderNumber);

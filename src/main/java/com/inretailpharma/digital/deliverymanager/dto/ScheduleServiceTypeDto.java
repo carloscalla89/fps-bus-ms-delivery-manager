@@ -15,6 +15,8 @@ public class ScheduleServiceTypeDto {
 
     private String cancelledOrder;
 
+    private String confirmedInsinkOrder;
+
     private String transactionVisaOrder;
 
     private String startHour;

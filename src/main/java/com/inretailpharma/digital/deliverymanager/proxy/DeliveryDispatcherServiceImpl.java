@@ -8,9 +8,11 @@ import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServ
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.generic.ActionWrapper;
+import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.EcommerceMapper;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import io.netty.channel.ChannelOption;
@@ -32,11 +34,15 @@ import java.util.Optional;
 @Service("deliveryDispatcherInka")
 public class DeliveryDispatcherServiceImpl extends AbstractOrderService implements OrderExternalService{
 
+    private ApplicationParameterService applicationParameterService;
     private ExternalServicesProperties externalServicesProperties;
     private EcommerceMapper ecommerceMapper;
 
-    public DeliveryDispatcherServiceImpl(ExternalServicesProperties externalServicesProperties,
+    public DeliveryDispatcherServiceImpl(ApplicationParameterService applicationParameterService,
+                                         ExternalServicesProperties externalServicesProperties,
                                          EcommerceMapper ecommerceMapper) {
+
+        this.applicationParameterService = applicationParameterService;
         this.externalServicesProperties = externalServicesProperties;
         this.ecommerceMapper = ecommerceMapper;
     }
@@ -166,124 +172,99 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
         String dispatcherUri;
 
-
-        dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUri();
-
-
-        log.info("url dispatcher:{} - company:{}", dispatcherUri, iOrderFulfillment.getCompanyCode());
-
-        return WebClient
-                .builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl(dispatcherUri)
-                .build()
-                .post()
-                .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments)), OrderDto.class)
-                .retrieve()
-                .bodyToMono(ResponseDispatcherCanonical.class)
-                .flatMap(response -> {
-
-                    log.info("result dispatcher to reattempt insink and tracker response:{}", response);
-
-                    InsinkResponseCanonical dispatcherResponse = (InsinkResponseCanonical)response.getBody();
-                    StatusDispatcher statusDispatcher = (StatusDispatcher)response.getStatus();
-
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    Constant.OrderStatus orderStatusUtil = Constant
-                            .OrderStatus
-                            .getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).name());
-
-                    orderStatus.setCode(orderStatusUtil.getCode());
-                    orderStatus.setName(orderStatusUtil.name());
-                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                    Optional.of(statusDispatcher.isSuccessProcess())
-                            .filter(r -> r)
-                            .ifPresent(r -> {
-
-                                String stringBuffer = "code error:" +
-                                        dispatcherResponse.getErrorCode() +
-                                        ", description:" +
-                                        statusDispatcher.getDescription() +
-                                        ", detail:" +
-                                        dispatcherResponse.getMessageDetail();
-
-                                orderStatus.setDetail(stringBuffer);
-                            });
-
-                    OrderCanonical resultCanonical = new OrderCanonical();
-                    resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                    resultCanonical.setExternalId(
-                            Optional
-                                    .ofNullable(dispatcherResponse.getInkaventaId())
-                                    .map(Long::parseLong).orElse(null)
-                    );
-                    resultCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
-                    resultCanonical.setOrderStatus(orderStatus);
-
-                    return Mono.just(resultCanonical);
-
-                })
-                .defaultIfEmpty(
-                        new OrderCanonical(
-                                iOrderFulfillment.getEcommerceId(),
-                                Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
-                                Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
-                )
-                .onErrorResume(e -> {
-                    e.printStackTrace();
-                    String errorMessage = "Error to invoking'" + dispatcherUri +
-                            "':" + e.getMessage();
-                    log.error(errorMessage);
-
-                    OrderCanonical orderCanonical = new OrderCanonical();
-
-                    orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-
-                    orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-                    orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-                    orderStatus.setDetail(errorMessage);
-                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                    orderCanonical.setOrderStatus(orderStatus);
-
-                    return Mono.just(orderCanonical);
-                });
-    }
-
-    @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
-        log.info("update order actionOrder.getCode:{}", actionDto.getAction());
+        ApplicationParameter applicationParameter = applicationParameterService
+                                                        .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_DD_IKF);
 
 
-        HttpClient httpClient = HttpClient
-                                        .create()
-                                        .tcpConfiguration(client ->
-                                                client
-                                                    .option(
-                                                            ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                                                            Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()))
-                                                    .doOnConnected(conn ->
-                                                            conn
-                                                               .addHandlerLast(
-                                                                       new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())))
-                                                               .addHandlerLast(
-                                                                       new WriteTimeoutHandler(Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())))
-                                                    )
-                                        );
+        if (Constant.Logical.getByValueString(applicationParameter.getValue()).value()) {
+            dispatcherUri = externalServicesProperties.getDispatcherLegacySystemUri();
 
-        String dispatcherUri;
+            log.info("url dispatcher new activated:{} - company:{}", dispatcherUri, iOrderFulfillment.getCompanyCode());
 
-        if (Constant.ActionOrder.getByName(actionDto.getAction()).getCode() == 2) {// reattempt to send from delivery dispatcher at insink
+            return WebClient
+                    .builder()
+                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .baseUrl(dispatcherUri)
+                    .build()
+                    .post()
+                    .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments)), OrderDto.class)
+                    .retrieve()
+                    .bodyToMono(ResponseDispatcherCanonical.class)
+                    .flatMap(response -> {
 
-            if (Constant.Constans.COMPANY_CODE_MF.equals(Optional.ofNullable(company).orElse(Constant.Constans.COMPANY_CODE_IFK))) {
-                dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUriMiFarma();
-            } else {
-                dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUri();
-            }
+                        log.info("result dispatcher to reattempt insink and tracker response:{}", response);
 
-            log.info("url dispatcher:{} - company:{}", dispatcherUri, company);
+                        InsinkResponseCanonical dispatcherResponse = (InsinkResponseCanonical)response.getBody();
+                        StatusDispatcher statusDispatcher = (StatusDispatcher)response.getStatus();
+
+                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                        Constant.OrderStatus orderStatusUtil = Constant
+                                .OrderStatus
+                                .getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).name());
+
+                        orderStatus.setCode(orderStatusUtil.getCode());
+                        orderStatus.setName(orderStatusUtil.name());
+                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                        Optional.of(statusDispatcher.isSuccessProcess())
+                                .filter(r -> r)
+                                .ifPresent(r -> {
+
+                                    String stringBuffer = "code error:" +
+                                            dispatcherResponse.getErrorCode() +
+                                            ", description:" +
+                                            statusDispatcher.getDescription() +
+                                            ", detail:" +
+                                            dispatcherResponse.getMessageDetail();
+
+                                    orderStatus.setDetail(stringBuffer);
+                                });
+
+                        OrderCanonical resultCanonical = new OrderCanonical();
+                        resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                        resultCanonical.setExternalId(
+                                Optional
+                                        .ofNullable(dispatcherResponse.getInkaventaId())
+                                        .map(Long::parseLong).orElse(null)
+                        );
+                        resultCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
+                        resultCanonical.setOrderStatus(orderStatus);
+
+                        return Mono.just(resultCanonical);
+
+                    })
+                    .defaultIfEmpty(
+                            new OrderCanonical(
+                                    iOrderFulfillment.getEcommerceId(),
+                                    Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
+                                    Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
+                    )
+                    .onErrorResume(e -> {
+                        e.printStackTrace();
+                        String errorMessage = "Error to invoking'" + dispatcherUri +
+                                "':" + e.getMessage();
+                        log.error(errorMessage);
+
+                        OrderCanonical orderCanonical = new OrderCanonical();
+
+                        orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                        orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                        orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                        orderStatus.setDetail(errorMessage);
+                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                        orderCanonical.setOrderStatus(orderStatus);
+
+                        return Mono.just(orderCanonical);
+                    });
+
+        } else {
+            dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUri();
+
+            log.info("url dispatcher new desactivated:{} - company:{}", dispatcherUri, iOrderFulfillment.getCompanyCode());
+
             return WebClient
                     .builder()
                     .clientConnector(new ReactorClientHttpConnector(httpClient))
@@ -293,8 +274,8 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                     .uri(builder ->
                             builder
                                     .path("/{orderId}")
-                                    .queryParam("action", actionDto.getAction())
-                                    .build(ecommerceId))
+                                    .queryParam("action", action)
+                                    .build(iOrderFulfillment.getEcommerceId()))
                     .retrieve()
                     .bodyToMono(TrackerInsinkResponseCanonical.class)
                     .subscribeOn(Schedulers.parallel())
@@ -341,13 +322,13 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
                         orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
                         resultCanonical.setOrderStatus(orderStatus);
-                        resultCanonical.setEcommerceId(ecommerceId);
+                        resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
 
                         return resultCanonical;
                     })
                     .defaultIfEmpty(
                             new OrderCanonical(
-                                    ecommerceId,
+                                    iOrderFulfillment.getEcommerceId(),
                                     Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
                                     Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
                     )
@@ -359,7 +340,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
                         OrderCanonical orderCanonical = new OrderCanonical();
 
-                        orderCanonical.setEcommerceId(ecommerceId);
+                        orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
                         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
                         orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
@@ -371,21 +352,11 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
                         return Mono.just(orderCanonical);
                     });
+
         }
-        OrderCanonical orderCanonical = new OrderCanonical();
-        orderCanonical.setEcommerceId(ecommerceId);
-
-        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-
-        orderStatus.setCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
-        orderStatus.setName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
-        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-        orderCanonical.setOrderStatus(orderStatus);
-
-        return Mono.just(orderCanonical);
 
     }
+
 
     private TcpClient configClient(TcpClient client) {
 

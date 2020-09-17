@@ -1,5 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.InsinkResponseCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.ResponseDispatcherCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.StatusDispatcher;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
@@ -7,9 +10,12 @@ import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServ
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.generic.ActionWrapper;
+import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.mapper.EcommerceMapper;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import io.netty.channel.ChannelOption;
@@ -31,15 +37,22 @@ import java.util.Optional;
 @Service("deliveryDispatcherMifa")
 public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService implements OrderExternalService {
 
+    private ApplicationParameterService applicationParameterService;
     private ExternalServicesProperties externalServicesProperties;
+    private EcommerceMapper ecommerceMapper;
 
-    public DeliveryDispatcherMifaServiceImpl(ExternalServicesProperties externalServicesProperties) {
+    public DeliveryDispatcherMifaServiceImpl(ApplicationParameterService applicationParameterService,
+                                             ExternalServicesProperties externalServicesProperties,
+                                             EcommerceMapper ecommerceMapper) {
+        this.applicationParameterService = applicationParameterService;
         this.externalServicesProperties = externalServicesProperties;
+        this.ecommerceMapper = ecommerceMapper;
     }
 
 
     @Override
-    public Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment, List<IOrderItemFulfillment> itemFulfillments, String action) {
+    public Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment, List<IOrderItemFulfillment> itemFulfillments,
+                                                   String action) {
         HttpClient httpClient = HttpClient
                 .create()
                 .tcpConfiguration(client ->
@@ -58,102 +71,188 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
 
         String dispatcherUri;
 
-        dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUriMiFarma();
+        ApplicationParameter applicationParameter = applicationParameterService
+                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_DD_MF);
 
-        log.info("url dispatcher:{} - company:{}", dispatcherUri, iOrderFulfillment.getCompanyCode());
-        return WebClient
-                .builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl(dispatcherUri)
-                .build()
-                .get()
-                .uri(builder ->
-                        builder
-                                .path("/{orderId}")
-                                .queryParam("action", action)
-                                .build(iOrderFulfillment.getEcommerceId()))
-                .retrieve()
-                .bodyToMono(TrackerInsinkResponseCanonical.class)
-                .subscribeOn(Schedulers.parallel())
-                .filter(r -> (r.getInsinkProcess() != null && r.getTrackerProcess() != null))
-                .map(r -> {
-                    log.info("result dispatcher to reattempt insink and tracker r:{}", r);
-                    OrderCanonical resultCanonical = new OrderCanonical();
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
-                    if (r.getInsinkProcess()) {
+        if (Constant.Logical.getByValueString(applicationParameter.getValue()).value()) {
+            dispatcherUri = externalServicesProperties.getDispatcherLegacySystemUriMifarma();
 
-                        resultCanonical.setExternalId(
-                                Optional
-                                        .ofNullable(r.getInsinkResponseCanonical().getInkaventaId())
-                                        .map(Long::parseLong).orElse(null)
-                        );
+            log.info("url dispatcher new activated:{} - company:{}", dispatcherUri, iOrderFulfillment.getCompanyCode());
 
-                        Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getInsinkResponseCanonical().getSuccessCode())
-                                .filter(t -> t.equalsIgnoreCase("0-1") && resultCanonical.getExternalId() == null)
-                                .map(t -> Constant.OrderStatus.SUCCESS_RESERVED_ORDER)
-                                .orElse(Constant.OrderStatus.CONFIRMED);
+            return WebClient
+                    .builder()
+                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .baseUrl(dispatcherUri)
+                    .build()
+                    .post()
+                    .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments)), OrderDto.class)
+                    .retrieve()
+                    .bodyToMono(ResponseDispatcherCanonical.class)
+                    .flatMap(response -> {
+
+                        log.info("result dispatcher to reattempt insink and tracker response:{}", response);
+
+                        InsinkResponseCanonical dispatcherResponse = (InsinkResponseCanonical)response.getBody();
+                        StatusDispatcher statusDispatcher = (StatusDispatcher)response.getStatus();
+
+                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                        Constant.OrderStatus orderStatusUtil = Constant
+                                .OrderStatus
+                                .getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).name());
 
                         orderStatus.setCode(orderStatusUtil.getCode());
                         orderStatus.setName(orderStatusUtil.name());
+                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                    } else {
+                        Optional.of(statusDispatcher.isSuccessProcess())
+                                .filter(r -> r)
+                                .ifPresent(r -> {
 
-                        Constant.OrderStatus orderStatusUtil = r.isReleased() ?
-                                Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER : Constant.OrderStatus.ERROR_INSERT_INKAVENTA;
+                                    String stringBuffer = "code error:" +
+                                            dispatcherResponse.getErrorCode() +
+                                            ", description:" +
+                                            statusDispatcher.getDescription() +
+                                            ", detail:" +
+                                            dispatcherResponse.getMessageDetail();
 
-                        if (r.getInsinkResponseCanonical() != null && r.getInsinkResponseCanonical().getErrorCode() != null &&
-                                r.getInsinkResponseCanonical().getErrorCode().equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
+                                    orderStatus.setDetail(stringBuffer);
+                                });
 
-                            if (Optional.ofNullable(iOrderFulfillment.getPaymentType()).orElse(PaymentMethod.PaymentType.CASH.name())
-                                    .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
-                                orderStatusUtil = Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT;
-                            } else {
+                        OrderCanonical resultCanonical = new OrderCanonical();
+                        resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                        resultCanonical.setExternalId(
+                                Optional
+                                        .ofNullable(dispatcherResponse.getInkaventaId())
+                                        .map(Long::parseLong).orElse(null)
+                        );
+                        resultCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
+                        resultCanonical.setOrderStatus(orderStatus);
+
+                        return Mono.just(resultCanonical);
+
+                    })
+                    .defaultIfEmpty(
+                            new OrderCanonical(
+                                    iOrderFulfillment.getEcommerceId(),
+                                    Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
+                                    Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
+                    )
+                    .onErrorResume(e -> {
+                        e.printStackTrace();
+                        String errorMessage = "Error to invoking'" + dispatcherUri +
+                                "':" + e.getMessage();
+                        log.error(errorMessage);
+
+                        OrderCanonical orderCanonical = new OrderCanonical();
+
+                        orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                        orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                        orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                        orderStatus.setDetail(errorMessage);
+                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                        orderCanonical.setOrderStatus(orderStatus);
+
+                        return Mono.just(orderCanonical);
+                    });
+
+        } else {
+            dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUri();
+
+            log.info("url dispatcher new desactivated:{} - company:{}", dispatcherUri, iOrderFulfillment.getCompanyCode());
+
+            return WebClient
+                    .builder()
+                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .baseUrl(dispatcherUri)
+                    .build()
+                    .get()
+                    .uri(builder ->
+                            builder
+                                    .path("/{orderId}")
+                                    .queryParam("action", action)
+                                    .build(iOrderFulfillment.getEcommerceId()))
+                    .retrieve()
+                    .bodyToMono(TrackerInsinkResponseCanonical.class)
+                    .subscribeOn(Schedulers.parallel())
+                    .filter(r -> (r.getInsinkProcess() != null && r.getTrackerProcess() != null))
+                    .map(r -> {
+                        log.info("result dispatcher to reattempt insink and tracker r:{}", r);
+                        OrderCanonical resultCanonical = new OrderCanonical();
+                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+                        if (r.getInsinkProcess()) {
+
+                            resultCanonical.setExternalId(
+                                    Optional
+                                            .ofNullable(r.getInsinkResponseCanonical().getInkaventaId())
+                                            .map(Long::parseLong).orElse(null)
+                            );
+
+                            Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getInsinkResponseCanonical().getSuccessCode())
+                                    .filter(t -> t.equalsIgnoreCase("0-1") && resultCanonical.getExternalId() == null)
+                                    .map(t -> Constant.OrderStatus.SUCCESS_RESERVED_ORDER)
+                                    .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS);
+
+                            orderStatus.setCode(orderStatusUtil.getCode());
+                            orderStatus.setName(orderStatusUtil.name());
+
+                        } else {
+
+                            Constant.OrderStatus orderStatusUtil = r.isReleased() ?
+                                    Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER : Constant.OrderStatus.ERROR_INSERT_INKAVENTA;
+
+                            if (r.getInsinkResponseCanonical() != null && r.getInsinkResponseCanonical().getErrorCode() != null &&
+                                    r.getInsinkResponseCanonical().getErrorCode().equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
                                 orderStatusUtil = Constant.OrderStatus.CANCELLED_ORDER;
+
                             }
+
+                            orderStatus.setCode(orderStatusUtil.getCode());
+                            orderStatus.setName(orderStatusUtil.name());
+
+                            Optional.ofNullable(r.getInsinkResponseCanonical())
+                                    .ifPresent(z -> orderStatus.setDetail(z.getMessageDetail()));
 
                         }
 
-                        orderStatus.setCode(orderStatusUtil.getCode());
-                        orderStatus.setName(orderStatusUtil.name());
+                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+                        resultCanonical.setOrderStatus(orderStatus);
+                        resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
 
-                        Optional.ofNullable(r.getInsinkResponseCanonical())
-                                .ifPresent(z -> orderStatus.setDetail(z.getMessageDetail()));
+                        return resultCanonical;
+                    })
+                    .defaultIfEmpty(
+                            new OrderCanonical(
+                                    iOrderFulfillment.getEcommerceId(),
+                                    Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
+                                    Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
+                    )
+                    .onErrorResume(e -> {
+                        e.printStackTrace();
+                        String errorMessage = "Error to invoking'" + dispatcherUri +
+                                "':" + e.getMessage();
+                        log.error(errorMessage);
 
-                    }
+                        OrderCanonical orderCanonical = new OrderCanonical();
 
-                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-                    resultCanonical.setOrderStatus(orderStatus);
-                    resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                        orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
-                    return resultCanonical;
-                })
-                .defaultIfEmpty(
-                        new OrderCanonical(
-                                iOrderFulfillment.getEcommerceId(),
-                                Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
-                                Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
-                )
-                .onErrorResume(e -> {
-                    e.printStackTrace();
-                    String errorMessage = "Error to invoking'" + dispatcherUri +
-                            "':" + e.getMessage();
-                    log.error(errorMessage);
+                        orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+                        orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+                        orderStatus.setDetail(errorMessage);
+                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                    OrderCanonical orderCanonical = new OrderCanonical();
+                        orderCanonical.setOrderStatus(orderStatus);
 
-                    orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                        return Mono.just(orderCanonical);
+                    });
 
-                    orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-                    orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-                    orderStatus.setDetail(errorMessage);
-                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                    orderCanonical.setOrderStatus(orderStatus);
-
-                    return Mono.just(orderCanonical);
-                });
+        }
 
 
     }

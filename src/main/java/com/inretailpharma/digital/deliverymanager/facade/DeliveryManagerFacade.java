@@ -92,7 +92,8 @@ public class DeliveryManagerFacade {
                             storeCenter
                     );
 
-                    OrderCanonical orderCanonicalResponse =  objectToMapper.setsOrderWrapperResponseToOrderCanonical(wrapperResponse, orderDto);
+                    OrderCanonical orderCanonicalResponse =  objectToMapper
+                                                                    .setsOrderWrapperResponseToOrderCanonical(wrapperResponse, orderDto);
 
                     orderExternalServiceAudit
                             .sendOrderReactive(orderCanonicalResponse)
@@ -140,8 +141,6 @@ public class DeliveryManagerFacade {
         log.info("[START] getUpdateOrder action:{}",actionDto);
 
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
-
-        Mono<OrderCanonical>  resultCanonical;
 
         IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
         Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
@@ -213,7 +212,7 @@ public class DeliveryManagerFacade {
                     );
 
                     // Reattempt to send the order at insink
-                    resultCanonical = orderExternalServiceDispatcher
+                    return orderExternalServiceDispatcher
                                             .sendOrderEcommerce(
                                                     iOrderFulfillment,
                                                     orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
@@ -247,7 +246,6 @@ public class DeliveryManagerFacade {
                                                 }
 
                                             });
-                    break;
 
                 case 3:
                     // Update the status when the order was released from Dispatcher
@@ -300,9 +298,7 @@ public class DeliveryManagerFacade {
 
                     orderExternalServiceAudit.updateOrderReactive(result).subscribe();
 
-                    resultCanonical = Mono.just(result);
-
-                    break;
+                    return Mono.just(result);
 
                 case 4:
                     // call the service inkatracker-lite or inkatracker to update the order status (CANCEL, READY_FOR_PICKUP, DELIVERED)
@@ -331,7 +327,7 @@ public class DeliveryManagerFacade {
 
                     actionDto.setExternalBillingId(Optional.ofNullable(iOrderFulfillment.getExternalId()).map(Object::toString).orElse(null));
 
-                    resultCanonical = orderExternalService2
+                    return orderExternalService2
                                             .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
                                             .map(r -> {
 
@@ -363,8 +359,6 @@ public class DeliveryManagerFacade {
                                             });
 
 
-                    break;
-
                 default:
                     OrderCanonical resultDefault = new OrderCanonical();
                     OrderStatusCanonical orderStatusNotFound = new OrderStatusCanonical();
@@ -375,51 +369,46 @@ public class DeliveryManagerFacade {
 
                     resultDefault.setEcommerceId(ecommercePurchaseId);
 
-                    resultCanonical = Mono.just(resultDefault);
-
-                    break;
+                    return Mono.just(resultDefault);
             }
 
         } else {
 
-
             OrderStatusCanonical orderStatus =  Optional
-                                                    .ofNullable(iOrderFulfillment)
-                                                    .map(s -> {
+                    .ofNullable(iOrderFulfillment)
+                    .map(s -> {
 
+                        OrderStatusCanonical os = new OrderStatusCanonical();
+                        os.setCode(Constant.OrderStatus.END_STATUS_RESULT.getCode());
+                        os.setName(Constant.OrderStatus.END_STATUS_RESULT.name());
+                        os.setDetail("The order cant reattempted");
+                        os.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                                                        OrderStatusCanonical os = new OrderStatusCanonical();
-                                                        os.setCode(Constant.OrderStatus.END_STATUS_RESULT.getCode());
-                                                        os.setName(Constant.OrderStatus.END_STATUS_RESULT.name());
-                                                        os.setDetail("The order cant reattempted");
-                                                        os.setStatusDate(DateUtils.getLocalDateTimeNow());
+                        log.info("The order has end status:{}",os);
 
-                                                        log.info("The order has end status:{}",os);
+                        return os;
 
-                                                        return os;
+                    }).orElseGet(() -> {
+                        OrderStatusCanonical os = new OrderStatusCanonical();
+                        os.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
+                        os.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
+                        os.setDetail("Order not found");
+                        os.setStatusDate(DateUtils.getLocalDateTimeNow());
 
+                        log.info("Order not found:{}",os);
 
-                                                    }).orElseGet(() -> {
-                                                        OrderStatusCanonical os = new OrderStatusCanonical();
-                                                        os.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
-                                                        os.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
-                                                        os.setDetail("Order not found");
-                                                        os.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                                                        log.info("Order not found:{}",os);
-
-                                                        return os;
-                                                    });
+                        return os;
+                    });
 
             OrderCanonical resultWithoutAction = new OrderCanonical();
 
             resultWithoutAction.setOrderStatus(orderStatus);
             resultWithoutAction.setEcommerceId(ecommercePurchaseId);
 
-            resultCanonical = Mono.just(resultWithoutAction);
+            return Mono.just(resultWithoutAction);
         }
 
-        return resultCanonical;
+
 
     }
 

@@ -5,7 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class AddressCanonical {
+public class AddressInkatrackerLiteCanonical {
 
     private Long id;
     @NotNull

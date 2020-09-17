@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Data
-public class ClientCanonical {
+public class ClientInkatrackerLiteCanonical {
 
     private String userId;
     @NotNull

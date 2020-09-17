@@ -2,8 +2,9 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoInkatrackerLiteCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;

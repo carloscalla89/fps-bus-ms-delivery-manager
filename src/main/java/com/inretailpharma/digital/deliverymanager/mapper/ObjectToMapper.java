@@ -1,10 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -124,6 +126,174 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setDrugstore(drugstoreCanonical);
 
         return orderInkatrackerCanonical;
+    }
+
+    public OrderInfoInkatrackerLiteCanonical convertOrderToOrderInfoCanonical(OrderCanonical orderCanonical) {
+        OrderInfoInkatrackerLiteCanonical orderInfo = new OrderInfoInkatrackerLiteCanonical();
+
+        orderInfo.setOrderExternalId(orderCanonical.getEcommerceId());
+        orderInfo.setSource(orderCanonical.getSource());
+        Optional.ofNullable(orderCanonical.getOrderDetail())
+                .filter(r -> r.getCreatedOrder() != null)
+                .ifPresent(r -> orderInfo.setDateCreated(
+                        Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(r.getCreatedOrder())).getTime()
+                ));
+
+        orderInfo.setInkaDeliveryId(orderCanonical.getExternalId());
+        orderInfo.setMaxDeliveryTime(
+                Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())
+                        .plusMinutes(orderCanonical.getOrderDetail().getLeadTime())
+                ).getTime()
+        );
+
+        orderInfo.setDeliveryCost(Optional.ofNullable(orderCanonical.getDeliveryCost()).map(BigDecimal::doubleValue).orElse(0.0));
+        orderInfo.setTotalCost(orderCanonical.getTotalAmount().doubleValue());
+        orderInfo.setSubtotal(orderCanonical.getSubTotalCost().doubleValue());
+
+        Optional.ofNullable(orderCanonical.getDiscountApplied())
+                .ifPresent(orderInfo::setDiscountApplied);
+
+        orderInfo.setClient(getLiteFromtOrderCanonical(orderCanonical.getClient()));
+        orderInfo.setNewUserId(orderCanonical.getClient().getNewUserId());
+        orderInfo.setDrugstoreId(orderCanonical.getLocalId());
+        orderInfo.setAddress(getLiteFromtOrderCanonical(
+                orderCanonical.getAddress(),
+                Optional.ofNullable(orderCanonical.getOrderDetail())
+                        .filter(r -> r.getLeadTime() != null)
+                        .map(OrderDetailCanonical::getLeadTime)
+                        .orElse(0))
+        );
+
+        orderInfo.setPaymentMethod(getPaymentMethodFromOrderCanonical(orderCanonical));
+
+        orderInfo.setOrderItems(getItemsFromOrderItemCanonical(orderCanonical.getOrderItems()));
+
+        orderInfo.setDeliveryServiceId(
+                (long) Constant.TrackerImplementation.getByCode(orderCanonical.getOrderDetail().getServiceCode()).getId()
+        );
+
+        orderInfo.setStatus(getLiteFromOrderCanonical(orderCanonical, orderInfo));
+
+        orderInfo.setStartDate(
+                Timestamp.valueOf(                DateUtils
+                        .getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())).getTime()
+        );
+        orderInfo.setEndDate(
+                Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())
+                        .plusMinutes(orderCanonical.getOrderDetail().getLeadTime())).getTime()
+        );
+
+        orderInfo.setReceipt(getReceiptFromOrderCanonical(orderCanonical));
+        orderInfo.setCallSource(orderCanonical.getSource());
+        orderInfo.setDeliveryType(
+                Constant.TrackerImplementation
+                        .getByCode(orderCanonical.getOrderDetail().getServiceCode())
+                        .getServiceTypeCode()
+        );
+
+        orderInfo.setStartHour(orderCanonical.getOrderDetail().getStartHour());
+        orderInfo.setEndHour(orderCanonical.getOrderDetail().getEndHour());
+
+        orderInfo.setDaysToPickUp(
+                Optional.ofNullable(orderCanonical.getOrderDetail().getDaysToPickup())
+                        .map(Object::toString)
+                        .orElse("0")
+        );
+
+        orderInfo.setPurchaseId(
+                Optional.ofNullable(orderCanonical.getPurchaseId())
+                        .map(Object::toString)
+                        .orElse(null)
+        );
+
+        orderInfo.setCompanyCode(orderCanonical.getCompanyCode());
+
+        return orderInfo;
+
+    }
+
+    private StatusInkatrackerLiteCanonical getLiteFromOrderCanonical(OrderCanonical orderCanonical,
+                                                                     OrderInfoInkatrackerLiteCanonical liteCanonical) {
+        StatusInkatrackerLiteCanonical orderStatusInkatrackerCanonical = new StatusInkatrackerLiteCanonical();
+        orderStatusInkatrackerCanonical.setDescription(Constant.OrderStatusInkatracker.getByStatusCode(orderCanonical.getOrderStatus().getCode()).getStatus());
+
+        if (orderStatusInkatrackerCanonical.getDescription().equalsIgnoreCase(Constant.OrderStatusInkatracker.CANCEL_ORDER.getStatus())) {
+
+            Optional.ofNullable(orderCanonical.getOrderDetail())
+                    .filter(r -> r.getCancelledOrder() != null)
+                    .ifPresent(r -> liteCanonical.setCancelDate(
+                            Timestamp.valueOf(DateUtils
+                                    .getLocalDateTimeFromStringWithFormat(r.getCancelledOrder())).getTime()
+                    ));
+        }
+
+        return orderStatusInkatrackerCanonical;
+    }
+
+    private List<OrderItemInkatrackerLiteCanonical> getItemsFromOrderItemCanonical(List<OrderItemCanonical> itemCanonicals) {
+
+        List<OrderItemInkatrackerLiteCanonical> itemCanonicalList = new ArrayList<>();
+
+
+        for (OrderItemCanonical itemCanonical : itemCanonicals) {
+            OrderItemInkatrackerLiteCanonical canonical = new OrderItemInkatrackerLiteCanonical();
+            canonical.setBrand(itemCanonical.getBrand());
+
+            canonical.setFractionated(Optional.ofNullable(itemCanonical.getFractionated()).map(r -> r?"Y":"N").orElse("N"));
+
+            canonical.setName(itemCanonical.getProductName());
+            canonical.setQuantity(itemCanonical.getQuantity());
+            canonical.setProductId(itemCanonical.getProductCode());
+            canonical.setTotalPrice(itemCanonical.getTotalPrice().doubleValue());
+            canonical.setUnitPrice(itemCanonical.getUnitPrice().doubleValue());
+            canonical.setWithStock(Constant.Logical.Y.name());
+            canonical.setPresentationId(itemCanonical.getPresentationId());
+            canonical.setPresentationDescription(itemCanonical.getPresentationDescription());
+            canonical.setQuantityUnits(itemCanonical.getQuantityUnits());
+            canonical.setQuantityPresentation(itemCanonical.getQuantityPresentation());
+
+            itemCanonicalList.add(canonical);
+        }
+        return itemCanonicalList;
+
+    }
+
+    private AddressInkatrackerLiteCanonical getLiteFromtOrderCanonical(AddressCanonical addressCanonical, Integer deliveryTime) {
+        AddressInkatrackerLiteCanonical addressInkatrackerCanonical = new AddressInkatrackerLiteCanonical();
+        addressInkatrackerCanonical.setName(addressCanonical.getName());
+        addressInkatrackerCanonical.setLatitude(
+                Optional.ofNullable(addressCanonical.getLatitude())
+                        .orElse((BigDecimal.ZERO)).doubleValue());
+        addressInkatrackerCanonical.setLongitude(
+                Optional.ofNullable(addressCanonical.getLongitude())
+                        .orElse((BigDecimal.ZERO)).doubleValue());
+        addressInkatrackerCanonical.setCity(addressCanonical.getCity());
+        addressInkatrackerCanonical.setDistrict(addressCanonical.getDistrict());
+        addressInkatrackerCanonical.setStreet(addressCanonical.getStreet());
+        addressInkatrackerCanonical.setNumber(addressCanonical.getNumber());
+        addressInkatrackerCanonical.setApartment(addressCanonical.getApartment());
+        addressInkatrackerCanonical.setNotes(addressCanonical.getNotes());
+
+        return addressInkatrackerCanonical;
+    }
+
+    private ClientInkatrackerLiteCanonical getLiteFromtOrderCanonical(ClientCanonical clientCanonical) {
+        ClientInkatrackerLiteCanonical clientInkatrackerCanonical = new ClientInkatrackerLiteCanonical();
+        Optional.ofNullable(clientCanonical.getBirthDate()).ifPresent(r ->
+                clientInkatrackerCanonical.setBirthDate(DateUtils.getLocalDateFromStringDate(r).toEpochDay()));
+        clientInkatrackerCanonical.setDni(clientCanonical.getDocumentNumber());
+        clientInkatrackerCanonical.setEmail(clientCanonical.getEmail());
+        clientInkatrackerCanonical.setFirstName(clientCanonical.getFirstName());
+        clientInkatrackerCanonical.setLastName(clientCanonical.getLastName());
+        clientInkatrackerCanonical.setPhone(clientCanonical.getPhone());
+        clientInkatrackerCanonical.setIsAnonymous(
+                Optional.ofNullable(clientCanonical.getAnonimous())
+                        .orElse(0)==0?"N":"Y"
+        );
+        clientInkatrackerCanonical.setUserId(clientCanonical.getUserId());
+        clientInkatrackerCanonical.setNotificationToken(clientCanonical.getNotificationToken());
+
+        return clientInkatrackerCanonical;
     }
 
     public OrderStatusCanonical getOrderStatusErrorCancel(String code, String errorDetail) {
@@ -266,6 +436,12 @@ public class ObjectToMapper {
         orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
         orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
         orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getConfirmedOrder()));
+
+        Optional.ofNullable(orderDto.getSchedules().getConfirmedInsinkOrder())
+                .ifPresent(r -> orderFulfillment.setConfirmedInsinkOrder(DateUtils.getLocalDateTimeFromStringWithFormat(r)));
+        Optional.ofNullable(orderDto.getSchedules().getCancelledOrder())
+                .ifPresent(r -> orderFulfillment.setCancelledOrder(DateUtils.getLocalDateTimeFromStringWithFormat(r)));
+
         orderFulfillment.setTransactionOrderDate(orderDto.getSchedules().getTransactionVisaOrder());
 
         // object orderItem
@@ -595,6 +771,9 @@ public class ObjectToMapper {
 
         orderCanonical.setOrderStatus(orderStatus);
 
+        // source - example: CALL, WEB, APP
+        orderCanonical.setSource(orderDto.getSource());
+
         // set client
         ClientCanonical client = new ClientCanonical();
 
@@ -681,6 +860,7 @@ public class ObjectToMapper {
             orderDetail.setConfirmedSchedule(r.getScheduledTime());
             orderDetail.setCreatedOrder(r.getCreatedOrder());
             orderDetail.setConfirmedOrder(r.getConfirmedOrder());
+            orderDetail.setConfirmedInsinkOrder(r.getScheduledTime());
             orderDetail.setStartHour(r.getStartHour());
             orderDetail.setEndHour(r.getEndHour());
             orderDetail.setLeadTime(r.getLeadTime());
@@ -707,7 +887,7 @@ public class ObjectToMapper {
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
         paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
         orderCanonical.setPaymentMethod(paymentMethod);
-        orderCanonical.setSource(orderDto.getSource());
+
         log.info("[END] convertEntityToOrderCanonical");
 
         // -------------------------------------------------------------

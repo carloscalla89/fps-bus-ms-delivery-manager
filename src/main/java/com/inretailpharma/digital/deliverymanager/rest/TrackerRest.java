@@ -17,17 +17,12 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Unassig
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.TrackerFacade;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping(value = "/fulfillment/tracker")
-@Api(value = "TrackerRest", produces = "application/json")
 @Slf4j
 public class TrackerRest {
 
@@ -37,10 +32,6 @@ public class TrackerRest {
         this.trackerFacade = trackerFacade;
     }
 
-    @ApiOperation(value = "Asignar órdenes a motorizados")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Asignar órdenes a motorizados", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "No creado") })
     @PostMapping(value = "/orders/status/assigned")
     public ResponseEntity<Mono<OrderAssignResponseCanonical>> assignOrders(
             @RequestBody ProjectedGroupCanonical projectedGroupCanonical) {
@@ -55,11 +46,7 @@ public class TrackerRest {
         );
 
     }
-    
-    @ApiOperation(value = "Desasignar órdenes de motorizados")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Desasignar órdenes de motorizados", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "No creado") })
+
     @PatchMapping(value = "/orders/status/unassigned")
     public ResponseEntity<Mono<OrderTrackerResponseCanonical>> unassignOrders(
             @RequestBody UnassignedCanonical unassignedCanonical) {
@@ -74,11 +61,7 @@ public class TrackerRest {
         );
 
     }
-    
-    @ApiOperation(value = "Cambiar el estado de una orden")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Estado de orden actualizado", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "No actualizado") })
+
     @PatchMapping(value = "/order/{ecommerceId}/status/{status}")
     public ResponseEntity<Mono<OrderTrackerResponseCanonical>> updateOrderStatus(
     		@PathVariable(name = "ecommerceId") Long ecommerceId,

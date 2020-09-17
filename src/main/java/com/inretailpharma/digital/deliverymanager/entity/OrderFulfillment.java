@@ -61,6 +61,15 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="confirmed_order")
     private LocalDateTime confirmedOrder;
 
+    @Column(name="confirmed_insink_order")
+    private LocalDateTime confirmedInsinkOrder;
+
+    @Column(name="cancelled_order")
+    private LocalDateTime cancelledOrder;
+
+    @Column(name="transaction_order_date")
+    private String transactionOrderDate;
+
     @Column(name="source_company_name")
     private String sourceCompanyName;
 
@@ -84,9 +93,6 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @ElementCollection
     @CollectionTable(name = "order_fulfillment_item", joinColumns = @JoinColumn(name = "order_fulfillment_id"))
     private List<OrderFulfillmentItem> orderItem;
-
-    @Column(name="transaction_order_date")
-    private String transactionOrderDate;
 
     @Column(name="pos_code")
     private String posCode;

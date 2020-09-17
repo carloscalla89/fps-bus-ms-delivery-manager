@@ -37,15 +37,26 @@ public interface Constant {
     }
 
     enum TrackerImplementation {
-        INKATRACKER_LITE_RAD(4,"inkatrackerlite"), INKATRACKER_LITE_RET(4,"inkatrackerlite"),
-        INKATRACKER_RAD(3,"inkatracker"), TEMPORARY_RAD(2,"temporary"), NONE(3,"not_found");
+        INKATRACKER_LITE_RAD(4,"inkatrackerlite","RAD"), INKATRACKER_LITE_RET(4,"inkatrackerlite","RET"),
+        INKATRACKER_LITE_EXP(4,"inkatrackerlite","EXP"), INKATRACKER_LITE_PROG(4,"inkatrackerlite","PROG"),
+        INKATRACKER_LITE_AM_PM(4,"inkatrackerlite","AM_PM"),
+
+        INKATRACKER_RAD(3,"inkatracker","RAD"), INKATRACKER_EXP(3,"inkatracker","EXP"),
+        INKATRACKER_PROG(3,"inkatracker","PROG"), INKATRACKER_AM_PM(3,"inkatracker","AM_PM"),
+
+        TEMPORARY_RAD(2,"temporary","RAD"), TEMPORARY_EXP(2,"temporary","EXP"),
+        TEMPORARY_PROG(2,"temporary","PROG"), TEMPORARY_AM_PM(2,"temporary","AM_PM"),
+
+        NONE(3,"not_found","RAD");
 
         private int id;
         private String name;
+        private String serviceTypeCode;
 
-        TrackerImplementation(int id, String name) {
+        TrackerImplementation(int id, String name, String serviceTypeCode) {
             this.id = id;
             this.name = name;
+            this.serviceTypeCode = serviceTypeCode;
         }
 
 
@@ -64,6 +75,10 @@ public interface Constant {
 
         public String getName() {
             return name;
+        }
+
+        public String getServiceTypeCode() {
+            return serviceTypeCode;
         }
     }
 
@@ -84,6 +99,8 @@ public interface Constant {
         String ACTIVATED_ORDER_TRACKER = "ACTIVATED_ORDER_TRACKER";
 
         String DAYS_PICKUP_MAX_RET = "DAYS_PICKUP_MAX_RET";
+        String ACTIVATED_DD_IKF = "ACTIVATED_DD_IKF";
+        String ACTIVATED_DD_MF = "ACTIVATED_DD_MF";
     }
 
     interface InsinkErrorCode {
@@ -344,8 +361,8 @@ public interface Constant {
             return EnumUtils.getEnumList(OrderStatus.class)
                     .stream()
                     .anyMatch(item -> CANCELLED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
-                                        || CANCELLED_ORDER.code.equalsIgnoreCase(code)
-                                        || DELIVERED_ORDER.code.equalsIgnoreCase(code)
+                            || CANCELLED_ORDER.code.equalsIgnoreCase(code)
+                            || DELIVERED_ORDER.code.equalsIgnoreCase(code)
                     );
         }
 

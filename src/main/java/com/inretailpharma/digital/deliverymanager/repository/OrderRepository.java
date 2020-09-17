@@ -130,12 +130,15 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             " where id = :orderFulfillmentId",
             nativeQuery = true)
     void updateExternalIdToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                    @Param("externalPurchaseId") Long externalPurchaseId);
+                                         @Param("externalPurchaseId") Long externalPurchaseId);
 
-    @Query(value = "select o.pay_order_date payOrderDate, o.transaction_order_date transactionOrderDate, o.purchase_number purchaseNumber, " +
-            "  o.scheduled_order_date as scheduledOrderDate, o.pos_code as posCode, o.payment_method_id as paymentMethodId, o.credit_card_id as creditCardId, " +
-            "  o.confirmed_order as confirmedOrder " +
-    		" from order_fulfillment o where o.ecommerce_purchase_id = :orderNumber",
+    @Query(value = "select o.scheduledOrderDate as payOrderDate, o.transaction_order_date as transactionOrderDate, " +
+            "  o.purchase_number as purchaseNumber, o.scheduled_time as scheduledOrderDate, o.pos_code as posCode," +
+            "  o.confirmed_order as confirmedOrder, " +
+            "  pm.payment_method_id as paymentMethodId, o.pm as creditCardId " +
+    		"  from order_fulfillment o " +
+            "  inner join payment_method pm on pm.order_fulfillment_id = o.id " +
+            "  where o.ecommerce_purchase_id = :orderNumber",
             nativeQuery = true)
 	Optional<IOrderResponseFulfillment> getOrderByOrderNumber(@Param("orderNumber") Long orderNumber);
 

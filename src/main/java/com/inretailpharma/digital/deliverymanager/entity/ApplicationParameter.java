@@ -1,7 +1,5 @@
 package com.inretailpharma.digital.deliverymanager.entity;
 
-
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -10,7 +8,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 @Data
-@ApiModel(value = "Informacion de Parametros", description = "Parametros")
 @Entity
 @SuppressWarnings("all")
 @Table(name = "application_parameter")

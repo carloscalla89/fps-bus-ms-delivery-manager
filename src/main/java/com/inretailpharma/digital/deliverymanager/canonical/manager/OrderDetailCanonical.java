@@ -16,6 +16,7 @@ public class OrderDetailCanonical {
     private String confirmedSchedule;
     private String createdOrder;
     private String confirmedOrder;
+    private String confirmedInsinkOrder;
     private String cancelledOrder;
     private String transactionVisaOrder;
 

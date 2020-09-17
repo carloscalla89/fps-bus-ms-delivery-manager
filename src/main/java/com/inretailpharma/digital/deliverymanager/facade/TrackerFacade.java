@@ -82,7 +82,7 @@ public class TrackerFacade {
 	    		}
 	    	})
 	    	.collectList()
-	    	.map(allGroups -> {	  
+	    	.flatMap(allGroups -> {
 	    		log.info("[START] assign orders from group {} to external tracker", projectedGroupCanonical.getGroupName());
 	    		log.info("assign orders - mapped orders {}", allGroups.stream().map(GroupCanonical::getOrderId).collect(Collectors.toList()));
 	    		log.info("assign orders - not mapped orders {}", notMappedOrders);
@@ -95,42 +95,41 @@ public class TrackerFacade {
 	    		newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
 	    		newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
 	    		
-	    		orderExternalOrderTracker.assignOrders(newProjectedGroupCanonical)
-		    		.map(r -> {
-		    			log.info("#assign orders from group {} to external tracker - response: {}"
-		    					, projectedGroupCanonical.getGroupName(), r);	
+	    		return orderExternalOrderTracker
+							.assignOrders(newProjectedGroupCanonical)
+							.map(r -> {
+								log.info("#assign orders from group {} to external tracker - response: {}"
+										, projectedGroupCanonical.getGroupName(), r);
 
-		    			if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(r.getAssigmentSuccessful())) {
-		    				
-		    				List<Long> allFailedOrders = new ArrayList<>();
-		    				r.getCreatedOrders().forEach(orderId -> auditOrder(orderId, Constant.OrderStatus.ASSIGNED));
-		    				r.getFailedOrders().forEach(order -> {
-		    					auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, order.getReason());
-		    					allFailedOrders.add(order.getOrderId());
-		    				});
-		    				notMappedOrders.forEach(orderId -> {
-		    					auditOrder(orderId, Constant.OrderStatus.ERROR_ASSIGNED);
-		    					allFailedOrders.add(orderId);
-		    				});
-		    				
-		    				response.setStatusCode(
-		    					allFailedOrders.isEmpty() ? Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE 
-				    			: Constant.OrderTrackerResponseCode.ASSIGN_PARTIAL_CODE
-				    		);
-				    		response.setFailedOrders(allFailedOrders);
-		    					
-		    			} else {
-		    				allGroups.stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED));
-		    				
-		    				response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
-		    				response.setFailedOrders(allGroups.stream().map(GroupCanonical::getOrderId).collect(Collectors.toList())	    						
-		    				);
-		    			}
-		    			return Mono.empty();
-		    		}).block();
+								if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(r.getAssigmentSuccessful())) {
 
-	    		log.info("[END] assign orders from group {} to external tracker - response {}", projectedGroupCanonical.getGroupName(), response);	
-	    		return response;
+									List<Long> allFailedOrders = new ArrayList<>();
+									r.getCreatedOrders().forEach(orderId -> auditOrder(orderId, Constant.OrderStatus.ASSIGNED));
+									r.getFailedOrders().forEach(order -> {
+										auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, order.getReason());
+										allFailedOrders.add(order.getOrderId());
+									});
+									notMappedOrders.forEach(orderId -> {
+										auditOrder(orderId, Constant.OrderStatus.ERROR_ASSIGNED);
+										allFailedOrders.add(orderId);
+									});
+
+									response.setStatusCode(
+										allFailedOrders.isEmpty() ? Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE
+										: Constant.OrderTrackerResponseCode.ASSIGN_PARTIAL_CODE
+									);
+									response.setFailedOrders(allFailedOrders);
+
+								} else {
+									allGroups.stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED));
+
+									response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
+									response.setFailedOrders(allGroups.stream().map(GroupCanonical::getOrderId).collect(Collectors.toList())
+									);
+								}
+								return response;
+							});
+
 	    	})
 	    	.onErrorResume(ex -> {
 	    		log.error("[ERROR] assign orders to external tracker", ex);
@@ -144,8 +143,9 @@ public class TrackerFacade {
     
     public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
     	log.info("[START] unassing orders from group {} - external tracker", unassignedCanonical.getGroupName());
-    	return orderExternalOrderTracker.unassignOrders(unassignedCanonical)
-    			.map(statusCode -> {
+    	return orderExternalOrderTracker
+				.unassignOrders(unassignedCanonical)
+    			.flatMap(statusCode -> {
     				log.info("#unassing orders from group {} - external tracker - statusCode: {}"
     						, unassignedCanonical.getGroupName(), statusCode);	
     				unassignedCanonical.getOrders().forEach(orderId -> {
@@ -160,27 +160,28 @@ public class TrackerFacade {
     				OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
     	        	response.setStatusCode(statusCode);
     	        	return Mono.just(response);
-    			}).block();
+    			});
     }
     
     public Mono<OrderTrackerResponseCanonical> updateOrderStatus(Long ecommerceId, String status) {    
     	log.info("[START] update order: {} status: {} - external tracker", ecommerceId, status);
-    	return orderExternalOrderTracker.updateOrderStatus(ecommerceId, status)
-    		.map(statusCode -> {
-    			log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, status, statusCode);
+    	return orderExternalOrderTracker
+				.updateOrderStatus(ecommerceId, status)
+    			.flatMap(statusCode -> {
+					log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, status, statusCode);
+
+					OrderTrackerStatusMapper statusMapper =  OrderTrackerStatusMapper.getByName(status);
+					if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
+						auditOrder(ecommerceId, statusMapper.getSuccessStatus());
+					} else {
+						auditOrder(ecommerceId, statusMapper.getErrorStatus());
+					}
+
+					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
+					response.setStatusCode(statusCode);
+					return Mono.just(response);
     			
-    			OrderTrackerStatusMapper statusMapper =  OrderTrackerStatusMapper.getByName(status);
-    			if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-    				auditOrder(ecommerceId, statusMapper.getSuccessStatus());
-				} else {
-					auditOrder(ecommerceId, statusMapper.getErrorStatus());
-				}
-    			
-    			OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-	        	response.setStatusCode(statusCode);
-	        	return Mono.just(response);
-    			
-    		}).block();
+    			});
     }
     
     public Mono<OrderTrackerResponseCanonical> sendOrder(OrderToAssignCanonical orderToAssignCanonical) {

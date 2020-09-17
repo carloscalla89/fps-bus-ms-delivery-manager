@@ -2,6 +2,8 @@ package com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PaymentMethodInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptInkatrackerCanonical;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -13,7 +15,7 @@ import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class OrderInfoCanonical {
+public class OrderInfoInkatrackerLiteCanonical {
 
     @NotNull
     private Long orderExternalId;
@@ -32,22 +34,26 @@ public class OrderInfoCanonical {
     private Double totalCost;
     @NotNull
     @Valid
-    private ClientCanonical client;
+    private ClientInkatrackerLiteCanonical client;
     @NotNull
     @Valid
-    private AddressCanonical address;
+    private AddressInkatrackerLiteCanonical address;
     @NotNull
     private Long drugstoreId;
+
+    private PaymentMethodInkatrackerCanonical paymentMethod;
+    private ReceiptInkatrackerCanonical receipt;
+
     @NotNull
     @Valid
-    private List<OrderItemCanonical> orderItems;
+    private List<OrderItemInkatrackerLiteCanonical> orderItems;
     private String motorizedId;
     private String notes;
     @NotNull
     private Long deliveryServiceId;
     private String cancelMessageNote;
     private String cancelReasonCode;
-    private StatusCanonical status;
+    private StatusInkatrackerLiteCanonical status;
     private Long cancelDate;
     private Long startDate;
     private Long endDate;
@@ -62,5 +68,8 @@ public class OrderInfoCanonical {
     private String endHour;
     private String daysToPickUp;
     private String purchaseId;
+    private String drugstoreAddress;
+    private String companyCode;
+    private String newUserId;
 
 }
