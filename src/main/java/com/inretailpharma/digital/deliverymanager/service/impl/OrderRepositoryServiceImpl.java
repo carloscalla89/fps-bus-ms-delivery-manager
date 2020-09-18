@@ -1,5 +1,20 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
+import com.inretailpharma.digital.deliverymanager.dto.PaymentMethodDto;
+import com.inretailpharma.digital.deliverymanager.entity.*;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.repository.*;
+import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -154,5 +169,62 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 	public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
 		log.info("CALL Repository--getOrderByOrderNumber:"+orderNumber);
 		return orderRepository.getOrderByOrderNumber(orderNumber);
-	} 
+	}
+
+    @Override
+    public boolean updatePartialOrderHeader(OrderDto orderDto) {
+        BigDecimal totalCost = orderDto.getTotalCost();
+        BigDecimal bigDecimal = orderDto.getDeliveryCost();
+        LocalDateTime dateLastUpdated =  DateUtils.getLocalDateTimeObjectNow();
+        Long externalPurchaseId = orderDto.getEcommercePurchaseId();
+
+         orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId,true);
+         log.info("The order {} header was updated sucessfully",externalPurchaseId);
+         return true;
+    }
+
+    @Override
+    public boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment) {
+
+        for (IOrderItemFulfillment itemOriginal : iOrderItemFulfillment) {
+            OrderItemDto itemDto = orderDto.getOrderItem().stream().filter(dto-> !dto.isRemoved()) .filter(dto -> dto.getProductCode()
+                    .equals(itemOriginal.getProductCode())).findFirst().orElse(null);
+            if (itemDto == null) {
+                log.info("The item {} of the order {} is removed because it does not exist in the list to update",
+                        itemOriginal.getProductCode(),orderDto.getEcommercePurchaseId());
+
+                deleteItemRetired(itemOriginal.getProductCode(), iOrderItemFulfillment.get(0).getOrderFulfillmentId());
+            } else {
+                if(itemDto.isEdited()){
+                    Long orderFulfillmentId = itemOriginal.getOrderFulfillmentId();
+                    String productCode = itemOriginal.getProductCode();
+                    Integer quantity = itemDto.getQuantity();
+                    BigDecimal unitPrice = itemDto.getUnitPrice();
+                    BigDecimal totalPrice = itemDto.getTotalPrice();
+                    Integer quantityUnits= itemDto.getQuantityUnits();
+                    Constant.Logical fractionated = Constant.Logical.parse(itemDto.getFractionated());
+                    orderRepository.updateItemsPartialOrder(quantity, unitPrice, totalPrice, fractionated.getValueString(), orderFulfillmentId,quantityUnits, productCode);
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean deleteItemRetired(String itemsId,Long  orderFulfillmentId) {
+        log.info("Deleting itemId: {} from orderId: {}",itemsId,orderFulfillmentId);
+        orderRepository.deleteItemRetired(itemsId,orderFulfillmentId);
+
+        return true;
+    }
+
+    @Override
+    public void updatePaymentMethod(OrderDto partialOrderDto, Long orderFulfillmentId) {
+        PaymentMethodDto paymentMethod = partialOrderDto.getPayment();
+        BigDecimal paidAmount = paymentMethod.getPaidAmount();
+        BigDecimal changeAmount = paymentMethod.getChangeAmount();
+        Long orderId = partialOrderDto.getEcommercePurchaseId();
+        orderRepository.updatePaymentMethod(paidAmount,changeAmount,"Parcial",orderFulfillmentId);
+        log.info("PaymentMethod updated succesfully");
+    }
 }

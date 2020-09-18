@@ -15,6 +15,10 @@ import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
@@ -85,7 +89,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
-    @Query(value ="select oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
+    @Query(value ="select oi.order_fulfillment_id as orderFulfillmentId,oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
             "oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, oi.unit_price as unitPrice," +
             "oi.total_price as totalPrice, oi.fractionated, " +
             "oi.ean_code as eanCode, oi.presentation_id as presentationId, oi.presentation_description as presentationDescription, " +
@@ -131,4 +135,65 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     		" from order_fulfillment o where o.ecommerce_purchase_id = :orderNumber",
             nativeQuery = true)
 	Optional<IOrderResponseFulfillment> getOrderByOrderNumber(@Param("orderNumber") Long orderNumber);
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_fulfillment_item " +
+            " set quantity = :quantity ," +
+            "  unit_Price = :unitPrice ," +
+            "  total_Price = :totalPrice ," +
+            "  fractionated = :fractionated, " +
+            " quantity_units = :quantityUnits "+
+            " where order_fulfillment_id = :orderFulfillmentId " +
+            " and product_code = :productCode",
+            nativeQuery = true)
+    void updateItemsPartialOrder(@Param("quantity") Integer quantity,
+                                 @Param("unitPrice") BigDecimal unitPrice,
+                                 @Param("totalPrice") BigDecimal totalPrice,
+                                 @Param("fractionated") String fractionated,
+                                 @Param("orderFulfillmentId") Long orderFulfillmentId,
+                                 @Param("quantityUnits") Integer quantityUnits,
+                                 @Param("productCode") String productCode
+                                 );
+
+    @Modifying
+    @Transactional
+    @Query(value = "Update order_fulfillment " +
+            " set total_cost = :totalCost ," +
+            "  delivery_cost = :deliveryCost ," +
+            "  date_last_updated = :date_last_updated, " +
+            "  partial = :partial " +
+            " where ecommerce_purchase_id = :externalPurchaseId",
+            nativeQuery = true)
+    void updatePartialOrder(@Param("totalCost") BigDecimal unitPrice,
+                            @Param("deliveryCost") BigDecimal totalPrice,
+                            @Param("date_last_updated") LocalDateTime date_last_updated,
+                            @Param("externalPurchaseId") Long externalPurchaseId,
+                            @Param("partial") boolean partial
+    );
+
+    @Modifying
+    @Transactional
+    @Query(value = " DELETE FROM order_fulfillment_item" +
+            " WHERE order_fulfillment_id = :id " +
+            " AND  product_code = :productIdsToRemove",
+            nativeQuery = true)
+
+    void deleteItemRetired(@Param("productIdsToRemove")String itemId,
+                            @Param("id")Long id
+                            );
+
+    @Modifying
+    @Transactional
+    @Query(value = " update payment_method " +
+            " set paid_amount = :paidAmount ," +
+            " change_amount = :changeAmount," +
+            " payment_note = :paymentNote " +
+            " WHERE  order_fulfillment_id = :orderId",
+            nativeQuery = true)
+    void updatePaymentMethod(@Param("paidAmount") BigDecimal paidAmount,
+                             @Param("changeAmount") BigDecimal changeAmount,
+                             @Param("paymentNote") String paymentNote,
+                             @Param("orderId") Long orderId
+    );
 }

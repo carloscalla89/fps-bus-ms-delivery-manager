@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 
 public interface IOrderItemFulfillment {
 
+    Long getOrderFulfillmentId();
     String getProductCode();
     String getProductSapCode();
     String getNameProduct();

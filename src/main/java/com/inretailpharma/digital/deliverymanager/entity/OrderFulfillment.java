@@ -81,8 +81,6 @@ public class OrderFulfillment extends OrderEntity<Long> {
 
     private Integer partial;
 
-    @Column(name="partial_change")
-    private BigDecimal partialChange;
 
     @ElementCollection
     @CollectionTable(name = "order_fulfillment_item", joinColumns = @JoinColumn(name = "order_fulfillment_id"))
