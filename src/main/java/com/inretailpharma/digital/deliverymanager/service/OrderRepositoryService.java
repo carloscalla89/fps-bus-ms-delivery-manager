@@ -1,5 +1,10 @@
 package com.inretailpharma.digital.deliverymanager.service;
 
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.entity.*;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +46,12 @@ public interface OrderRepositoryService {
     Client saveClient(Client client);
 
     List<OrderStatus> getOrderStatusByTypeIs(String statusName);
-    
+
     <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
+
+    boolean updatePartialOrderHeader(OrderDto orderDto);
+    boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment);
+    boolean deleteItemRetired(String itemId, Long orderFulFillmentId);
+
+    void updatePaymentMethod(OrderDto partialOrderDto, Long orderFulfillmentId);
 }

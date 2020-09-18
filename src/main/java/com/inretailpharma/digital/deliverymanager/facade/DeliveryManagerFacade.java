@@ -31,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -450,4 +452,22 @@ public class DeliveryManagerFacade {
 			throw new RuntimeException("Error on get order by orderNumber..."+e);
 		});
     }
+
+    public Mono<OrderCanonical> getUpdatePartialOrder(OrderDto partialOrderDto) {
+        log.info("[START getUpdatePartialOrder]");
+        log.info("request partialOrderDto: {}",partialOrderDto);
+        try {
+            return Mono.just(orderTransaction.updatePartialOrder(partialOrderDto));
+        } catch (Exception e) {
+            log.error(">>> ERROR at updating the order");
+            OrderCanonical resultDefault = new OrderCanonical();
+            OrderStatusCanonical orderStatusNotFound = new OrderStatusCanonical();
+            orderStatusNotFound.setCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+            orderStatusNotFound.setName(Constant.OrderTrackerResponseCode.ERROR_CODE);
+            orderStatusNotFound.setStatusDate(DateUtils.getLocalDateTimeNow());
+            return Mono.just(resultDefault);
+        }
+    }
+
+
 }
