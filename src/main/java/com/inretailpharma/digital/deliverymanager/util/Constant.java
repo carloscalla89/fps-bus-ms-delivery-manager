@@ -246,6 +246,7 @@ public interface Constant {
         ERROR_PICKUP("35",  false),
         ERROR_UPDATE("36",  false),
         CANCELLED_ORDER_ONLINE_PAYMENT("37",  true),
+        ERROR_INVOICED("41", false),
 
         SUCCESS_RESERVED_ORDER("10", true),
 
@@ -261,7 +262,7 @@ public interface Constant {
         ON_ROUTE("19",  true),
         ARRIVED("20",  true),
         REJECTED("21",  true),
-
+        INVOICED("40", false),
 
         NOT_FOUND_CODE("-1",  false),
         NOT_FOUND_ORDER("-1",  false),
