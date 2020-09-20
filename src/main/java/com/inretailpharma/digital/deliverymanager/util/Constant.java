@@ -302,6 +302,7 @@ public interface Constant {
         CANCELLED_ORDER_ONLINE_PAYMENT("37",  true),
         ERROR_INVOICED("41", false),
 
+        ERROR_INSERT_DELIVERY_MANGER("38",false),
         SUCCESS_RESERVED_ORDER("10", true),
 
         CANCELLED_ORDER("11",true),

@@ -3,7 +3,6 @@ package com.inretailpharma.digital.deliverymanager.facade;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -20,7 +19,6 @@ import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
 import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
 import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
-import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
@@ -34,11 +32,8 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -67,16 +62,6 @@ public class DeliveryManagerFacade {
 
     }
 
-    public Flux<OrderCanonical> getOrdersByStatus(String status) {
-
-        return Flux.fromIterable(orderTransaction.getOrdersByStatus(status).stream().map(r -> {
-            OrderCanonical orderCanonical = new OrderCanonical();
-            orderCanonical.setEcommerceId(r.getEcommerceId());
-            orderCanonical.setExternalId(r.getExternalId());
-            return orderCanonical;
-        }).collect(Collectors.toList()));
-
-    }
 
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
 
@@ -218,18 +203,18 @@ public class DeliveryManagerFacade {
                                                     orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                     action.name()
                                             )
-                                            .flatMap(r -> {
+                                            .flatMap(orderResp -> {
 
-                                                if (Constant.Logical.getByValueString(iOrderFulfillment.getServiceEnabled()).value()
-                                                        && (Constant.OrderStatus
+                                                if ((Constant
+                                                        .OrderStatus
                                                         .getByCode(Optional
-                                                                .ofNullable(actionDto.getOrderStatusDto())
-                                                                .map(OrderStatusDto::getCode)
-                                                                .orElse(Constant.OrderStatus.CONFIRMED.getCode())
+                                                                    .ofNullable(orderResp.getOrderStatus())
+                                                                    .map(OrderStatusCanonical::getCode)
+                                                                    .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
                                                         ).isSuccess())) {
 
                                                     OrderCanonical order = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
-                                                    order.setExternalId(r.getExternalId());
+                                                    order.setExternalId(orderResp.getExternalId());
 
                                                     OrderExternalService serviceTracker = (OrderExternalService)context.getBean(
                                                             Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
@@ -241,7 +226,7 @@ public class DeliveryManagerFacade {
 
                                                 } else {
 
-                                                    return Mono.just(processTransaction(iOrderFulfillment, r));
+                                                    return Mono.just(processTransaction(iOrderFulfillment, orderResp));
 
                                                 }
 

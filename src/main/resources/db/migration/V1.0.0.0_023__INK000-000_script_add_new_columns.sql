@@ -32,7 +32,7 @@ values
 ('INKATRACKER_LITE_EXP','EXP','Inkatrackerlite con delivery express','DELIVERY','DIGITAL','órdenes de botica con delivery express',0),
 ('INKATRACKER_LITE_AM_PM','AM_PM','Inkatrackerlite con delivery AM y PM','DELIVERY','DIGITAL','órdenes botica con delivery AM y PM',0),
 ('INKATRACKER_LITE_PROG','PROG','Inkatrackerlite con delivery programado','DELIVERY','DIGITAL','órdenes botica con delivery programado',0),
-('INKATRACKER_LITE_CALL_RAD','RAD','Inkatrackerlite con delivery de call center','DELIVERY','CALL','órdenes botica CALL center con delivery',0),
+('INKATRACKER_LITE_CALL_RAD','RAD','Inkatrackerlite con delivery de call center','DELIVERY','CALL','órdenes botica CALL center con delivery',1),
 ('INKATRACKER_LITE_CALL_EXP','EXP','Inkatrackerlite con delivery de call center','DELIVERY','CALL','órdenes botica CALL center con delivery',0),
 ('INKATRACKER_LITE_CALL_AM_PM','AM_PM','Inkatrackerlite con delivery de call center','DELIVERY','CALL','órdenes botica CALL center con delivery',0),
 ('INKATRACKER_LITE_CALL_PROG','PROG','Inkatrackerlite con delivery de call center','DELIVERY','CALL','órdenes botica CALL center con delivery',0),
