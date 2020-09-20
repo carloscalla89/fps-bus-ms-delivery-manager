@@ -21,7 +21,7 @@ public class OrderDto {
     private Long ecommercePurchaseId;
     private Long trackerId;
     private Long externalPurchaseId;
-    private Long bridgePurchaseId;
+    private Integer purchaseNumber;
 
     private BigDecimal deliveryCost;
     private BigDecimal discountApplied;
@@ -43,7 +43,6 @@ public class OrderDto {
     private List<OrderItemDto> orderItem;
     private List<OrderItemEditedDto> itemsRetired;
 
-
     private ScheduleServiceTypeDto schedules;
 
     private Constant.ActionOrder action;
@@ -53,10 +52,6 @@ public class OrderDto {
     private String notes;
     private String sourceCompanyName;
 
-    private Date payOrderDate;
-    private Date scheduledOrderDate;
-    private String transactionOrderDate;
-    private Integer purchaseNumber;
-    private Long paymentMethodId;
-    private Long creditCardId;
+
+
 }
