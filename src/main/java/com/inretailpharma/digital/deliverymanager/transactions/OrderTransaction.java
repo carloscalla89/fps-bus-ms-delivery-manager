@@ -177,7 +177,7 @@ public class OrderTransaction {
 
         if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId() != null) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS.getCode());
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CONFIRMED.getCode());
 
         } else if (
                 Optional

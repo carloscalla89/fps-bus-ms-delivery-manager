@@ -66,7 +66,7 @@ public class DeliveryManagerFacade {
 
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
 
-        log.info("[START] createOrder facade");
+        log.info("[START] createOrder facade:{}",orderDto);
 
         return Mono
                 .defer(() -> centerCompanyService.getExternalInfo(orderDto.getCompanyCode(), orderDto.getLocalCode()))

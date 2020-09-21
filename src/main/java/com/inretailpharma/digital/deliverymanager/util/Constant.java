@@ -39,7 +39,9 @@ public interface Constant {
     enum TrackerImplementation {
         INKATRACKER_LITE_RAD(4,"inkatrackerlite","RAD"), INKATRACKER_LITE_RET(4,"inkatrackerlite","RET"),
         INKATRACKER_LITE_EXP(4,"inkatrackerlite","EXP"), INKATRACKER_LITE_PROG(4,"inkatrackerlite","PROG"),
-        INKATRACKER_LITE_AM_PM(4,"inkatrackerlite","AM_PM"),
+        INKATRACKER_LITE_AM_PM(4,"inkatrackerlite","AM_PM"), INKATRACKER_LITE_CALL_RAD(4,"inkatrackerlite","RAD"),
+        INKATRACKER_LITE_CALL_EXP(4,"inkatrackerlite","EXP"), INKATRACKER_LITE_CALL_PROG(4,"inkatrackerlite","PROG"),
+        INKATRACKER_LITE_CALL_AM_PM(4,"inkatrackerlite","AM_PM"),
 
         INKATRACKER_RAD(3,"inkatracker","RAD"), INKATRACKER_EXP(3,"inkatracker","EXP"),
         INKATRACKER_PROG(3,"inkatracker","PROG"), INKATRACKER_AM_PM(3,"inkatracker","AM_PM"),
