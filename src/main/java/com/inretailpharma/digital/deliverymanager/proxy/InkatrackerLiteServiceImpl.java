@@ -32,8 +32,9 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
     private ExternalServicesProperties externalServicesProperties;
     private ObjectToMapper objectToMapper;
 
-    public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties) {
+    public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties, ObjectToMapper objectToMapper) {
         this.externalServicesProperties = externalServicesProperties;
+        this.objectToMapper = objectToMapper;
     }
 
     @Override
