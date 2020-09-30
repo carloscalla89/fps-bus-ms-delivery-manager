@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.GroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderToAssignCanonical;
@@ -32,17 +33,17 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 @Component
 public class TrackerFacade {
-	
+
 	private OrderTransaction orderTransaction;
 	private ObjectToMapper objectToMapper;
 	private OrderExternalService orderExternalOrderTracker;
 	private OrderExternalService orderExternalServiceAudit;
-	
-	
-	public TrackerFacade(OrderTransaction orderTransaction, 
-			ObjectToMapper objectToMapper,
-			 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
-             @Qualifier("audit") OrderExternalService orderExternalServiceAudit) {
+
+
+	public TrackerFacade(OrderTransaction orderTransaction,
+						 ObjectToMapper objectToMapper,
+						 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
+						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit) {
 		this.orderTransaction = orderTransaction;
 		this.objectToMapper = objectToMapper;
 		this.orderExternalOrderTracker = orderExternalOrderTracker;
@@ -115,8 +116,8 @@ public class TrackerFacade {
 									});
 
 									response.setStatusCode(
-										allFailedOrders.isEmpty() ? Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE
-										: Constant.OrderTrackerResponseCode.ASSIGN_PARTIAL_CODE
+											allFailedOrders.isEmpty() ? Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE
+													: Constant.OrderTrackerResponseCode.ASSIGN_PARTIAL_CODE
 									);
 									response.setFailedOrders(allFailedOrders);
 
@@ -130,44 +131,44 @@ public class TrackerFacade {
 								return response;
 							});
 
-	    	})
-	    	.onErrorResume(ex -> {
-	    		log.error("[ERROR] assign orders to external tracker", ex);
-	    		projectedGroupCanonical.getGroup().stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, ex.getMessage()));
-	    		OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
-	    		response.setFailedOrders(projectedGroupCanonical.getGroup().stream().map(GroupCanonical::getOrderId).collect(Collectors.toList()));
-	    		response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
-	    		return Mono.just(response);
-	    	});
-    }
-    
-    public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
-    	log.info("[START] unassing orders from group {} - external tracker", unassignedCanonical.getGroupName());
-    	return orderExternalOrderTracker
+				})
+				.onErrorResume(ex -> {
+					log.error("[ERROR] assign orders to external tracker", ex);
+					projectedGroupCanonical.getGroup().stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, ex.getMessage()));
+					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
+					response.setFailedOrders(projectedGroupCanonical.getGroup().stream().map(GroupCanonical::getOrderId).collect(Collectors.toList()));
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
+					return Mono.just(response);
+				});
+	}
+
+	public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
+		log.info("[START] unassing orders from group {} - external tracker", unassignedCanonical.getGroupName());
+		return orderExternalOrderTracker
 				.unassignOrders(unassignedCanonical)
-    			.flatMap(statusCode -> {
-    				log.info("#unassing orders from group {} - external tracker - statusCode: {}"
-    						, unassignedCanonical.getGroupName(), statusCode);	
-    				unassignedCanonical.getOrders().forEach(orderId -> {
-    					
-    					if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-    						auditOrder(orderId, Constant.OrderStatus.PREPARED_ORDER);
-	    				} else {
-	    					auditOrder(orderId, Constant.OrderStatus.ERROR_PREPARED);
-	    				}
-    				});
-    				
-    				OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-    	        	response.setStatusCode(statusCode);
-    	        	return Mono.just(response);
-    			});
-    }
-    
-    public Mono<OrderTrackerResponseCanonical> updateOrderStatus(Long ecommerceId, String status) {    
-    	log.info("[START] update order: {} status: {} - external tracker", ecommerceId, status);
-    	return orderExternalOrderTracker
+				.flatMap(statusCode -> {
+					log.info("#unassing orders from group {} - external tracker - statusCode: {}"
+							, unassignedCanonical.getGroupName(), statusCode);
+					unassignedCanonical.getOrders().forEach(orderId -> {
+
+						if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
+							auditOrder(orderId, Constant.OrderStatus.PREPARED);
+						} else {
+							auditOrder(orderId, Constant.OrderStatus.ERROR_PREPARED);
+						}
+					});
+
+					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
+					response.setStatusCode(statusCode);
+					return Mono.just(response);
+				});
+	}
+
+	public Mono<OrderTrackerResponseCanonical> updateOrderStatus(Long ecommerceId, String status) {
+		log.info("[START] update order: {} status: {} - external tracker", ecommerceId, status);
+		return orderExternalOrderTracker
 				.updateOrderStatus(ecommerceId, status)
-    			.flatMap(statusCode -> {
+				.flatMap(statusCode -> {
 					log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, status, statusCode);
 
 					OrderTrackerStatusMapper statusMapper =  OrderTrackerStatusMapper.getByName(status);
@@ -180,25 +181,28 @@ public class TrackerFacade {
 					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
 					response.setStatusCode(statusCode);
 					return Mono.just(response);
-    			
-    			});
-    }
-    
-    public Mono<OrderTrackerResponseCanonical> sendOrder(OrderToAssignCanonical orderToAssignCanonical) {
-    	log.info("[START] sendOrder - external tracker");
 
-    	OrderCanonical orderCanonical = this.getOrder(orderToAssignCanonical.getOrderId());
+				});
+	}
+
+	public Mono<OrderTrackerResponseCanonical> sendOrder(OrderToAssignCanonical orderToAssignCanonical) {
+		log.info("[START] sendOrder - external tracker");
+
+		OrderCanonical orderCanonical = this.getOrder(orderToAssignCanonical.getOrderId());
 		orderCanonical.setOrderStatus(null);
 
-		orderExternalOrderTracker.sendOrderToTracker(orderCanonical).block();
+		return orderExternalOrderTracker
+				.sendOrderToTracker(orderCanonical)
+				.flatMap(resp -> {
+					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
+					response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
+					return Mono.just(response);
+				});
 
-		OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-		response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);	    		
-		return Mono.just(response);	
-    }
-    
-    private OrderCanonical getOrder(Long orderId) {
-    	IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(orderId);    		
+	}
+
+	private OrderCanonical getOrder(Long orderId) {
+		IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(orderId);
 		OrderCanonical orderCanonical = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderDto);
 
 		List<IOrderItemFulfillment> orderItemDtoList = orderTransaction.getOrderItemByOrderFulfillmentId(orderDto.getOrderId());

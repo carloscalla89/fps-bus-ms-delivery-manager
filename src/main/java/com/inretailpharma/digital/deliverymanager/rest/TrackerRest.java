@@ -1,5 +1,10 @@
 package com.inretailpharma.digital.deliverymanager.rest;
 
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderToAssignCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -8,12 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderToAssignCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.TrackerFacade;
 
@@ -37,11 +36,11 @@ public class TrackerRest {
             @RequestBody ProjectedGroupCanonical projectedGroupCanonical) {
 
         log.info("[START] endpoint /fulfillment/tracker/orders/status/assigned " +
-                 "- projectedGroupCanonical:{}",projectedGroupCanonical);
+                "- projectedGroupCanonical:{}",projectedGroupCanonical);
 
         return new ResponseEntity<>(
                 trackerFacade.assignOrders(projectedGroupCanonical)
-                             .subscribeOn(Schedulers.parallel()),
+                        .subscribeOn(Schedulers.parallel()),
                 HttpStatus.OK
         );
 
@@ -52,11 +51,11 @@ public class TrackerRest {
             @RequestBody UnassignedCanonical unassignedCanonical) {
 
         log.info("[START] endpoint /fulfillment/tracker/orders/status/unassigned " +
-                 "- unassignedCanonical:{}", unassignedCanonical);
+                "- unassignedCanonical:{}", unassignedCanonical);
 
         return new ResponseEntity<>(
                 trackerFacade.unassignOrders(unassignedCanonical)
-                             .subscribeOn(Schedulers.parallel()),
+                        .subscribeOn(Schedulers.parallel()),
                 HttpStatus.OK
         );
 
@@ -64,15 +63,30 @@ public class TrackerRest {
 
     @PatchMapping(value = "/order/{ecommerceId}/status/{status}")
     public ResponseEntity<Mono<OrderTrackerResponseCanonical>> updateOrderStatus(
-    		@PathVariable(name = "ecommerceId") Long ecommerceId,
-    		@PathVariable(name = "status") String status) {
+            @PathVariable(name = "ecommerceId") Long ecommerceId,
+            @PathVariable(name = "status") String status) {
 
         log.info("[START] endpoint /order/{ecommerceId}/status/{status} " +
-                 "- ecommerceId {} - status:{}", ecommerceId, status);
+                "- ecommerceId {} - status:{}", ecommerceId, status);
 
         return new ResponseEntity<>(
                 trackerFacade.updateOrderStatus(ecommerceId, status)
-                             .subscribeOn(Schedulers.parallel()),
+                        .subscribeOn(Schedulers.parallel()),
+                HttpStatus.OK
+        );
+
+    }
+
+    @PostMapping(value = "/order")
+    public ResponseEntity<Mono<OrderTrackerResponseCanonical>> sendOrder(
+            @RequestBody OrderToAssignCanonical orderToAssignCanonical) {
+
+        log.info("[START] endpoint /fulfillment/tracker/order " +
+                "- orderToAssignCanonical:{}", orderToAssignCanonical);
+
+        return new ResponseEntity<>(
+                trackerFacade.sendOrder(orderToAssignCanonical)
+                        .subscribeOn(Schedulers.parallel()),
                 HttpStatus.OK
         );
 
