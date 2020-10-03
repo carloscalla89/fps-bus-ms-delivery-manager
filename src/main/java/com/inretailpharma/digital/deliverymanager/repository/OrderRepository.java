@@ -143,7 +143,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "  unit_Price = :unitPrice ," +
             "  total_Price = :totalPrice ," +
             "  fractionated = :fractionated, " +
-            " quantity_units = :quantityUnits "+
+            " quantity_units = :quantityUnits, "+
+            " short_description = :short_description "+
             " where order_fulfillment_id = :orderFulfillmentId " +
             " and product_code = :productCode",
             nativeQuery = true)
@@ -153,7 +154,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                                  @Param("fractionated") String fractionated,
                                  @Param("orderFulfillmentId") Long orderFulfillmentId,
                                  @Param("quantityUnits") Integer quantityUnits,
-                                 @Param("productCode") String productCode
+                                 @Param("productCode") String productCode,
+                                 @Param("short_description") String shortDescription
                                  );
 
     @Modifying
