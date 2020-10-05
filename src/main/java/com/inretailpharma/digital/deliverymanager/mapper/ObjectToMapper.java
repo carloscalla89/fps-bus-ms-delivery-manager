@@ -567,7 +567,6 @@ public class ObjectToMapper {
                     + StringUtils.SPACE + Optional.ofNullable(o.getFirstName()).orElse(StringUtils.EMPTY));
             client.setEmail(o.getEmail());
             client.setPhone(o.getPhone());
-            client.setHasInkaClub(o.getInkaClub());
             client.setBirthDate(o.getBirthDate());
             client.setAnonimous(
                     Optional.ofNullable(o.getAnonimous())
