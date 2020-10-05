@@ -194,22 +194,6 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
                 log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
 
-                /*
-                    HttpClient tcpClient = HttpClient
-                        .create()
-                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                                Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut())
-                        ) // Connection Timeout
-                        .doOnConnected(connection ->
-                                connection.addHandlerLast(
-                                        new ReadTimeoutHandler(
-                                                Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
-                                        )
-                                )
-                        ); // Read Timeout
-
-
-                 */
                     HttpClient httpClient = HttpClient.create()
                             .tcpConfiguration(tcpClient -> {
                                 tcpClient = tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,

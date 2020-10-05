@@ -58,7 +58,7 @@ public class ObjectToMapper {
         Optional.ofNullable(orderCanonical.getOrderDetail())
                 .filter(r -> r.getCreatedOrder() != null)
                 .ifPresent(r -> orderInkatrackerCanonical.setDateCreated(
-                        DateUtils.getLocalDateTimeFromStringWithFormat(r.getCreatedOrder()).toEpochSecond(ZoneOffset.UTC)
+                        Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(r.getCreatedOrder())).getTime()
                 ));
 
         orderInkatrackerCanonical.setSource(orderCanonical.getSource());
@@ -80,9 +80,11 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setDeliveryService(Constant.TrackerImplementation.getByCode(orderCanonical.getOrderDetail().getServiceCode()).getId());
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
         orderInkatrackerCanonical.setMaxDeliveryTime(
-                DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())
-                         .plusMinutes(orderCanonical.getOrderDetail().getLeadTime())
-                         .toEpochSecond(ZoneOffset.UTC)
+                Timestamp.valueOf(
+                        DateUtils
+                                .getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())
+                                .plusMinutes(orderCanonical.getOrderDetail().getLeadTime())
+                ).getTime()
         );
         orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(orderCanonical.getOrderItems()));
         orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(orderCanonical));
@@ -97,12 +99,12 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setReceipt(getReceiptFromOrderCanonical(orderCanonical));
         ScheduledCanonical scheduledCanonical = new ScheduledCanonical();
         scheduledCanonical.setStartDate(
-                DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule()).toEpochSecond(ZoneOffset.UTC)
+                Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())).getTime()
         );
         scheduledCanonical.setEndDate(
-                DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())
+                Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())
                         .plusMinutes(orderCanonical.getOrderDetail().getLeadTime())
-                        .toEpochSecond(ZoneOffset.UTC)
+                ).getTime()
         );
         orderInkatrackerCanonical.setScheduled(scheduledCanonical);
 
@@ -175,8 +177,8 @@ public class ObjectToMapper {
         orderInfo.setStatus(getLiteFromOrderCanonical(orderCanonical, orderInfo));
 
         orderInfo.setStartDate(
-                Timestamp.valueOf(                DateUtils
-                        .getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())).getTime()
+                Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule()))
+                        .getTime()
         );
         orderInfo.setEndDate(
                 Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedSchedule())
@@ -345,7 +347,7 @@ public class ObjectToMapper {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
         orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusInkatracker.getByStatusCode(orderCanonical.getOrderStatus().getCode()).getStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
-                DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedOrder()).toEpochSecond(ZoneOffset.UTC)
+                Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedOrder())).getTime()
         );
         return orderStatusInkatrackerCanonical;
     }
@@ -358,7 +360,7 @@ public class ObjectToMapper {
         for (OrderItemCanonical itemCanonical : itemCanonicals) {
             OrderItemInkatrackerCanonical canonical = new OrderItemInkatrackerCanonical();
             canonical.setBrand(itemCanonical.getBrand());
-            canonical.setFractionated(Optional.ofNullable(itemCanonical.getFractionated()).map(r -> r?"1":"0").orElse("0"));
+            canonical.setFractionated(Optional.ofNullable(itemCanonical.getFractionated()).map(r -> r?"Y":"N").orElse("N"));
             canonical.setName(itemCanonical.getProductName());
             canonical.setQuantity(itemCanonical.getQuantity());
             canonical.setSku(itemCanonical.getProductCode());
@@ -370,6 +372,8 @@ public class ObjectToMapper {
             canonical.setPresentationDescription(itemCanonical.getPresentationDescription());
             canonical.setQuantityUnits(itemCanonical.getQuantityUnits());
             canonical.setQuantityPresentation(itemCanonical.getQuantityPresentation());
+            canonical.setQuantityUnitMinimium(itemCanonical.getQuantityUnitMinimium());
+            canonical.setValueUMV(itemCanonical.getValueUMV());
 
             itemCanonicalList.add(canonical);
         }

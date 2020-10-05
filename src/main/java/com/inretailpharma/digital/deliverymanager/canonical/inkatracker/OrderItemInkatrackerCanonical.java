@@ -21,5 +21,7 @@ public class OrderItemInkatrackerCanonical {
     private boolean prescription;
     private Integer quantityUnits;
     private Integer quantityPresentation;
+    private Integer quantityUnitMinimium;
+    private Integer valueUMV;
 
 }
