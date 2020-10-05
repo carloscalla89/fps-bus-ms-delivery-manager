@@ -31,8 +31,9 @@ public class OrderItemDto {
     private Integer presentationId;
     private String presentationDescription;
     private Integer quantityUnits;
-    private Integer quantityUnitMinumium;
+    private Integer quantityUnitMinimium;
     private Integer quantityPresentation;
+    private Integer valueUMV;
     private String familyType;
     private boolean edited;
     private boolean removed;

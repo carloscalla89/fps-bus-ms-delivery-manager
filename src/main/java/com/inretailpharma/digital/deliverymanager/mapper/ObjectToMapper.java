@@ -461,7 +461,7 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setPresentationId(r.getPresentationId());
                     orderFulfillmentItem.setPresentationDescription(r.getPresentationDescription());
                     orderFulfillmentItem.setQuantityUnits(r.getQuantity());
-                    orderFulfillmentItem.setQuantityUnitMinimum(r.getQuantityUnitMinumium());
+                    orderFulfillmentItem.setQuantityUnitMinimum(r.getQuantityUnitMinimium());
                     orderFulfillmentItem.setQuantityPresentation(r.getQuantityPresentation());
                     orderFulfillmentItem.setFamilyType(r.getFamilyType());
 
@@ -837,7 +837,7 @@ public class ObjectToMapper {
                     itemCanonical.setBrand(r.getBrand());
                     itemCanonical.setQuantity(r.getQuantity());
                     itemCanonical.setQuantityUnits(r.getQuantityUnits());
-                    itemCanonical.setQuantityUnitMinimium(r.getQuantityUnitMinumium());
+                    itemCanonical.setQuantityUnitMinimium(r.getQuantityUnitMinimium());
                     itemCanonical.setUnitPrice(r.getUnitPrice());
                     itemCanonical.setTotalPrice(r.getTotalPrice());
                     itemCanonical.setFractionated(r.getFractionated());
