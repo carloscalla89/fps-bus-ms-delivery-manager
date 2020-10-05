@@ -464,7 +464,7 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setQuantityUnitMinimum(r.getQuantityUnitMinimium());
                     orderFulfillmentItem.setQuantityPresentation(r.getQuantityPresentation());
                     orderFulfillmentItem.setFamilyType(r.getFamilyType());
-
+                    orderFulfillmentItem.setValueUMV(r.getValueUMV());
                     return orderFulfillmentItem;
                 }).collect(Collectors.toList())
         );
@@ -846,6 +846,7 @@ public class ObjectToMapper {
                     itemCanonical.setQuantityPresentation(r.getQuantityPresentation());
                     itemCanonical.setPresentationId(r.getPresentationId());
                     itemCanonical.setPresentationDescription(r.getPresentationDescription());
+                    itemCanonical.setValueUMV(r.getValueUMV());
 
                     return itemCanonical;
                 }).collect(Collectors.toList())

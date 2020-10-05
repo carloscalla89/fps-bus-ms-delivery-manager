@@ -70,4 +70,7 @@ public class OrderFulfillmentItem {
     @Column(name="family_type")
     private String familyType;
 
+    @Column(name="value_UMV")
+    private Integer valueUMV;
+
 }
