@@ -19,6 +19,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.Invoiced
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -41,6 +42,7 @@ import reactor.netty.tcp.TcpClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import java.util.Optional;
 
@@ -192,7 +194,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
                 log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
 
-                TcpClient tcpClient = TcpClient
+                /*
+                    HttpClient tcpClient = HttpClient
                         .create()
                         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
                                 Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut())
@@ -205,9 +208,23 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                 )
                         ); // Read Timeout
 
+
+                 */
+                    HttpClient httpClient = HttpClient.create()
+                            .tcpConfiguration(tcpClient -> {
+                                tcpClient = tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
+                                        Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()));
+                                tcpClient = tcpClient.doOnConnected(conn -> conn
+                                        .addHandlerLast(new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut()), TimeUnit.MILLISECONDS)));
+                                return tcpClient;
+                            });
+                    // create a client http connector using above http client
+                    ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
+
+
                 return WebClient
                         .builder()
-                        .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                        .clientConnector(connector)
                         .baseUrl(externalServicesProperties.getInkatrackerCreateOrderUri())
                         .build()
                         .post()

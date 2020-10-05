@@ -38,15 +38,15 @@ external-service:
   inkatracker:
     create-order:
       uri: http://us-inkatracker/nvr/orders/create
-      connect-timeout: 240000
+      connect-timeout: 30000
       read-timeout: 480
     update-order:
       uri: http://us-inkatracker/nvr/orders/create
-      connect-timeout: 240000
+      connect-timeout: 30000
       read-timeout: 480
     update-status-order:
       uri: http://us-inkatracker/nvr/orders
-      connect-timeout: 240000
+      connect-timeout: 30000
       read-timeout: 480
   temporary:
     create-order:
