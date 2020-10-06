@@ -36,6 +36,30 @@ public interface Constant {
         }
     }
 
+    enum DispatcherImplementation {
+        IKF("deliveryDispatcherInka"), MF("deliveryDispatcherMifa");
+
+        private String name;
+
+        DispatcherImplementation(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public static DispatcherImplementation getByCompanyCode(String companyCode) {
+
+            return EnumUtils.getEnumList(DispatcherImplementation.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(companyCode))
+                    .findFirst()
+                    .orElse(IKF);
+        }
+
+    }
+
     enum TrackerImplementation {
         INKATRACKER_LITE_RAD(4,"inkatrackerlite","RAD"), INKATRACKER_LITE_RET(4,"inkatrackerlite","RET"),
         INKATRACKER_LITE_EXP(4,"inkatrackerlite","EXP"), INKATRACKER_LITE_PROG(4,"inkatrackerlite","PROG"),

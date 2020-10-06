@@ -197,7 +197,7 @@ public class DeliveryManagerFacade {
                 case 2:
 
                     OrderExternalService orderExternalServiceDispatcher = (OrderExternalService)context.getBean(
-                            Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                            Constant.DispatcherImplementation.getByCompanyCode(iOrderFulfillment.getCompanyCode()).getName()
                     );
 
                     // Reattempt to send the order at insink

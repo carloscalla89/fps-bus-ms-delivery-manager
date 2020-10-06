@@ -19,6 +19,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -29,6 +30,7 @@ import reactor.netty.tcp.TcpClient;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service("deliveryDispatcherInka")
@@ -154,21 +156,16 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                                                    String action) {
         log.info("send order To sendOrderEcommerce");
 
-        HttpClient httpClient = HttpClient
-                .create()
-                .tcpConfiguration(client ->
-                        client
-                                .option(
-                                        ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                                        Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()))
-                                .doOnConnected(conn ->
-                                        conn
-                                                .addHandlerLast(
-                                                        new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())))
-                                                .addHandlerLast(
-                                                        new WriteTimeoutHandler(Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())))
-                                )
-                );
+        HttpClient httpClient = HttpClient.create()
+                .tcpConfiguration(tcpClient -> {
+                    tcpClient = tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
+                            Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()));
+                    tcpClient = tcpClient.doOnConnected(conn -> conn
+                            .addHandlerLast(new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut()), TimeUnit.MILLISECONDS)));
+                    return tcpClient;
+                });
+        // create a client http connector using above http client
+        ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
 
         String dispatcherUri;
 
@@ -183,7 +180,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
             return WebClient
                     .builder()
-                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .clientConnector(connector)
                     .baseUrl(dispatcherUri)
                     .build()
                     .post()
