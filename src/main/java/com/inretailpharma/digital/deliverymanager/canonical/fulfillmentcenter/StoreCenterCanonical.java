@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 public class StoreCenterCanonical {
 
     private Long legacyId;
+    private String inkaVentaId;
     private String localCode;
     private String companyCode;
     private String name;

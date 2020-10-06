@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.integration.ProductCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.*;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
@@ -121,7 +122,8 @@ public class EcommerceMapper {
     }
 
     public OrderDto orderFulfillmentToOrderDto(IOrderFulfillment orderFulfillment,
-                                               List<IOrderItemFulfillment> itemsFulfillment) {
+                                               List<IOrderItemFulfillment> itemsFulfillment,
+                                               StoreCenterCanonical storeCenterCanonical) {
         OrderDto orderDto = new OrderDto();
 
         if (Objects.nonNull(orderFulfillment)) {
@@ -248,6 +250,15 @@ public class EcommerceMapper {
             }
 
             orderDto.setMarketplaceName(orderFulfillment.getSourceCompanyName());
+
+            DrugstoreDto drugstoreDto = new DrugstoreDto();
+            drugstoreDto.setId(storeCenterCanonical.getLegacyId());
+            drugstoreDto.setInkaVentaId(storeCenterCanonical.getInkaVentaId());
+
+            orderDto.setDrugstore(drugstoreDto);
+
+            orderDto.setZoneId(orderFulfillment.getZoneId());
+            orderDto.setDistrictCode(orderFulfillment.getDistrictCode());
         }
 
         return orderDto;

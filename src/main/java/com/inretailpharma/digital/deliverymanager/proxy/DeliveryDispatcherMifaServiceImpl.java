@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.InsinkRes
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.ResponseDispatcherCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.StatusDispatcher;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
@@ -52,7 +53,7 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
 
     @Override
     public Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment, List<IOrderItemFulfillment> itemFulfillments,
-                                                   String action) {
+                                                   String action, StoreCenterCanonical storeCenterCanonical) {
         HttpClient httpClient = HttpClient
                 .create()
                 .tcpConfiguration(client ->
@@ -86,7 +87,7 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
                     .baseUrl(dispatcherUri)
                     .build()
                     .post()
-                    .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments)), OrderDto.class)
+                    .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments, storeCenterCanonical)), OrderDto.class)
                     .retrieve()
                     .bodyToMono(ResponseDispatcherCanonical.class)
                     .flatMap(response -> {

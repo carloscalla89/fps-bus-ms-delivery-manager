@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
@@ -25,7 +26,8 @@ public interface OrderExternalService {
     Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto);
     Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical);
     Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
-                                            List<IOrderItemFulfillment> itemFulfillments, String action);
+                                            List<IOrderItemFulfillment> itemFulfillments, String action,
+                                            StoreCenterCanonical storeCenterCanonical);
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
     Mono<String> updateOrderStatus(Long ecommerceId, String status);

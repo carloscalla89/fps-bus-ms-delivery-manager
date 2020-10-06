@@ -83,4 +83,7 @@ public interface IOrderFulfillment {
     String getSource();
     String getOrderNotes();
     String getSourceCompanyName();
+
+    String getDistrictCode();
+    Long getZoneId();
 }

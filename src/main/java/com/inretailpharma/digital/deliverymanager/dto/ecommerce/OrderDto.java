@@ -51,4 +51,9 @@ public class OrderDto {
     private String marketplaceName;
     private String deliveryServiceName;
 
+    private DrugstoreDto drugstore;
+
+    private Long zoneId;
+    private String districtCode;
+
 }

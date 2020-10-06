@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.*;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
@@ -157,7 +158,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
     @Override
     public Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment, List<IOrderItemFulfillment> itemFulfillments,
-                                                   String action) {
+                                                   String action, StoreCenterCanonical storeCenterCanonical) {
         log.info("send order To sendOrderEcommerce");
 
         HttpClient httpClient = HttpClient.create()
@@ -188,7 +189,8 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                     .baseUrl(dispatcherUri)
                     .build()
                     .post()
-                    .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments)), OrderDto.class)
+                    .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments, storeCenterCanonical)),
+                            OrderDto.class)
                     .exchange()
                     //.bodyToMono(ResponseDispatcherCanonical.class)
                     .flatMap(clientResponse -> {

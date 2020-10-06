@@ -200,41 +200,47 @@ public class DeliveryManagerFacade {
                             Constant.DispatcherImplementation.getByCompanyCode(iOrderFulfillment.getCompanyCode()).getName()
                     );
 
+                    return centerCompanyService
+                                .getExternalInfo(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
+                                .flatMap(storeCenterCanonical -> orderExternalServiceDispatcher
+                                                                        .sendOrderEcommerce(
+                                                                                iOrderFulfillment,
+                                                                                orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
+                                                                                action.name(),
+                                                                                storeCenterCanonical
+                                                                        )
+                                                                        .flatMap(orderResp -> {
+
+                                                                            if ((Constant
+                                                                                    .OrderStatus
+                                                                                    .getByCode(Optional
+                                                                                            .ofNullable(orderResp.getOrderStatus())
+                                                                                            .map(OrderStatusCanonical::getCode)
+                                                                                            .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
+                                                                                    ).isSuccess())) {
+
+                                                                                OrderCanonical order = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
+                                                                                order.setExternalId(orderResp.getExternalId());
+
+                                                                                OrderExternalService serviceTracker = (OrderExternalService)context.getBean(
+                                                                                        Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                                                                                );
+
+                                                                                return serviceTracker
+                                                                                        .sendOrderToTracker(order)
+                                                                                        .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
+
+                                                                            } else {
+
+                                                                                return Mono.just(processTransaction(iOrderFulfillment, orderResp));
+
+                                                                            }
+
+                                                                        })
+                                );
+
                     // Reattempt to send the order at insink
-                    return orderExternalServiceDispatcher
-                                            .sendOrderEcommerce(
-                                                    iOrderFulfillment,
-                                                    orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
-                                                    action.name()
-                                            )
-                                            .flatMap(orderResp -> {
 
-                                                if ((Constant
-                                                        .OrderStatus
-                                                        .getByCode(Optional
-                                                                    .ofNullable(orderResp.getOrderStatus())
-                                                                    .map(OrderStatusCanonical::getCode)
-                                                                    .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                                                        ).isSuccess())) {
-
-                                                    OrderCanonical order = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
-                                                    order.setExternalId(orderResp.getExternalId());
-
-                                                    OrderExternalService serviceTracker = (OrderExternalService)context.getBean(
-                                                            Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
-                                                    );
-
-                                                    return serviceTracker
-                                                                .sendOrderToTracker(order)
-                                                                .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
-
-                                                } else {
-
-                                                    return Mono.just(processTransaction(iOrderFulfillment, orderResp));
-
-                                                }
-
-                                            });
 
                 case 3:
                     // Update the status when the order was released from Dispatcher

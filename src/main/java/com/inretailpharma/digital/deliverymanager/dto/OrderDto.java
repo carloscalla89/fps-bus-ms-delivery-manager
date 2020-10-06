@@ -20,6 +20,7 @@ public class OrderDto {
     private String localCode;
     private String companyCode;
     private String serviceTypeCode;
+
     @NotNull
     private Long ecommercePurchaseId;
     private Long trackerId;
@@ -55,6 +56,9 @@ public class OrderDto {
     private String notes;
     private String sourceCompanyName;
 
+    // campos que son necesarios para enviar al insink
+    private String districtCodeBilling;
+    private Long zoneIdBilling;
 
 
 }
