@@ -345,7 +345,7 @@ public class ObjectToMapper {
 
     private OrderStatusInkatrackerCanonical getFromOrderCanonical(OrderCanonical orderCanonical) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
-        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusInkatracker.getByStatusCode(orderCanonical.getOrderStatus().getCode()).getStatus());
+        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusInkatracker.getByActionName(orderCanonical.getAction()).getStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
                 Timestamp.valueOf(DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedOrder())).getTime()
         );

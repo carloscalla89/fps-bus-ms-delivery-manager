@@ -163,15 +163,18 @@ public class DeliveryManagerFacade {
                                     return Mono.just(orderCanonical);
 
                                 })
-                                .flatMap(r ->
-                                        // creando la orden a tracker
-                                        orderServiceTracker
-                                                .sendOrderToTracker(r)
-                                                .flatMap(s -> {
-                                                    OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
-                                                    return Mono.just(orderCanonical);
-                                                })
-                                );
+                                .flatMap(r ->{
+                                    // creando la orden a tracker
+
+                                    r.setAction(action.name()); // set action to return the status at some tracker
+
+                                    return orderServiceTracker
+                                            .sendOrderToTracker(r)
+                                            .flatMap(s -> {
+                                                OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
+                                                return Mono.just(orderCanonical);
+                                            });
+                                });
 
                     } else {
                         // actualizando la orden a tracker

@@ -113,4 +113,6 @@ public class OrderCanonical {
 
     private String source;
 
+    private String action;
+
 }
