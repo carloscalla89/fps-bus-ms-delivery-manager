@@ -162,7 +162,8 @@ public class EcommerceMapper {
             if (Constant.Source.SC.name().equals(orderFulfillment.getSource())) {
                 userDto.setIsAnonymous(Constant.Logical.Y.name());
             } else {
-                userDto.setIsAnonymous(orderFulfillment.getAnonimous());
+                userDto.setIsAnonymous(Optional.ofNullable(orderFulfillment.getAnonimous())
+                        .orElse(0)==0?"N":"Y");
             }
 
             orderDto.setUser(userDto);

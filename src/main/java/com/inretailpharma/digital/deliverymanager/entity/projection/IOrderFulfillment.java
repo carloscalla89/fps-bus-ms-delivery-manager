@@ -28,7 +28,7 @@ public interface IOrderFulfillment {
     String getDocumentNumber();
     String getPhone();
     String getBirthDate();
-    String getAnonimous();
+    Integer getAnonimous();
     Integer getInkaClub();
     String getNotificationToken();
     String getUserId();
