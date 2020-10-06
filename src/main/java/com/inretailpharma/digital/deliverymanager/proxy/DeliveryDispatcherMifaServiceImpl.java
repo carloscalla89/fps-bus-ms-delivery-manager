@@ -15,6 +15,7 @@ import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.mapper.EcommerceMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -23,8 +24,11 @@ import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -88,49 +92,73 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
                     .build()
                     .post()
                     .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments, storeCenterCanonical)), OrderDto.class)
-                    .retrieve()
-                    .bodyToMono(ResponseDispatcherCanonical.class)
-                    .flatMap(response -> {
+                    .exchange()
+                    //.bodyToMono(ResponseDispatcherCanonical.class)
+                    .flatMap(clientResponse -> {
 
-                        log.info("result dispatcher to reattempt insink and tracker response:{}", response);
+                        log.info("result dispatcher to reattempt insink and tracker response:{}", clientResponse);
 
-                        InsinkResponseCanonical dispatcherResponse = (InsinkResponseCanonical)response.getBody();
-                        StatusDispatcher statusDispatcher = (StatusDispatcher)response.getStatus();
+                        if (clientResponse.statusCode().is2xxSuccessful()) {
 
-                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                        Constant.OrderStatus orderStatusUtil = Constant
-                                .OrderStatus
-                                .getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).name());
+                            return clientResponse
+                                    .bodyToMono(ResponseDispatcherCanonical.class)
+                                    .flatMap(cr -> {
+                                        InsinkResponseCanonical dispatcherResponse = cr.getBody();
+                                        StatusDispatcher statusDispatcher = cr.getStatus();
 
-                        orderStatus.setCode(orderStatusUtil.getCode());
-                        orderStatus.setName(orderStatusUtil.name());
-                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+                                        log.info("body:{}, status:{}",dispatcherResponse, statusDispatcher);
 
-                        Optional.of(statusDispatcher.isSuccessProcess())
-                                .filter(r -> r)
-                                .ifPresent(r -> {
+                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                        Constant.OrderStatus orderStatusUtil = Constant
+                                                .OrderStatus
+                                                .getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).getStatus());
 
-                                    String stringBuffer = "code error:" +
-                                            dispatcherResponse.getErrorCode() +
-                                            ", description:" +
-                                            statusDispatcher.getDescription() +
-                                            ", detail:" +
-                                            dispatcherResponse.getMessageDetail();
+                                        orderStatus.setCode(orderStatusUtil.getCode());
+                                        orderStatus.setName(orderStatusUtil.name());
+                                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                                    orderStatus.setDetail(stringBuffer);
-                                });
+                                        Optional.of(statusDispatcher.isSuccessProcess())
+                                                .filter(r -> r)
+                                                .ifPresent(r -> {
 
-                        OrderCanonical resultCanonical = new OrderCanonical();
-                        resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                        resultCanonical.setExternalId(
-                                Optional
-                                        .ofNullable(dispatcherResponse.getInkaventaId())
-                                        .map(Long::parseLong).orElse(null)
-                        );
-                        resultCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
-                        resultCanonical.setOrderStatus(orderStatus);
+                                                    String stringBuffer = "code error:" +
+                                                            dispatcherResponse.getErrorCode() +
+                                                            ", description:" +
+                                                            statusDispatcher.getDescription() +
+                                                            ", detail:" +
+                                                            dispatcherResponse.getMessageDetail();
 
-                        return Mono.just(resultCanonical);
+                                                    orderStatus.setDetail(stringBuffer);
+                                                });
+
+                                        OrderCanonical resultCanonical = new OrderCanonical();
+                                        resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                                        resultCanonical.setExternalId(
+                                                Optional
+                                                        .ofNullable(dispatcherResponse.getInkaventaId())
+                                                        .map(Long::parseLong).orElse(null)
+                                        );
+                                        resultCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
+                                        resultCanonical.setOrderStatus(orderStatus);
+
+                                        return Mono.just(resultCanonical);
+
+
+                                    });
+
+                        } else {
+                            return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
+                                byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                dataBuffer.read(bytes);
+                                DataBufferUtils.release(dataBuffer);
+                                return bytes;
+                            })
+                                    .defaultIfEmpty(new byte[0])
+                                    .flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
+                                            +":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
+                                            clientResponse.statusCode().value()))
+                                    );
+                        }
 
                     })
                     .defaultIfEmpty(

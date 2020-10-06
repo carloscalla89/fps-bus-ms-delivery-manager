@@ -211,7 +211,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                                             Constant.OrderStatus orderStatusUtil = Constant
                                                     .OrderStatus
-                                                    .getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).name());
+                                                    .getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).getStatus());
 
                                             orderStatus.setCode(orderStatusUtil.getCode());
                                             orderStatus.setName(orderStatusUtil.name());
