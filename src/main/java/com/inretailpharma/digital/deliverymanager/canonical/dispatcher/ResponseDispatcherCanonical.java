@@ -3,9 +3,9 @@ package com.inretailpharma.digital.deliverymanager.canonical.dispatcher;
 import lombok.Data;
 
 @Data
-public class ResponseDispatcherCanonical<R, S> {
+public class ResponseDispatcherCanonical{
 
-    private R body;
-    private S status;
+    private InsinkResponseCanonical body;
+    private StatusDispatcher status;
 
 }

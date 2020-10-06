@@ -164,9 +164,10 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
         HttpClient httpClient = HttpClient.create()
                 .tcpConfiguration(tcpClient -> {
                     tcpClient = tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                            Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()));
+                            Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemConnectTimeout()));
                     tcpClient = tcpClient.doOnConnected(conn -> conn
-                            .addHandlerLast(new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut()), TimeUnit.MILLISECONDS)));
+                            .addHandlerLast(new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemReadTimeout()),
+                                    TimeUnit.MILLISECONDS)));
                     return tcpClient;
                 });
         // create a client http connector using above http client
@@ -197,15 +198,13 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
                         log.info("result dispatcher to reattempt insink and tracker response:{}", clientResponse);
 
-
-
                         if (clientResponse.statusCode().is2xxSuccessful()) {
 
                             return clientResponse
                                         .bodyToMono(ResponseDispatcherCanonical.class)
                                         .flatMap(cr -> {
-                                            InsinkResponseCanonical dispatcherResponse = (InsinkResponseCanonical)cr.getBody();
-                                            StatusDispatcher statusDispatcher = (StatusDispatcher)cr.getStatus();
+                                            InsinkResponseCanonical dispatcherResponse = cr.getBody();
+                                            StatusDispatcher statusDispatcher = cr.getStatus();
 
                                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                                             Constant.OrderStatus orderStatusUtil = Constant
