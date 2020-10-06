@@ -163,7 +163,7 @@ public class EcommerceMapper {
                 userDto.setIsAnonymous(Constant.Logical.Y.name());
             } else {
                 userDto.setIsAnonymous(Optional.ofNullable(orderFulfillment.getAnonimous())
-                        .orElse(0)==0?"N":"Y");
+                        .orElse("0").equals("0") ?"N":"Y");
             }
 
             orderDto.setUser(userDto);

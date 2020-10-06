@@ -573,7 +573,7 @@ public class ObjectToMapper {
             client.setEmail(o.getEmail());
             client.setPhone(o.getPhone());
             client.setBirthDate(o.getBirthDate());
-            client.setAnonimous(o.getAnonimous());
+            client.setAnonimous(Optional.ofNullable(o.getAnonimous()).map(Integer::parseInt).orElse(0));
             client.setUserId(o.getUserId());
             client.setNewUserId(o.getNewUserId());
             client.setNotificationToken(o.getNotificationToken());
