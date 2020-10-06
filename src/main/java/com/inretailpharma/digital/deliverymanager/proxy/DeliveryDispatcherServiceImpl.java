@@ -206,6 +206,8 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                                             InsinkResponseCanonical dispatcherResponse = cr.getBody();
                                             StatusDispatcher statusDispatcher = cr.getStatus();
 
+                                            log.info("body:{}, status:{}",dispatcherResponse, statusDispatcher);
+
                                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                                             Constant.OrderStatus orderStatusUtil = Constant
                                                     .OrderStatus
