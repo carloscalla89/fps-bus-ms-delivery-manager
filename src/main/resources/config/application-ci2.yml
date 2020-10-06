@@ -19,12 +19,12 @@ external-service:
     tracker:
       uri: http://us-dd/order/tracker
       uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/tracker
-      connect-timeout: 240000
+      connect-timeout: 30000
       read-timeout: 480
     legacy-system:
       uri: http://us-dd/order/legacy-system
       uri-mifarma: http://ddmfci02.backend.cindyinkafarma.com/order/legacy-system
-      connect-timeout: 240000
+      connect-timeout: 30000
       read-timeout: 480
   inkatracker-lite:
     create-order:

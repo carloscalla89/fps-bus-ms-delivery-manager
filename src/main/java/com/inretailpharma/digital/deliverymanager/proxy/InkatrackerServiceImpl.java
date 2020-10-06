@@ -225,6 +225,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             OrderStatusCanonical orderStatus;
 
                             if (clientResponse.statusCode().is2xxSuccessful()) {
+
                                 orderCanonical.setTrackerId(order.getEcommerceId());
                                 orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.CONFIRMED_TRACKER.getCode(), null);
 
