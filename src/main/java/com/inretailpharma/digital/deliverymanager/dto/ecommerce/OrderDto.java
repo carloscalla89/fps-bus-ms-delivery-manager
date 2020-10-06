@@ -49,25 +49,6 @@ public class OrderDto {
     @Min(0)
     private Double amount;
     private String marketplaceName;
+    private String deliveryServiceName;
 
-    @Override
-    public String toString() {
-        return "OrderDto{" +
-                "id='" + id + '\'' +
-                ", dateCreated=" + dateCreated +
-                ", source='" + source + '\'' +
-                ", companyCode='" + companyCode + '\'' +
-                ", user=" + user +
-                ", paymentMethod=" + paymentMethod +
-                ", receipt=" + receipt +
-                ", deliveryAddress=" + deliveryAddress +
-                ", paymentAmountDto=" + paymentAmountDto +
-                ", items=" + items +
-                ", creditCardProviderId=" + creditCardProviderId +
-                ", discountApplied=" + discountApplied +
-                ", deliveryType='" + deliveryType + '\'' +
-                ", amount=" + amount +
-                ", marketplaceName='" + marketplaceName + '\'' +
-                '}';
-    }
 }
