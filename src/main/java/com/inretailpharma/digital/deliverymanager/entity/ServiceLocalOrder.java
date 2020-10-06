@@ -50,4 +50,10 @@ public class ServiceLocalOrder {
     @Column(name="company_code")
     private String companyCode;
 
+    @Column(name="district_code_billing")
+    private String districtCodeBilling;
+
+    @Column(name="zone_id_billing")
+    private Long zoneIdBilling;
+
 }

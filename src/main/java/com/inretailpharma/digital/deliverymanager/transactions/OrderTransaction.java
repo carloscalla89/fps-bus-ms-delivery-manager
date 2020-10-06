@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -133,7 +134,23 @@ public class OrderTransaction {
                 .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
         
         Optional.ofNullable(orderDto.getSchedules())
-        		.ifPresent(s -> serviceLocalOrder.setLeadTime(s.getLeadTime()));
+        		.ifPresent(s -> {
+                    serviceLocalOrder.setLeadTime(s.getLeadTime());
+                    serviceLocalOrder
+                            .setStartHour(Optional.ofNullable(s.getStartHour())
+                            .map(DateUtils::getLocalTimeFromStringWithFormat)
+                            .orElse(null));
+                    serviceLocalOrder
+                            .setEndHour(
+                                    Optional.ofNullable(s.getEndHour())
+                                            .map(DateUtils::getLocalTimeFromStringWithFormat)
+                                            .orElse(null)
+                            );
+                    serviceLocalOrder.setDaysToPickup(s.getDaysToPickup());
+
+                });
+        serviceLocalOrder.setZoneIdBilling(orderDto.getZoneIdBilling());
+        serviceLocalOrder.setDistrictCodeBilling(orderDto.getDistrictCodeBilling());
 
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 

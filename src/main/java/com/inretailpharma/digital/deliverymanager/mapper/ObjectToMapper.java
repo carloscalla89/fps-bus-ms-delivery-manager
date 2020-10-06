@@ -447,7 +447,7 @@ public class ObjectToMapper {
 
         orderFulfillment.setTransactionOrderDate(orderDto.getSchedules().getTransactionVisaOrder());
 
-        // object orderItem
+        // object orderItems
         orderFulfillment.setOrderItem(
                 orderDto.getOrderItem().stream().map(r -> {
                     OrderFulfillmentItem orderFulfillmentItem = new OrderFulfillmentItem();
