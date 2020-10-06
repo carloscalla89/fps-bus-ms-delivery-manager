@@ -55,6 +55,7 @@ public class ObjectToMapper {
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
         orderInkatrackerCanonical.setOrderExternalId(orderCanonical.getEcommerceId());
         orderInkatrackerCanonical.setLocalCode(orderCanonical.getLocalCode());
+        orderInkatrackerCanonical.setCompanyCode(orderCanonical.getCompanyCode());
         Optional.ofNullable(orderCanonical.getOrderDetail())
                 .filter(r -> r.getCreatedOrder() != null)
                 .ifPresent(r -> orderInkatrackerCanonical.setDateCreated(

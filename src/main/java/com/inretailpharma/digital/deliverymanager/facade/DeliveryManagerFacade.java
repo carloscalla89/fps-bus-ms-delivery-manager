@@ -159,7 +159,7 @@ public class DeliveryManagerFacade {
                                     orderCanonical.setLocalDescription(r.getDescription());
                                     orderCanonical.setLocalLatitude(r.getLatitude());
                                     orderCanonical.setLocalLongitude(r.getLongitude());
-
+                                    orderCanonical.setCompanyCode(r.getCompanyCode());
                                     return Mono.just(orderCanonical);
 
                                 })
