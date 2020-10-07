@@ -63,7 +63,7 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setDateCreated(Timestamp.valueOf(iOrderFulfillment.getCreatedOrder()).getTime());
         orderInkatrackerCanonical.setMaxDeliveryTime(
                 Timestamp.valueOf(
-                        iOrderFulfillment.getConfirmedSchedule()
+                        iOrderFulfillment.getScheduledTime()
                                 .plusMinutes(iOrderFulfillment.getLeadTime())
                 ).getTime()
         );
@@ -98,10 +98,10 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setReceipt(getReceiptFromOrderCanonical(iOrderFulfillment));
         ScheduledCanonical scheduledCanonical = new ScheduledCanonical();
         scheduledCanonical.setStartDate(
-                Timestamp.valueOf(iOrderFulfillment.getConfirmedSchedule()).getTime()
+                Timestamp.valueOf(iOrderFulfillment.getScheduledTime()).getTime()
         );
         scheduledCanonical.setEndDate(
-                Timestamp.valueOf(iOrderFulfillment.getConfirmedSchedule()
+                Timestamp.valueOf(iOrderFulfillment.getScheduledTime()
                         .plusMinutes(iOrderFulfillment.getLeadTime())
                 ).getTime()
         );
@@ -205,7 +205,7 @@ public class ObjectToMapper {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
         orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusInkatracker.getByActionName(status).getStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
-                Timestamp.valueOf(iOrderFulfillment.getConfirmedOrder()).getTime()
+                Timestamp.valueOf(iOrderFulfillment.getScheduledTime()).getTime()
         );
         orderStatusInkatrackerCanonical.setDescription(status);
 

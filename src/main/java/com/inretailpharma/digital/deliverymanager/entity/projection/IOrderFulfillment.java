@@ -20,7 +20,6 @@ public interface IOrderFulfillment {
 
     LocalDateTime getCreatedOrder();
     LocalDateTime getScheduledTime();
-    LocalDateTime getConfirmedSchedule();
     LocalDateTime getConfirmedOrder();
     String getTransactionOrderDate();
 
