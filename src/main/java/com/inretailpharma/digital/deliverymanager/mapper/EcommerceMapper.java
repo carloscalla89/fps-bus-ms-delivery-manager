@@ -25,7 +25,6 @@ public class EcommerceMapper {
         OrderDto orderDto = new OrderDto();
 
         if (Objects.nonNull(orderFulfillment)) {
-
             orderDto.setId(String.valueOf(orderFulfillment.getEcommerceId()));
             orderDto.setSource(orderFulfillment.getSource());
             orderDto.setDateCreated(Date.from(orderFulfillment.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant()));
