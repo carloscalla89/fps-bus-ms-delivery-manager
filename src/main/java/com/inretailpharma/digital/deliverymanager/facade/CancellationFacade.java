@@ -112,9 +112,10 @@ public class CancellationFacade {
                                 orderCancelledCanonical.setExternalId(r.getExternalId());
                                 orderCancelledCanonical.setCompany(r.getCompanyCode());
                                 orderCancelledCanonical.setLocalCode(r.getCenterCode());
-
                                 Optional.ofNullable(r.getScheduledTime())
                                         .ifPresent(st -> orderCancelledCanonical.setConfirmedSchedule(DateUtils.getLocalDateTimeWithFormat(st)));
+
+                                orderCancelledCanonical.setLocal(r.getCenterName());
 
                                 orderCancelledCanonical.setServiceCode(r.getServiceTypeCode());
                                 orderCancelledCanonical.setServiceName(r.getServiceTypeName());
