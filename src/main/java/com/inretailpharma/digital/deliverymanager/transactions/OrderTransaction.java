@@ -137,13 +137,16 @@ public class OrderTransaction {
         		.ifPresent(s -> {
                     serviceLocalOrder.setLeadTime(s.getLeadTime());
                     serviceLocalOrder
-                            .setStartHour(Optional.ofNullable(s.getStartHour())
-                            .map(DateUtils::getLocalTimeFromStringWithFormat)
+                            .setStartHour(
+                                    Optional.ofNullable(s.getStartHour())
+                                            .filter(sh -> DateUtils.getLocalTimeWithValidFormat(sh) != null)
+                                            .map(DateUtils::getLocalTimeWithValidFormat)
                             .orElse(null));
                     serviceLocalOrder
                             .setEndHour(
                                     Optional.ofNullable(s.getEndHour())
-                                            .map(DateUtils::getLocalTimeFromStringWithFormat)
+                                            .filter(sh -> DateUtils.getLocalTimeWithValidFormat(sh) != null)
+                                            .map(DateUtils::getLocalTimeWithValidFormat)
                                             .orElse(null)
                             );
                     serviceLocalOrder.setDaysToPickup(s.getDaysToPickup());
