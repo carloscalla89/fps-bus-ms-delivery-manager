@@ -1,8 +1,11 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -99,8 +102,18 @@ public class DeliveryManagerFacade {
                                 Constant.TrackerImplementation.getByCode(r.getOrderDetail().getServiceCode()).getName()
                         );
 
+                        IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(r.getEcommerceId());
+                        List<IOrderItemFulfillment> listItems = orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId());
+                        StoreCenterCanonical storeCenterCanonical = objectToMapper.getStoreCenterFromOrderCanonical(r);
+
                         return orderExternalServiceTracker
-                                .sendOrderToTracker(r)
+                                .sendOrderToTracker(
+                                        iOrderFulfillment,
+                                        listItems,
+                                        storeCenterCanonical,
+                                        iOrderFulfillment.getExternalId(),
+                                        Constant.OrderStatusInkatracker.CREATE_ORDER.name()
+                                )
                                 .flatMap(s -> {
 
                                     orderTransaction.updateOrderRetryingTracker(
@@ -147,29 +160,16 @@ public class DeliveryManagerFacade {
 
                         return centerCompanyService
                                 .getExternalInfo(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
-                                .flatMap(r -> {
-                                    OrderCanonical orderCanonical =  objectToMapper
-                                            .convertIOrderDtoToAndItemOrderFulfillmentCanonical(
-                                                    iOrderFulfillment,
-                                                    orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId())
-                                            );
-                                    orderCanonical.setLocalId(r.getLegacyId());
-                                    orderCanonical.setLocalCode(r.getLocalCode());
-                                    orderCanonical.setLocal(r.getName());
-                                    orderCanonical.setLocalDescription(r.getDescription());
-                                    orderCanonical.setLocalLatitude(r.getLatitude());
-                                    orderCanonical.setLocalLongitude(r.getLongitude());
-                                    orderCanonical.setCompanyCode(r.getCompanyCode());
-                                    return Mono.just(orderCanonical);
-
-                                })
-                                .flatMap(r ->{
+                                .flatMap(storeCenterCanonical ->{
                                     // creando la orden a tracker
 
-                                    r.setAction(action.name()); // set action to return the status at some tracker
-
                                     return orderServiceTracker
-                                            .sendOrderToTracker(r)
+                                            .sendOrderToTracker(
+                                                    iOrderFulfillment,
+                                                    orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
+                                                    storeCenterCanonical,
+                                                    iOrderFulfillment.getExternalId(),
+                                                    action.name())
                                             .flatMap(s -> {
                                                 OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
                                                 return Mono.just(orderCanonical);
@@ -219,15 +219,18 @@ public class DeliveryManagerFacade {
                                                                                             .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
                                                                                     ).isSuccess())) {
 
-                                                                                OrderCanonical order = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
-                                                                                order.setExternalId(orderResp.getExternalId());
-
                                                                                 OrderExternalService serviceTracker = (OrderExternalService)context.getBean(
                                                                                         Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
                                                                                 );
 
                                                                                 return serviceTracker
-                                                                                        .sendOrderToTracker(order)
+                                                                                        .sendOrderToTracker(
+                                                                                                iOrderFulfillment,
+                                                                                                orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
+                                                                                                storeCenterCanonical,
+                                                                                                orderResp.getExternalId(),
+                                                                                                action.name()
+                                                                                        )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 
                                                                             } else {

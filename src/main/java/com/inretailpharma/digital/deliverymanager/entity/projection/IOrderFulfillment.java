@@ -12,7 +12,9 @@ public interface IOrderFulfillment {
     Long getExternalId();
     Integer getPurchaseId();
 
+
     BigDecimal getTotalCost();
+    BigDecimal getSubTotalCost();
     BigDecimal getDeliveryCost();
     BigDecimal getDiscountApplied();
 
@@ -50,6 +52,7 @@ public interface IOrderFulfillment {
     String getStatusType();
     String getStatusDetail();
 
+    String getServiceTypeShortCode();
     String getServiceTypeCode();
     String getServiceTypeName();
     String getServiceType();

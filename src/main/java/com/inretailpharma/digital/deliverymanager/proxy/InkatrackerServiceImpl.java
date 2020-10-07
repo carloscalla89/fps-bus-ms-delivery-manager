@@ -1,8 +1,11 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.InvoicedOrderCanonical;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderTrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderTrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
@@ -183,16 +186,21 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical order) {
-        log.info("[START] Create Order To Tracker - orderCanonical:{}",order);
-
+    public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
+                                                   List<IOrderItemFulfillment> itemFulfillments,
+                                                   StoreCenterCanonical storeCenterCanonical,
+                                                   Long externalId, String status) {
         return Mono
-                .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(order))
+                .just(objectToMapper
+                            .convertOrderToOrderInkatrackerCanonical(
+                                    iOrderFulfillment, itemFulfillments, storeCenterCanonical, externalId, status
+                            )
+                )
                 .flatMap(b -> {
 
-                log.info("Order prepared to send inkatracker - orderInkatracker:{}",b);
+                    log.info("Order prepared to send inkatracker - orderInkatracker:{}",b);
 
-                log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
+                    log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
 
                     HttpClient httpClient = HttpClient.create()
                             .tcpConfiguration(tcpClient -> {
@@ -205,91 +213,72 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                     // create a client http connector using above http client
                     ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
 
+                    return WebClient
+                            .builder()
+                            .clientConnector(connector)
+                            .baseUrl(externalServicesProperties.getInkatrackerCreateOrderUri())
+                            .build()
+                            .post()
+                            .body(Mono.just(b), OrderInkatrackerCanonical.class)
+                            .exchange()
+                            .flatMap(clientResponse -> {
+                                log.info("response:{}", clientResponse.statusCode());
 
-                return WebClient
-                        .builder()
-                        .clientConnector(connector)
-                        .baseUrl(externalServicesProperties.getInkatrackerCreateOrderUri())
-                        .build()
-                        .post()
-                        .body(Mono.just(b), OrderInkatrackerCanonical.class)
-                        .exchange()
-                        .flatMap(clientResponse -> {
-                            log.info("response:{}", clientResponse.statusCode());
+                                OrderCanonical orderCanonical = new OrderCanonical();
+                                orderCanonical.setId(iOrderFulfillment.getOrderId());
+                                orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                                orderCanonical.setExternalId(iOrderFulfillment.getExternalId());
 
-                            OrderCanonical orderCanonical = new OrderCanonical();
-                            orderCanonical.setId(order.getId());
-                            orderCanonical.setEcommerceId(order.getEcommerceId());
-                            orderCanonical.setExternalId(order.getExternalId());
+                                OrderStatusCanonical orderStatus;
 
-                            OrderStatusCanonical orderStatus;
+                                if (clientResponse.statusCode().is2xxSuccessful()) {
 
-                            if (clientResponse.statusCode().is2xxSuccessful()) {
+                                    orderCanonical.setTrackerId(iOrderFulfillment.getEcommerceId());
+                                    orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.CONFIRMED_TRACKER.getCode(), null);
 
-                                orderCanonical.setTrackerId(order.getEcommerceId());
-                                orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.CONFIRMED_TRACKER.getCode(), null);
+                                    orderCanonical.setOrderStatus(orderStatus);
+
+                                    log.info("orderCanonical RESPONSE from inkatracker:{}",orderCanonical);
+                                    return Mono.just(orderCanonical);
+                                } else {
+                                    return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
+                                        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                        dataBuffer.read(bytes);
+                                        DataBufferUtils.release(dataBuffer);
+                                        return bytes;
+                                    })
+                                            .defaultIfEmpty(new byte[0])
+                                            .flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
+                                                    +":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
+                                                    clientResponse.statusCode().value()))
+                                            );
+
+                                }
+                            })
+                            .defaultIfEmpty(
+                                    new OrderCanonical(
+                                            iOrderFulfillment.getOrderId(),
+                                            iOrderFulfillment.getEcommerceId(),
+                                            objectToMapper.getOrderStatusErrorCancel(
+                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(), "Result inkatracker is empty")
+                                    )
+                            )
+                            .onErrorResume(e -> {
+                                e.printStackTrace();
+                                log.error("Error in inkatracker call {} ",e.getMessage());
+                                OrderCanonical orderCanonical = new OrderCanonical();
+                                orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                                orderCanonical.setId(iOrderFulfillment.getOrderId());
+                                OrderStatusCanonical orderStatus = objectToMapper
+                                        .getOrderStatusErrorCancel(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(), e.getMessage());
 
                                 orderCanonical.setOrderStatus(orderStatus);
 
-                                log.info("orderCanonical RESPONSE from inkatracker:{}",orderCanonical);
                                 return Mono.just(orderCanonical);
-                            } else {
-                                return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
-                                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                                    dataBuffer.read(bytes);
-                                    DataBufferUtils.release(dataBuffer);
-                                    return bytes;
-                                })
-                                        .defaultIfEmpty(new byte[0])
-                                        .flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
-                                                +":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
-                                                clientResponse.statusCode().value()))
-                                        );
+                            });
 
-                            }
-                        })
-                        .defaultIfEmpty(
-                                new OrderCanonical(
-                                        order.getId(),
-                                        order.getEcommerceId(),
-                                        objectToMapper.getOrderStatusErrorCancel(
-                                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(), "Result inkatracker is empty")
-                                )
-                        )
-                        .onErrorResume(e -> {
-                            e.printStackTrace();
-                            log.error("Error in inkatracker call {} ",e.getMessage());
-                            OrderCanonical orderCanonical = new OrderCanonical();
-                            orderCanonical.setEcommerceId(order.getEcommerceId());
-                            orderCanonical.setId(order.getId());
-                            OrderStatusCanonical orderStatus = objectToMapper
-                                    .getOrderStatusErrorCancel(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(), e.getMessage());
-
-                            orderCanonical.setOrderStatus(orderStatus);
-
-                            return Mono.just(orderCanonical);
-                        });
-
-            });
-    }
+                });
 
 
-    private OrderStatusCanonical getOrderStatusErrorCancel(String code, String errorDetail) {
-
-        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-
-
-        if (code.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode())) {
-            orderStatus.setCode(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.getCode());
-            orderStatus.setName(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name());
-        } else {
-            orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-            orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_TRACKER.name());
-        }
-
-        orderStatus.setDetail(errorDetail);
-        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-        return orderStatus;
     }
 }

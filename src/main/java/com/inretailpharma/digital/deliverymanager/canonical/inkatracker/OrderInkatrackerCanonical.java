@@ -12,6 +12,7 @@ public class OrderInkatrackerCanonical {
     private OrderStatusInkatrackerCanonical orderStatus;
     private Long inkaDeliveryId;
     private String source;
+    private String callSource;
     private Long dateCreated;
     private Integer deliveryService;
     private Long maxDeliveryTime;
@@ -48,6 +49,9 @@ public class OrderInkatrackerCanonical {
     private DrugstoreCanonical drugstoreSource;
     private boolean assignedDrugstoreNew;
     private String priority;
+    private String newUserId;
+    private Long deliveryServiceId;
+    private String purchaseId;
     private List<InvoicedOrderCanonical> invoicedList;
 
 }

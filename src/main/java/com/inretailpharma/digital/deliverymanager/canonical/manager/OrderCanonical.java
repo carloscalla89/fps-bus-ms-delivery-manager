@@ -80,6 +80,7 @@ public class OrderCanonical {
     private String localAddress;
     private BigDecimal localLongitude;
     private BigDecimal localLatitude;
+    private String inkaVentaId;
     private Long localId;
 
     // canonical client

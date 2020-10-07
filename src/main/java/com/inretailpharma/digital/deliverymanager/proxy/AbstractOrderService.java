@@ -42,9 +42,18 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
+
 	@Override
-	public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
-		throw new UnsupportedOperationException();
+	public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
+												   List<IOrderItemFulfillment> itemFulfillments,
+												   StoreCenterCanonical storeCenterCanonical,
+												   Long externalId, String action) {
+		return null;
+	}
+
+	@Override
+	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical) {
+		return null;
 	}
 
 	@Override

@@ -2,12 +2,15 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoInkatrackerLiteCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -24,6 +27,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.TcpClient;
+
+import java.util.List;
 
 @Slf4j
 @Service("inkatrackerlite")
@@ -49,11 +54,15 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
 
     @Override
-    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical order) {
-        log.info("[START] Create Order To Tracker - orderCanonical:{}",order);
+    public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
+                                                   List<IOrderItemFulfillment> itemFulfillments,
+                                                   StoreCenterCanonical storeCenterCanonical,
+                                                   Long externalId, String status) {
 
         return Mono
-                .just(objectToMapper.convertOrderToOrderInfoCanonical(order))
+                .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
+                        storeCenterCanonical, externalId, status)
+                )
                 .flatMap(b -> {
 
                     try {
@@ -90,14 +99,14 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                         clientResponse.statusCode().getReasonPhrase());
 
                                 OrderCanonical orderCanonical = new OrderCanonical();
-                                orderCanonical.setId(order.getId());
-                                orderCanonical.setEcommerceId(order.getEcommerceId());
-                                orderCanonical.setExternalId(order.getExternalId());
+                                orderCanonical.setId(iOrderFulfillment.getOrderId());
+                                orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                                orderCanonical.setExternalId(externalId);
 
                                 OrderStatusCanonical orderStatus;
 
                                 if (clientResponse.statusCode().is2xxSuccessful()) {
-                                    orderCanonical.setTrackerId(order.getEcommerceId());
+                                    orderCanonical.setTrackerId(iOrderFulfillment.getEcommerceId());
                                     orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.CONFIRMED_TRACKER.getCode(),
                                             null);
 
@@ -125,8 +134,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             })
                             .defaultIfEmpty(
                                     new OrderCanonical(
-                                            order.getId(),
-                                            order.getEcommerceId(),
+                                            iOrderFulfillment.getOrderId(),
+                                            iOrderFulfillment.getEcommerceId(),
                                             objectToMapper.getOrderStatusErrorCancel(
                                                     Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.getCode(), "Result inkatracker-lite is empty")
                                     )
@@ -135,8 +144,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                 e.printStackTrace();
                                 log.error("Error in inkatracker LITE call {} ",e.getMessage());
                                 OrderCanonical orderCanonical = new OrderCanonical();
-                                orderCanonical.setEcommerceId(order.getEcommerceId());
-                                orderCanonical.setId(order.getId());
+                                orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                                orderCanonical.setId(iOrderFulfillment.getOrderId());
                                 OrderStatusCanonical orderStatus = objectToMapper
                                         .getOrderStatusErrorCancel(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(), e.getMessage());
 
@@ -146,7 +155,9 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             });
 
                 }).doOnSuccess((f) ->  log.info("[END] Create Order To Tracker lite- orderCanonical:{}",f));
+
     }
+
 
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {

@@ -6,6 +6,7 @@ import lombok.Data;
 public class OrderItemInkatrackerCanonical {
 
     private String sku;
+    private String productId;
     private String sap;
     private String name;
     private String shortDescription;

@@ -74,7 +74,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "s.order_status_code as statusCode, s.attempt as attempt, s.attempt_tracker as attemptTracker, " +
             "s.center_code as centerCode, s.company_code as companyCode, " +
             "s.zone_id_billing as zoneId, s.district_code_billing as districtCode, s.days_to_pickup as daysPickup, " +
-            "st.code as serviceTypeCode, st.name as serviceTypeName, st.enabled as serviceEnabled," +
+            "st.code as serviceTypeCode, st.short_code as serviceTypeShortCode,  st.name as serviceTypeName, st.enabled as serviceEnabled," +
             "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
             "pm.change_amount as changeAmount, pm.card_provider_id as cardProviderId, pm.card_provider_code as cardProviderCode," +
             "pm.bin, pm.coupon," +
@@ -94,11 +94,12 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
-    @Query(value ="select oi.order_fulfillment_id as orderFulfillmentId,oi.product_code as productCode, oi.product_sap_code as productSapCode, oi.name as nameProduct," +
-            "oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, oi.unit_price as unitPrice," +
-            "oi.total_price as totalPrice, oi.fractionated, " +
+    @Query(value ="select oi.order_fulfillment_id as orderFulfillmentId,oi.product_code as productCode, oi.product_sap_code as productSapCode, " +
+            "oi.name as nameProduct, oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, " +
+            "oi.unit_price as unitPrice, oi.total_price as totalPrice, oi.fractionated, oi.value_UMV as valueUmv, " +
             "oi.ean_code as eanCode, oi.presentation_id as presentationId, oi.presentation_description as presentationDescription, " +
-            "oi.quantity_units as quantityUnits, oi.quantity_presentation as quantityPresentation " +
+            "oi.quantity_units as quantityUnits, oi.quantity_presentation as quantityPresentation, oi.quantity_unit_minimium as quantityUnitMinimium," +
+            "oi.family_type as familyType, oi.fractionated_price as fractionatedPrice " +
             "from order_fulfillment_item oi " +
             "where oi.order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true

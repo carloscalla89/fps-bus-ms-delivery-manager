@@ -192,7 +192,7 @@ public class TrackerFacade {
 		orderCanonical.setOrderStatus(null);
 
 		return orderExternalOrderTracker
-				.sendOrderToTracker(orderCanonical)
+				.sendOrderToOrderTracker(orderCanonical)
 				.flatMap(resp -> {
 					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
 					response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);

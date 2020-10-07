@@ -24,5 +24,6 @@ public interface IOrderItemFulfillment {
     Integer getQuantityUnitMinimium();
     String getQuantityPresentation();
     String getFamilyType();
+    Integer getValueUmv();
 
 }
