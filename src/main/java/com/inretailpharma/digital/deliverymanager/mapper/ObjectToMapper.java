@@ -285,6 +285,7 @@ public class ObjectToMapper {
                         .orElse("0").equalsIgnoreCase("0")?"N":"Y"
         );
         clientInkatrackerCanonical.setUserId(clientCanonical.getUserId());
+        clientInkatrackerCanonical.setJoinIdentifierId(clientCanonical.getNewUserId());
         clientInkatrackerCanonical.setNotificationToken(clientCanonical.getNotificationToken());
         return clientInkatrackerCanonical;
     }
