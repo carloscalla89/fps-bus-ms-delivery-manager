@@ -25,7 +25,7 @@ external-service:
       uri: http://us-dd/order/legacy-system
       uri-mifarma: http://ddmfci02.backend.cindyinkafarma.com/order/legacy-system
       connect-timeout: 30000
-      read-timeout: 480
+      read-timeout: 60000
   inkatracker-lite:
     create-order:
       uri: http://us-inkatrackerlite/nvr/orders/create
@@ -39,7 +39,7 @@ external-service:
     create-order:
       uri: http://us-inkatracker/nvr/orders/create
       connect-timeout: 30000
-      read-timeout: 480
+      read-timeout: 60000
     update-order:
       uri: http://us-inkatracker/nvr/orders/create
       connect-timeout: 30000
