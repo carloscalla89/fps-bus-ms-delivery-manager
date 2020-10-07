@@ -11,6 +11,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -132,6 +133,7 @@ public class EcommerceMapper {
             orderDto.setId(String.valueOf(orderFulfillment.getEcommerceId()));
             orderDto.setSource(orderFulfillment.getSource());
             orderDto.setDateCreated(Date.from(orderFulfillment.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant()));
+            orderDto.setOrderDate(Date.from(orderFulfillment.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant()));
             orderDto.setDiscountApplied(
                     Optional.ofNullable(orderFulfillment.getDiscountApplied())
                             .map(BigDecimal::doubleValue)
@@ -194,6 +196,12 @@ public class EcommerceMapper {
                 paymentMethodDto.setName(
                         PaymentMethod.PaymentType.getPaymentTypeByNameType(orderFulfillment.getPaymentType()).getDescription()
                 );
+                paymentMethodDto.setBin(orderFulfillment.getBin());
+                paymentMethodDto.setCardProvider(orderFulfillment.getCardProvider());
+                paymentMethodDto.setCardProviderId(orderFulfillment.getCardProviderId());
+                paymentMethodDto.setCardProviderCode(orderFulfillment.getCardProviderCode());
+                paymentMethodDto.setBin(orderFulfillment.getBin());
+                paymentMethodDto.setCoupon(orderFulfillment.getCoupon());
             }
 
             orderDto.setPaymentMethod(paymentMethodDto);
@@ -259,6 +267,8 @@ public class EcommerceMapper {
 
             orderDto.setZoneId(orderFulfillment.getZoneId());
             orderDto.setDistrictCode(orderFulfillment.getDistrictCode());
+            orderDto.setDeliveryTime(orderFulfillment.getLeadTime());
+            orderDto.setCompanyCode(orderFulfillment.getCompanyCode());
         }
 
         return orderDto;

@@ -519,9 +519,14 @@ public class ObjectToMapper {
                         .PaymentType
                         .getPaymentTypeByNameType(orderDto.getPayment().getType())
         );
+        paymentMethod.setBin(orderDto.getPayment().getBin());
+        paymentMethod.setCardProviderId(orderDto.getPayment().getCardProviderId());
         paymentMethod.setCardProvider(orderDto.getPayment().getCardProvider());
+        paymentMethod.setCardProviderCode(orderDto.getPayment().getCardProviderCode());
         paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
+        paymentMethod.setCoupon(orderDto.getPayment().getCoupon());
+
         orderFulfillment.setPaymentMethod(paymentMethod);
 
         // object receipt

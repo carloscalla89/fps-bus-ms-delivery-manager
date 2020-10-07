@@ -56,7 +56,11 @@ public interface IOrderFulfillment {
     String getServiceEnabled();
 
     String getPaymentType();
+    Integer getCardProviderId();
     String getCardProvider();
+    String getCardProviderCode();
+    String getBin();
+    String getCoupon();
     BigDecimal getPaidAmount();
     BigDecimal getChangeAmount();
 
@@ -86,4 +90,5 @@ public interface IOrderFulfillment {
 
     String getDistrictCode();
     Long getZoneId();
+    Integer getDaysPickup();
 }

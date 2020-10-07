@@ -60,5 +60,4 @@ public class OrderDto {
     private String districtCodeBilling;
     private Long zoneIdBilling;
 
-
 }

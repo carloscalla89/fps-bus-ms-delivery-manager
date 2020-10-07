@@ -17,6 +17,8 @@ public class OrderDto {
     private String id;
     @NotNull
     private Date dateCreated;
+    @NotNull
+    private Date orderDate;
     @NotBlank
     private String source;
     @NotBlank
@@ -55,5 +57,6 @@ public class OrderDto {
 
     private Long zoneId;
     private String districtCode;
+    private Integer deliveryTime;
 
 }

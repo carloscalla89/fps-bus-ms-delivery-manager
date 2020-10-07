@@ -15,8 +15,17 @@ public class PaymentMethod {
     @Column(table = "payment_method", name="payment_type")
     private PaymentType paymentType;
 
+    @Column(table = "payment_method", name="card_provider_id")
+    private Integer cardProviderId;
+
+    @Column(table = "payment_method", name="card_provider_code")
+    private String cardProviderCode;
+
     @Column(table = "payment_method", name="card_provider")
     private String cardProvider;
+
+    @Column(table = "payment_method", name="bin")
+    private String bin;
 
     @Column(table = "payment_method", name="card_name")
     private String cardName;
@@ -32,6 +41,9 @@ public class PaymentMethod {
 
     @Column(table = "payment_method", name="payment_note")
     private String paymentNote;
+
+    @Column(table = "payment_method", name="coupon")
+    private String coupon;
 
     public enum PaymentType {
 
