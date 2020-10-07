@@ -227,7 +227,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                 OrderCanonical orderCanonical = new OrderCanonical();
                                 orderCanonical.setId(iOrderFulfillment.getOrderId());
                                 orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                                orderCanonical.setExternalId(iOrderFulfillment.getExternalId());
+                                orderCanonical.setExternalId(externalId);
 
                                 OrderStatusCanonical orderStatus;
 
