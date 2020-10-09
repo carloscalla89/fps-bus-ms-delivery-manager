@@ -304,7 +304,9 @@ public class ObjectToMapper {
         AddressInkatrackerCanonical addressInkatrackerCanonical = new AddressInkatrackerCanonical();
         addressInkatrackerCanonical.setName(addressCanonical.getAddressName());
 
-        if (addressCanonical.getServiceTypeShortCode().equalsIgnoreCase("RET")) {
+        if (Optional
+                .ofNullable(addressCanonical.getServiceTypeShortCode())
+                .orElse("RAD").equalsIgnoreCase("RET")) {
             addressInkatrackerCanonical.setLatitude(
                     Optional.ofNullable(centerCanonical.getLatitude())
                             .orElse((BigDecimal.ZERO)).doubleValue());
@@ -339,7 +341,7 @@ public class ObjectToMapper {
         clientInkatrackerCanonical.setDni(clientCanonical.getDocumentNumber());
         clientInkatrackerCanonical.setEmail(clientCanonical.getEmail());
         clientInkatrackerCanonical.setFirstName(clientCanonical.getFirstName());
-        clientInkatrackerCanonical.setLastName(clientCanonical.getLastName());
+        clientInkatrackerCanonical.setLastName(Optional.ofNullable(clientCanonical.getLastName()).orElse(StringUtils.EMPTY));
         clientInkatrackerCanonical.setPhone(clientCanonical.getPhone());
         clientInkatrackerCanonical.setIsAnonymous(
                 Optional.ofNullable(clientCanonical.getAnonimous())
