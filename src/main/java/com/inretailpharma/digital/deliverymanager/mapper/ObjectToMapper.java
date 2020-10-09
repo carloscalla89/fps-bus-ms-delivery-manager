@@ -138,6 +138,8 @@ public class ObjectToMapper {
         storeCenterCanonical.setInkaVentaId(orderCanonical.getInkaVentaId());
         storeCenterCanonical.setLatitude(orderCanonical.getLocalLatitude());
         storeCenterCanonical.setLongitude(orderCanonical.getLocalLongitude());
+        storeCenterCanonical.setLocalCode(orderCanonical.getLocalCode());
+        storeCenterCanonical.setCompanyCode(orderCanonical.getCompanyCode());
 
         return storeCenterCanonical;
 
@@ -743,6 +745,7 @@ public class ObjectToMapper {
 
         // set local and company names;
         orderCanonical.setCompany(orderWrapperResponse.getCompanyCode());
+        orderCanonical.setCompanyCode(orderWrapperResponse.getCompanyCode());
         orderCanonical.setLocal(orderWrapperResponse.getLocalName());
         orderCanonical.setLocalCode(orderWrapperResponse.getLocalCode());
         orderCanonical.setLocalDescription(orderWrapperResponse.getLocalDescription());

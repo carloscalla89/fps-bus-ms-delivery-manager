@@ -145,6 +145,8 @@ public class OrderTransaction {
         orderWrapperResponse.setLocalLatitude(centerCompanyCanonical.getLatitude());
         orderWrapperResponse.setLocalLongitude(centerCompanyCanonical.getLongitude());
 
+
+
         log.info("[END] createOrderReactive");
         return orderWrapperResponse;
     }
