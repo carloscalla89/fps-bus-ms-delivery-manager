@@ -14,6 +14,8 @@ public class OrderInkatrackerCanonical {
     private String source;
     private String callSource;
     private Long dateCreated;
+    private Long startDate;
+    private Long endDate;
     private Integer deliveryService;
     private Long maxDeliveryTime;
     private Double deliveryCost;
