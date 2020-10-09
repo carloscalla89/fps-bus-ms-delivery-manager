@@ -265,12 +265,24 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             )
                             .onErrorResume(e -> {
                                 e.printStackTrace();
-                                log.error("Error in inkatracker call {} ",e.getMessage());
+
+                                log.error("Error in inkatracker call {}",e.getMessage());
+
                                 OrderCanonical orderCanonical = new OrderCanonical();
                                 orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
                                 orderCanonical.setId(iOrderFulfillment.getOrderId());
-                                OrderStatusCanonical orderStatus = objectToMapper
-                                        .getOrderStatusErrorCancel(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(), e.getMessage());
+
+                                OrderStatusCanonical orderStatus;
+
+                                if (iOrderFulfillment.getStatusCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode())) {
+
+                                    orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.getCode(), e.getMessage());
+
+                                } else {
+
+                                    orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(), e.getMessage());
+
+                                }
 
                                 orderCanonical.setOrderStatus(orderStatus);
 

@@ -91,8 +91,7 @@ public class DeliveryManagerFacade {
                     return orderCanonicalResponse;
                 })
                 .flatMap(r -> {
-                    log.info("[START] Preparation to send order some tracker with service-detail:{}, status:{} and ecommerceId:{}",
-                            r.getOrderDetail(), r.getOrderStatus(), r.getEcommerceId());
+                    log.info("[START] Preparation to send order:{}",r);
 
                     if (r.getOrderDetail().isServiceEnabled()
                             && (Constant.OrderStatus.getByCode(r.getOrderStatus().getCode()).isSuccess()))
@@ -107,25 +106,25 @@ public class DeliveryManagerFacade {
                         StoreCenterCanonical storeCenterCanonical = objectToMapper.getStoreCenterFromOrderCanonical(r);
 
                         return orderExternalServiceTracker
-                                .sendOrderToTracker(
-                                        iOrderFulfillment,
-                                        listItems,
-                                        storeCenterCanonical,
-                                        iOrderFulfillment.getExternalId(),
-                                        Constant.OrderStatusInkatracker.CREATE_ORDER.name()
-                                )
-                                .flatMap(s -> {
+                                    .sendOrderToTracker(
+                                            iOrderFulfillment,
+                                            listItems,
+                                            storeCenterCanonical,
+                                            iOrderFulfillment.getExternalId(),
+                                            Constant.OrderStatusInkatracker.CREATE_ORDER.name()
+                                    )
+                                    .flatMap(s -> {
 
-                                    orderTransaction.updateOrderRetryingTracker(
-                                            s.getId(), Optional.ofNullable(s.getAttemptTracker()).orElse(0)+1,
-                                            s.getOrderStatus().getCode(), s.getOrderStatus().getDetail(), s.getTrackerId());
+                                        orderTransaction.updateOrderRetryingTracker(
+                                                s.getId(), Optional.ofNullable(s.getAttemptTracker()).orElse(0)+1,
+                                                s.getOrderStatus().getCode(), s.getOrderStatus().getDetail(), s.getTrackerId());
 
-                                    orderExternalServiceAudit
-                                            .updateOrderReactive(s)
-                                            .subscribe(rs -> log.info("result audit:{}",rs));
+                                        orderExternalServiceAudit
+                                                .updateOrderReactive(s)
+                                                .subscribe(rs -> log.info("result audit:{}",rs));
 
-                                    return Mono.just(s);
-                                });
+                                        return Mono.just(s);
+                                    });
 
                     }
                     log.info("[END] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",

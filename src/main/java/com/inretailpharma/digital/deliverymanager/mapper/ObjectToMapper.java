@@ -330,6 +330,11 @@ public class ObjectToMapper {
         addressInkatrackerCanonical.setNotes(addressCanonical.getNotes());
         addressInkatrackerCanonical.setZoneEta(deliveryTime);
 
+        ZoneTrackerCanonical zoneTrackerCanonical = new ZoneTrackerCanonical();
+        zoneTrackerCanonical.setId(addressCanonical.getZoneId());
+
+        addressInkatrackerCanonical.setZone(zoneTrackerCanonical);
+
         return addressInkatrackerCanonical;
     }
 
