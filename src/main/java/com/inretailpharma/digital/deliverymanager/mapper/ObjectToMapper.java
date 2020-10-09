@@ -6,19 +6,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
+import com.inretailpharma.digital.deliverymanager.entity.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.DrugstoreCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderStatusInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PaymentMethodInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PreviousStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ScheduledCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
@@ -29,14 +21,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusC
 import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.entity.Address;
-import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
-import com.inretailpharma.digital.deliverymanager.entity.Client;
-import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillmentItem;
-import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
-import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
-import com.inretailpharma.digital.deliverymanager.entity.ReceiptType;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -73,7 +57,9 @@ public class ObjectToMapper {
 
         orderInkatrackerCanonical.setAddress(getFromtOrderCanonical(
                 iOrderFulfillment,
-                Optional.ofNullable(iOrderFulfillment.getLeadTime()).orElse(0))
+                Optional.ofNullable(iOrderFulfillment.getLeadTime()).orElse(0),
+                storeCenterCanonical
+                )
         );
         orderInkatrackerCanonical.setClient(getFromtOrderCanonical(iOrderFulfillment));
         orderInkatrackerCanonical.setNewUserId(iOrderFulfillment.getNewUserId());
@@ -124,15 +110,18 @@ public class ObjectToMapper {
         );
 
         orderInkatrackerCanonical.setDrugstore(drugstoreCanonical);
-        orderInkatrackerCanonical.setDrugstoreId(orderInkatrackerCanonical.getDrugstoreId());
+        orderInkatrackerCanonical.setDrugstoreId(storeCenterCanonical.getLegacyId());
         orderInkatrackerCanonical.setDeliveryType(iOrderFulfillment.getServiceTypeShortCode());
         orderInkatrackerCanonical.setDeliveryServiceId((long) Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getId());
-
+        orderInkatrackerCanonical.setDrugstoreAddress(storeCenterCanonical.getAddress());
         orderInkatrackerCanonical.setDaysToPickUp(
                 Optional.ofNullable(iOrderFulfillment.getDaysPickup())
                         .map(Object::toString)
                         .orElse("0")
         );
+
+        orderInkatrackerCanonical.setPersonToPickup(getPersonPickupFromtIOrderFulfillment(iOrderFulfillment));
+
 
         return orderInkatrackerCanonical;
     }
@@ -152,6 +141,58 @@ public class ObjectToMapper {
 
         return storeCenterCanonical;
 
+    }
+
+    public ServiceLocalOrder getFromOrderDto(StoreCenterCanonical storeCenterCanonical, OrderDto orderDto) {
+        // Create and set object ServiceLocalOrder
+        ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
+
+        serviceLocalOrder.setCenterCode(storeCenterCanonical.getLocalCode());
+        serviceLocalOrder.setCompanyCode(storeCenterCanonical.getCompanyCode());
+
+
+
+        // Set attempt of attempt to insink and tracker
+        serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
+        serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
+
+
+        Optional
+                .ofNullable(orderDto.getOrderStatusDto())
+                .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
+
+        Optional.ofNullable(orderDto.getSchedules())
+                .ifPresent(s -> {
+                    serviceLocalOrder.setLeadTime(s.getLeadTime());
+                    serviceLocalOrder
+                            .setStartHour(
+                                    Optional.ofNullable(s.getStartHour())
+                                            .filter(sh -> DateUtils.getLocalTimeWithValidFormat(sh) != null)
+                                            .map(DateUtils::getLocalTimeWithValidFormat)
+                                            .orElse(null));
+                    serviceLocalOrder
+                            .setEndHour(
+                                    Optional.ofNullable(s.getEndHour())
+                                            .filter(sh -> DateUtils.getLocalTimeWithValidFormat(sh) != null)
+                                            .map(DateUtils::getLocalTimeWithValidFormat)
+                                            .orElse(null)
+                            );
+                    serviceLocalOrder.setDaysToPickup(s.getDaysToPickup());
+
+                });
+        serviceLocalOrder.setZoneIdBilling(orderDto.getZoneIdBilling());
+        serviceLocalOrder.setDistrictCodeBilling(orderDto.getDistrictCodeBilling());
+
+        Optional.ofNullable(orderDto.getPersonToPickup()).ifPresent(p -> {
+            serviceLocalOrder.setPickupDocumentNumber(p.getIdentityDocumentNumber());
+            serviceLocalOrder.setPickupDocumentType(p.getIdentityDocumentType());
+            serviceLocalOrder.setPickupEmail(p.getEmail());
+            serviceLocalOrder.setPickupFullName(p.getFullName());
+            serviceLocalOrder.setPickupEmail(p.getEmail());
+            serviceLocalOrder.setPickupUserId(p.getUserId());
+        });
+
+        return serviceLocalOrder;
     }
 
     public OrderStatusCanonical getOrderStatusErrorCancel(String code, String errorDetail) {
@@ -246,15 +287,39 @@ public class ObjectToMapper {
 
     }
 
-    private AddressInkatrackerCanonical getFromtOrderCanonical(IOrderFulfillment addressCanonical, Integer deliveryTime) {
+    private PersonToPickupDto getPersonPickupFromtIOrderFulfillment(IOrderFulfillment iOrderFulfillment) {
+        PersonToPickupDto personToPickupDto = new PersonToPickupDto();
+        personToPickupDto.setUserId(iOrderFulfillment.getPickupUserId());
+        personToPickupDto.setEmail(iOrderFulfillment.getPickupEmail());
+        personToPickupDto.setFullName(iOrderFulfillment.getPickupFullName());
+        personToPickupDto.setIdentityDocumentNumber(iOrderFulfillment.getPickupDocumentType());
+        personToPickupDto.setIdentityDocumentType(iOrderFulfillment.getPickupDocumentType());
+        personToPickupDto.setPhone(iOrderFulfillment.getPickupPhone());
+
+        return personToPickupDto;
+    }
+
+    private AddressInkatrackerCanonical getFromtOrderCanonical(IOrderFulfillment addressCanonical, Integer deliveryTime,
+                                                               StoreCenterCanonical centerCanonical) {
         AddressInkatrackerCanonical addressInkatrackerCanonical = new AddressInkatrackerCanonical();
         addressInkatrackerCanonical.setName(addressCanonical.getAddressName());
-        addressInkatrackerCanonical.setLatitude(
-                Optional.ofNullable(addressCanonical.getLatitude())
-                        .orElse((BigDecimal.ZERO)).doubleValue());
-        addressInkatrackerCanonical.setLongitude(
-                Optional.ofNullable(addressCanonical.getLongitude())
-                        .orElse((BigDecimal.ZERO)).doubleValue());
+
+        if (addressCanonical.getServiceTypeShortCode().equalsIgnoreCase("RET")) {
+            addressInkatrackerCanonical.setLatitude(
+                    Optional.ofNullable(centerCanonical.getLatitude())
+                            .orElse((BigDecimal.ZERO)).doubleValue());
+            addressInkatrackerCanonical.setLongitude(
+                    Optional.ofNullable(centerCanonical.getLongitude())
+                            .orElse((BigDecimal.ZERO)).doubleValue());
+        } else {
+            addressInkatrackerCanonical.setLatitude(
+                    Optional.ofNullable(addressCanonical.getLatitude())
+                            .orElse((BigDecimal.ZERO)).doubleValue());
+            addressInkatrackerCanonical.setLongitude(
+                    Optional.ofNullable(addressCanonical.getLongitude())
+                            .orElse((BigDecimal.ZERO)).doubleValue());
+        }
+
         addressInkatrackerCanonical.setCity(addressCanonical.getCity());
         addressInkatrackerCanonical.setDistrict(addressCanonical.getDistrict());
         addressInkatrackerCanonical.setStreet(addressCanonical.getStreet());

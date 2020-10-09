@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PersonToPickupDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.Data;
 
@@ -60,4 +61,5 @@ public class OrderDto {
     private String districtCodeBilling;
     private Long zoneIdBilling;
 
+    private PersonToPickupDto personToPickup;
 }

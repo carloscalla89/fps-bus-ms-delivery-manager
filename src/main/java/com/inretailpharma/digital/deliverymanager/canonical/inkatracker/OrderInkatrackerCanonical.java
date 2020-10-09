@@ -53,5 +53,7 @@ public class OrderInkatrackerCanonical {
     private Long deliveryServiceId;
     private String purchaseId;
     private List<InvoicedOrderCanonical> invoicedList;
+    private String drugstoreAddress;
+    private PersonToPickupDto personToPickup;
 
 }

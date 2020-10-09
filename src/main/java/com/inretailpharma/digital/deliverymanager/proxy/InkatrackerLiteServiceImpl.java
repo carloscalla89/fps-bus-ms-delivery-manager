@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatrackerlite.OrderInfoInkatrackerLiteCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
@@ -92,7 +92,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             .baseUrl(externalServicesProperties.getInkatrackerLiteCreateOrderUri())
                             .build()
                             .post()
-                            .body(Mono.just(b), OrderInfoInkatrackerLiteCanonical.class)
+                            .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
                             .flatMap(clientResponse -> {
                                 log.info("response lite:{}, phrase:{}", clientResponse.statusCode(),

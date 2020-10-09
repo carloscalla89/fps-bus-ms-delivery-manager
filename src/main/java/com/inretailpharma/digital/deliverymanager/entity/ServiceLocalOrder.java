@@ -56,4 +56,25 @@ public class ServiceLocalOrder {
     @Column(name="zone_id_billing")
     private Long zoneIdBilling;
 
+
+    // Entities to save the person pickup
+    @Column(name="pickup_user_id")
+    private String pickupUserId;
+
+    @Column(name="pickup_full_name")
+    private String pickupFullName;
+
+    @Column(name="pickup_email")
+    private String pickupEmail;
+
+    @Column(name="pickup_document_type")
+    private String pickupDocumentType;
+
+    @Column(name="pickup_document_number")
+    private String pickupDocumentNumber;
+
+    @Column(name="pickup_phone")
+    private String pickupPhone;
+
+
 }

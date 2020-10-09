@@ -93,4 +93,13 @@ public interface IOrderFulfillment {
     String getDistrictCode();
     Long getZoneId();
     Integer getDaysPickup();
+
+    // Person to pickup order when the order is ret
+
+    String getPickupUserId();
+    String getPickupFullName();
+    String getPickupEmail();
+    String getPickupDocumentType();
+    String getPickupDocumentNumber();
+    String getPickupPhone();
 }

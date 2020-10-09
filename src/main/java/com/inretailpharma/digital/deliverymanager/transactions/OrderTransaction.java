@@ -112,48 +112,8 @@ public class OrderTransaction {
         serviceLocalOrderIdentity.setOrderStatus(orderStatus);
         // ----------------------------------------------------
 
-        // Create and set object ServiceLocalOrder
-        ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
-
-        serviceLocalOrder.setCenterCode(centerCompanyCanonical.getLocalCode());
-        serviceLocalOrder.setCompanyCode(centerCompanyCanonical.getCompanyCode());
-
+        ServiceLocalOrder serviceLocalOrder = objectMapper.getFromOrderDto(centerCompanyCanonical, orderDto);
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
-
-        // Set attempt of attempt to insink and tracker
-        serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
-
-        if (!(serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
-
-            serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
-        }
-
-        Optional
-                .ofNullable(orderDto.getOrderStatusDto())
-                .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
-        
-        Optional.ofNullable(orderDto.getSchedules())
-        		.ifPresent(s -> {
-                    serviceLocalOrder.setLeadTime(s.getLeadTime());
-                    serviceLocalOrder
-                            .setStartHour(
-                                    Optional.ofNullable(s.getStartHour())
-                                            .filter(sh -> DateUtils.getLocalTimeWithValidFormat(sh) != null)
-                                            .map(DateUtils::getLocalTimeWithValidFormat)
-                            .orElse(null));
-                    serviceLocalOrder
-                            .setEndHour(
-                                    Optional.ofNullable(s.getEndHour())
-                                            .filter(sh -> DateUtils.getLocalTimeWithValidFormat(sh) != null)
-                                            .map(DateUtils::getLocalTimeWithValidFormat)
-                                            .orElse(null)
-                            );
-                    serviceLocalOrder.setDaysToPickup(s.getDaysToPickup());
-
-                });
-        serviceLocalOrder.setZoneIdBilling(orderDto.getZoneIdBilling());
-        serviceLocalOrder.setDistrictCodeBilling(orderDto.getDistrictCodeBilling());
 
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
