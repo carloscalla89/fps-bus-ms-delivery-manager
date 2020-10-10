@@ -216,6 +216,19 @@ public class ObjectToMapper {
         return orderStatus;
     }
 
+    public OrderStatusCanonical getOrderStatusInkatracker(String name, String errorDetail) {
+
+        Constant.OrderStatusTracker status = Constant.OrderStatusTracker.getByName(name);
+
+        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+        orderStatus.setCode(status.getCode());
+        orderStatus.setName(status.getStatusConfirmation());
+        orderStatus.setDetail(errorDetail);
+        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+        return orderStatus;
+    }
+
     private ReceiptInkatrackerCanonical getReceiptFromOrderCanonical(IOrderFulfillment orderCanonical) {
         ReceiptInkatrackerCanonical receiptInkatrackerCanonical = new ReceiptInkatrackerCanonical();
         receiptInkatrackerCanonical.setType(orderCanonical.getReceiptType());
@@ -252,11 +265,11 @@ public class ObjectToMapper {
 
     private OrderStatusInkatrackerCanonical getFromOrderCanonical(IOrderFulfillment iOrderFulfillment, String status) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
-        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusInkatracker.getStatusInkatracker(status).getStatus());
+        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusTracker.getByName(status).getStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
                 Timestamp.valueOf(iOrderFulfillment.getScheduledTime()).getTime()
         );
-        orderStatusInkatrackerCanonical.setDescription(status);
+        orderStatusInkatrackerCanonical.setDescription(Constant.OrderStatusTracker.getByName(status).getStatus());
 
         return orderStatusInkatrackerCanonical;
     }

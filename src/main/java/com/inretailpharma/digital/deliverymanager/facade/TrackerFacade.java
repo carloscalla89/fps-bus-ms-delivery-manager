@@ -23,7 +23,6 @@ import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.Constant.OrderTrackerStatusMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -171,12 +170,8 @@ public class TrackerFacade {
 				.flatMap(statusCode -> {
 					log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, status, statusCode);
 
-					OrderTrackerStatusMapper statusMapper =  OrderTrackerStatusMapper.getByName(status);
-					if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-						auditOrder(ecommerceId, statusMapper.getSuccessStatus());
-					} else {
-						auditOrder(ecommerceId, statusMapper.getErrorStatus());
-					}
+
+					auditOrder(ecommerceId, Constant.OrderStatus.getByName(status));
 
 					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
 					response.setStatusCode(statusCode);

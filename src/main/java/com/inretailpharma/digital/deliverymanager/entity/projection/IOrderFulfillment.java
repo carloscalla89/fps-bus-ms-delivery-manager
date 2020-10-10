@@ -44,12 +44,12 @@ public interface IOrderFulfillment {
     LocalTime getStartHour();
     LocalTime getEndHour();
 
-
     String getStatusCode();
+    String getStatusName();
+    String getStatusDetail();
+
     Integer getAttempt();
     Integer getAttemptTracker();
-    String getStatusType();
-    String getStatusDetail();
 
     String getServiceTypeShortCode();
     String getServiceTypeCode();

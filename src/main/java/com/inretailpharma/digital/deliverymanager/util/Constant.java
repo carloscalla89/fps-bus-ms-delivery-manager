@@ -130,8 +130,6 @@ public interface Constant {
     }
 
     interface InsinkErrorCode {
-        String CODE_ERROR_GENERAL = "E-0";
-        String CODE_ERROR_CLIENT_CONNECTION = "C-0";
         String CODE_ERROR_STOCK = "E-1";
     }
 
@@ -150,49 +148,18 @@ public interface Constant {
         String CANCELLED = "CANCELLED";
         String DELIVERED = "DELIVERED";
         String READY_FOR_BILLING = "READY_FOR_BILLING";
-        String TRACKER_CREATE_CONFIRMED = "CONFIRMED";
-        String ON_STORE = "ON_STORE";
-        String PICKING = "PICKING";
-        String PREPARED = "PREPARED";
-
-
     }
 
     enum Source {
-        SC;
+        SC
     }
-    enum ReceiptType {
-        TICKET("BOLETA"),
-        INVOICE("FACTURA"),
-        UNDEFINED("NO DEFINIDO");
 
-        private final String description;
 
-        ReceiptType(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public static ReceiptType getByName(String name) {
-            if (TICKET.name().equalsIgnoreCase(name))
-                return TICKET;
-            if (INVOICE.name().equalsIgnoreCase(name))
-                return INVOICE;
-            return UNDEFINED;
-        }
-    }
-    long DS_INKATRACKER = 3L;
-    long DEFAULT_DRUGSTORE_ID = 36;
-    int MAX_DELIVERY_NOTES_LENGTH = 200;
-    String NOTE_SEPARATOR = " - ";
     String DEFAULT_DS = "RAD";
     int DEFAULT_SC_CARD_PROVIDER_ID = 1;
     int DEFAULT_SC_PAYMENT_METHOD_ID = 3;
     String DEFAULT_SC_PAYMENT_METHOD_VALUE = "Pago en línea";
-    String RECEIVER_FORMAT = "Recibe: %s";
+
 
     interface Receipt {
         String TICKET = "TICKET";
@@ -265,38 +232,35 @@ public interface Constant {
         }
     }
 
-    enum OrderStatusInkatracker {
-        CANCEL_ORDER("11","CANCELLED"), CANCELLED_ORDER("11","CANCELLED"),
-        CANCELLED_ORDER_ONLINE_PAYMENT("37","CANCELLED"),
-        DELIVER_ORDER("12","DELIVERED"),  DELIVERED_ORDER("12","DELIVERED"),
-        ATTEMPT_TRACKER_CREATE("15","CONFIRMED"), ATTEMPT_INSINK_CREATE("15","CONFIRMED"),
-        CONFIRMED("15","CONFIRMED"), UPDATE_TRACKER_BILLING("16","ON_STORE"),
-        UPDATE_RELEASE_ORDER("16","ON_STORE"), NOT_FOUND_ACTION("-1","NOT_FOUND_ACTION"),
-        CREATE_ORDER("15","CONFIRMED"),
-        CONFIRM_TRACKER("16","ON_STORE");
+    enum OrderStatusTracker {
+        CANCEL_ORDER("11","CANCELLED", "CONFIRMED_CANCEL_TRACKER"),
+        ERROR_TO_CANCEL_ORDER("33","","ERROR_TO_CANCEL_ORDER"),
+        ERROR_INSERT_TRACKER("01","","ERROR_INSERT_TRACKER"),
+        CANCELLED_ORDER("11","CANCELLED", "CONFIRMED_CANCEL_TRACKER"),
+        CANCELLED_ORDER_ONLINE_PAYMENT("37","CANCELLED","CONFIRMED_CANCEL_TRACKER"),
+        DELIVER_ORDER("12","DELIVERED","CONFIRMED_DELIVERED_TRACKER"),
+        DELIVERED_ORDER("12","DELIVERED","CONFIRMED_DELIVERED_TRACKER"),
+        ATTEMPT_TRACKER_CREATE("15","CONFIRMED","CONFIRMED_TRACKER"),
+        CONFIRMED("15","CONFIRMED","CONFIRMED_TRACKER"),
+        NOT_FOUND_ACTION("-1","NOT_FOUND_ACTION","");
+
 
         private String code;
         private String status;
+        private String statusConfirmation;
 
-        public static OrderStatusInkatracker getStatusInkatracker(String name) {
-            return EnumUtils.getEnumList(OrderStatusInkatracker.class)
+        public static OrderStatusTracker getByName(String name) {
+            return EnumUtils.getEnumList(OrderStatusTracker.class)
                     .stream()
                     .filter(item -> item.name().equalsIgnoreCase(name))
                     .findFirst()
                     .orElse(NOT_FOUND_ACTION);
         }
 
-        public static OrderStatusInkatracker getByStatusCode(String code) {
-            return EnumUtils.getEnumList(OrderStatusInkatracker.class)
-                    .stream()
-                    .filter(item -> item.getCode().equalsIgnoreCase(code))
-                    .findFirst()
-                    .orElse(NOT_FOUND_ACTION);
-        }
-
-        OrderStatusInkatracker(String code, String status) {
+        OrderStatusTracker(String code, String status, String statusConfirmation) {
             this.code = code;
             this.status = status;
+            this.statusConfirmation = statusConfirmation;
         }
 
         public String getCode() {
@@ -305,6 +269,10 @@ public interface Constant {
 
         public String getStatus() {
             return status;
+        }
+
+        public String getStatusConfirmation() {
+            return statusConfirmation;
         }
     }
 
@@ -344,6 +312,8 @@ public interface Constant {
         CONFIRMED("15",  true),
 
         CONFIRMED_TRACKER("16",  true),
+        CONFIRMED_CANCEL_TRACKER("17",  true),
+
         ON_STORE("16",  true),
         ASSIGNED("17",  true),
         PICKED_ORDER("18",  true),
@@ -463,56 +433,4 @@ public interface Constant {
         String COMPANY_CODE_MF = "MF";
     }
 
-    enum PaymentMethodCode {
-
-        NONE(null), CASH("CASH"), CARD("POS"), ONLINE_PAYMENT("3");
-
-        private final String value;
-
-        PaymentMethodCode(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public static PaymentMethodCode getByValue(String value) {
-            return EnumUtils.getEnumList(PaymentMethodCode.class)
-                    .stream()
-                    .filter(item -> value.equalsIgnoreCase(item.getValue()))
-                    .findFirst()
-                    .orElse(NONE);
-        }
-    }
-    
-    enum OrderTrackerStatusMapper {
-    	CANCELLED(OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_TO_CANCEL_ORDER)
-    	, REJECTED(OrderStatus.REJECTED, OrderStatus.ERROR_REJECT)
-    	, NOT_DEFINED(OrderStatus.NOT_DEFINED_STATUS, OrderStatus.NOT_DEFINED_ERROR);
-
-        private OrderStatus successStatus;
-        private OrderStatus errorStatus;
-
-        public OrderStatus getSuccessStatus() {
-            return successStatus;
-        }
-        
-        public OrderStatus getErrorStatus() {
-            return errorStatus;
-        }
-
-        OrderTrackerStatusMapper(OrderStatus successStatus, OrderStatus errorStatus) {
-            this.successStatus = successStatus;
-            this.errorStatus = errorStatus;
-        }
-        
-        public static OrderTrackerStatusMapper getByName(String name) {
-            return EnumUtils.getEnumList(OrderTrackerStatusMapper.class)
-                    .stream()
-                    .filter(item -> name.equals(item.name()))
-                    .findFirst()
-                    .orElse(OrderTrackerStatusMapper.NOT_DEFINED);
-        }
-    }
 }

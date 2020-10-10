@@ -107,8 +107,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
                                 if (clientResponse.statusCode().is2xxSuccessful()) {
                                     orderCanonical.setTrackerId(iOrderFulfillment.getEcommerceId());
-                                    orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.CONFIRMED_TRACKER.getCode(),
-                                            null);
+                                    orderStatus = objectToMapper.getOrderStatusInkatracker(iOrderFulfillment.getStatusName(),
+                                            iOrderFulfillment.getStatusDetail());
 
                                     orderCanonical.setOrderStatus(orderStatus);
 
@@ -150,13 +150,14 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
                                 OrderStatusCanonical orderStatus;
 
-                                if (iOrderFulfillment.getStatusCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode())) {
+                                if (iOrderFulfillment.getStatusCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode())
+                                    || iOrderFulfillment.getStatusCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.getCode())) {
 
-                                    orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.getCode(), e.getMessage());
+                                    orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name(), e.getMessage());
 
                                 } else {
 
-                                    orderStatus = objectToMapper.getOrderStatusErrorCancel(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(), e.getMessage());
+                                    orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_INSERT_TRACKER.name(), e.getMessage());
 
                                 }
 
