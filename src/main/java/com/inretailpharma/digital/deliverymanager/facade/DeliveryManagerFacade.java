@@ -111,7 +111,8 @@ public class DeliveryManagerFacade {
                                             listItems,
                                             storeCenterCanonical,
                                             iOrderFulfillment.getExternalId(),
-                                            order.getOrderStatus().getName()
+                                            order.getOrderStatus().getName(),
+                                            order.getOrderStatus().getDetail()
                                     )
                                     .flatMap(s -> {
 
@@ -168,7 +169,8 @@ public class DeliveryManagerFacade {
                                                     orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                     storeCenterCanonical,
                                                     iOrderFulfillment.getExternalId(),
-                                                    action.name())
+                                                    action.name(),
+                                                    null)
                                             .flatMap(s -> {
                                                 OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
                                                 return Mono.just(orderCanonical);
@@ -209,7 +211,7 @@ public class DeliveryManagerFacade {
                                                                                 storeCenterCanonical
                                                                         )
                                                                         .flatMap(orderResp -> {
-
+                                                                            log.info("Response status from dispatcher:{}",orderResp.getOrderStatus());
                                                                             if ((Constant
                                                                                     .OrderStatus
                                                                                     .getByCode(Optional
@@ -228,7 +230,8 @@ public class DeliveryManagerFacade {
                                                                                                 orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                                                                 storeCenterCanonical,
                                                                                                 orderResp.getExternalId(),
-                                                                                                orderResp.getOrderStatus().getName()
+                                                                                                orderResp.getOrderStatus().getName(),
+                                                                                                orderResp.getOrderStatus().getDetail()
                                                                                         )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 

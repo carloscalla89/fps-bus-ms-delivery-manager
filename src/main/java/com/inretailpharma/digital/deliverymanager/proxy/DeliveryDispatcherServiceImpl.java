@@ -196,7 +196,6 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                     //.bodyToMono(ResponseDispatcherCanonical.class)
                     .flatMap(clientResponse -> {
 
-                        log.info("result dispatcher to reattempt insink and tracker response:{}", clientResponse);
 
                         if (clientResponse.statusCode().is2xxSuccessful()) {
 
@@ -206,7 +205,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                                             InsinkResponseCanonical dispatcherResponse = cr.getBody();
                                             StatusDispatcher statusDispatcher = cr.getStatus();
 
-                                            log.info("body:{}, status:{}",dispatcherResponse, statusDispatcher);
+                                            log.info("result dispatcher to reattempt - body:{}, status:{}",dispatcherResponse, statusDispatcher);
 
                                             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                                             Constant.OrderStatus orderStatusUtil = Constant

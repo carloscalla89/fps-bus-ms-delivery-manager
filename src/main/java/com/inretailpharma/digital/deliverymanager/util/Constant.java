@@ -14,7 +14,7 @@ public interface Constant {
         NOT_ENOUGH_STOCK("CANCELLED_ORDER"),
         NOT_ENOUGH_STOCK_PAYMENT_ONLINE("CANCELLED_ORDER_ONLINE_PAYMENT"),
         ORDER_FAILED("ERROR_INSERT_INKAVENTA"),
-        NONE("NOT_DEFINED_ERROR");
+        NONE("ERROR_INSERT_INKAVENTA");
 
         private String status;
 
