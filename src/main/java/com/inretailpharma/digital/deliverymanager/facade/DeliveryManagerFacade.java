@@ -90,20 +90,20 @@ public class DeliveryManagerFacade {
 
                     return orderCanonicalResponse;
                 })
-                .flatMap(r -> {
-                    log.info("[START] Preparation to send order:{}",r);
+                .flatMap(order -> {
+                    log.info("[START] Preparation to send order:{}",order);
 
-                    if (r.getOrderDetail().isServiceEnabled()
-                            && (Constant.OrderStatus.getByCode(r.getOrderStatus().getCode()).isSuccess()))
+                    if (order.getOrderDetail().isServiceEnabled()
+                            && (Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()))
                     {
 
                         OrderExternalService orderExternalServiceTracker = (OrderExternalService)context.getBean(
-                                Constant.TrackerImplementation.getByCode(r.getOrderDetail().getServiceCode()).getName()
+                                Constant.TrackerImplementation.getByCode(order.getOrderDetail().getServiceCode()).getName()
                         );
 
-                        IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(r.getEcommerceId());
+                        IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(order.getEcommerceId());
                         List<IOrderItemFulfillment> listItems = orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId());
-                        StoreCenterCanonical storeCenterCanonical = objectToMapper.getStoreCenterFromOrderCanonical(r);
+                        StoreCenterCanonical storeCenterCanonical = objectToMapper.getStoreCenterFromOrderCanonical(order);
 
                         return orderExternalServiceTracker
                                     .sendOrderToTracker(
@@ -111,7 +111,7 @@ public class DeliveryManagerFacade {
                                             listItems,
                                             storeCenterCanonical,
                                             iOrderFulfillment.getExternalId(),
-                                            Constant.OrderStatusInkatracker.CREATE_ORDER.name()
+                                            order.getOrderStatus().getName()
                                     )
                                     .flatMap(s -> {
 
@@ -128,8 +128,8 @@ public class DeliveryManagerFacade {
 
                     }
                     log.info("[END] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",
-                            r.getOrderDetail(), r.getEcommerceId());
-                    return Mono.just(r);
+                            order.getOrderDetail(), order.getEcommerceId());
+                    return Mono.just(order);
                 })
                 .doOnSuccess(r -> log.info("[END] createOrder facade"));
 
@@ -228,7 +228,7 @@ public class DeliveryManagerFacade {
                                                                                                 orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                                                                 storeCenterCanonical,
                                                                                                 orderResp.getExternalId(),
-                                                                                                action.name()
+                                                                                                orderResp.getOrderStatus().getName()
                                                                                         )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 

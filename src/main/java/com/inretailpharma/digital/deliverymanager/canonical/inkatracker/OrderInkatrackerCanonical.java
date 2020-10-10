@@ -10,6 +10,7 @@ public class OrderInkatrackerCanonical {
 
     private Long orderExternalId;
     private OrderStatusInkatrackerCanonical orderStatus;
+    private OrderStatusInkatrackerCanonical status;
     private Long inkaDeliveryId;
     private String source;
     private String callSource;

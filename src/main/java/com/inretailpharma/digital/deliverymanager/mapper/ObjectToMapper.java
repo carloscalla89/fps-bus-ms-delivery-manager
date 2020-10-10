@@ -78,6 +78,7 @@ public class ObjectToMapper {
 
         orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
         orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(iOrderFulfillment, status));
+        orderInkatrackerCanonical.setStatus(getFromOrderCanonical(iOrderFulfillment, status));
         orderInkatrackerCanonical.setTotalCost(iOrderFulfillment.getTotalCost().doubleValue());
 
         orderInkatrackerCanonical.setPaymentMethod(getPaymentMethodFromOrderCanonical(iOrderFulfillment));
@@ -251,7 +252,7 @@ public class ObjectToMapper {
 
     private OrderStatusInkatrackerCanonical getFromOrderCanonical(IOrderFulfillment iOrderFulfillment, String status) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
-        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusInkatracker.getByActionName(status).getStatus());
+        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusInkatracker.getStatusInkatracker(status).getStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
                 Timestamp.valueOf(iOrderFulfillment.getScheduledTime()).getTime()
         );

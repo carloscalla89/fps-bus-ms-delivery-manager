@@ -266,9 +266,11 @@ public interface Constant {
     }
 
     enum OrderStatusInkatracker {
-        CANCEL_ORDER("11","CANCELLED"), CANCELLED_ORDER_ONLINE_PAYMENT("37","CANCELLED"),
-        DELIVER_ORDER("12","DELIVERED"), ATTEMPT_TRACKER_CREATE("15","CONFIRMED"),
-        ATTEMPT_INSINK_CREATE("15","CONFIRMED"), UPDATE_TRACKER_BILLING("16","ON_STORE"),
+        CANCEL_ORDER("11","CANCELLED"), CANCELLED_ORDER("11","CANCELLED"),
+        CANCELLED_ORDER_ONLINE_PAYMENT("37","CANCELLED"),
+        DELIVER_ORDER("12","DELIVERED"),  DELIVERED_ORDER("12","DELIVERED"),
+        ATTEMPT_TRACKER_CREATE("15","CONFIRMED"), ATTEMPT_INSINK_CREATE("15","CONFIRMED"),
+        CONFIRMED("15","CONFIRMED"), UPDATE_TRACKER_BILLING("16","ON_STORE"),
         UPDATE_RELEASE_ORDER("16","ON_STORE"), NOT_FOUND_ACTION("-1","NOT_FOUND_ACTION"),
         CREATE_ORDER("15","CONFIRMED"),
         CONFIRM_TRACKER("16","ON_STORE");
@@ -276,10 +278,10 @@ public interface Constant {
         private String code;
         private String status;
 
-        public static OrderStatusInkatracker getByActionName(String action) {
+        public static OrderStatusInkatracker getStatusInkatracker(String name) {
             return EnumUtils.getEnumList(OrderStatusInkatracker.class)
                     .stream()
-                    .filter(item -> item.name().equalsIgnoreCase(action))
+                    .filter(item -> item.name().equalsIgnoreCase(name))
                     .findFirst()
                     .orElse(NOT_FOUND_ACTION);
         }
