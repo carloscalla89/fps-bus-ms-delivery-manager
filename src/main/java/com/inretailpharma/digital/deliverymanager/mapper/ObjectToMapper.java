@@ -218,11 +218,11 @@ public class ObjectToMapper {
 
     public OrderStatusCanonical getOrderStatusInkatracker(String name, String errorDetail) {
 
-        Constant.OrderStatusTracker status = Constant.OrderStatusTracker.getByName(name);
+        Constant.OrderStatus status = Constant.OrderStatusTracker.getByName(name).getOrderStatus();
 
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
         orderStatus.setCode(status.getCode());
-        orderStatus.setName(status.getStatusConfirmation());
+        orderStatus.setName(status.name());
         orderStatus.setDetail(errorDetail);
         orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 

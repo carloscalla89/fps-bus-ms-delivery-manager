@@ -231,7 +231,13 @@ public class DeliveryManagerFacade {
                                                                                                 storeCenterCanonical,
                                                                                                 orderResp.getExternalId(),
                                                                                                 orderResp.getOrderStatus().getName(),
-                                                                                                orderResp.getOrderStatus().getDetail()
+                                                                                                (Constant
+                                                                                                        .OrderStatus
+                                                                                                        .getByCode(Optional
+                                                                                                                .ofNullable(orderResp.getOrderStatus())
+                                                                                                                .map(OrderStatusCanonical::getCode)
+                                                                                                                .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
+                                                                                                        ).isSuccess())?null:orderResp.getOrderStatus().getDetail()
                                                                                         )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 

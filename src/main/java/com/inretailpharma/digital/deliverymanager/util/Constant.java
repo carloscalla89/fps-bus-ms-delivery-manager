@@ -233,21 +233,21 @@ public interface Constant {
     }
 
     enum OrderStatusTracker {
-        CANCEL_ORDER("11","CANCELLED", "CONFIRMED_CANCEL_TRACKER"),
-        ERROR_TO_CANCEL_ORDER("33","","ERROR_TO_CANCEL_ORDER"),
-        ERROR_INSERT_TRACKER("01","","ERROR_INSERT_TRACKER"),
-        CANCELLED_ORDER("11","CANCELLED", "CONFIRMED_CANCEL_TRACKER"),
-        CANCELLED_ORDER_ONLINE_PAYMENT("37","CANCELLED","CONFIRMED_CANCEL_TRACKER"),
-        DELIVER_ORDER("12","DELIVERED","CONFIRMED_DELIVERED_TRACKER"),
-        DELIVERED_ORDER("12","DELIVERED","CONFIRMED_DELIVERED_TRACKER"),
-        ATTEMPT_TRACKER_CREATE("15","CONFIRMED","CONFIRMED_TRACKER"),
-        CONFIRMED("15","CONFIRMED","CONFIRMED_TRACKER"),
-        NOT_FOUND_ACTION("-1","NOT_FOUND_ACTION","");
+        CANCEL_ORDER("11","CANCELLED", OrderStatus.CONFIRMED_CANCEL_TRACKER),
+        ERROR_TO_CANCEL_ORDER("33","",OrderStatus.ERROR_TO_CANCEL_ORDER),
+        ERROR_INSERT_TRACKER("01","",OrderStatus.ERROR_INSERT_TRACKER),
+        CANCELLED_ORDER("11","CANCELLED", OrderStatus.CONFIRMED_CANCEL_TRACKER),
+        CANCELLED_ORDER_ONLINE_PAYMENT("37","CANCELLED",OrderStatus.CONFIRMED_CANCEL_TRACKER),
+        DELIVER_ORDER("12","DELIVERED",OrderStatus.CONFIRMED_DELIVERY_TRACKER),
+        DELIVERED_ORDER("12","DELIVERED",OrderStatus.CONFIRMED_DELIVERY_TRACKER),
+        ATTEMPT_TRACKER_CREATE("15","CONFIRMED",OrderStatus.CONFIRMED_TRACKER),
+        CONFIRMED("15","CONFIRMED",OrderStatus.CONFIRMED_TRACKER),
+        NOT_FOUND_ACTION("-1","NOT_FOUND_ACTION",OrderStatus.CONFIRMED_TRACKER);
 
 
         private String code;
         private String status;
-        private String statusConfirmation;
+        private OrderStatus orderStatus;
 
         public static OrderStatusTracker getByName(String name) {
             return EnumUtils.getEnumList(OrderStatusTracker.class)
@@ -257,10 +257,10 @@ public interface Constant {
                     .orElse(NOT_FOUND_ACTION);
         }
 
-        OrderStatusTracker(String code, String status, String statusConfirmation) {
+        OrderStatusTracker(String code, String status, OrderStatus orderStatus) {
             this.code = code;
             this.status = status;
-            this.statusConfirmation = statusConfirmation;
+            this.orderStatus = orderStatus;
         }
 
         public String getCode() {
@@ -271,8 +271,8 @@ public interface Constant {
             return status;
         }
 
-        public String getStatusConfirmation() {
-            return statusConfirmation;
+        public OrderStatus getOrderStatus() {
+            return orderStatus;
         }
     }
 
@@ -313,6 +313,7 @@ public interface Constant {
 
         CONFIRMED_TRACKER("16",  true),
         CONFIRMED_CANCEL_TRACKER("17",  true),
+        CONFIRMED_DELIVERY_TRACKER("18",  true),
 
         ON_STORE("16",  true),
         ASSIGNED("17",  true),
