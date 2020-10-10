@@ -90,6 +90,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
+            "inner join order_status os on os.code = s.order_status_code " +
             "inner join service_type st on s.service_type_code = st.code " +
             "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
             "inner join receipt_type rt on rt.order_fulfillment_id = o.id " +
