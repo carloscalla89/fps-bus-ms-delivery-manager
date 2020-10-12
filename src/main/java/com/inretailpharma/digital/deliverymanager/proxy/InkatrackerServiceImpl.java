@@ -259,8 +259,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                     new OrderCanonical(
                                             iOrderFulfillment.getOrderId(),
                                             iOrderFulfillment.getEcommerceId(),
-                                            objectToMapper.getOrderStatusErrorCancel(
-                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(), "Result inkatracker is empty")
+                                            objectToMapper.getOrderStatusInkatracker(
+                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name(), "Result inkatracker is empty")
                                     )
                             )
                             .onErrorResume(e -> {

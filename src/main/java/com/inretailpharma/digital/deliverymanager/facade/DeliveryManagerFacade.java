@@ -271,6 +271,7 @@ public class DeliveryManagerFacade {
                         attemptTracker = attemptTracker + 1;
                     }
 
+
                     orderTransaction.updateReservedOrder(
                             iOrderFulfillment.getOrderId(),
                             Optional.ofNullable(actionDto.getExternalBillingId()).map(Long::parseLong).orElse(null),
@@ -347,8 +348,13 @@ public class DeliveryManagerFacade {
                                                             r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
                                                     );
                                                 } else {
-                                                    orderTransaction.updateStatusOrder(iOrderFulfillment.getOrderId(), r.getOrderStatus().getCode(),
-                                                            r.getOrderStatus().getDetail());
+
+                                                    if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
+                                                        orderTransaction.updateStatusOrder(iOrderFulfillment.getOrderId(), r.getOrderStatus().getCode(),
+                                                                r.getOrderStatus().getDetail());
+                                                    }
+
+
                                                 }
 
                                                 log.info("[END] to update order");
@@ -359,7 +365,9 @@ public class DeliveryManagerFacade {
                                                 r.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).map(Integer::longValue).orElse(null));
                                                 r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                                                orderExternalServiceAudit.updateOrderReactive(r).subscribe();
+                                                if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
+                                                    orderExternalServiceAudit.updateOrderReactive(r).subscribe();
+                                                }
 
                                                 return r;
                                             });
@@ -434,11 +442,13 @@ public class DeliveryManagerFacade {
 
         r.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).map(Integer::longValue).orElse(null));
 
-        orderTransaction.updateOrderRetrying(
-                iOrderFulfillment.getOrderId(), attempt, attemptTracker,
-                r.getOrderStatus().getCode(), r.getOrderStatus().getDetail(),
-                r.getExternalId(), r.getTrackerId()
-        );
+        if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
+            orderTransaction.updateOrderRetrying(
+                    iOrderFulfillment.getOrderId(), attempt, attemptTracker,
+                    r.getOrderStatus().getCode(), r.getOrderStatus().getDetail(),
+                    r.getExternalId(), r.getTrackerId()
+            );
+        }
 
         OrderDetailCanonical orderDetail = new OrderDetailCanonical();
         orderDetail.setAttempt(attempt);
@@ -448,7 +458,9 @@ public class DeliveryManagerFacade {
 
         r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
 
-        orderExternalServiceAudit.updateOrderReactive(r).subscribe();
+        if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
+            orderExternalServiceAudit.updateOrderReactive(r).subscribe();
+        }
 
         return r;
     }

@@ -206,19 +206,6 @@ public class ObjectToMapper {
         return serviceLocalOrder;
     }
 
-    public OrderStatusCanonical getOrderStatusErrorCancel(String code, String errorDetail) {
-
-        Constant.OrderStatus status = Constant.OrderStatus.getByCode(code);
-
-        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-        orderStatus.setCode(status.getCode());
-        orderStatus.setName(status.name());
-        orderStatus.setDetail(errorDetail);
-        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-        return orderStatus;
-    }
-
     public OrderStatusCanonical getOrderStatusInkatracker(String name, String errorDetail) {
 
         Constant.OrderStatus status = Constant.OrderStatusTracker.getByName(name).getOrderStatus();
