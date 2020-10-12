@@ -50,9 +50,6 @@ public class OrderDto {
 
     private Boolean programmed;
 
-    // campos anteriores
-    private String createdOrder;
-    private String scheduledTime;
     private String notes;
     private String sourceCompanyName;
 

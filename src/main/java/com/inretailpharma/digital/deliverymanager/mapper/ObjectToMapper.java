@@ -52,6 +52,7 @@ public class ObjectToMapper {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
         orderInkatrackerCanonical.setOrderExternalId(orderCanonical.getEcommerceId());
+        orderInkatrackerCanonical.setInkaDeliveryId(orderCanonical.getExternalId());
 
         Optional.ofNullable(orderCanonical.getOrderDetail())
                 .filter(r -> r.getCreatedOrder() != null)
@@ -91,7 +92,7 @@ public class ObjectToMapper {
         previousStatus.setDate(orderInkatrackerCanonical.getDateCreated());
         previousStatus.setOrderStatus(orderInkatrackerCanonical.getOrderStatus().getStatusName());
         orderInkatrackerCanonical.setPreviousStatus(Collections.singletonList(previousStatus));
-        orderInkatrackerCanonical.setInkaDeliveryId(orderCanonical.getExternalId());
+
         orderInkatrackerCanonical.setReceipt(getReceiptFromOrderCanonical(orderCanonical));
         ScheduledCanonical scheduledCanonical = new ScheduledCanonical();
         scheduledCanonical.setStartDate(
@@ -161,7 +162,7 @@ public class ObjectToMapper {
 
     private OrderStatusInkatrackerCanonical getFromOrderCanonical(OrderCanonical orderCanonical) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
-        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatus.getByCode(orderCanonical.getOrderStatus().getCode()).getStatusTracker());
+        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusInkatracker.getByStatusCode(orderCanonical.getOrderStatus().getCode()).getStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
                 DateUtils.getLocalDateTimeFromStringWithFormat(orderCanonical.getOrderDetail().getConfirmedOrder()).toEpochSecond(ZoneOffset.UTC)
         );
@@ -228,10 +229,6 @@ public class ObjectToMapper {
                 Optional.ofNullable(clientCanonical.getAnonimous())
                         .orElse(0)==0?"N":"Y"
         );
-        clientInkatrackerCanonical.setHasInkaClub(
-                Optional.ofNullable(clientCanonical.getHasInkaClub())
-                        .orElse(0)==0?"N":"Y"
-        );
         clientInkatrackerCanonical.setUserId(clientCanonical.getUserId());
         clientInkatrackerCanonical.setNotificationToken(clientCanonical.getNotificationToken());
         return clientInkatrackerCanonical;
@@ -286,6 +283,8 @@ public class ObjectToMapper {
 
         // object client
         Client client = new Client();
+        //client.setId(Optional.ofNullable(orderDto.getClient().getUserId()).map(Long::parseLong).orElse(null));
+        //client.setUserId(orderDto.getClient().getUserId());
         client.setAnonimous(orderDto.getClient().getAnonimous());
         Optional.ofNullable(orderDto.getClient().getBirthDate())
                 .ifPresent(r -> client.setBirthDate(DateUtils.getLocalDateFromStringDate(r)));
@@ -633,7 +632,7 @@ public class ObjectToMapper {
             client.setDocumentNumber(r.getDocumentNumber());
             client.setEmail(r.getEmail());
             client.setPhone(r.getPhone());
-
+            client.setNotificationToken(r.getNotificationToken());
             // For object of inkatrackerlite
             client.setFirstName(r.getFirstName());
             client.setLastName(r.getLastName());
@@ -683,6 +682,7 @@ public class ObjectToMapper {
                     itemCanonical.setUnitPrice(r.getUnitPrice());
                     itemCanonical.setTotalPrice(r.getTotalPrice());
                     itemCanonical.setFractionated(r.getFractionated());
+                    itemCanonical.setFractionalDiscount(r.getFractionalDiscount());
 
                     return itemCanonical;
                 }).collect(Collectors.toList())
@@ -699,11 +699,6 @@ public class ObjectToMapper {
             orderDetail.setEndHour(r.getEndHour());
             orderDetail.setLeadTime(r.getLeadTime());
         });
-
-        if (orderDto.getCreatedOrder() != null && orderDto.getScheduledTime() != null) {
-            orderDetail.setConfirmedSchedule(orderDto.getScheduledTime());
-            orderDetail.setCreatedOrder(orderDto.getCreatedOrder());
-        }
 
         orderCanonical.setOrderDetail(orderDetail);
 

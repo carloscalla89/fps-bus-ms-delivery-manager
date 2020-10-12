@@ -2,11 +2,14 @@ package com.inretailpharma.digital.deliverymanager.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Data
+@Getter
+@Setter
 public class OrderItemDto {
 
     private String productCode;
