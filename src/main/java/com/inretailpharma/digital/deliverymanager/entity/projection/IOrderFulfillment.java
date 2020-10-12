@@ -21,6 +21,8 @@ public interface IOrderFulfillment {
     LocalDateTime getCreatedOrder();
     LocalDateTime getScheduledTime();
     LocalDateTime getConfirmedOrder();
+    LocalDateTime getCancelledOrder();
+    LocalDateTime getConfirmedInsinkOrder();
     String getTransactionOrderDate();
 
     String getFirstName();

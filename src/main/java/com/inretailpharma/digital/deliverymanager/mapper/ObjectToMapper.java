@@ -44,11 +44,14 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setCallSource(iOrderFulfillment.getSource());
         orderInkatrackerCanonical.setLocalCode(storeCenterCanonical.getLocalCode());
         orderInkatrackerCanonical.setCompanyCode(storeCenterCanonical.getCompanyCode());
-        orderInkatrackerCanonical.setDateCreated(Timestamp.valueOf(iOrderFulfillment.getCreatedOrder()).getTime());
 
+        orderInkatrackerCanonical.setDateCreated(Timestamp.valueOf(iOrderFulfillment.getCreatedOrder()).getTime());
         orderInkatrackerCanonical.setStartDate(Timestamp.valueOf(iOrderFulfillment.getScheduledTime()).getTime());
         orderInkatrackerCanonical.setEndDate(
                 Timestamp.valueOf(iOrderFulfillment.getScheduledTime().plusMinutes(iOrderFulfillment.getLeadTime())).getTime());
+        orderInkatrackerCanonical.setCancelDate(
+                Optional.ofNullable(iOrderFulfillment.getCancelledOrder()).map(c -> Timestamp.valueOf(c).getTime()).orElse(null)
+        );
 
         orderInkatrackerCanonical.setMaxDeliveryTime(
                 Timestamp.valueOf(
