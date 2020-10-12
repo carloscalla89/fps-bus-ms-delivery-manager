@@ -169,7 +169,7 @@ public class DeliveryManagerFacade {
                                                     orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                     storeCenterCanonical,
                                                     iOrderFulfillment.getExternalId(),
-                                                    action.name(),
+                                                    iOrderFulfillment.getStatusName(),
                                                     null)
                                             .flatMap(s -> {
                                                 OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
