@@ -20,6 +20,13 @@ public class OrderCanonical {
         this.orderStatus.setName(name);
     }
 
+
+
+    public OrderCanonical(Long ecommerceId, OrderStatusCanonical orderStatus) {
+        this.ecommerceId = ecommerceId;
+        this.orderStatus = orderStatus;
+    }
+
     public OrderCanonical(Long ecommerceId, String code, String name) {
         this.ecommerceId = ecommerceId;
 
@@ -28,7 +35,17 @@ public class OrderCanonical {
         this.orderStatus.setName(name);
         this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
     }
-    
+
+
+    public OrderCanonical(Long ecommerceId, Long externalId, String code, String name) {
+        this.ecommerceId = ecommerceId;
+        this.externalId = externalId;
+        this.orderStatus = new OrderStatusCanonical();
+        this.orderStatus.setCode(code);
+        this.orderStatus.setName(name);
+        this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+    }
+
     public OrderCanonical(Long ecommerceId, String code, String name, String detail) {
         this.ecommerceId = ecommerceId;
 
@@ -38,6 +55,8 @@ public class OrderCanonical {
         this.orderStatus.setDetail(detail);
         this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
     }
+
+
 
     // Canonical IDs
     private Long id;

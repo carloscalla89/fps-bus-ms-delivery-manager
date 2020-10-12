@@ -106,6 +106,7 @@ public class OrderTransaction {
 
         if (!(serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
                 || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
+
             serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
         }
 
