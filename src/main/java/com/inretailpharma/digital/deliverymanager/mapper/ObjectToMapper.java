@@ -289,6 +289,8 @@ public class ObjectToMapper {
             canonical.setPresentationId(itemCanonical.getPresentationId());
             canonical.setPresentationDescription(itemCanonical.getPresentationDescription());
             canonical.setQuantityUnits(itemCanonical.getQuantityUnits());
+            canonical.setShortDescription(itemCanonical.getShortDescriptionProduct());
+            canonical.setQuantityPresentation(itemCanonical.getQuantityPresentation());
             canonical.setQuantityUnitMinimium(itemCanonical.getQuantityUnitMinimium());
             canonical.setValueUMV(itemCanonical.getValueUmv());
             canonical.setSap(itemCanonical.getProductSapCode());

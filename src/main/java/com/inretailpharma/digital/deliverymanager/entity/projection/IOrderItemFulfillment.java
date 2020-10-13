@@ -22,7 +22,7 @@ public interface IOrderItemFulfillment {
     String getPresentationDescription();
     Integer getQuantityUnits();
     Integer getQuantityUnitMinimium();
-    String getQuantityPresentation();
+    Integer getQuantityPresentation();
     String getFamilyType();
     Integer getValueUmv();
 
