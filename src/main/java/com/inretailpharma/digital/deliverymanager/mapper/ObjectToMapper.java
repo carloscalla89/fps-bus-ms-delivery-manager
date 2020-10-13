@@ -291,6 +291,7 @@ public class ObjectToMapper {
             canonical.setQuantityUnits(itemCanonical.getQuantityUnits());
             canonical.setQuantityUnitMinimium(itemCanonical.getQuantityUnitMinimium());
             canonical.setValueUMV(itemCanonical.getValueUmv());
+            canonical.setSap(itemCanonical.getProductSapCode());
 
             itemCanonicalList.add(canonical);
         }
@@ -679,6 +680,7 @@ public class ObjectToMapper {
         orderCanonical.setOrderItems(
                 orderDto.getOrderItem().stream().map(r -> {
                     OrderItemCanonical itemCanonical = new OrderItemCanonical();
+                    itemCanonical.setSap(r.getProductSapCode());
                     itemCanonical.setProductCode(r.getProductCode());
                     itemCanonical.setProductName(r.getProductName());
                     itemCanonical.setShortDescription(r.getShortDescription());
@@ -695,6 +697,7 @@ public class ObjectToMapper {
                     itemCanonical.setPresentationId(r.getPresentationId());
                     itemCanonical.setPresentationDescription(r.getPresentationDescription());
                     itemCanonical.setValueUMV(r.getValueUMV());
+
 
                     return itemCanonical;
                 }).collect(Collectors.toList())

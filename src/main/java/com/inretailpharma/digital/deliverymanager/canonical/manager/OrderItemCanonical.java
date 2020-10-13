@@ -26,6 +26,7 @@ public class OrderItemCanonical {
     private Integer quantityUnitMinimium;
     private Integer quantityPresentation;
     private Integer valueUMV;
+    private String sap;
 
 
 }
