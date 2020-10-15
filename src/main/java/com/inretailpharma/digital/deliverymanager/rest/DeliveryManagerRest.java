@@ -33,46 +33,6 @@ public class DeliveryManagerRest {
         this.deliveryManagerFacade = deliveryManagerFacade;
     }
 
-    /*
-    @PostMapping(value = "/order")
-    public Mono<ResponseEntity<OrderCanonical>> createOrderReactive(@RequestBody OrderDto orderDto) {
-        log.info("[START] endpoint /fulfillment/order - orderDto:{}",orderDto);
-        return deliveryManagerFacade
-                .createOrder(orderDto)
-                .map(r -> ResponseEntity
-                                .status(HttpStatus.CREATED)
-                                .contentType(MediaType.APPLICATION_STREAM_JSON)
-                                .body(r)
-                )
-                .onErrorResume(e -> {
-                    e.printStackTrace();
-                    log.error("Errot at insert in Delivery-manager:{}",e.getMessage());
-                    OrderCanonical serverResponseError = new OrderCanonical();
-                    serverResponseError.setEcommerceId(orderDto.getEcommercePurchaseId());
-                    serverResponseError.setCompanyCode(orderDto.getCompanyCode());
-                    serverResponseError.setLocalCode(orderDto.getLocalCode());
-
-                    OrderDetailCanonical orderDetailCanonical = new OrderDetailCanonical();
-                    orderDetailCanonical.setServiceCode(orderDto.getServiceTypeCode());
-                    serverResponseError.setOrderDetail(orderDetailCanonical);
-
-                    OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
-                    orderStatusCanonical.setCode(Constant.OrderStatus.ERROR_INSERT_DELIVERY_MANGER.getCode());
-                    orderStatusCanonical.setName(Constant.OrderStatus.ERROR_INSERT_DELIVERY_MANGER.name());
-                    orderStatusCanonical.setDetail(e.getMessage());
-
-                    return Mono.just(ResponseEntity
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .contentType(MediaType.APPLICATION_STREAM_JSON)
-                            .body(serverResponseError));
-                })
-                .doOnSuccess(r -> log.info("[END] endpoint /fulfillment/order"))
-                .subscribeOn(Schedulers.parallel());
-
-    }
-
-     */
-
     @PatchMapping("/order/{ecommerceId}")
     public Mono<ResponseEntity<OrderCanonical>> updateStatusOrder(
             @PathVariable(value = "ecommerceId") String ecommerceId,
