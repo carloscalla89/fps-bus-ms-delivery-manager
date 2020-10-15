@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.TrackerFacade;
 
 import lombok.extern.slf4j.Slf4j;
@@ -91,23 +90,5 @@ public class TrackerRest {
         );
 
     }
-    
-    @ApiOperation(value = "Crea orden en el tracker")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Orden creada", response = OrderDto.class),
-            @ApiResponse(code = 500, message = "Orden no creada") })
-    @PostMapping(value = "/order")
-    public ResponseEntity<Mono<OrderTrackerResponseCanonical>> sendOrder(
-    		@RequestBody OrderToAssignCanonical orderToAssignCanonical) {
 
-        log.info("[START] endpoint /fulfillment/tracker/order " +
-                 "- orderToAssignCanonical:{}", orderToAssignCanonical);
-
-        return new ResponseEntity<>(
-                trackerFacade.sendOrder(orderToAssignCanonical)
-                             .subscribeOn(Schedulers.parallel()),
-                HttpStatus.OK
-        );
-
-    }
 }
