@@ -42,16 +42,6 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
         this.objectToMapper = objectToMapper;
     }
 
-    @Override
-    public Mono<Void> sendOrderReactive(OrderCanonical orderCanonical) {
-        return null;
-    }
-
-    @Override
-    public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
-        return null;
-    }
-
 
     @Override
     public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
@@ -73,64 +63,24 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
                     log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerLiteCreateOrderUri());
 
-                    TcpClient tcpClient = TcpClient
-                            .create()
-                            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                                    Integer.parseInt(externalServicesProperties.getInkatrackerLiteCreateOrderConnectTimeOut())
-                            ) // Connection Timeout
-                            .doOnConnected(connection ->
-                                    connection.addHandlerLast(
-                                            new ReadTimeoutHandler(
-                                                    Integer.parseInt(externalServicesProperties.getInkatrackerLiteCreateOrderReadTimeOut())
-                                            )
-                                    )
-                            ); // Read Timeout
-
                     return WebClient
                             .builder()
-                            .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                            .clientConnector(
+                                    generateClientConnector(
+                                            Integer.parseInt(externalServicesProperties.getInkatrackerLiteCreateOrderConnectTimeOut()),
+                                            Integer.parseInt(externalServicesProperties.getInkatrackerLiteCreateOrderReadTimeOut())
+                                    )
+                            )
                             .baseUrl(externalServicesProperties.getInkatrackerLiteCreateOrderUri())
                             .build()
                             .post()
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
-                            .flatMap(clientResponse -> {
-                                log.info("response lite:{}, phrase:{}", clientResponse.statusCode(),
-                                        clientResponse.statusCode().getReasonPhrase());
-
-                                OrderCanonical orderCanonical = new OrderCanonical();
-                                orderCanonical.setId(iOrderFulfillment.getOrderId());
-                                orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                                orderCanonical.setExternalId(externalId);
-
-                                OrderStatusCanonical orderStatus;
-
-                                if (clientResponse.statusCode().is2xxSuccessful()) {
-                                    orderCanonical.setTrackerId(iOrderFulfillment.getEcommerceId());
-                                    orderStatus = objectToMapper.getOrderStatusInkatracker(status, statusDetail);
-
-                                    orderCanonical.setOrderStatus(orderStatus);
-
-                                    log.info("orderCanonical RESPONSE from inkatracker lite:{}",orderCanonical);
-                                    return Mono.just(orderCanonical);
-
-                                } else {
-
-                                    return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
-                                        byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                                        dataBuffer.read(bytes);
-                                        DataBufferUtils.release(dataBuffer);
-                                        return bytes;
-                                    })
-                                            .defaultIfEmpty(new byte[0])
-                                            .flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
-                                                    +":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
-                                                    clientResponse.statusCode().value()))
-                                            );
-                                }
-
-
-                            })
+                            .flatMap(clientResponse -> mapResponseFromTracker(
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
+                                    externalId, status, statusDetail)
+                            )
+                            .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite:{}",s))
                             .defaultIfEmpty(
                                     new OrderCanonical(
                                             iOrderFulfillment.getOrderId(),
@@ -139,31 +89,13 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                                     Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name(), "Result inkatracker-lite is empty")
                                     )
                             )
-                            .onErrorResume(e -> {
+                            .doOnError(e -> {
                                 e.printStackTrace();
-                                log.error("Error in inkatracker LITE call {} ",e.getMessage());
-
-                                OrderCanonical orderCanonical = new OrderCanonical();
-                                orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                                orderCanonical.setId(iOrderFulfillment.getOrderId());
-
-                                OrderStatusCanonical orderStatus;
-
-                                if (iOrderFulfillment.getStatusCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode())
-                                    || iOrderFulfillment.getStatusCode().equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.getCode())) {
-
-                                    orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name(), e.getMessage());
-
-                                } else {
-
-                                    orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_INSERT_TRACKER.name(), e.getMessage());
-
-                                }
-
-                                orderCanonical.setOrderStatus(orderStatus);
-
-                                return Mono.just(orderCanonical);
-                            });
+                                log.error("Error in inkatracker-lite:{}",e.getMessage());
+                            })
+                            .onErrorResume(e -> mapResponseErrorFromTracker(e, iOrderFulfillment.getOrderId(),
+                                    iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getStatusCode())
+                            );
 
                 }).doOnSuccess((f) ->  log.info("[END] Create Order To Tracker lite- orderCanonical:{}",f));
 
@@ -243,23 +175,15 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
         }
 
         log.info("url inkatracket-lite:{}",inkatrackerLiteUri);
-        TcpClient tcpClient = TcpClient
-                                .create()
-                                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                                        Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderConnectTimeOut())
-                                ) // Connection Timeout
-                                .doOnConnected(connection ->
-                                        connection.addHandlerLast(
-                                                new ReadTimeoutHandler(
-                                                        Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
-                                                )
-                                        )
-                                ); // Read Timeout
-
 
         return WebClient
                 .builder()
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient)))
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderConnectTimeOut()),
+                                Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
+                        )
+                )
                 .baseUrl(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
                 .build()
                 .patch()

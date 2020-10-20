@@ -29,54 +29,54 @@ external-service:
       connect-timeout: 240
       read-timeout: 360
     update-order:
-      uri: http://localhost:8283/v2/unattended-orders
-      connect-timeout: 10000
-      read-timeout: 120000
+      uri: http://us-inkatrackerlite/v2/unattended-orders
+      connect-timeout: 30000
+      read-timeout: 60000
   inkatracker:
     create-order:
-      uri: http://localhost:8282/nvr/orders/create
-      connect-timeout: 240000
-      read-timeout: 480
+      uri: http://us-inkatracker/nvr/orders/create
+      connect-timeout: 30000
+      read-timeout: 60000
     update-order:
-      uri: http://localhost:8282/nvr/orders/create
-      connect-timeout: 240000
-      read-timeout: 480
+      uri: http://us-inkatracker/nvr/orders/create
+      connect-timeout: 30000
+      read-timeout: 60000
     update-status-order:
-      uri: http://localhost:8282/nvr/orders
-      connect-timeout: 240000
-      read-timeout: 480
+      uri: http://us-inkatracker/nvr/orders
+      connect-timeout: 30000
+      read-timeout: 60000
   temporary:
     create-order:
       uri: http://us-temporary/nvr/orders/create
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
     update-order:
       uri: http://us-temporary/nvr/orders/update
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
   order-tracker:
     create-order:
-      uri: http://localhost:8030/order
-      connect-timeout: 240000
-      read-timeout: 480
+      uri: http://us-ordertracker/order
+      connect-timeout: 10000
+      read-timeout: 120000
     assign-orders:
-      uri: http://localhost:8030/orders/status/assigned
-      connect-timeout: 240000
-      read-timeout: 480
+      uri: http://us-ordertracker/orders/status/assigned
+      connect-timeout: 10000
+      read-timeout: 120000
     unassign-orders:
-      uri: http://localhost:8030/orders/status/unassigned
-      connect-timeout: 240000
-      read-timeout: 480
+      uri: http://us-ordertracker/orders/status/unassigned
+      connect-timeout: 10000
+      read-timeout: 120000
     update-order-status:
-      uri: http://localhost:8030/order
+      uri: http://us-ordertracker/order
       connect-timeout: 10000
       read-timeout: 120000
   fulfillment-center:
     get-center:
-      uri: http://fulfillment-centerci02.backend.cindibyinkafarma.com/fulfillment/store
-      connect-timeout: 240000
-      read-timeout: 480
+      uri: http://us-fulfillment-center/fulfillment/store/
+      connect-timeout: 15000
+      read-timeout: 60000
     get-company-center:
       uri: http://us-fulfillment-center/fulfillment/store/
-      connect-timeout: 10000
-      read-timeout: 120000
+      connect-timeout: 15000
+      read-timeout: 60000

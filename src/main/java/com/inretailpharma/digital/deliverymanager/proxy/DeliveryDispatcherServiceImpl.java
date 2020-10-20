@@ -58,30 +58,17 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
     @Override
     public Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical) {
 
-        HttpClient httpClient = HttpClient
-                .create()
-                .tcpConfiguration(client ->
-                        client
-                                .option(
-                                        ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                                        Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()))
-                                .doOnConnected(conn ->
-                                        conn
-                                                .addHandlerLast(
-                                                        new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())))
-                                                .addHandlerLast(
-                                                        new WriteTimeoutHandler(Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())))
-                                )
-                );
-
-
-
         String inkatrackerUri = externalServicesProperties.getInkatrackerCreateOrderUri();
 
         log.info("url dispatcher:{} - ecommerceId:{}",inkatrackerUri, orderInfoCanonical.getOrderExternalId());
         return     WebClient
                 .builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()),
+                                Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
+                        )
+                )
                 .baseUrl(inkatrackerUri)
                 .build()
                 .post()
@@ -161,18 +148,6 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                                                    String action, StoreCenterCanonical storeCenterCanonical) {
         log.info("send order To sendOrderEcommerce");
 
-        HttpClient httpClient = HttpClient.create()
-                .tcpConfiguration(tcpClient -> {
-                    tcpClient = tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                            Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemConnectTimeout()));
-                    tcpClient = tcpClient.doOnConnected(conn -> conn
-                            .addHandlerLast(new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemReadTimeout()),
-                                    TimeUnit.MILLISECONDS)));
-                    return tcpClient;
-                });
-        // create a client http connector using above http client
-        ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
-
         String dispatcherUri;
 
         ApplicationParameter applicationParameter = applicationParameterService
@@ -186,7 +161,12 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
             return WebClient
                     .builder()
-                    .clientConnector(connector)
+                    .clientConnector(
+                            generateClientConnector(
+                                    Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemConnectTimeout()),
+                                    Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemReadTimeout())
+                            )
+                    )
                     .baseUrl(dispatcherUri)
                     .build()
                     .post()
@@ -294,7 +274,12 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
             return WebClient
                     .builder()
-                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .clientConnector(
+                            generateClientConnector(
+                                    Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemConnectTimeout()),
+                                    Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemReadTimeout())
+                            )
+                    )
                     .baseUrl(dispatcherUri)
                     .build()
                     .get()
@@ -384,17 +369,6 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
     }
 
-
-    private TcpClient configClient(TcpClient client) {
-
-        final int timeout = Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout());
-        final int readWriteTimeout = Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout());
-
-        return client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
-                .doOnConnected(conn -> conn.addHandlerLast(new ReadTimeoutHandler(600))
-                        .addHandlerLast(new WriteTimeoutHandler(600)));
-    }
-
     @Override
     public Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto) {
 
@@ -402,7 +376,6 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
         Long ecommerceId = Long.valueOf(orderDto.getId());
         log.info("url dispatcher:{}",dispatcherUri);
-        HttpClient httpClient = HttpClient.create().tcpConfiguration(this::configClient);
 
         ActionWrapper<OrderDto> actionWrapper = new ActionWrapper<>();
         actionWrapper.setAction(Constant.ActionOrder.ATTEMPT_INSINK_CREATE.name());
@@ -410,7 +383,12 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
         return WebClient
                 .builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemConnectTimeout()),
+                                Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemReadTimeout())
+                        )
+                )
                 .baseUrl(dispatcherUri)
                 .build()
                 .put()

@@ -58,21 +58,6 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
     @Override
     public Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment, List<IOrderItemFulfillment> itemFulfillments,
                                                    String action, StoreCenterCanonical storeCenterCanonical) {
-        HttpClient httpClient = HttpClient
-                .create()
-                .tcpConfiguration(client ->
-                        client
-                                .option(
-                                        ChannelOption.CONNECT_TIMEOUT_MILLIS,
-                                        Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()))
-                                .doOnConnected(conn ->
-                                        conn
-                                                .addHandlerLast(
-                                                        new ReadTimeoutHandler(Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())))
-                                                .addHandlerLast(
-                                                        new WriteTimeoutHandler(Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())))
-                                )
-                );
 
         String dispatcherUri;
 
@@ -87,7 +72,12 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
 
             return WebClient
                     .builder()
-                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .clientConnector(
+                            generateClientConnector(
+                                    Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()),
+                                    Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
+                            )
+                    )
                     .baseUrl(dispatcherUri)
                     .build()
                     .post()
@@ -195,7 +185,12 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
 
             return WebClient
                     .builder()
-                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .clientConnector(
+                            generateClientConnector(
+                                    Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()),
+                                    Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
+                            )
+                    )
                     .baseUrl(dispatcherUri)
                     .build()
                     .get()
@@ -286,18 +281,6 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
 
     }
 
-
-
-    private TcpClient configClient(TcpClient client) {
-
-        final int timeout = Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout());
-        final int readWriteTimeout = Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout());
-
-        return client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout)
-                .doOnConnected(conn -> conn.addHandlerLast(new ReadTimeoutHandler(600))
-                        .addHandlerLast(new WriteTimeoutHandler(600)));
-    }
-
     @Override
     public Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto) {
 
@@ -305,7 +288,6 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
 
         Long ecommerceId = Long.valueOf(orderDto.getId());
         log.info("url dispatcher:{}",dispatcherUri);
-        HttpClient httpClient = HttpClient.create().tcpConfiguration(this::configClient);
 
         ActionWrapper<OrderDto> actionWrapper = new ActionWrapper<>();
         actionWrapper.setAction(Constant.ActionOrder.ATTEMPT_INSINK_CREATE.name());
@@ -313,7 +295,12 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
 
         return WebClient
                 .builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()),
+                                Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
+                        )
+                )
                 .baseUrl(dispatcherUri)
                 .build()
                 .put()
