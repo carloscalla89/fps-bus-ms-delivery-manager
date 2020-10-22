@@ -11,23 +11,27 @@ external-service:
     insink-tracker:
       uri: http://localhost:8082/order/insink-tracker
       uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/insink-tracker
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
     tracker:
       uri: http://localhost:8082/order/tracker
       uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/tracker
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
     legacy-system:
       uri: http://us-dd/order/legacy-system
       uri-mifarma: http://ddmfci02.backend.cindyinkafarma.com/order/legacy-system
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
+    order-ecommerce:
+      uri: http://us-dd/order/ecommerce
+      connect-timeout: 30000
+      read-timeout: 60000
   inkatracker-lite:
     create-order:
       uri: http://us-inkatrackerlite/nvr/orders/create
-      connect-timeout: 240
-      read-timeout: 360
+      connect-timeout: 30000
+      read-timeout: 60000
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
       connect-timeout: 30000
