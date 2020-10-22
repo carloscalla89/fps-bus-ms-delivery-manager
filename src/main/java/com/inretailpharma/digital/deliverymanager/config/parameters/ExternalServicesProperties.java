@@ -61,6 +61,18 @@ public class ExternalServicesProperties {
 
     // ------------------------------------------------------
 
+    // properties order/ecommerce/{orderId} to DD endpoint
+    @Value("${external-service.dispatcher.order-ecommerce.uri}")
+    private String dispatcherOrderEcommerceUri;
+
+    @Value("${external-service.dispatcher.order-ecommerce.connect-timeout}")
+    private String dispatcherOrderEcommerceConnectTimeout;
+
+    @Value("${external-service.dispatcher.order-ecommerce.read-timeout}")
+    private String dispatcherOrderEcommerceReadTimeout;
+
+    // ------------------------------------------------------
+
     @Value("${external-service.dispatcher.retry-seller-center.uri}")
     private String dispatcherRetrySellerCenterUri;
 

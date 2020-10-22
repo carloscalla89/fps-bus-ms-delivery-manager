@@ -28,6 +28,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
@@ -502,5 +503,56 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
         orderCanonical.setOrderStatus(orderStatus);
         return orderCanonical;
+    }
+
+    public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
+
+        return WebClient
+                .builder()
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getDispatcherOrderEcommerceConnectTimeout()),
+                                Integer.parseInt(externalServicesProperties.getDispatcherOrderEcommerceReadTimeout())
+                        )
+                )
+                .baseUrl(externalServicesProperties.getDispatcherOrderEcommerceUri())
+                .build()
+                .get()
+                .uri(builder ->
+                        builder
+                                .path("/{orderId}")
+                                .build(ecommerceId))
+                .exchange()
+                .flatMap(clientResponse -> {
+
+                    if (clientResponse.statusCode().is2xxSuccessful()) {
+                        return clientResponse
+                                .bodyToMono(com.inretailpharma.digital.deliverymanager.dto.OrderDto.class);
+                    } else {
+                        return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
+                            byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                            dataBuffer.read(bytes);
+                            DataBufferUtils.release(dataBuffer);
+                            return bytes;
+                        })
+                                .defaultIfEmpty(new byte[0])
+                                .flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
+                                        +":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
+                                        clientResponse.statusCode().value()))
+                                );
+                    }
+
+                })
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    String errorMessage = "Error to invoking Delivery-dispatcher'"
+                            + externalServicesProperties.getDispatcherOrderEcommerceUri() +
+                            "':" + e.getMessage();
+                    log.error(errorMessage);
+
+
+
+                    return Mono.empty();
+                });
     }
 }

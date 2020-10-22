@@ -46,6 +46,7 @@ public class DeliveryManagerFacade {
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
     private OrderExternalService orderExternalServiceAudit;
+    private OrderExternalService orderExternalDispatcherInka;
     private CenterCompanyService centerCompanyService;
     private OrderCancellationService orderCancellationService;
     private final ApplicationContext context;
@@ -55,13 +56,15 @@ public class DeliveryManagerFacade {
                                  @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                                  ApplicationContext context,
                                  CenterCompanyService centerCompanyService,
-                                 OrderCancellationService orderCancellationService) {
+                                 OrderCancellationService orderCancellationService,
+                                 @Qualifier("deliveryDispatcherInka") OrderExternalService orderExternalDispatcherInka) {
 
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.centerCompanyService = centerCompanyService;
         this.orderCancellationService = orderCancellationService;
+        this.orderExternalDispatcherInka = orderExternalDispatcherInka;
         this.context = context;
 
     }
@@ -388,7 +391,7 @@ public class DeliveryManagerFacade {
 
         } else {
 
-            OrderStatusCanonical orderStatus =  Optional
+            return  Optional
                     .ofNullable(iOrderFulfillment)
                     .map(s -> {
 
@@ -400,26 +403,28 @@ public class DeliveryManagerFacade {
 
                         log.info("The order has end status:{}",os);
 
-                        return os;
+                        OrderCanonical resultWithoutAction = new OrderCanonical();
+
+                        resultWithoutAction.setOrderStatus(os);
+                        resultWithoutAction.setEcommerceId(ecommercePurchaseId);
+
+                        return Mono.just(resultWithoutAction);
 
                     }).orElseGet(() -> {
-                        OrderStatusCanonical os = new OrderStatusCanonical();
-                        os.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
-                        os.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
-                        os.setDetail("Order not found");
-                        os.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                        log.info("Order not found:{}",os);
+                        log.info("Order not found:{}",ecommercePurchaseId);
 
-                        return os;
+                        return orderExternalDispatcherInka
+                                    .getOrderFromEcommerce(ecommercePurchaseId)
+                                    .flatMap(this::createOrder)
+                                    .defaultIfEmpty(
+                                            new OrderCanonical(
+                                                    ecommercePurchaseId,
+                                                    Constant.OrderStatus.NOT_FOUND_ORDER.getCode(),
+                                                    Constant.OrderStatus.NOT_FOUND_ORDER.name())
+                                    );
                     });
 
-            OrderCanonical resultWithoutAction = new OrderCanonical();
-
-            resultWithoutAction.setOrderStatus(orderStatus);
-            resultWithoutAction.setEcommerceId(ecommercePurchaseId);
-
-            return Mono.just(resultWithoutAction);
         }
 
 

@@ -98,6 +98,11 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
+		return null;
+	}
+
 	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, int readTimeOut) {
 
 		HttpClient httpClient = HttpClient.create()
