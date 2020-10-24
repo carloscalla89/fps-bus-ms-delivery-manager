@@ -1,8 +1,11 @@
 package com.inretailpharma.digital.deliverymanager.canonical.inkatracker;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class OrderItemInkatrackerCanonical {
 
     private String sku;
