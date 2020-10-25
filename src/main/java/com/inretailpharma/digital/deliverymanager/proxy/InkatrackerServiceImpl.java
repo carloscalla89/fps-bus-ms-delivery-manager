@@ -7,25 +7,13 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderTracker
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderTrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
-import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
-import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
 import java.util.Optional;
 
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.InvoicedOrderCanonical;
-
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
@@ -36,14 +24,8 @@ import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
-import io.netty.channel.ChannelOption;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.TcpClient;
-
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service("inkatracker")
@@ -94,6 +76,37 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
         orderTrackerCanonical.setCancelReason(actionDto.getOrderCancelReason());
         orderTrackerCanonical.setCancelObservation(actionDto.getOrderCancelObservation());
 
+        Constant.OrderStatus errorResponse;
+        Constant.OrderStatus successResponse;
+
+        switch (actionDto.getAction()) {
+
+            case Constant.ActionName.RELEASE_ORDER:
+                successResponse = Constant.OrderStatus.RELEASED_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER;
+
+                break;
+            case Constant.ActionName.CANCEL_ORDER:
+                successResponse = Constant.OrderStatus.CANCELLED_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
+
+                break;
+            case Constant.ActionName.DELIVER_ORDER:
+                successResponse = Constant.OrderStatus.DELIVERED_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_DELIVER;
+
+                break;
+            case Constant.ActionName.INVOICED_ORDER:
+                successResponse = Constant.OrderStatus.INVOICED;
+                errorResponse = Constant.OrderStatus.ERROR_INVOICED;
+
+                break;
+
+            default:
+                successResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
+                errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
+
+        }
 
         log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerUpdateStatusOrderUri());
 
@@ -128,12 +141,10 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
                                         if (r.statusCode().is2xxSuccessful()) {
-
-                                            os = Constant.OrderStatus.getByCode(action.getOrderSuccessStatusCode());
+                                            os = successResponse;
 
                                         } else {
-
-                                            os = Constant.OrderStatus.getByCode(action.getOrderErrorStatusCode());
+                                            os = errorResponse;
                                             orderStatus.setDetail(r.statusCode().getReasonPhrase());
                                         }
 
@@ -157,11 +168,9 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                         e.printStackTrace();
                                         log.error("Error in inkatracker call {} ",e.getMessage());
 
-                                        Constant.OrderStatus os = Constant.OrderStatus.getByCode(action.getOrderErrorStatusCode());
-
                                         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                        orderStatus.setCode(os.getCode());
-                                        orderStatus.setName(os.name());
+                                        orderStatus.setCode(errorResponse.getCode());
+                                        orderStatus.setName(errorResponse.name());
                                         orderStatus.setDetail(e.getMessage());
                                         orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 

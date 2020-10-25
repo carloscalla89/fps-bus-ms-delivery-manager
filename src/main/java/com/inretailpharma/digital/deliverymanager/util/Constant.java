@@ -138,9 +138,11 @@ public interface Constant {
         String CANCEL_ORDER = "CANCEL_ORDER";
         String DELIVER_ORDER = "DELIVER_ORDER";
         String READY_PICKUP_ORDER = "READY_PICKUP_ORDER";
-        String PICK_ORDER = "PICK_ORDER";
-        String PREPARE_ORDER = "PREPARE_ORDER";
 
+        String ATTEMPT_TRACKER_CREATE = "ATTEMPT_TRACKER_CREATE";
+        String UPDATE_TRACKER_BILLING = "UPDATE_TRACKER_BILLING";
+        String UPDATE_RELEASE_ORDER = "UPDATE_RELEASE_ORDER";
+        String INVOICED_ORDER = "INVOICED_ORDER";
     }
 
     interface ActionNameInkatrackerlite {
@@ -168,42 +170,31 @@ public interface Constant {
 
     enum ActionOrder {
 
-        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker", "00", "01"),
-        UPDATE_TRACKER_BILLING(1, "actualizar el BILLING ID(número de pedido diario) a un tracker", "00", "05"),
-        DESCHEDULER_ORDER(5, "Desprogramar una orden en el inkatracker", "00", "05"),
-        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink", "00", "02"),
-        RELEASE_ORDER(2, "Liberar orden reservada", "00", "04"),
+        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker"),
+        UPDATE_TRACKER_BILLING(1, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
+        DESCHEDULER_ORDER(5, "Desprogramar una orden en el inkatracker"),
+        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink"),
+        RELEASE_ORDER(2, "Liberar orden reservada"),
 
-        UPDATE_RELEASE_ORDER(3, "Actualizar el resultado al liberar unaorden desde el dispatcher", "00", "04"),
+        UPDATE_RELEASE_ORDER(3, "Actualizar el resultado al liberar unaorden desde el dispatcher"),
 
-        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada", "11", "33"),
-        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada", null, null),
-        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger", null, null),
-        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada", "40", "41"),
+        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada"),
+        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada"),
+        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger"),
+        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada"),
 
-        READY_FOR_BILLING(4,"Accion para cambiar el estado de la orden a READY_FOR_BILLING", "", ""),
-        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO", "18", "08"),
-        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO", "19", "09"),
+        ON_STORE_ORDER(2, "Acción para actualizar el estado en tienda"),
 
-        ON_STORE_ORDER(2, "Acción para actualizar el estado en tienda", "16","06"),
-        ON_ROUTE_ORDER(5, "Acción para actualizar el estado en tienda","19", "09"),
-        ASSIGN_ORDER(5, "Acción para actualizar el estado en tienda","17", "07"),
-        READY_DELIVER_ORDER(5, "Acción para actualizar el estado en tienda", "16","06"),
-        ARRIVE_ORDER(5, "Acción para actualizar el estado en tienda", null, null),
-        REJECT_ORDER(5, "Acción para actualizar el estado en tienda", null, null),
+        FILL_ORDER(5,"Accion para llenar data del ecommerce a una orden"),
 
-        NONE(0, "", "-1", "-1");
+        NONE(0, "Not found status");
 
         private Integer code;
         private String description;
-        private String orderSuccessStatusCode;
-        private String orderErrorStatusCode;
 
-        ActionOrder(Integer code, String description, String orderSuccessStatusCode, String orderErrorStatusCode) {
+        ActionOrder(Integer code, String description) {
             this.code = code;
             this.description = description;
-            this.orderSuccessStatusCode = orderSuccessStatusCode;
-            this.orderErrorStatusCode = orderErrorStatusCode;
         }
 
         public Integer getCode() {
@@ -212,14 +203,6 @@ public interface Constant {
 
         public String getDescription() {
             return description;
-        }
-
-        public String getOrderSuccessStatusCode() {
-            return orderSuccessStatusCode;
-        }
-
-        public String getOrderErrorStatusCode() {
-            return orderErrorStatusCode;
         }
 
         public static ActionOrder getByName(String name) {
@@ -300,9 +283,10 @@ public interface Constant {
         ERROR_PICKUP("35",  false),
         ERROR_UPDATE("36",  false),
         CANCELLED_ORDER_ONLINE_PAYMENT("37",  true),
+        ORDER_FAILED("38",  false),
+        INVOICED("40", false),
         ERROR_INVOICED("41", false),
 
-        ERROR_INSERT_DELIVERY_MANGER("38",false),
         SUCCESS_RESERVED_ORDER("10", true),
 
         CANCELLED_ORDER("11",true),
@@ -322,7 +306,7 @@ public interface Constant {
         PREPARED_ORDER("19",  true),
         ARRIVED("20",  true),
         REJECTED("21",  true),
-        INVOICED("40", false),
+
         NOT_FOUND_CODE("-1",  false),
         NOT_FOUND_ORDER("-1",  false),
         NOT_DEFINED_ERROR("-1",  false),
@@ -334,7 +318,8 @@ public interface Constant {
 
         EMPTY_RESULT_TEMPORARY("-1", false),
         EMPTY_RESULT_INKATRACKERLITE("-1", false),
-        END_STATUS_RESULT("-1",  false),;
+        END_STATUS_RESULT("-1",  false);
+
 
         private String code;
         private boolean isSuccess;
@@ -435,4 +420,29 @@ public interface Constant {
         String COMPANY_CODE_MF = "MF";
     }
 
+    enum DeliveryManagerStatus {
+
+        ORDER_FAILED("ERROR_INSERT_DM"),
+        NONE("ERROR_NOT_IDENTIFIED");
+
+        private String status;
+
+        DeliveryManagerStatus(String status) {
+            this.status = status;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public static DeliveryManagerStatus getByName(String name) {
+
+            return EnumUtils.getEnumList(DeliveryManagerStatus.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(NONE);
+        }
+
+    }
 }

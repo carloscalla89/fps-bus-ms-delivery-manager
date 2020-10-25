@@ -27,4 +27,9 @@ public class StoreCenterCanonical {
         this.localCode = localCode;
     }
 
+    public StoreCenterCanonical(String localCode, String companyCode) {
+        this.localCode = localCode;
+        this.companyCode = companyCode;
+    }
+
 }

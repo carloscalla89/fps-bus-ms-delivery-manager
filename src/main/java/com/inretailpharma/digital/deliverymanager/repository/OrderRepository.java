@@ -17,13 +17,6 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFu
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {

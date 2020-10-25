@@ -41,7 +41,6 @@ public class DeliveryManagerFacade {
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
     private OrderExternalService orderExternalServiceAudit;
-    private OrderExternalService orderExternalDispatcherInka;
     private CenterCompanyService centerCompanyService;
     private OrderCancellationService orderCancellationService;
     private final ApplicationContext context;
@@ -51,19 +50,16 @@ public class DeliveryManagerFacade {
                                  @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                                  ApplicationContext context,
                                  CenterCompanyService centerCompanyService,
-                                 OrderCancellationService orderCancellationService,
-                                 @Qualifier("deliveryDispatcherInka") OrderExternalService orderExternalDispatcherInka) {
+                                 OrderCancellationService orderCancellationService) {
 
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.centerCompanyService = centerCompanyService;
         this.orderCancellationService = orderCancellationService;
-        this.orderExternalDispatcherInka = orderExternalDispatcherInka;
         this.context = context;
 
     }
-
 
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
 
@@ -89,7 +85,7 @@ public class DeliveryManagerFacade {
                     return orderCanonicalResponse;
                 })
                 .flatMap(order -> {
-                    log.info("[START] Preparation to send order");
+                    log.info("[START] Preparation to send order:{}",order.getEcommerceId());
 
                     if (order.getOrderDetail().isServiceEnabled()
                             && (Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()))
@@ -126,11 +122,24 @@ public class DeliveryManagerFacade {
                                     });
 
                     }
-                    log.info("[END] Preparation to send order some tracker with service-detail:{} and ecommerceId:{}",
-                            order.getOrderDetail(), order.getEcommerceId());
+                    log.info("[END] Preparation to send order:{}",order.getEcommerceId());
+
                     return Mono.just(order);
                 })
-                .doOnSuccess(r -> log.info("[END] createOrder facade"));
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    log.error("Error Creating the order:{} with companyCode:{} in Delivery-manager{}",
+                            orderDto.getEcommercePurchaseId(), orderDto.getCompanyCode(),e.getMessage());
+
+                    // Cuando la orden ha fallado al insertar al DM, se insertará con lo mínimo para registrarlo en la auditoría
+                    OrderCanonical orderStatusCanonical = new OrderCanonical(
+                            orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
+                            Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode()
+                    );
+
+                    return Mono.just(orderStatusCanonical);
+                })
+                .doOnSuccess(r -> log.info("[END] createOrder facade success"));
 
     }
 
@@ -370,7 +379,6 @@ public class DeliveryManagerFacade {
                                                 return r;
                                             });
 
-
                 default:
                     OrderCanonical resultDefault = new OrderCanonical();
                     OrderStatusCanonical orderStatusNotFound = new OrderStatusCanonical();
@@ -409,7 +417,11 @@ public class DeliveryManagerFacade {
 
                         log.info("Order not found:{}",ecommercePurchaseId);
 
-                        return orderExternalDispatcherInka
+                        OrderExternalService orderExternalServiceDispatcher = (OrderExternalService)context.getBean(
+                                Constant.DispatcherImplementation.getByCompanyCode(actionDto.getCompanyCode()).getName()
+                        );
+
+                        return orderExternalServiceDispatcher
                                     .getOrderFromEcommerce(ecommercePurchaseId)
                                     .flatMap(this::createOrder)
                                     .defaultIfEmpty(

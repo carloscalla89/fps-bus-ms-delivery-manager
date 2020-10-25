@@ -1,11 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,38 +29,6 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
-import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
-import com.inretailpharma.digital.deliverymanager.util.Constant;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
-import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
-import com.inretailpharma.digital.deliverymanager.util.Constant;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -218,6 +183,12 @@ public class OrderTransaction {
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+        } else if (Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.DeliveryManagerStatus.ORDER_FAILED.name())) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ORDER_FAILED.getCode());
+
         } else {
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
         }

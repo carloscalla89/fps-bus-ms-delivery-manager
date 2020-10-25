@@ -136,6 +136,42 @@ public class ObjectToMapper {
         return orderInkatrackerCanonical;
     }
 
+    public OrderFulfillment getMinimunObjectToInsert(OrderDto orderDto) {
+
+        OrderFulfillment orderFulfillment = new OrderFulfillment();
+        orderFulfillment.setEcommercePurchaseId(orderDto.getEcommercePurchaseId());
+
+        orderFulfillment.setClient(getClientFromOrderDto(orderDto));
+
+        setSchedulesAndDates(orderFulfillment, orderDto);
+        setCostsOrder(orderFulfillment, orderDto);
+
+        return orderFulfillment;
+
+    }
+
+    private Client getClientFromOrderDto(OrderDto orderDto) {
+        // object client
+        Client client = new Client();
+
+        Optional.ofNullable(orderDto.getClient()).ifPresent(c -> {
+            client.setUserId(c.getUserId());
+            client.setAnonimous(c.getAnonimous());
+            Optional.ofNullable(c.getBirthDate())
+                    .ifPresent(r -> client.setBirthDate(DateUtils.getLocalDateFromStringDate(r)));
+            client.setEmail(c.getEmail());
+            client.setDocumentNumber(c.getDocumentNumber());
+            client.setFirstName(c.getFirstName());
+            client.setLastName(c.getLastName());
+            client.setPhone(c.getPhone());
+            client.setInkaclub(c.getHasInkaClub());
+            client.setNotificationToken(c.getNotificationToken());
+            client.setNewUserId(c.getNewUserId());
+        });
+
+        return client;
+
+    }
 
     public StoreCenterCanonical getStoreCenterFromOrderCanonical(OrderCanonical orderCanonical) {
 
@@ -377,6 +413,34 @@ public class ObjectToMapper {
         return clientInkatrackerCanonical;
     }
 
+    private void setSchedulesAndDates(OrderFulfillment orderFulfillment, OrderDto orderDto) {
+
+        // schedules and dates
+        Optional.ofNullable(orderDto.getSchedules().getCreatedOrder())
+                .ifPresent(createdOrder -> orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(createdOrder)));
+
+        Optional.ofNullable(orderDto.getSchedules().getScheduledTime())
+                .ifPresent(scheduleTime -> orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(scheduleTime)));
+
+        Optional.ofNullable(orderDto.getSchedules().getConfirmedOrder())
+                .ifPresent(confirmedOrder -> orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(confirmedOrder)));
+
+        Optional.ofNullable(orderDto.getSchedules().getConfirmedInsinkOrder())
+                .ifPresent(confirmedInsinkOrder -> orderFulfillment.setConfirmedInsinkOrder(DateUtils.getLocalDateTimeFromStringWithFormat(confirmedInsinkOrder)));
+
+        Optional.ofNullable(orderDto.getSchedules().getCancelledOrder())
+                .ifPresent(cancelledOrder -> orderFulfillment.setCancelledOrder(DateUtils.getLocalDateTimeFromStringWithFormat(cancelledOrder)));
+
+        orderFulfillment.setTransactionOrderDate(orderDto.getSchedules().getTransactionVisaOrder());
+    }
+
+    private void setCostsOrder(OrderFulfillment orderFulfillment, OrderDto orderDto){
+        orderFulfillment.setDiscountApplied(orderDto.getDiscountApplied());
+        orderFulfillment.setSubTotalCost(orderDto.getSubTotalCost());
+        orderFulfillment.setTotalCost(orderDto.getTotalCost());
+        orderFulfillment.setDeliveryCost(orderDto.getDeliveryCost());
+    }
+
     public OrderFulfillment convertOrderdtoToOrderEntity(OrderDto orderDto){
         log.info("[START] map-convertOrderdtoToOrderEntity");
 
@@ -387,22 +451,13 @@ public class ObjectToMapper {
         orderFulfillment.setExternalPurchaseId(orderDto.getExternalPurchaseId());
         orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
 
-        orderFulfillment.setDiscountApplied(orderDto.getDiscountApplied());
-        orderFulfillment.setSubTotalCost(orderDto.getSubTotalCost());
-        orderFulfillment.setTotalCost(orderDto.getTotalCost());
-        orderFulfillment.setDeliveryCost(orderDto.getDeliveryCost());
+        // set Cost from order
+        setCostsOrder(orderFulfillment, orderDto);
+
         orderFulfillment.setSourceCompanyName(orderDto.getSourceCompanyName());
 
-        orderFulfillment.setCreatedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getCreatedOrder()));
-        orderFulfillment.setScheduledTime(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getScheduledTime()));
-        orderFulfillment.setConfirmedOrder(DateUtils.getLocalDateTimeFromStringWithFormat(orderDto.getSchedules().getConfirmedOrder()));
-
-        Optional.ofNullable(orderDto.getSchedules().getConfirmedInsinkOrder())
-                .ifPresent(r -> orderFulfillment.setConfirmedInsinkOrder(DateUtils.getLocalDateTimeFromStringWithFormat(r)));
-        Optional.ofNullable(orderDto.getSchedules().getCancelledOrder())
-                .ifPresent(r -> orderFulfillment.setCancelledOrder(DateUtils.getLocalDateTimeFromStringWithFormat(r)));
-
-        orderFulfillment.setTransactionOrderDate(orderDto.getSchedules().getTransactionVisaOrder());
+        // schedules and dates data
+        setSchedulesAndDates(orderFulfillment, orderDto);
 
         // object orderItems
         orderFulfillment.setOrderItem(
@@ -431,22 +486,8 @@ public class ObjectToMapper {
                 }).collect(Collectors.toList())
         );
 
-        // object client
-        Client client = new Client();
-        client.setUserId(orderDto.getClient().getUserId());
-        client.setAnonimous(orderDto.getClient().getAnonimous());
-        Optional.ofNullable(orderDto.getClient().getBirthDate())
-                .ifPresent(r -> client.setBirthDate(DateUtils.getLocalDateFromStringDate(r)));
-        client.setEmail(orderDto.getClient().getEmail());
-        client.setDocumentNumber(orderDto.getClient().getDocumentNumber());
-        client.setFirstName(orderDto.getClient().getFirstName());
-        client.setLastName(orderDto.getClient().getLastName());
-        client.setPhone(orderDto.getClient().getPhone());
-        client.setInkaclub(orderDto.getClient().getHasInkaClub());
-        client.setNotificationToken(orderDto.getClient().getNotificationToken());
-        client.setNewUserId(orderDto.getClient().getNewUserId());
-
-        orderFulfillment.setClient(client);
+        // set client data
+        orderFulfillment.setClient(getClientFromOrderDto(orderDto));
 
         // object address
         Address address = new Address();
