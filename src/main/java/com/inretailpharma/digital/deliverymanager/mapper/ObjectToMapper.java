@@ -83,6 +83,7 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(iOrderFulfillment, status));
         orderInkatrackerCanonical.setStatus(getFromOrderCanonical(iOrderFulfillment, status));
         orderInkatrackerCanonical.setTotalCost(iOrderFulfillment.getTotalCost().doubleValue());
+        orderInkatrackerCanonical.setSubtotal(iOrderFulfillment.getSubTotalCost().doubleValue());
 
         orderInkatrackerCanonical.setPaymentMethod(getPaymentMethodFromOrderCanonical(iOrderFulfillment));
         PreviousStatusCanonical previousStatus = new PreviousStatusCanonical();
