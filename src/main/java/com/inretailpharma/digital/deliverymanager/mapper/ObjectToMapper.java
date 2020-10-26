@@ -310,12 +310,7 @@ public class ObjectToMapper {
         for (IOrderItemFulfillment itemCanonical : itemCanonicals) {
             OrderItemInkatrackerCanonical canonical = new OrderItemInkatrackerCanonical();
             canonical.setBrand(itemCanonical.getBrandProduct());
-            canonical.setFractionated(
-                    Optional.ofNullable(itemCanonical.getFractionated())
-                            .filter(f -> f.equalsIgnoreCase("1"))
-                            .map(f -> "Y")
-                            .orElse("N")
-            );
+            canonical.setFractionated(Optional.ofNullable(itemCanonical.getFractionated()).orElse("N"));
             canonical.setName(itemCanonical.getNameProduct());
             canonical.setQuantity(itemCanonical.getQuantity());
             canonical.setSku(itemCanonical.getProductCode());
