@@ -130,6 +130,7 @@ public class ObjectToMapper {
                         .orElse("0")
         );
 
+        // set personpickup
         orderInkatrackerCanonical.setPersonToPickup(getPersonPickupFromtIOrderFulfillment(iOrderFulfillment));
 
 
@@ -339,15 +340,21 @@ public class ObjectToMapper {
     }
 
     private PersonToPickupDto getPersonPickupFromtIOrderFulfillment(IOrderFulfillment iOrderFulfillment) {
-        PersonToPickupDto personToPickupDto = new PersonToPickupDto();
-        personToPickupDto.setUserId(iOrderFulfillment.getPickupUserId());
-        personToPickupDto.setEmail(iOrderFulfillment.getPickupEmail());
-        personToPickupDto.setFullName(iOrderFulfillment.getPickupFullName());
-        personToPickupDto.setIdentityDocumentNumber(iOrderFulfillment.getPickupDocumentType());
-        personToPickupDto.setIdentityDocumentType(iOrderFulfillment.getPickupDocumentType());
-        personToPickupDto.setPhone(iOrderFulfillment.getPickupPhone());
 
-        return personToPickupDto;
+        return  Optional.ofNullable(iOrderFulfillment.getPickupUserId()).map(p -> {
+                    PersonToPickupDto personToPickupDto = new PersonToPickupDto();
+
+                    personToPickupDto.setUserId(p);
+                    personToPickupDto.setEmail(iOrderFulfillment.getPickupEmail());
+                    personToPickupDto.setFullName(iOrderFulfillment.getPickupFullName());
+                    personToPickupDto.setIdentityDocumentNumber(iOrderFulfillment.getPickupDocumentType());
+                    personToPickupDto.setIdentityDocumentType(iOrderFulfillment.getPickupDocumentType());
+                    personToPickupDto.setPhone(iOrderFulfillment.getPickupPhone());
+
+                    return personToPickupDto;
+
+                }).orElse(null);
+
     }
 
     private AddressInkatrackerCanonical getFromtOrderCanonical(IOrderFulfillment addressCanonical, Integer deliveryTime,
