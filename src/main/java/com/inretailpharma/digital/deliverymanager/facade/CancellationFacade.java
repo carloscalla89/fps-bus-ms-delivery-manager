@@ -86,6 +86,7 @@ public class CancellationFacade {
                                         cancellationDto.getCompanyCode(), s.getOrderStatus().getCode(), s.getOrderStatus().getName(),
                                         r.getEcommerceId());
 
+
                                 orderTransaction.updateStatusCancelledOrder(
                                         s.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
                                         actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
@@ -112,11 +113,18 @@ public class CancellationFacade {
                                 orderCancelledCanonical.setExternalId(r.getExternalId());
                                 orderCancelledCanonical.setCompany(r.getCompanyCode());
                                 orderCancelledCanonical.setLocalCode(r.getCenterCode());
+<<<<<<< HEAD
                                 Optional.ofNullable(r.getScheduledTime())
                                         .ifPresent(st -> orderCancelledCanonical.setConfirmedSchedule(DateUtils.getLocalDateTimeWithFormat(st)));
 
                                 orderCancelledCanonical.setLocal(r.getCenterName());
 
+=======
+
+                                Optional.ofNullable(r.getScheduledTime())
+                                        .ifPresent(st -> orderCancelledCanonical.setConfirmedSchedule(DateUtils.getLocalDateTimeWithFormat(st)));
+
+>>>>>>> 891e8a5... refactor query to cancell orders
                                 orderCancelledCanonical.setServiceCode(r.getServiceTypeCode());
                                 orderCancelledCanonical.setServiceName(r.getServiceTypeName());
                                 orderCancelledCanonical.setServiceType(r.getServiceType());
