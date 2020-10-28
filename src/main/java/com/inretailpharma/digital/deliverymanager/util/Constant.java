@@ -72,6 +72,7 @@ public interface Constant {
 
         TEMPORARY_RAD(2,"temporary","RAD"), TEMPORARY_EXP(2,"temporary","EXP"),
         TEMPORARY_PROG(2,"temporary","PROG"), TEMPORARY_AM_PM(2,"temporary","AM_PM"),
+        TEMPORARY_RET(2,"temporary","RET"),
 
         NONE(3,"not_found","RAD");
 

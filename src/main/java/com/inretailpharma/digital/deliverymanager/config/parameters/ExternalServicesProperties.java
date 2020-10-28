@@ -126,6 +126,9 @@ public class ExternalServicesProperties {
     @Value("${external-service.temporary.create-order.uri}")
     private String temporaryCreateOrderUri;
 
+    @Value("${external-service.temporary.update-order.uri}")
+    private String temporaryUpdateOrderUri;
+
     @Value("${external-service.temporary.create-order.connect-timeout}")
     private String temporaryCreateOrderConnectTimeOut;
 
