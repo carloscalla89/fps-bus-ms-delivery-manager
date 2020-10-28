@@ -154,7 +154,6 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
                                         orderCanonical.setOrderStatus(orderStatus);
 
-                                        log.info("orderCanonical:{}",orderCanonical);
 
                                         return orderCanonical;
                                     })
