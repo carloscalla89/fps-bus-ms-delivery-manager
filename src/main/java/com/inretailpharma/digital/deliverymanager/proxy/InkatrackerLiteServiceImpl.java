@@ -201,8 +201,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                 .defaultIfEmpty(
                         new OrderCanonical(
                                 ecommerceId,
-                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(),
-                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name())
+                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.getCode(),
+                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name())
                 )
                 .onErrorResume(e -> {
                     e.printStackTrace();
