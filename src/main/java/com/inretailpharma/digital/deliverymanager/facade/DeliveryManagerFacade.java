@@ -105,7 +105,6 @@ public class DeliveryManagerFacade {
                                             listItems,
                                             storeCenterCanonical,
                                             iOrderFulfillment.getExternalId(),
-                                            order.getOrderStatus().getName(),
                                             order.getOrderStatus().getDetail()
                                     )
                                     .flatMap(s -> {
@@ -176,7 +175,6 @@ public class DeliveryManagerFacade {
                                                     orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                     storeCenterCanonical,
                                                     iOrderFulfillment.getExternalId(),
-                                                    iOrderFulfillment.getStatusName(),
                                                     null)
                                             .flatMap(s -> {
                                                 OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
@@ -237,7 +235,6 @@ public class DeliveryManagerFacade {
                                                                                                 orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                                                                 storeCenterCanonical,
                                                                                                 orderResp.getExternalId(),
-                                                                                                orderResp.getOrderStatus().getName(),
                                                                                                 (Constant
                                                                                                         .OrderStatus
                                                                                                         .getByCode(Optional

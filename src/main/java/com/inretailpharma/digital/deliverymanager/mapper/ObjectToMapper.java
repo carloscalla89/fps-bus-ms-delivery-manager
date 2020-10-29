@@ -121,7 +121,16 @@ public class ObjectToMapper {
 
         orderInkatrackerCanonical.setDrugstore(drugstoreCanonical);
         orderInkatrackerCanonical.setDrugstoreId(storeCenterCanonical.getLegacyId());
-        orderInkatrackerCanonical.setDeliveryType(iOrderFulfillment.getServiceTypeShortCode());
+
+        if (Constant.Logical.getByValueString(iOrderFulfillment.getNewCodeServiceEnabled()).value()) {
+            orderInkatrackerCanonical.setDeliveryType(iOrderFulfillment.getServiceTypeShortCode());
+        } else {
+            orderInkatrackerCanonical.setDeliveryType(
+                    Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeShortCode())
+                            .getServiceTypeCodeOld()
+            );
+        }
+
         orderInkatrackerCanonical.setDeliveryServiceId((long) Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getId());
         orderInkatrackerCanonical.setDrugstoreAddress(storeCenterCanonical.getAddress());
         orderInkatrackerCanonical.setDaysToPickUp(
@@ -293,11 +302,11 @@ public class ObjectToMapper {
 
     private OrderStatusInkatrackerCanonical getFromOrderCanonical(IOrderFulfillment iOrderFulfillment, String status) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
-        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusTracker.getByName(status).getStatus());
+        orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
                 Timestamp.valueOf(iOrderFulfillment.getScheduledTime()).getTime()
         );
-        orderStatusInkatrackerCanonical.setDescription(Constant.OrderStatusTracker.getByName(status).getStatus());
+        orderStatusInkatrackerCanonical.setDescription(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
 
         return orderStatusInkatrackerCanonical;
     }

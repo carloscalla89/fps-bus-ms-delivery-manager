@@ -309,7 +309,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                             Constant.OrderStatus orderStatusUtil = Optional.ofNullable(r.getInsinkResponseCanonical().getSuccessCode())
                                     .filter(t -> t.equalsIgnoreCase("0-1") && resultCanonical.getExternalId() == null)
                                     .map(t -> Constant.OrderStatus.SUCCESS_RESERVED_ORDER)
-                                    .orElse(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS);
+                                    .orElse(Constant.OrderStatus.CONFIRMED);
 
                             orderStatus.setCode(orderStatusUtil.getCode());
                             orderStatus.setName(orderStatusUtil.name());

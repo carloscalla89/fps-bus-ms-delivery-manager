@@ -26,8 +26,7 @@ public interface OrderExternalService {
     Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto);
     Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments,
-                                            StoreCenterCanonical storeCenterCanonical, Long externalId,
-                                            String actionName, String statusDetail);
+                                            StoreCenterCanonical storeCenterCanonical, Long externalId, String statusDetail);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical);
     Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments, String action,

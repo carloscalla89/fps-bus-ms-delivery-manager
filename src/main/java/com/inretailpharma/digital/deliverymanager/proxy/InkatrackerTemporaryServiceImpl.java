@@ -45,11 +45,11 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
     public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                                    List<IOrderItemFulfillment> itemFulfillments,
                                                    StoreCenterCanonical storeCenterCanonical,
-                                                   Long externalId, String status, String statusDetail) {
+                                                   Long externalId, String statusDetail) {
         return Mono
                 .just(objectToMapper
                         .convertOrderToOrderInkatrackerCanonical(
-                                iOrderFulfillment, itemFulfillments, storeCenterCanonical, externalId, status
+                                iOrderFulfillment, itemFulfillments, storeCenterCanonical, externalId, Constant.OrderStatus.CONFIRMED_TRACKER.name()
                         )
                 )
                 .flatMap(b -> {
@@ -72,8 +72,7 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
-                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
-                                    externalId, status, statusDetail)
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId)
                             )
                             .doOnSuccess(s -> log.info("Response is Success in inkatracker:{}",s))
                             .defaultIfEmpty(
@@ -111,32 +110,6 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
         orderTrackerCanonical.setCancelReason(actionDto.getOrderCancelReason());
         orderTrackerCanonical.setCancelObservation(actionDto.getOrderCancelObservation());
 
-        Constant.OrderStatus errorResponse;
-        Constant.OrderStatus successResponse;
-
-        switch (actionDto.getAction()) {
-
-            case Constant.ActionName.RELEASE_ORDER:
-                successResponse = Constant.OrderStatus.RELEASED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER;
-
-                break;
-            case Constant.ActionName.CANCEL_ORDER:
-                successResponse = Constant.OrderStatus.CANCELLED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
-
-                break;
-            case Constant.ActionName.DELIVER_ORDER:
-                successResponse = Constant.OrderStatus.DELIVERED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_DELIVER;
-
-                break;
-
-            default:
-                successResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
-                errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
-
-        }
 
         log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerUpdateStatusOrderUri());
 
@@ -170,16 +143,7 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
                     Constant.OrderStatus os;
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
 
-                    if (r.statusCode().is2xxSuccessful()) {
-                        os = successResponse;
 
-                    } else {
-                        os = errorResponse;
-                        orderStatus.setDetail(r.statusCode().getReasonPhrase());
-                    }
-
-                    orderStatus.setCode(os.getCode());
-                    orderStatus.setName(os.name());
                     orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
                     orderCanonical.setOrderStatus(orderStatus);
@@ -199,8 +163,7 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
                     log.error("Error in inkatracker call {} ",e.getMessage());
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(errorResponse.getCode());
-                    orderStatus.setName(errorResponse.name());
+
                     orderStatus.setDetail(e.getMessage());
                     orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 

@@ -72,7 +72,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "s.pickup_user_id as pickupUserId, s.pickup_full_name as pickupFullName, s.pickup_email as pickupEmail," +
             "s.pickup_document_type as pickupDocumentType, s.pickup_document_number as pickupDocumentNumber, " +
             "s.pickup_phone as pickupPhone," +
-            "st.code as serviceTypeCode, st.short_code as serviceTypeShortCode,  st.name as serviceTypeName, st.enabled as serviceEnabled," +
+            "st.code as serviceTypeCode, st.short_code as serviceTypeShortCode,  st.name as serviceTypeName, " +
+            "st.enabled as serviceEnabled, st.send_new_code_enabled as newCodeServiceEnabled, " +
             "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
             "pm.change_amount as changeAmount, pm.card_provider_id as cardProviderId, pm.card_provider_code as cardProviderCode," +
             "pm.bin, pm.coupon," +

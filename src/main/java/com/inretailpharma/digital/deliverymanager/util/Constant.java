@@ -60,30 +60,42 @@ public interface Constant {
 
     }
 
+
     enum TrackerImplementation {
-        INKATRACKER_LITE_RAD(4,"inkatrackerlite","RAD"), INKATRACKER_LITE_RET(4,"inkatrackerlite","RET"),
-        INKATRACKER_LITE_EXP(4,"inkatrackerlite","EXP"), INKATRACKER_LITE_PROG(4,"inkatrackerlite","PROG"),
-        INKATRACKER_LITE_AM_PM(4,"inkatrackerlite","AM_PM"), INKATRACKER_LITE_CALL_RAD(4,"inkatrackerlite","RAD"),
-        INKATRACKER_LITE_CALL_EXP(4,"inkatrackerlite","EXP"), INKATRACKER_LITE_CALL_PROG(4,"inkatrackerlite","PROG"),
-        INKATRACKER_LITE_CALL_AM_PM(4,"inkatrackerlite","AM_PM"),
+        INKATRACKER_LITE_RAD(4,"inkatrackerlite","RAD", "RAD"),
+        INKATRACKER_LITE_EXP(4,"inkatrackerlite","EXP", "RAD"),
+        INKATRACKER_LITE_PROG(4,"inkatrackerlite","PROG","RAD"),
+        INKATRACKER_LITE_AM_PM(4,"inkatrackerlite","AM_PM", "RAD"),
+        INKATRACKER_LITE_RET(4,"inkatrackerlite","RET","RET"),
+        INKATRACKER_LITE_CALL_RAD(4,"inkatrackerlite","RAD", "RAD"),
+        INKATRACKER_LITE_CALL_EXP(4,"inkatrackerlite","EXP", "RAD"),
+        INKATRACKER_LITE_CALL_PROG(4,"inkatrackerlite","PROG","RAD"),
+        INKATRACKER_LITE_CALL_AM_PM(4,"inkatrackerlite","AM_PM", "RAD"),
+        INKATRACKER_LITE_CALL_RET(4,"inkatrackerlite","RET", "RET"),
 
-        INKATRACKER_RAD(3,"inkatracker","RAD"), INKATRACKER_EXP(3,"inkatracker","EXP"),
-        INKATRACKER_PROG(3,"inkatracker","PROG"), INKATRACKER_AM_PM(3,"inkatracker","AM_PM"),
+        INKATRACKER_RAD(3,"inkatracker","RAD", "RAD"),
+        INKATRACKER_EXP(3,"inkatracker","EXP", "RAD"),
+        INKATRACKER_PROG(3,"inkatracker","PROG", "RAD"),
+        INKATRACKER_AM_PM(3,"inkatracker","AM_PM", "RAD"),
 
-        TEMPORARY_RAD(2,"temporary","RAD"), TEMPORARY_EXP(2,"temporary","EXP"),
-        TEMPORARY_PROG(2,"temporary","PROG"), TEMPORARY_AM_PM(2,"temporary","AM_PM"),
-        TEMPORARY_RET(2,"temporary","RET"),
+        TEMPORARY_RAD(2,"temporary","RAD", "RAD"),
+        TEMPORARY_EXP(2,"temporary","EXP", "RAD"),
+        TEMPORARY_PROG(2,"temporary","PROG", "RAD"),
+        TEMPORARY_AM_PM(2,"temporary","AM_PM", "RAD"),
+        TEMPORARY_RET(2,"temporary","RET", "RET"),
 
-        NONE(3,"not_found","RAD");
+        NONE(3,"not_found","RAD", "RAD");
 
         private int id;
         private String name;
         private String serviceTypeCode;
+        private String serviceTypeCodeOld;
 
-        TrackerImplementation(int id, String name, String serviceTypeCode) {
+        TrackerImplementation(int id, String name, String serviceTypeCode,String serviceTypeCodeOld) {
             this.id = id;
             this.name = name;
             this.serviceTypeCode = serviceTypeCode;
+            this.serviceTypeCodeOld = serviceTypeCodeOld;
         }
 
 
@@ -107,6 +119,10 @@ public interface Constant {
         public String getServiceTypeCode() {
             return serviceTypeCode;
         }
+
+        public String getServiceTypeCodeOld() {
+            return serviceTypeCodeOld;
+        }
     }
 
     interface OrderTrackerResponseCode {
@@ -122,9 +138,6 @@ public interface Constant {
         String ACTIVATED_AUDIT_VALUE = "1";
         String ACTIVATED_AUDIT = "ACTIVATED_AUDIT";
 
-        String ACTIVATED_ORDER_TRACKER_VALUE = "1";
-        String ACTIVATED_ORDER_TRACKER = "ACTIVATED_ORDER_TRACKER";
-
         String DAYS_PICKUP_MAX_RET = "DAYS_PICKUP_MAX_RET";
         String ACTIVATED_DD_IKF = "ACTIVATED_DD_IKF";
         String ACTIVATED_DD_MF = "ACTIVATED_DD_MF";
@@ -132,25 +145,6 @@ public interface Constant {
 
     interface InsinkErrorCode {
         String CODE_ERROR_STOCK = "E-1";
-    }
-
-    interface ActionName {
-        String RELEASE_ORDER = "RELEASE_ORDER";
-        String CANCEL_ORDER = "CANCEL_ORDER";
-        String DELIVER_ORDER = "DELIVER_ORDER";
-        String READY_PICKUP_ORDER = "READY_PICKUP_ORDER";
-
-        String ATTEMPT_TRACKER_CREATE = "ATTEMPT_TRACKER_CREATE";
-        String UPDATE_TRACKER_BILLING = "UPDATE_TRACKER_BILLING";
-        String UPDATE_RELEASE_ORDER = "UPDATE_RELEASE_ORDER";
-        String INVOICED_ORDER = "INVOICED_ORDER";
-    }
-
-    interface ActionNameInkatrackerlite {
-        String READY_FOR_PICKUP = "READY_FOR_PICKUP";
-        String CANCELLED = "CANCELLED";
-        String DELIVERED = "DELIVERED";
-        String READY_FOR_BILLING = "READY_FOR_BILLING";
     }
 
     enum Source {
@@ -173,8 +167,12 @@ public interface Constant {
 
         ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker"),
         UPDATE_TRACKER_BILLING(1, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
-        DESCHEDULER_ORDER(5, "Desprogramar una orden en el inkatracker"),
+        ON_RELEASE_ORDER(1, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
+        ON_STORE_ORDER(1, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
+
+
         ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink"),
+
         RELEASE_ORDER(2, "Liberar orden reservada"),
 
         UPDATE_RELEASE_ORDER(3, "Actualizar el resultado al liberar unaorden desde el dispatcher"),
@@ -184,7 +182,12 @@ public interface Constant {
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger"),
         INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada"),
 
-        ON_STORE_ORDER(2, "Acción para actualizar el estado en tienda"),
+        //========== nuevas actions que enviarán TI - 29-10-2020 =========================
+        READY_FOR_BILLING(4,"Accion para cambiar el estado de la orden a READY_FOR_BILLING"),
+        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO"),
+        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO"),
+        //=================================================================================
+
 
         FILL_ORDER(5,"Accion para llenar data del ecommerce a una orden"),
 
@@ -217,22 +220,69 @@ public interface Constant {
     }
 
     enum OrderStatusTracker {
-        CANCEL_ORDER("11","CANCELLED", OrderStatus.CONFIRMED_CANCEL_TRACKER),
-        ERROR_TO_CANCEL_ORDER("33","CANCELLED",OrderStatus.ERROR_TO_CANCEL_ORDER),
-        ERROR_INSERT_TRACKER("01","CONFIRMED",OrderStatus.ERROR_INSERT_TRACKER),
-        CANCELLED_ORDER("11","CANCELLED", OrderStatus.CONFIRMED_CANCEL_TRACKER),
-        CANCELLED_ORDER_ONLINE_PAYMENT("37","CANCELLED",OrderStatus.CONFIRMED_CANCEL_TRACKER),
-        DELIVER_ORDER("12","DELIVERED",OrderStatus.CONFIRMED_DELIVERY_TRACKER),
-        DELIVERED_ORDER("12","DELIVERED",OrderStatus.CONFIRMED_DELIVERY_TRACKER),
-        ATTEMPT_TRACKER_CREATE("15","CONFIRMED",OrderStatus.CONFIRMED_TRACKER),
-        CONFIRMED("15","CONFIRMED",OrderStatus.CONFIRMED_TRACKER),
-        SUCCESS_RESERVED_ORDER("10","CONFIRMED",OrderStatus.CONFIRMED_TRACKER),
-        NOT_FOUND_ACTION("-1","NOT_FOUND_ACTION",OrderStatus.CONFIRMED_TRACKER);
+
+        UPDATE_TRACKER_BILLING("UPDATE_TRACKER_BILLING", "UPDATE_TRACKER_BILLING", OrderStatus.CONFIRMED_TRACKER,
+                OrderStatus.ERROR_INSERT_TRACKER, ActionOrder.UPDATE_TRACKER_BILLING.name()),
+
+        RELEASE_ORDER("ON_STORE_ORDER", "ON_STORE", OrderStatus.CONFIRMED_TRACKER,
+                OrderStatus.ERROR_INSERT_TRACKER, ActionOrder.RELEASE_ORDER.name()),
+
+        ON_RELEASE_ORDER("ON_STORE_ORDER", "ON_STORE", OrderStatus.CONFIRMED_TRACKER,
+                OrderStatus.ERROR_INSERT_TRACKER, ActionOrder.ON_RELEASE_ORDER.name()),
+
+        ON_STORE_ORDER("ON_STORE_ORDER", "ON_STORE", OrderStatus.CONFIRMED_TRACKER,
+                OrderStatus.ERROR_INSERT_TRACKER, ActionOrder.ON_STORE_ORDER.name()),
+
+        CANCELLED_ORDER("CANCELLED", "CANCELLED", OrderStatus.CANCELLED_ORDER,
+                OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.CANCEL_ORDER.name()),
+
+        CANCELLED_ORDER_ONLINE_PAYMENT("CANCELLED", "CANCELLED",OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT,
+                OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.NONE.name()),
+
+        ERROR_INSERT_TRACKER("CONFIRMED", "CONFIRMED",OrderStatus.ERROR_INSERT_TRACKER,
+                OrderStatus.ERROR_INSERT_TRACKER, ActionOrder.ATTEMPT_TRACKER_CREATE.name()),
+
+        ERROR_RESERVED_ORDER("CONFIRMED", "CONFIRMED",OrderStatus.ERROR_INSERT_TRACKER,
+                OrderStatus.ERROR_INSERT_INKAVENTA, ActionOrder.NONE.name()),
+
+        CONFIRMED("CONFIRMED", "CONFIRMED",OrderStatus.CONFIRMED,
+                OrderStatus.ERROR_INSERT_INKAVENTA, ActionOrder.NONE.name()),
+
+        CONFIRMED_TRACKER("CONFIRMED", "CONFIRMED",OrderStatus.CONFIRMED_TRACKER,
+                OrderStatus.ERROR_INSERT_INKAVENTA, ActionOrder.NONE.name()),
+
+        SUCCESS_RESERVED_ORDER("CONFIRMED", "CONFIRMED",OrderStatus.CONFIRMED_TRACKER,
+                OrderStatus.ERROR_INSERT_INKAVENTA, ActionOrder.NONE.name()),
+
+        DELIVERED_ORDER("DELIVER_ORDER", "DELIVERED", OrderStatus.DELIVERED_ORDER,
+                OrderStatus.ERROR_DELIVER, ActionOrder.DELIVER_ORDER.name()),
+
+        NOT_FOUND_ACTION("NOT_FOUND_ACTION", "NOT_FOUND_ACTION",OrderStatus.NOT_FOUND_CODE,
+                OrderStatus.NOT_FOUND_CODE, ActionOrder.NONE.name()),
+
+        INVOICED_ORDER("INVOICED_ORDER", "INVOICED",OrderStatus.INVOICED,
+                OrderStatus.ERROR_INVOICED, ActionOrder.INVOICED_ORDER.name()),
 
 
-        private String code;
-        private String status;
+        PICKED_ORDER("PICKING_ORDER", "PICKING",OrderStatus.PICKED_ORDER,
+                OrderStatus.ERROR_PICKED, ActionOrder.PICK_ORDER.name()),
+
+        PREPARED_ORDER("PREPARED_ORDER", "PREPARED",OrderStatus.PREPARED_ORDER,
+                OrderStatus.ERROR_PREPARED, ActionOrder.PREPARE_ORDER.name()),
+
+
+        READY_FOR_BILLING("READY_FOR_BILLING", "READY_FOR_BILLING",OrderStatus.READY_PICKUP_ORDER,
+                           OrderStatus.ERROR_READY_FOR_PICKUP, ActionOrder.READY_FOR_BILLING.name()),
+
+        READY_PICKUP_ORDER("READY_FOR_PICKUP", "READY_FOR_PICKUP",OrderStatus.READY_PICKUP_ORDER,
+                OrderStatus.ERROR_READY_FOR_PICKUP, ActionOrder.READY_PICKUP_ORDER.name());
+
+
+        private String trackerStatus;
+        private String trackerLiteStatus;
         private OrderStatus orderStatus;
+        private OrderStatus orderStatusError;
+        private String actionName;
 
         public static OrderStatusTracker getByName(String name) {
             return EnumUtils.getEnumList(OrderStatusTracker.class)
@@ -242,22 +292,41 @@ public interface Constant {
                     .orElse(NOT_FOUND_ACTION);
         }
 
-        OrderStatusTracker(String code, String status, OrderStatus orderStatus) {
-            this.code = code;
-            this.status = status;
+        public static OrderStatusTracker getByActionName(String actionName) {
+            return EnumUtils.getEnumList(OrderStatusTracker.class)
+                    .stream()
+                    .filter(item -> item.actionName.equalsIgnoreCase(actionName))
+                    .findFirst()
+                    .orElse(NOT_FOUND_ACTION);
+        }
+
+        OrderStatusTracker(String trackerStatus, String trackerLiteStatus, OrderStatus orderStatus, OrderStatus orderStatusError, String actionName) {
+            this.trackerStatus = trackerStatus;
+            this.trackerLiteStatus = trackerLiteStatus;
             this.orderStatus = orderStatus;
+            this.orderStatusError = orderStatusError;
+            this.actionName = actionName;
         }
 
-        public String getCode() {
-            return code;
+
+        public String getTrackerStatus() {
+            return trackerStatus;
         }
 
-        public String getStatus() {
-            return status;
+        public String getTrackerLiteStatus() {
+            return trackerLiteStatus;
         }
 
         public OrderStatus getOrderStatus() {
             return orderStatus;
+        }
+
+        public OrderStatus getOrderStatusError() {
+            return orderStatusError;
+        }
+
+        public String getActionName() {
+            return actionName;
         }
     }
 
@@ -268,50 +337,37 @@ public interface Constant {
         ERROR_INSERT_TRACKER("01", false),
         ERROR_INSERT_INKAVENTA("02", false),
         ERROR_RESERVED_ORDER("03",  false),
-        ERROR_RELEASE_ORDER("04",  false),
         ERROR_RELEASE_DISPATCHER_ORDER("04",  false),
         ERROR_UPDATE_TRACKER_BILLING("05", false),
-        ERROR_ON_STORE("06",  false),
+        ERROR_READY_FOR_PICKUP("06",  false),
         ERROR_ASSIGNED("07",  false),
         ERROR_PICKED("08",  false),
         ERROR_PREPARED("09",  false),
 
-        ERROR_CONFIRMED("30",  false),
-        ERROR_ARRIVE("31",  false),
-        ERROR_REJECT("32",  false),
         ERROR_TO_CANCEL_ORDER("33",  false),
         ERROR_DELIVER("34",  false),
-        ERROR_PICKUP("35",  false),
-        ERROR_UPDATE("36",  false),
         CANCELLED_ORDER_ONLINE_PAYMENT("37",  true),
         ORDER_FAILED("38",  false),
-        INVOICED("40", false),
+        INVOICED("40", true),
         ERROR_INVOICED("41", false),
 
         SUCCESS_RESERVED_ORDER("10", true),
 
         CANCELLED_ORDER("11",true),
-        DELIVERED_ORDER("12",  false),
+        DELIVERED_ORDER("12",  true),
         READY_PICKUP_ORDER("13",  true),
-        RELEASED_ORDER("14", true),
 
         CONFIRMED("15",  true),
-
         CONFIRMED_TRACKER("16",  true),
-        CONFIRMED_CANCEL_TRACKER("17",  true),
-        CONFIRMED_DELIVERY_TRACKER("18",  true),
 
-        ON_STORE("16",  true),
+
         ASSIGNED("17",  true),
-        PICKED_ORDER("18",  true),
-        PREPARED_ORDER("19",  true),
-        ARRIVED("20",  true),
-        REJECTED("21",  true),
+
+        PREPARED_ORDER("18",  true),
+        PICKED_ORDER("19",  true),
 
         NOT_FOUND_CODE("-1",  false),
         NOT_FOUND_ORDER("-1",  false),
-        NOT_DEFINED_ERROR("-1",  false),
-        NOT_DEFINED_STATUS("-1",  false),
         NOT_FOUND_ACTION("-1",  false),
         EMPTY_RESULT_CANCELLATION("-1", false),
         EMPTY_RESULT_DISPATCHER("-1",  false),

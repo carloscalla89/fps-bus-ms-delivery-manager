@@ -151,7 +151,7 @@ public class TrackerFacade {
 					unassignedCanonical.getOrders().forEach(orderId -> {
 
 						if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-							auditOrder(orderId, Constant.OrderStatus.PREPARED);
+							auditOrder(orderId, Constant.OrderStatus.PREPARED_ORDER);
 						} else {
 							auditOrder(orderId, Constant.OrderStatus.ERROR_PREPARED);
 						}

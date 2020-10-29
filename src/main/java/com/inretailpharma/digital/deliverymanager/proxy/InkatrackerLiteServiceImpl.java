@@ -38,11 +38,11 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
     public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                                    List<IOrderItemFulfillment> itemFulfillments,
                                                    StoreCenterCanonical storeCenterCanonical,
-                                                   Long externalId, String status, String statusDetail) {
+                                                   Long externalId, String statusDetail) {
 
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
-                        storeCenterCanonical, externalId, status)
+                        storeCenterCanonical, externalId, Constant.OrderStatus.CONFIRMED_TRACKER.name())
                 )
                 .flatMap(b -> {
 
@@ -68,8 +68,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
-                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
-                                    externalId, status, statusDetail)
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId)
                             )
                             .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite:{}",s))
                             .defaultIfEmpty(
@@ -98,74 +97,9 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
-        String actionInkatrackerLite;
-        Constant.OrderStatus errorResponse;
-        Constant.OrderStatus successResponse;
+        Constant.OrderStatusTracker orderStatusInkatracker = Constant.OrderStatusTracker.getByActionName(actionDto.getAction());
 
-        String inkatrackerLiteUri;
-
-        switch (actionDto.getAction()) {
-
-            case Constant.ActionName.RELEASE_ORDER:
-                actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_BILLING;
-                successResponse = Constant.OrderStatus.RELEASED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER;
-
-                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
-
-                break;
-            case Constant.ActionName.CANCEL_ORDER:
-                actionInkatrackerLite = Constant.ActionNameInkatrackerlite.CANCELLED;
-                successResponse = Constant.OrderStatus.CANCELLED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_TO_CANCEL_ORDER;
-
-                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
-
-                break;
-            case Constant.ActionName.DELIVER_ORDER:
-                actionInkatrackerLite = Constant.ActionNameInkatrackerlite.DELIVERED;
-                successResponse = Constant.OrderStatus.DELIVERED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_DELIVER;
-
-                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
-
-                break;
-            case Constant.ActionName.READY_PICKUP_ORDER:
-                actionInkatrackerLite = Constant.ActionNameInkatrackerlite.READY_FOR_PICKUP;
-                successResponse = Constant.OrderStatus.READY_PICKUP_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_PICKUP;
-
-                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
-
-                break;
-
-            case Constant.ActionName.PICK_ORDER:
-                actionInkatrackerLite = Constant.ActionNameInkatrackerlite.PICKING;
-                successResponse = Constant.OrderStatus.PICKED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_PICKED;
-
-                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
-
-                break;
-
-            case Constant.ActionName.PREPARE_ORDER:
-                actionInkatrackerLite = Constant.ActionNameInkatrackerlite.PREPARED;
-                successResponse = Constant.OrderStatus.PREPARED_ORDER;
-                errorResponse = Constant.OrderStatus.ERROR_PREPARED;
-
-                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
-
-                break;
-
-            default:
-                actionInkatrackerLite = Constant.OrderStatus.NOT_FOUND_ACTION.name();
-                successResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
-                errorResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
-
-                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
-        }
-
-        log.info("url inkatracket-lite:{}",inkatrackerLiteUri);
+        log.info("url inkatracket-lite:{}",externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
 
         return WebClient
                 .builder()
@@ -181,7 +115,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                 .uri(builder ->
                         builder
                                 .path("/{orderExternalId}")
-                                .queryParam("action",actionInkatrackerLite)
+                                .queryParam("action",orderStatusInkatracker.getTrackerLiteStatus())
                                 .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
                                 .build(ecommerceId))
                 .retrieve()
@@ -190,9 +124,11 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     log.info("response:{}", r);
                     OrderCanonical orderCanonical = new OrderCanonical();
 
+                    Constant.OrderStatus orderStatus1 = Constant.OrderStatus.getByName(orderStatusInkatracker.name());
+
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(successResponse.getCode());
-                    orderStatus.setName(successResponse.name());
+                    orderStatus.setCode(orderStatus1.getCode());
+                    orderStatus.setName(orderStatus1.name());
                     orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
                     orderCanonical.setOrderStatus(orderStatus);
 
@@ -208,10 +144,10 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     e.printStackTrace();
                     log.error("Error in inkatrackerlite call {} ",e.getMessage());
                     OrderCanonical orderCanonical = new OrderCanonical();
-
+                    Constant.OrderStatus orderStatus1 = Constant.OrderStatus.getByName(orderStatusInkatracker.name());
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(errorResponse.getCode());
-                    orderStatus.setName(errorResponse.name());
+                    orderStatus.setCode(orderStatus1.getCode());
+                    orderStatus.setName(orderStatus1.name());
                     orderStatus.setDetail(e.getMessage());
                     orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 

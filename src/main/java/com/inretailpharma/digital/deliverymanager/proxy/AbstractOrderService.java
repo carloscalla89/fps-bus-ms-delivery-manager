@@ -67,7 +67,7 @@ public class AbstractOrderService implements OrderExternalService {
 	public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
 												   List<IOrderItemFulfillment> itemFulfillments,
 												   StoreCenterCanonical storeCenterCanonical,
-												   Long externalId, String action, String statusDetail) {
+												   Long externalId, String statusDetail) {
 		return null;
 	}
 
@@ -120,7 +120,7 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	protected Mono<OrderCanonical> mapResponseFromTracker(ClientResponse clientResponse, Long id, Long ecommerceId,
-														  Long externalId, String status, String statusDetail) {
+														  Long externalId) {
 		OrderCanonical orderCanonical = new OrderCanonical();
 		orderCanonical.setId(id);
 		orderCanonical.setEcommerceId(ecommerceId);
@@ -131,7 +131,7 @@ public class AbstractOrderService implements OrderExternalService {
 		if (clientResponse.statusCode().is2xxSuccessful()) {
 
 			orderCanonical.setTrackerId(ecommerceId);
-			orderStatus = objectToMapper.getOrderStatusInkatracker(status, statusDetail);
+			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.CONFIRMED_TRACKER.name(), null);
 
 			orderCanonical.setOrderStatus(orderStatus);
 
