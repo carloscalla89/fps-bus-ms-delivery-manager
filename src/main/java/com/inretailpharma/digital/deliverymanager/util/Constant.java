@@ -221,12 +221,15 @@ public interface Constant {
         ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE"),
         ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED"),
 
-
+        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago"),
+        REJECTED_ONLINE_PAYMENT(6, "Acción para informar el rechazo del pago"),
 
 
         FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden"),
 
         NONE(0, "Not found status");
+
+
 
         private Integer code;
         private String description;
@@ -429,6 +432,7 @@ public interface Constant {
 
         SUCCESS_RESERVED_ORDER("10", true),
 
+<<<<<<< HEAD
         CONFIRMED("15", true), CONFIRMED_TRACKER("16", true),
 
         ASSIGNED("17", true),
@@ -453,6 +457,32 @@ public interface Constant {
 
         NOT_FOUND_CODE("-1", false), NOT_FOUND_ORDER("-1", false), NOT_FOUND_ACTION("-1", false),
         EMPTY_RESULT_CANCELLATION("-1", false), EMPTY_RESULT_DISPATCHER("-1", false),
+=======
+        CANCELLED_ORDER("11",true),
+        DELIVERED_ORDER("12",  false),
+        READY_PICKUP_ORDER("13",  true),
+        RELEASED_ORDER("14", true),
+
+        CONFIRMED("15",  true),
+        ON_STORE("16",  true),
+        ASSIGNED("17",  true),
+        PREPARED("18",  true),
+        ON_ROUTE("19",  true),
+        ARRIVED("20",  true),
+        REJECTED("21",  true),
+        INVOICED("40", false),
+
+        LIQUIDATED_ONLINE_PAYMENT("42", true),
+        REJECTED_ONLINE_PAYMENT("43", true),
+
+        NOT_FOUND_CODE("-1",  false),
+        NOT_FOUND_ORDER("-1",  false),
+        NOT_DEFINED_ERROR("-1",  false),
+        NOT_DEFINED_STATUS("-1",  false),
+        NOT_FOUND_ACTION("-1",  false),
+        EMPTY_RESULT_CANCELLATION("-1", false),
+        EMPTY_RESULT_DISPATCHER("-1",  false),
+>>>>>>> 092d09e... PLTF-28: add status online payment mock
         EMPTY_RESULT_INKATRACKER("-1", false),
 
         EMPTY_RESULT_INKATRACKERLITE("-1", false), END_STATUS_RESULT("-1", false),

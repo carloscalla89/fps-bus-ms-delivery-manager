@@ -299,6 +299,20 @@ public class DeliveryManagerFacade {
                                             Constant.OrderStatus.NOT_FOUND_ORDER.name())
                             );
 
+                case 6:
+                    OrderCanonical resultDefaultMock = new OrderCanonical();
+                    OrderStatusCanonical orderStatusFoundMock = new OrderStatusCanonical();
+                    orderStatusFoundMock.setCode(Constant.OrderStatus.getByName(action.name()).getCode());
+                    orderStatusFoundMock.setName(Constant.OrderStatus.getByName(action.name()).name());
+                    orderStatusFoundMock.setStatusDate(DateUtils.getLocalDateTimeNow());
+                    resultDefaultMock.setOrderStatus(orderStatusFoundMock);
+
+                    resultDefaultMock.setEcommerceId(ecommercePurchaseId);
+
+                    resultCanonical = Mono.just(resultDefaultMock);
+
+                    break;
+
                 default:
                     OrderCanonical resultDefault = new OrderCanonical();
                     OrderStatusCanonical orderStatusNotFound = new OrderStatusCanonical();
