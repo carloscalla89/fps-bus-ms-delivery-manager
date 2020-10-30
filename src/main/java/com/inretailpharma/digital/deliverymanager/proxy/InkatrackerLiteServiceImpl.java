@@ -124,11 +124,11 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     log.info("response:{}", r);
                     OrderCanonical orderCanonical = new OrderCanonical();
 
-                    Constant.OrderStatus orderStatus1 = Constant.OrderStatus.getByName(orderStatusInkatracker.name());
+                    Constant.OrderStatus orderStatusResult = orderStatusInkatracker.getOrderStatus();
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(orderStatus1.getCode());
-                    orderStatus.setName(orderStatus1.name());
+                    orderStatus.setCode(orderStatusResult.getCode());
+                    orderStatus.setName(orderStatusResult.name());
                     orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
                     orderCanonical.setOrderStatus(orderStatus);
 
@@ -144,10 +144,10 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     e.printStackTrace();
                     log.error("Error in inkatrackerlite call {} ",e.getMessage());
                     OrderCanonical orderCanonical = new OrderCanonical();
-                    Constant.OrderStatus orderStatus1 = Constant.OrderStatus.getByName(orderStatusInkatracker.name());
+                    Constant.OrderStatus orderStatusResult = orderStatusInkatracker.getOrderStatusError();
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(orderStatus1.getCode());
-                    orderStatus.setName(orderStatus1.name());
+                    orderStatus.setCode(orderStatusResult.getCode());
+                    orderStatus.setName(orderStatusResult.name());
                     orderStatus.setDetail(e.getMessage());
                     orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 

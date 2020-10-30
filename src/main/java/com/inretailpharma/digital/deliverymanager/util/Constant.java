@@ -363,8 +363,8 @@ public interface Constant {
 
         ASSIGNED("17",  true),
 
-        PREPARED_ORDER("18",  true),
-        PICKED_ORDER("19",  true),
+        PICKED_ORDER("18",  true),
+        PREPARED_ORDER("19",  true),
 
         NOT_FOUND_CODE("-1",  false),
         NOT_FOUND_ORDER("-1",  false),
