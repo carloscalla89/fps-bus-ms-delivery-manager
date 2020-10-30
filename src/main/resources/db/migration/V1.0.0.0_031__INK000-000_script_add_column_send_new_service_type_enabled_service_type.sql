@@ -1,5 +1,5 @@
 ALTER TABLE `service_type`
-ADD COLUMN `send_new_code_enabled` tinyint(1) DEFAULT NULL 0 AFTER `description`;
+ADD COLUMN `send_new_code_enabled` tinyint(1) DEFAULT 0 AFTER `description`;
 
 UPDATE  service_type
 SET     send_new_code_enabled = 1
