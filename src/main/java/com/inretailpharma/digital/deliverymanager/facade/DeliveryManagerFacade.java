@@ -5,7 +5,9 @@ import java.util.Optional;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
@@ -34,12 +36,14 @@ public class DeliveryManagerFacade {
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
     private ApplicationParameterService applicationParameterService;
+    private OrderExternalService onlinePayment;
     private final ApplicationContext context;
     private OrderFacadeProxy orderFacadeProxy;
 
     @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  ObjectToMapper objectToMapper,
+                                 @Qualifier("onlinePayment") OrderExternalService onlinePayment,
                                  ApplicationContext context,
                                  ApplicationParameterService applicationParameterService,
                                  OrderFacadeProxy orderFacadeProxy) {
@@ -47,6 +51,7 @@ public class DeliveryManagerFacade {
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.applicationParameterService = applicationParameterService;
+        this.onlinePayment = onlinePayment;
         this.context = context;
         this.orderFacadeProxy = orderFacadeProxy;
 
@@ -300,16 +305,30 @@ public class DeliveryManagerFacade {
                             );
 
                 case 6:
-                    OrderCanonical resultDefaultMock = new OrderCanonical();
-                    OrderStatusCanonical orderStatusFoundMock = new OrderStatusCanonical();
-                    orderStatusFoundMock.setCode(Constant.OrderStatus.getByName(action.name()).getCode());
-                    orderStatusFoundMock.setName(Constant.OrderStatus.getByName(action.name()).name());
-                    orderStatusFoundMock.setStatusDate(DateUtils.getLocalDateTimeNow());
-                    resultDefaultMock.setOrderStatus(orderStatusFoundMock);
 
-                    resultDefaultMock.setEcommerceId(ecommercePurchaseId);
+                        OrderExternalService orderExternalService1 = (OrderExternalService)context.getBean(
+                            Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                    );
 
-                    resultCanonical = Mono.just(resultDefaultMock);
+                    resultCanonical = onlinePayment.getResultfromOnlinePaymentExternalServices(ecommercePurchaseId, actionDto)
+                        .map(r -> {
+
+                            log.info("[START] to update online payment order");
+
+                            if(action.name().equals(r.getOrderStatus().getName())) {
+                                String onlinePaymentStatus = Constant.OnlinePayment.LIQUIDETED;
+                                if(Constant.ActionOrder.REJECTED_ONLINE_PAYMENT.name().equals(r.getOrderStatus().getName())) {
+                                    onlinePaymentStatus = Constant.OnlinePayment.REJECTED;
+                                }
+                                log.info("[PROCESS] to update online payment order::{}, status::{}", iOrderFulfillment.getOrderId(), onlinePaymentStatus);
+                                orderTransaction.updateOrderOnlinePaymentStatusByExternalId(iOrderFulfillment.getOrderId(),onlinePaymentStatus);
+                            }
+
+                            log.info("[END] to update order");
+
+                            return r;
+                        });
+
 
                     break;
 

@@ -45,5 +45,5 @@ public interface OrderExternalService {
     Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode);
 
     Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical);
-
+    Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, ActionDto actionDto);
 }

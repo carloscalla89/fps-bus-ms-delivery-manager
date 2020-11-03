@@ -241,4 +241,8 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         log.info("PaymentMethod updated succesfully");
     }
 
+    @Override
+    public void updateOnlinePaymentStatusByOrderId(Long orderId, String onlinePaymentStatus) {
+        orderRepository.updateOnlinePaymentStatusByOrderId(orderId, onlinePaymentStatus);
+    }
 }

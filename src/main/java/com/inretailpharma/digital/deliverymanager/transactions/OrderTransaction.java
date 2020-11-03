@@ -307,4 +307,8 @@ public class OrderTransaction {
 
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateOrderOnlinePaymentStatusByExternalId(Long orderId, String onlinePaymentStatus) {
+        orderRepositoryService.updateOnlinePaymentStatusByOrderId(orderId, onlinePaymentStatus);
+    }
 }

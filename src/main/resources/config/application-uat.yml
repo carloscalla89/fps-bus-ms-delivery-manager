@@ -37,7 +37,11 @@ external-service:
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
       connect-timeout: 30000
-      read-timeout: 60000
+      read-timeout: 360
+    update-onlinepayment-status-order:
+      uri: http://us-inkatrackerlite/nvr/onlinepayment/orders
+      connect-timeout: 240000
+      read-timeout: 480
   inkatracker:
     create-order:
       uri: http://us-inkatracker/nvr/orders/create
@@ -49,17 +53,12 @@ external-service:
       read-timeout: 60000
     update-status-order:
       uri: http://us-inkatracker/nvr/orders
-      connect-timeout: 30000
-      read-timeout: 60000
-  temporary:
-    create-order:
-      uri: http://us-temporary/nvr/orders/create
-      connect-timeout: 30000
-      read-timeout: 60000
-    update-order:
-      uri: http://us-temporary/nvr/orders/update
-      connect-timeout: 30000
-      read-timeout: 60000
+      connect-timeout: 240000
+      read-timeout: 480
+    update-onlinepayment-status-order:
+      uri: http://us-inkatracker/nvr/onlinepayment/orders
+      connect-timeout: 240000
+      read-timeout: 480
   order-tracker:
     create-order:
       uri: http://us-ordertracker/order
@@ -77,7 +76,7 @@ external-service:
       uri: http://us-ordertracker/order
       connect-timeout: 10000
       read-timeout: 120000
-  fulfillment-center:
+  fufillment-center:
     get-center:
       uri: http://us-fulfillment-center/fulfillment/store/
       connect-timeout: 15000
@@ -94,5 +93,13 @@ external-service:
     add-controversy:
       uri: http://uS-Seller-Center/sellercenter/orders/
       connect-timeout: 10000
+      read-timeout: 120000l
+  online-payment:
+    liquidated:
+      uri: https://visauat.cindibyinkafarma.com/visa/confirmation
+      connect-timeout: 10000
       read-timeout: 120000
-
+    rejected:
+      uri: https://visauat.cindibyinkafarma.com/visa/rejected
+      connect-timeout: 10000
+      read-timeout: 120000l

@@ -31,6 +31,7 @@ import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.ClientResponse;
+
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -318,5 +319,8 @@ public class AbstractOrderService implements OrderExternalService {
 		return Mono.just(orderCanonical);
 	}
 
+	public Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, ActionDto actionDto) {
+		throw new UnsupportedOperationException();
+	}
 
 }

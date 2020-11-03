@@ -190,6 +190,11 @@ public interface Constant {
         String INVOICE = "INVOICE";
     }
 
+    interface OnlinePayment {
+        String LIQUIDETED = "LIQUIDETED";
+        String REJECTED = "REJECTED";
+    }
+
     enum ActionOrder {
 
         ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker"),
@@ -432,7 +437,6 @@ public interface Constant {
 
         SUCCESS_RESERVED_ORDER("10", true),
 
-<<<<<<< HEAD
         CONFIRMED("15", true), CONFIRMED_TRACKER("16", true),
 
         ASSIGNED("17", true),
@@ -457,7 +461,7 @@ public interface Constant {
 
         NOT_FOUND_CODE("-1", false), NOT_FOUND_ORDER("-1", false), NOT_FOUND_ACTION("-1", false),
         EMPTY_RESULT_CANCELLATION("-1", false), EMPTY_RESULT_DISPATCHER("-1", false),
-=======
+
         CANCELLED_ORDER("11",true),
         DELIVERED_ORDER("12",  false),
         READY_PICKUP_ORDER("13",  true),
@@ -482,8 +486,6 @@ public interface Constant {
         NOT_FOUND_ACTION("-1",  false),
         EMPTY_RESULT_CANCELLATION("-1", false),
         EMPTY_RESULT_DISPATCHER("-1",  false),
->>>>>>> 092d09e... PLTF-28: add status online payment mock
-        EMPTY_RESULT_INKATRACKER("-1", false),
 
         EMPTY_RESULT_INKATRACKERLITE("-1", false), END_STATUS_RESULT("-1", false),
         EMPTY_RESULT_ORDERTRACKER("-1", false);

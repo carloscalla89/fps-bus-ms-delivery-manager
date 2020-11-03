@@ -246,4 +246,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                              @Param("paymentNote") String paymentNote,
                              @Param("orderId") Long orderId
     );
+
+    @Modifying
+    @Query(value = "update payment_method set online_payment_status = :onlinePaymentStatus where order_fulfillment_id = :orderId", nativeQuery = true)
+    void updateOnlinePaymentStatusByOrderId(@Param("orderId") Long orderId, @Param("onlinePaymentStatus") String onlinePaymentStatus);
 }
