@@ -313,7 +313,7 @@ public class DeliveryManagerFacade {
                     resultCanonical = onlinePayment.getResultfromOnlinePaymentExternalServices(ecommercePurchaseId, actionDto)
                         .map(r -> {
 
-                            log.info("[START] to update online payment order");
+                            log.info("[START] to update online payment order ={}", r);
 
                             if(action.name().equals(r.getOrderStatus().getName())) {
                                 String onlinePaymentStatus = Constant.OnlinePayment.LIQUIDETED;
