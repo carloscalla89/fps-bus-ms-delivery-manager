@@ -76,7 +76,7 @@ external-service:
       uri: http://us-ordertracker/order
       connect-timeout: 10000
       read-timeout: 120000
-  fufillment-center:
+  fulfillment-center: :
     get-center:
       uri: http://us-fulfillment-center/fulfillment/store/
       connect-timeout: 15000
