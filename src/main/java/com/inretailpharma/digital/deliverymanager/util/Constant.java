@@ -478,6 +478,8 @@ public interface Constant {
 
         LIQUIDATED_ONLINE_PAYMENT("42", true),
         REJECTED_ONLINE_PAYMENT("43", true),
+        SUCCESS_RESULT_ONLINE_PAYMENT("44", false),
+        ERROR_RESULT_ONLINE_PAYMENT("-1", false),
 
         NOT_FOUND_CODE("-1",  false),
         NOT_FOUND_ORDER("-1",  false),
@@ -489,7 +491,6 @@ public interface Constant {
 
         EMPTY_RESULT_INKATRACKERLITE("-1", false), END_STATUS_RESULT("-1", false),
         EMPTY_RESULT_ORDERTRACKER("-1", false);
-
 
         private String code;
         private boolean isSuccess;

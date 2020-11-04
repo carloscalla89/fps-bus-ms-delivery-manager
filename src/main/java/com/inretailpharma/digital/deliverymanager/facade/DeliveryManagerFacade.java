@@ -29,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 
+import static com.inretailpharma.digital.deliverymanager.util.Constant.OrderStatus.*;
+
 @Slf4j
 @Component
 public class DeliveryManagerFacade {
@@ -306,29 +308,30 @@ public class DeliveryManagerFacade {
 
                 case 6:
 
-                        OrderExternalService orderExternalService1 = (OrderExternalService)context.getBean(
-                            Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                    OrderExternalService orderExternalService1 = (OrderExternalService)context.getBean(
+                        Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
                     );
 
                     resultCanonical = onlinePayment.getResultfromOnlinePaymentExternalServices(ecommercePurchaseId, actionDto)
                         .map(r -> {
+                            log.info("[START] to update online payment order = {}", r);
 
-                            log.info("[START] to update online payment order ={}", r);
-
-                            if(action.name().equals(r.getOrderStatus().getName())) {
+                            if(SUCCESS_RESULT_ONLINE_PAYMENT.getCode().equals(r.getOrderStatus().getCode())) {
+                                Constant.OrderStatus status = Constant.OrderStatus.getByName(action.name());
+                                OrderStatusCanonical paymentRsp = new OrderStatusCanonical();
+                                paymentRsp.setCode(status.getCode());
+                                paymentRsp.setName(status.name());
+                                r.setOrderStatus(paymentRsp);
                                 String onlinePaymentStatus = Constant.OnlinePayment.LIQUIDETED;
-                                if(Constant.ActionOrder.REJECTED_ONLINE_PAYMENT.name().equals(r.getOrderStatus().getName())) {
+                                if(REJECTED_ONLINE_PAYMENT.name().equals(status.name())) {
                                     onlinePaymentStatus = Constant.OnlinePayment.REJECTED;
                                 }
                                 log.info("[PROCESS] to update online payment order::{}, status::{}", iOrderFulfillment.getOrderId(), onlinePaymentStatus);
                                 orderTransaction.updateOrderOnlinePaymentStatusByExternalId(iOrderFulfillment.getOrderId(),onlinePaymentStatus);
                             }
-
                             log.info("[END] to update order");
-
                             return r;
                         });
-
 
                     break;
 
