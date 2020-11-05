@@ -122,10 +122,10 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setDrugstore(drugstoreCanonical);
         orderInkatrackerCanonical.setDrugstoreId(storeCenterCanonical.getLegacyId());
 
-        log.info("getNewCodeServiceEnabled:{},Constant.Logical.getByValueString(iOrderFulfillment.getNewCodeServiceEnabled()).value():{}, value final:{}",
-                iOrderFulfillment.getNewCodeServiceEnabled(),Constant.Logical.getByValueString(iOrderFulfillment.getNewCodeServiceEnabled()).value(),iOrderFulfillment.getServiceTypeShortCode());
+        log.info("getNewCodeServiceEnabled:{}",
+                iOrderFulfillment.getNewCodeServiceEnabled());
 
-        if (Constant.Logical.getByValueString(iOrderFulfillment.getNewCodeServiceEnabled()).value()) {
+        if (iOrderFulfillment.getNewCodeServiceEnabled()) {
             orderInkatrackerCanonical.setDeliveryType(iOrderFulfillment.getServiceTypeShortCode());
         } else {
             orderInkatrackerCanonical.setDeliveryType(
