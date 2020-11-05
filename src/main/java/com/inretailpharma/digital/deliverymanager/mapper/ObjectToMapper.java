@@ -126,7 +126,7 @@ public class ObjectToMapper {
             orderInkatrackerCanonical.setDeliveryType(iOrderFulfillment.getServiceTypeShortCode());
         } else {
             orderInkatrackerCanonical.setDeliveryType(
-                    Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeShortCode())
+                    Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode())
                             .getServiceTypeCodeOld()
             );
         }

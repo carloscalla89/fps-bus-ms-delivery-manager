@@ -346,6 +346,7 @@ public interface Constant {
 
         ERROR_TO_CANCEL_ORDER("33",  false),
         ERROR_DELIVER("34",  false),
+        CANCELLED_ORDER("11",true),
         CANCELLED_ORDER_ONLINE_PAYMENT("37",  true),
         ORDER_FAILED("38",  false),
         INVOICED("40", true),
@@ -353,7 +354,7 @@ public interface Constant {
 
         SUCCESS_RESERVED_ORDER("10", true),
 
-        CANCELLED_ORDER("11",true),
+
         DELIVERED_ORDER("12",  true),
         READY_PICKUP_ORDER("13",  true),
 

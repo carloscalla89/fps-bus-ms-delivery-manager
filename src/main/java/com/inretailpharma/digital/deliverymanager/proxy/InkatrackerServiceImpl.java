@@ -145,7 +145,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
     public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                                    List<IOrderItemFulfillment> itemFulfillments,
                                                    StoreCenterCanonical storeCenterCanonical,
-                                                   Long externalId, String statusDetail) {
+                                                   Long externalId, String statusDetail, String statusName) {
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(
                         iOrderFulfillment, itemFulfillments, storeCenterCanonical, externalId, Constant.OrderStatus.CONFIRMED_TRACKER.name()

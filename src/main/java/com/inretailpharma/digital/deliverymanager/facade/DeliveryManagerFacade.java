@@ -85,7 +85,7 @@ public class DeliveryManagerFacade {
                     return orderCanonicalResponse;
                 })
                 .flatMap(order -> {
-                    log.info("[START] Preparation to send order:{}",order.getEcommerceId());
+                    log.info("[START] Preparation to send order:{}, status:{}",order.getEcommerceId(), order.getOrderStatus());
 
                     if (order.getOrderDetail().isServiceEnabled()
                             && (Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()))
@@ -105,7 +105,9 @@ public class DeliveryManagerFacade {
                                             listItems,
                                             storeCenterCanonical,
                                             iOrderFulfillment.getExternalId(),
-                                            order.getOrderStatus().getDetail()
+                                            order.getOrderStatus().getDetail(),
+                                            order.getOrderStatus().getName()
+
                                     )
                                     .flatMap(s -> {
 
@@ -175,7 +177,8 @@ public class DeliveryManagerFacade {
                                                     orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                     storeCenterCanonical,
                                                     iOrderFulfillment.getExternalId(),
-                                                    null)
+                                                    null,
+                                                    Constant.OrderStatus.CONFIRMED_TRACKER.name())
                                             .flatMap(s -> {
                                                 OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
                                                 return Mono.just(orderCanonical);
@@ -241,7 +244,8 @@ public class DeliveryManagerFacade {
                                                                                                                 .ofNullable(orderResp.getOrderStatus())
                                                                                                                 .map(OrderStatusCanonical::getCode)
                                                                                                                 .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                                                                                                        ).isSuccess())?null:orderResp.getOrderStatus().getDetail()
+                                                                                                        ).isSuccess())?null:orderResp.getOrderStatus().getDetail(),
+                                                                                                orderResp.getOrderStatus().getName()
                                                                                         )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 
