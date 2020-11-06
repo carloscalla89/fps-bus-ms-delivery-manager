@@ -106,7 +106,7 @@ public class DeliveryManagerFacade {
                                             storeCenterCanonical,
                                             iOrderFulfillment.getExternalId(),
                                             order.getOrderStatus().getDetail(),
-                                            order.getOrderStatus().getName()
+                                            Constant.OrderStatus.CONFIRMED_TRACKER.name()
 
                                     )
                                     .flatMap(s -> {
@@ -245,7 +245,7 @@ public class DeliveryManagerFacade {
                                                                                                                 .map(OrderStatusCanonical::getCode)
                                                                                                                 .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
                                                                                                         ).isSuccess())?null:orderResp.getOrderStatus().getDetail(),
-                                                                                                orderResp.getOrderStatus().getName()
+                                                                                                Constant.OrderStatus.CONFIRMED_TRACKER.name()
                                                                                         )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 

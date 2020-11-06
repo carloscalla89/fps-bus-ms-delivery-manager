@@ -42,7 +42,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
-                        storeCenterCanonical, externalId, Constant.OrderStatus.CONFIRMED_TRACKER.name())
+                        storeCenterCanonical, externalId, statusName)
                 )
                 .flatMap(b -> {
 
