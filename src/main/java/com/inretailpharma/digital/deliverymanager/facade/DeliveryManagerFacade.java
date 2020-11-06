@@ -106,7 +106,10 @@ public class DeliveryManagerFacade {
                                             storeCenterCanonical,
                                             iOrderFulfillment.getExternalId(),
                                             order.getOrderStatus().getDetail(),
-                                            Constant.OrderStatus.CONFIRMED_TRACKER.name()
+                                            Optional.ofNullable(order.getOrderStatus().getName())
+                                                    .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
+                                                    .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
+                                                    .orElse(order.getOrderStatus().getName())
 
                                     )
                                     .flatMap(s -> {
@@ -245,7 +248,10 @@ public class DeliveryManagerFacade {
                                                                                                                 .map(OrderStatusCanonical::getCode)
                                                                                                                 .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
                                                                                                         ).isSuccess())?null:orderResp.getOrderStatus().getDetail(),
-                                                                                                Constant.OrderStatus.CONFIRMED_TRACKER.name()
+                                                                                                Optional.ofNullable(orderResp.getOrderStatus().getName())
+                                                                                                        .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
+                                                                                                        .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
+                                                                                                        .orElse(orderResp.getOrderStatus().getName())
                                                                                         )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 
