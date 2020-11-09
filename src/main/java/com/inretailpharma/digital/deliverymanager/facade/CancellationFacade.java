@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Optional;
+
 @Slf4j
 @Component
 public class CancellationFacade {
@@ -64,24 +66,25 @@ public class CancellationFacade {
                 .runOn(Schedulers.elastic())
                 .flatMap(r -> {
 
-                    log.info("order info- companyCode:{}, centerCode:{}, ecommerceId:{}, ",
-                            r.getCompanyCode(), r.getCenterCode(), r.getEcommerceId());
+                    log.info("order info- companyCode:{}, centerCode:{}, ecommerceId:{}, serviceTypeCode:{} ",
+                            r.getCompanyCode(), r.getCenterCode(), r.getEcommerceId(), r.getServiceTypeCode());
 
                     ActionDto actionDto = new ActionDto();
                     actionDto.setAction(Constant.ActionOrder.CANCEL_ORDER.name());
                     actionDto.setOrderCancelCode(cancellationDto.getCancellationCode());
                     actionDto.setOrderCancelObservation(cancellationDto.getObservation());
 
-
-                    log.info("Service Type Code:{}",r.getServiceTypeCode());
                     OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
                             Constant.TrackerImplementation.getByCode(r.getServiceTypeCode()).getName()
                     );
 
                     return orderExternalService
-                            .getResultfromExternalServices(r.getEcommerceId(), actionDto, "")
+                            .getResultfromExternalServices(r.getEcommerceId(), actionDto, cancellationDto.getCompanyCode())
                             .map(s -> {
-                                log.info("[START] Processing the updating of cancelled order");
+                                log.info("[START] Processing the updating of cancelled order, serviceTypeCode:{}, localCode:{}," +
+                                                "companyCode:{},statusCode:{}, statusName:{}, ecommerceId:{}",r.getServiceTypeCode(), r.getCenterCode(),
+                                        cancellationDto.getCompanyCode(), s.getOrderStatus().getCode(), s.getOrderStatus().getName(),
+                                        r.getEcommerceId());
 
                                 orderTransaction.updateStatusCancelledOrder(
                                         s.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
@@ -107,10 +110,12 @@ public class CancellationFacade {
                                 OrderCancelledCanonical orderCancelledCanonical = new OrderCancelledCanonical();
                                 orderCancelledCanonical.setEcommerceId(r.getEcommerceId());
                                 orderCancelledCanonical.setExternalId(r.getExternalId());
-                                orderCancelledCanonical.setCompany(r.getCompanyName());
+                                orderCancelledCanonical.setCompany(r.getCompanyCode());
                                 orderCancelledCanonical.setLocalCode(r.getCenterCode());
-                                orderCancelledCanonical.setLocal(r.getCenterName());
-                                orderCancelledCanonical.setConfirmedSchedule(DateUtils.getLocalDateTimeWithFormat(r.getConfirmedSchedule()));
+
+                                Optional.ofNullable(r.getScheduledTime())
+                                        .ifPresent(st -> orderCancelledCanonical.setConfirmedSchedule(DateUtils.getLocalDateTimeWithFormat(st)));
+
                                 orderCancelledCanonical.setServiceCode(r.getServiceTypeCode());
                                 orderCancelledCanonical.setServiceName(r.getServiceTypeName());
                                 orderCancelledCanonical.setServiceType(r.getServiceType());
