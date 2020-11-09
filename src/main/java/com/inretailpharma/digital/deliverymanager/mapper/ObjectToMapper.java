@@ -145,6 +145,17 @@ public class ObjectToMapper {
         // set personpickup
         orderInkatrackerCanonical.setPersonToPickup(getPersonPickupFromtIOrderFulfillment(iOrderFulfillment));
 
+        orderInkatrackerCanonical.setStartHour(
+                Optional.ofNullable(iOrderFulfillment.getStartHour())
+                        .map(DateUtils::getLocalTimeWithFormat)
+                        .orElse(null)
+        );
+
+        orderInkatrackerCanonical.setEndHour(
+                Optional.ofNullable(iOrderFulfillment.getEndHour())
+                        .map(DateUtils::getLocalTimeWithFormat)
+                        .orElse(null)
+        );
 
         return orderInkatrackerCanonical;
     }
