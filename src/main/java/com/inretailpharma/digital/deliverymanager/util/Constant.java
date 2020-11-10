@@ -67,9 +67,9 @@ public interface Constant {
         String CANCEL_ORDER = "CANCEL_ORDER";
         String DELIVER_ORDER = "DELIVER_ORDER";
         String READY_PICKUP_ORDER = "READY_PICKUP_ORDER";
-        String ATTEMPT_TRACKER_CREATE = "ATTEMPT_TRACKER_CREATE";
-        String UPDATE_TRACKER_BILLING = "UPDATE_TRACKER_BILLING";
-        String UPDATE_RELEASE_ORDER = "UPDATE_RELEASE_ORDER";
+        String PICK_ORDER = "PICK_ORDER";
+        String PREPARE_ORDER = "PREPARE_ORDER";
+
     }
 
     interface ActionNameInkatrackerlite {
@@ -79,6 +79,10 @@ public interface Constant {
         String READY_FOR_BILLING = "READY_FOR_BILLING";
         String TRACKER_CREATE_CONFIRMED = "CONFIRMED";
         String ON_STORE = "ON_STORE";
+        String PICKING = "PICKING";
+        String PREPARED = "PREPARED";
+
+
     }
 
     enum Source {
@@ -137,10 +141,12 @@ public interface Constant {
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger", null, null),
         INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada", "40", "41"),
 
+        READY_FOR_BILLING(4,"Accion para cambiar el estado de la orden a READY_FOR_BILLING", "", ""),
+        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO", "18", "08"),
+        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO", "19", "09"),
+
         ON_STORE_ORDER(2, "Acción para actualizar el estado en tienda", "16","06"),
         ON_ROUTE_ORDER(5, "Acción para actualizar el estado en tienda","19", "09"),
-        PICK_ORDER(5, "Acción para actualizar el estado en tienda", null, null),
-        PREPARE_ORDER(5, "Acción para actualizar el estado en tienda", "18", "08"),
         ASSIGN_ORDER(5, "Acción para actualizar el estado en tienda","17", "07"),
         READY_DELIVER_ORDER(5, "Acción para actualizar el estado en tienda", "16","06"),
         ARRIVE_ORDER(5, "Acción para actualizar el estado en tienda", null, null),
@@ -235,8 +241,8 @@ public interface Constant {
         ERROR_UPDATE_TRACKER_BILLING("05", false),
         ERROR_ON_STORE("06",  false),
         ERROR_ASSIGNED("07",  false),
-        ERROR_PREPARED("08",  false),
-        ERROR_ON_ROUTE("09",  false),
+        ERROR_PICKED("08",  false),
+        ERROR_PREPARED("09",  false),
 
         ERROR_CONFIRMED("30",  false),
         ERROR_ARRIVE("31",  false),
@@ -258,8 +264,8 @@ public interface Constant {
         CONFIRMED("15",  true),
         ON_STORE("16",  true),
         ASSIGNED("17",  true),
-        PREPARED("18",  true),
-        ON_ROUTE("19",  true),
+        PICKED_ORDER("18",  true),
+        PREPARED_ORDER("19",  true),
         ARRIVED("20",  true),
         REJECTED("21",  true),
         INVOICED("40", false),

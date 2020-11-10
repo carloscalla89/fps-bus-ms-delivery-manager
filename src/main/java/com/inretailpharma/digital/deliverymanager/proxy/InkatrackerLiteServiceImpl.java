@@ -87,6 +87,25 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                 inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
 
                 break;
+
+            case Constant.ActionName.PICK_ORDER:
+                actionInkatrackerLite = Constant.ActionNameInkatrackerlite.PICKING;
+                successResponse = Constant.OrderStatus.PICKED_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_PICKED;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
+                break;
+
+            case Constant.ActionName.PREPARE_ORDER:
+                actionInkatrackerLite = Constant.ActionNameInkatrackerlite.PREPARED;
+                successResponse = Constant.OrderStatus.PREPARED_ORDER;
+                errorResponse = Constant.OrderStatus.ERROR_PREPARED;
+
+                inkatrackerLiteUri = externalServicesProperties.getInkatrackerLiteUpdateOrderUri();
+
+                break;
+
             default:
                 actionInkatrackerLite = Constant.OrderStatus.NOT_FOUND_ACTION.name();
                 successResponse = Constant.OrderStatus.NOT_DEFINED_STATUS;
