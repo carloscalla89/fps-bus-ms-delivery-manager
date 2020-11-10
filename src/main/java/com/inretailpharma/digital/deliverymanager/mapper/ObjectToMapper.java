@@ -365,7 +365,7 @@ public class ObjectToMapper {
                     personToPickupDto.setUserId(p);
                     personToPickupDto.setEmail(iOrderFulfillment.getPickupEmail());
                     personToPickupDto.setFullName(iOrderFulfillment.getPickupFullName());
-                    personToPickupDto.setIdentityDocumentNumber(iOrderFulfillment.getPickupDocumentType());
+                    personToPickupDto.setIdentityDocumentNumber(iOrderFulfillment.getPickupDocumentNumber());
                     personToPickupDto.setIdentityDocumentType(iOrderFulfillment.getPickupDocumentType());
                     personToPickupDto.setPhone(iOrderFulfillment.getPickupPhone());
 
