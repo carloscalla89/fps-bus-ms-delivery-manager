@@ -8,8 +8,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Getter
-@Setter
+@Data
 public class OrderItemDto {
 
     private String productCode;

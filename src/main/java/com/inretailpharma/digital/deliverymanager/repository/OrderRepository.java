@@ -149,22 +149,24 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Transactional
     @Query(value = "Update order_fulfillment_item " +
             " set quantity = :quantity ," +
+            "  quantity_presentation = :quantity_presentation ," +
             "  unit_Price = :unitPrice ," +
             "  total_Price = :totalPrice ," +
             "  fractionated = :fractionated, " +
             " quantity_units = :quantityUnits, "+
-            " short_description = :short_description "+
+            " presentation_description = :presentation_description "+
             " where order_fulfillment_id = :orderFulfillmentId " +
             " and product_code = :productCode",
             nativeQuery = true)
     void updateItemsPartialOrder(@Param("quantity") Integer quantity,
+                                 @Param("quantity_presentation") Integer quantity_presentation,
                                  @Param("unitPrice") BigDecimal unitPrice,
                                  @Param("totalPrice") BigDecimal totalPrice,
                                  @Param("fractionated") String fractionated,
                                  @Param("orderFulfillmentId") Long orderFulfillmentId,
                                  @Param("quantityUnits") Integer quantityUnits,
                                  @Param("productCode") String productCode,
-                                 @Param("short_description") String shortDescription
+                                 @Param("presentation_description") String presentation_description
                                  );
 
     @Modifying
