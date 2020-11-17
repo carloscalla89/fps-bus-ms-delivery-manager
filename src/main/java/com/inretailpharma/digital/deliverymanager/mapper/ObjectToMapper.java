@@ -53,12 +53,13 @@ public class ObjectToMapper {
                 Optional.ofNullable(iOrderFulfillment.getCancelledOrder()).map(c -> Timestamp.valueOf(c).getTime()).orElse(null)
         );
 
-        orderInkatrackerCanonical.setMaxDeliveryTime(
-                Timestamp.valueOf(
-                        iOrderFulfillment.getScheduledTime()
-                                .plusMinutes(iOrderFulfillment.getLeadTime())
-                ).getTime()
-        );
+//        orderInkatrackerCanonical.setMaxDeliveryTime(
+//                Timestamp.valueOf(
+//                        iOrderFulfillment.getScheduledTime()
+//                                .plusMinutes(iOrderFulfillment.getLeadTime())
+//                ).getTime()
+//        );
+        orderInkatrackerCanonical.setMaxDeliveryTime( Timestamp.valueOf(iOrderFulfillment.getScheduledTime() ).getTime() );
 
         //orderInkatrackerCanonical.setMaxDeliveryTime( Timestamp.valueOf(iOrderFulfillment.getScheduledTime() ).getTime() );
 
