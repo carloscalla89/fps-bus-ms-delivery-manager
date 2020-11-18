@@ -156,7 +156,10 @@ public class DeliveryManagerFacade {
         Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
 
         if (action.name().equalsIgnoreCase(Constant.ActionOrder.FILL_ORDER.name())
-                || (Optional.ofNullable(iOrderFulfillment).isPresent() && !Constant.OrderStatus.getFinalStatusByCode(iOrderFulfillment.getStatusCode()))) {
+                || (Optional.ofNullable(iOrderFulfillment).isPresent()
+                    && !Constant.OrderStatus.getFinalStatusByCode(iOrderFulfillment.getStatusCode())
+                    )
+        ) {
 
             OrderDetailCanonical orderDetail = new OrderDetailCanonical();
 

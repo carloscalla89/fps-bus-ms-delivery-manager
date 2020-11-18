@@ -13,6 +13,7 @@ import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
+import com.inretailpharma.digital.deliverymanager.errorhandling.ResponseErrorGeneric;
 import com.inretailpharma.digital.deliverymanager.mapper.EcommerceMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -27,6 +28,7 @@ import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyExtractors;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 @Service("deliveryDispatcherInka")
 public class DeliveryDispatcherServiceImpl extends AbstractOrderService implements OrderExternalService{
 
-    private ApplicationParameterService applicationParameterService;
     private ExternalServicesProperties externalServicesProperties;
     private EcommerceMapper ecommerceMapper;
 
@@ -50,7 +51,6 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                                          ExternalServicesProperties externalServicesProperties,
                                          EcommerceMapper ecommerceMapper) {
 
-        this.applicationParameterService = applicationParameterService;
         this.externalServicesProperties = externalServicesProperties;
         this.ecommerceMapper = ecommerceMapper;
     }
@@ -345,17 +345,10 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                         return clientResponse
                                 .bodyToMono(com.inretailpharma.digital.deliverymanager.dto.OrderDto.class);
                     } else {
-                        return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
-                            byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                            dataBuffer.read(bytes);
-                            DataBufferUtils.release(dataBuffer);
-                            return bytes;
-                        })
-                                .defaultIfEmpty(new byte[0])
-                                .flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
-                                        +":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
-                                        clientResponse.statusCode().value()))
-                                );
+                        ResponseErrorGeneric<com.inretailpharma.digital.deliverymanager.dto.OrderDto> responseErrorGeneric = new ResponseErrorGeneric<>();
+
+                        return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
+
                     }
 
                 })
@@ -365,8 +358,6 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                             + externalServicesProperties.getDispatcherOrderEcommerceUri() +
                             "':" + e.getMessage();
                     log.error(errorMessage);
-
-
 
                     return Mono.empty();
                 });
