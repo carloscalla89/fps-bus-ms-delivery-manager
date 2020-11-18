@@ -47,8 +47,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
     private ExternalServicesProperties externalServicesProperties;
     private EcommerceMapper ecommerceMapper;
 
-    public DeliveryDispatcherServiceImpl(ApplicationParameterService applicationParameterService,
-                                         ExternalServicesProperties externalServicesProperties,
+    public DeliveryDispatcherServiceImpl(ExternalServicesProperties externalServicesProperties,
                                          EcommerceMapper ecommerceMapper) {
 
         this.externalServicesProperties = externalServicesProperties;
