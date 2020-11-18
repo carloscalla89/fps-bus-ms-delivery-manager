@@ -286,7 +286,6 @@ public class DeliveryManagerFacade {
                         attemptTracker = attemptTracker + 1;
                     }
 
-
                     orderTransaction.updateReservedOrder(
                             iOrderFulfillment.getOrderId(),
                             Optional.ofNullable(actionDto.getExternalBillingId()).map(Long::parseLong).orElse(null),
@@ -347,8 +346,51 @@ public class DeliveryManagerFacade {
                                     actionDto.setOrderCancelClientReason(r.getClientReason());
                                 });
 
+                        // Esta condición está para saber si una orden se manda a cancelar pero no está en el tracker porque de seguro falló al momento de registrarse
                         if (Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
                             || Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
+
+
+                            return centerCompanyService
+                                    .getExternalInfo(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
+                                    .flatMap(storeCenterCanonical ->{
+                                        // creando la orden a tracker CON EL ESTADO CANCELLED
+
+                                        return orderExternalService2
+                                                .sendOrderToTracker(
+                                                        iOrderFulfillment,
+                                                        orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
+                                                        storeCenterCanonical,
+                                                        iOrderFulfillment.getExternalId(),
+                                                        null,
+                                                        Constant.OrderStatus.CANCELLED_ORDER.name())
+                                                .flatMap(s -> {
+                                                    OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
+                                                    return Mono.just(orderCanonical);
+                                                });
+                                    })
+                                    .map(r -> {
+
+                                        log.info("Action to cancel order");
+                                        orderTransaction.updateStatusCancelledOrder(
+                                                r.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
+                                                actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
+                                                r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
+                                        );
+
+                                        r.setEcommerceId(ecommercePurchaseId);
+                                        r.setExternalId(iOrderFulfillment.getExternalId());
+                                        r.setTrackerId(iOrderFulfillment.getTrackerId());
+                                        r.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).map(Integer::longValue).orElse(null));
+                                        r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
+
+                                        if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
+                                            orderExternalServiceAudit.updateOrderReactive(r).subscribe();
+                                        }
+                                        log.info("[END] to update order");
+
+                                        return r;
+                                    });
 
                         }
 
@@ -465,8 +507,6 @@ public class DeliveryManagerFacade {
                     });
 
         }
-
-
 
     }
 
