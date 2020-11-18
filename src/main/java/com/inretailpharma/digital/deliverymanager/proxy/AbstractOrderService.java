@@ -16,6 +16,7 @@ import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
+import com.inretailpharma.digital.deliverymanager.errorhandling.ResponseErrorGeneric;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
@@ -175,10 +176,13 @@ public class AbstractOrderService implements OrderExternalService {
 					});
 
 		} else {
-			return getError(clientResponse);
+			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
+
+			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
 		}
 
 	}
+
 
 	protected Mono<OrderCanonical> mapResponseFromTracker(ClientResponse clientResponse, Long id, Long ecommerceId,
 														  Long externalId) {
@@ -199,23 +203,12 @@ public class AbstractOrderService implements OrderExternalService {
 			return Mono.just(orderCanonical);
 		} else {
 
-			return getError(clientResponse);
+			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
+
+			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
 
 		}
 
-	}
-
-	private Mono<OrderCanonical> getError(ClientResponse clientResponse) {
-		return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
-			byte[] bytes = new byte[dataBuffer.readableByteCount()];
-			dataBuffer.read(bytes);
-			DataBufferUtils.release(dataBuffer);
-			return bytes;
-		}).defaultIfEmpty(new byte[0])
-				.flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
-						+":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
-						clientResponse.statusCode().value()))
-				);
 	}
 
 	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusCode) {

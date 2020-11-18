@@ -415,4 +415,8 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
         orderCanonical.setOrderStatus(orderStatus);
         return orderCanonical;
     }
+
+    public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
+        return null;
+    }
 }
