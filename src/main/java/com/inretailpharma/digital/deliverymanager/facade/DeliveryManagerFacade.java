@@ -155,8 +155,8 @@ public class DeliveryManagerFacade {
         IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
         Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
 
-        if (Optional.ofNullable(iOrderFulfillment).isPresent()
-                && !Constant.OrderStatus.getFinalStatusByCode(iOrderFulfillment.getStatusCode())) {
+        if (action.name().equalsIgnoreCase(Constant.ActionOrder.FILL_ORDER.name())
+                || (Optional.ofNullable(iOrderFulfillment).isPresent() && !Constant.OrderStatus.getFinalStatusByCode(iOrderFulfillment.getStatusCode()))) {
 
             OrderDetailCanonical orderDetail = new OrderDetailCanonical();
 
@@ -264,8 +264,6 @@ public class DeliveryManagerFacade {
                                                                         })
                                 );
 
-                    // Reattempt to send the order at insink
-
 
                 case 3:
                     // Update the status when the order was released from Dispatcher
@@ -330,6 +328,7 @@ public class DeliveryManagerFacade {
                     );
 
                     if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
+
                         CancellationCodeReason codeReason;
                         if (actionDto.getOrderCancelCode() != null && actionDto.getOrderCancelAppType() != null) {
                             codeReason = orderCancellationService
@@ -344,6 +343,12 @@ public class DeliveryManagerFacade {
                                     actionDto.setOrderCancelReason(r.getReason());
                                     actionDto.setOrderCancelClientReason(r.getClientReason());
                                 });
+
+                        if (Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
+                            || Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
+
+                        }
+
                     }
 
                     actionDto.setExternalBillingId(Optional.ofNullable(iOrderFulfillment.getExternalId()).map(Object::toString).orElse(null));
@@ -385,6 +390,23 @@ public class DeliveryManagerFacade {
 
                                                 return r;
                                             });
+                case 5:
+                    // action to fill order from ecommerce
+                    log.info("Action to fill order {} from ecommerce:",ecommercePurchaseId);
+
+                    OrderExternalService orderExternalDispatcher = (OrderExternalService)context.getBean(
+                            Constant.DispatcherImplementation.getByCompanyCode(actionDto.getCompanyCode()).getName()
+                    );
+
+                    return orderExternalDispatcher
+                            .getOrderFromEcommerce(ecommercePurchaseId)
+                            .flatMap(this::createOrder)
+                            .defaultIfEmpty(
+                                    new OrderCanonical(
+                                            ecommercePurchaseId,
+                                            Constant.OrderStatus.NOT_FOUND_ORDER.getCode(),
+                                            Constant.OrderStatus.NOT_FOUND_ORDER.name())
+                            );
 
                 default:
                     OrderCanonical resultDefault = new OrderCanonical();
@@ -422,21 +444,21 @@ public class DeliveryManagerFacade {
 
                     }).orElseGet(() -> {
 
-                        log.info("Order not found:{}",ecommercePurchaseId);
+                        OrderStatusCanonical os = new OrderStatusCanonical();
+                        os.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
+                        os.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
+                        os.setDetail("The order not found");
+                        os.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-                        OrderExternalService orderExternalServiceDispatcher = (OrderExternalService)context.getBean(
-                                Constant.DispatcherImplementation.getByCompanyCode(actionDto.getCompanyCode()).getName()
-                        );
+                        log.info("The order has end status:{}",os);
 
-                        return orderExternalServiceDispatcher
-                                    .getOrderFromEcommerce(ecommercePurchaseId)
-                                    .flatMap(this::createOrder)
-                                    .defaultIfEmpty(
-                                            new OrderCanonical(
-                                                    ecommercePurchaseId,
-                                                    Constant.OrderStatus.NOT_FOUND_ORDER.getCode(),
-                                                    Constant.OrderStatus.NOT_FOUND_ORDER.name())
-                                    );
+                        OrderCanonical resultOrderNotFound = new OrderCanonical();
+
+                        resultOrderNotFound.setOrderStatus(os);
+                        resultOrderNotFound.setEcommerceId(ecommercePurchaseId);
+
+                        return Mono.just(resultOrderNotFound);
+
                     });
 
         }

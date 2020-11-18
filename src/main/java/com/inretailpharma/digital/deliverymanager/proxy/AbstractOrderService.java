@@ -1,5 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.InsinkResponseCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.ResponseDispatcherCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.StatusDispatcher;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
@@ -15,6 +18,7 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFu
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +33,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -119,6 +124,62 @@ public class AbstractOrderService implements OrderExternalService {
 
 	}
 
+	protected Mono<OrderCanonical> mapResponseFromDispatcher(ClientResponse clientResponse, Long ecommerceId, String companyCode) {
+
+		if (clientResponse.statusCode().is2xxSuccessful()) {
+
+			return clientResponse
+					.bodyToMono(ResponseDispatcherCanonical.class)
+					.flatMap(cr -> {
+						InsinkResponseCanonical dispatcherResponse = cr.getBody();
+						StatusDispatcher statusDispatcher = cr.getStatus();
+
+						log.info("result dispatcher to reattempt - body:{}, status:{}",dispatcherResponse, statusDispatcher);
+
+						OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+						Constant.OrderStatus orderStatusUtil = Constant
+								.OrderStatus
+								.getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).getStatus());
+
+						orderStatus.setCode(orderStatusUtil.getCode());
+						orderStatus.setName(orderStatusUtil.name());
+						orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+						Optional.of(statusDispatcher.isSuccessProcess())
+								.filter(r -> r)
+								.ifPresent(r -> {
+
+									String stringBuffer = "code error:" +
+											dispatcherResponse.getErrorCode() +
+											", description:" +
+											statusDispatcher.getDescription() +
+											", detail:" +
+											dispatcherResponse.getMessageDetail();
+
+									orderStatus.setDetail(stringBuffer);
+								});
+
+						OrderCanonical resultCanonical = new OrderCanonical();
+						resultCanonical.setEcommerceId(ecommerceId);
+						resultCanonical.setExternalId(
+								Optional
+										.ofNullable(dispatcherResponse.getInkaventaId())
+										.map(Long::parseLong).orElse(null)
+						);
+						resultCanonical.setCompanyCode(companyCode);
+						resultCanonical.setOrderStatus(orderStatus);
+
+						return Mono.just(resultCanonical);
+
+
+					});
+
+		} else {
+			return getError(clientResponse);
+		}
+
+	}
+
 	protected Mono<OrderCanonical> mapResponseFromTracker(ClientResponse clientResponse, Long id, Long ecommerceId,
 														  Long externalId) {
 		OrderCanonical orderCanonical = new OrderCanonical();
@@ -137,20 +198,24 @@ public class AbstractOrderService implements OrderExternalService {
 
 			return Mono.just(orderCanonical);
 		} else {
-			return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
-				byte[] bytes = new byte[dataBuffer.readableByteCount()];
-				dataBuffer.read(bytes);
-				DataBufferUtils.release(dataBuffer);
-				return bytes;
-			})
-					.defaultIfEmpty(new byte[0])
-					.flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
-							+":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
-							clientResponse.statusCode().value()))
-					);
+
+			return getError(clientResponse);
 
 		}
 
+	}
+
+	private Mono<OrderCanonical> getError(ClientResponse clientResponse) {
+		return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
+			byte[] bytes = new byte[dataBuffer.readableByteCount()];
+			dataBuffer.read(bytes);
+			DataBufferUtils.release(dataBuffer);
+			return bytes;
+		}).defaultIfEmpty(new byte[0])
+				.flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
+						+":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
+						clientResponse.statusCode().value()))
+				);
 	}
 
 	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusCode) {
@@ -171,6 +236,23 @@ public class AbstractOrderService implements OrderExternalService {
 			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_INSERT_TRACKER.name(), e.getMessage());
 
 		}
+
+		orderCanonical.setOrderStatus(orderStatus);
+
+		return Mono.just(orderCanonical);
+	}
+
+	protected Mono<OrderCanonical> mapResponseErrorFromDispatcher(Throwable e, Long ecommerceId) {
+
+		OrderCanonical orderCanonical = new OrderCanonical();
+
+		orderCanonical.setEcommerceId(ecommerceId);
+		OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+
+		orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+		orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
+		orderStatus.setDetail(e.getMessage());
+		orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
 		orderCanonical.setOrderStatus(orderStatus);
 
