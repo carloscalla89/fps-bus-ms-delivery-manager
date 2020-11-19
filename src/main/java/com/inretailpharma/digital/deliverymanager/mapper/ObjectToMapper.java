@@ -59,7 +59,6 @@ public class ObjectToMapper {
                                 .plusMinutes(iOrderFulfillment.getLeadTime())
                 ).getTime()
         );
-        orderInkatrackerCanonical.setMaxDeliveryTime(Timestamp.valueOf(iOrderFulfillment.getScheduledTime() ).getTime());
 
         Optional.ofNullable(iOrderFulfillment.getDiscountApplied())
                 .ifPresent(r -> orderInkatrackerCanonical.setDiscountApplied(r.doubleValue()));
