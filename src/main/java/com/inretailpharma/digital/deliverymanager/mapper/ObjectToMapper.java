@@ -82,10 +82,11 @@ public class ObjectToMapper {
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
 
         orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
-        orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation));
-        orderInkatrackerCanonical.setStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation));
+        orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical));
+        orderInkatrackerCanonical.setStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical));
         orderInkatrackerCanonical.setTotalCost(iOrderFulfillment.getTotalCost().doubleValue());
         orderInkatrackerCanonical.setSubtotal(iOrderFulfillment.getSubTotalCost().doubleValue());
+
 
         orderInkatrackerCanonical.setPaymentMethod(getPaymentMethodFromOrderCanonical(iOrderFulfillment));
         PreviousStatusCanonical previousStatus = new PreviousStatusCanonical();
@@ -308,7 +309,8 @@ public class ObjectToMapper {
     }
 
     private OrderStatusInkatrackerCanonical getFromOrderCanonical(IOrderFulfillment iOrderFulfillment, String status,
-                                                                  String orderCancelCode, String orderCancelObservation) {
+                                                                  String orderCancelCode, String orderCancelObservation,
+                                                                  OrderInkatrackerCanonical orderInkatrackerCanonical) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
         orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
@@ -316,7 +318,8 @@ public class ObjectToMapper {
         );
         orderStatusInkatrackerCanonical.setDescription(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
 
-        if (status != null && status.equalsIgnoreCase(Constant.OrderStatusTracker.getByName(status).name())) {
+        if (status != null && (status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER.name())
+            || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT.name()))) {
 
             orderStatusInkatrackerCanonical.setCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
 
@@ -329,6 +332,12 @@ public class ObjectToMapper {
             orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
             orderStatusInkatrackerCanonical.setCustomNote(orderCancelObservation);
             orderStatusInkatrackerCanonical.setCancelMessageNote(orderCancelObservation);
+
+            orderInkatrackerCanonical.setCancelDate(
+                    Optional.ofNullable(iOrderFulfillment.getCancelledOrder())
+                            .map(c -> Timestamp.valueOf(c).getTime())
+                            .orElse(Timestamp.valueOf(LocalDateTime.now()).getTime())
+            );
         }
 
         return orderStatusInkatrackerCanonical;
