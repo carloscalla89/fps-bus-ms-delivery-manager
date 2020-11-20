@@ -88,8 +88,4 @@ public class OrderAuditServiceImpl extends AbstractOrderService  implements Orde
         return null;
     }
 
-    @Override
-    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
-        return null;
-    }
 }

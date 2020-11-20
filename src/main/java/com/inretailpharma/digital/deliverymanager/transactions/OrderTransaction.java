@@ -1,7 +1,5 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +21,7 @@ import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
 import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrderIdentity;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
@@ -30,21 +29,6 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
-import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
-import com.inretailpharma.digital.deliverymanager.util.Constant;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -93,29 +77,8 @@ public class OrderTransaction {
         serviceLocalOrderIdentity.setOrderStatus(orderStatus);
         // ----------------------------------------------------
 
-        // Create and set object ServiceLocalOrder
-        ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
-
-        serviceLocalOrder.setCenterCode(centerCompanyCanonical.getLocalCode());
-        serviceLocalOrder.setCompanyCode(centerCompanyCanonical.getCompanyCode());
-
+        ServiceLocalOrder serviceLocalOrder = objectMapper.getFromOrderDto(centerCompanyCanonical, orderDto);
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
-
-        // Set attempt of attempt to insink and tracker
-        serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
-
-        if (!(serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                || serviceLocalOrderIdentity.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode()))) {
-
-            serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
-        }
-
-        Optional
-                .ofNullable(orderDto.getOrderStatusDto())
-                .ifPresent(r -> serviceLocalOrder.setStatusDetail(r.getDescription()));
-        
-        Optional.ofNullable(orderDto.getSchedules())
-        		.ifPresent(s -> serviceLocalOrder.setLeadTime(s.getLeadTime()));
 
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
@@ -129,6 +92,7 @@ public class OrderTransaction {
         orderWrapperResponse.setOrderStatusDetail(serviceLocalOrderResponse.getStatusDetail());
 
         orderWrapperResponse.setServiceCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getCode());
+        orderWrapperResponse.setServiceShortCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getShortCode());
         orderWrapperResponse.setServiceName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getName());
         orderWrapperResponse.setServiceType(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getType());
         orderWrapperResponse.setServiceSourcechannel(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getSourceChannel());
@@ -146,6 +110,8 @@ public class OrderTransaction {
         orderWrapperResponse.setLocalLatitude(centerCompanyCanonical.getLatitude());
         orderWrapperResponse.setLocalLongitude(centerCompanyCanonical.getLongitude());
 
+
+
         log.info("[END] createOrderReactive");
         return orderWrapperResponse;
     }
@@ -158,7 +124,7 @@ public class OrderTransaction {
 
         if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId() != null) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.SUCCESS_FULFILLMENT_PROCESS.getCode());
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CONFIRMED.getCode());
 
         } else if (
                 Optional
@@ -189,9 +155,9 @@ public class OrderTransaction {
 
         } else if (Optional
                 .ofNullable(orderDto.getOrderStatusDto().getCode())
-                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode())) {
+                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER.getCode())) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RELEASE_ORDER.getCode());
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER.getCode());
         } else if(Optional
                 .ofNullable(orderDto.getOrderStatusDto().getCode())
                 .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING.getCode())) {
@@ -217,6 +183,12 @@ public class OrderTransaction {
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+        } else if (Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.DeliveryManagerStatus.ORDER_FAILED.name())) {
+
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ORDER_FAILED.getCode());
+
         } else {
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
         }
@@ -234,9 +206,6 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderItemByOrderFulfillmentId(orderFulfillmentId);
     }
 
-    public List<IOrderFulfillment> getOrdersByStatus(String status){
-        return orderRepositoryService.getListOrdersByStatus(new HashSet<>(Collections.singletonList(status)));
-    }
 
     public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup, String statustype) {
         return orderRepositoryService.getListOrdersToCancel(serviceType, companyCode, maxDayPickup, statustype);

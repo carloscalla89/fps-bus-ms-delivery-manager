@@ -20,9 +20,8 @@ public class OrderCanonical {
         this.orderStatus.setName(name);
     }
 
-
-
-    public OrderCanonical(Long ecommerceId, OrderStatusCanonical orderStatus) {
+    public OrderCanonical(Long id,Long ecommerceId, OrderStatusCanonical orderStatus) {
+        this.id = id;
         this.ecommerceId = ecommerceId;
         this.orderStatus = orderStatus;
     }
@@ -36,6 +35,15 @@ public class OrderCanonical {
         this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
     }
 
+    public OrderCanonical(Long ecommerceId, String code, String name, String localCode, String companyCode) {
+        this.ecommerceId = ecommerceId;
+        this.localCode = localCode;
+        this.companyCode = companyCode;
+        this.orderStatus = new OrderStatusCanonical();
+        this.orderStatus.setCode(code);
+        this.orderStatus.setName(name);
+        this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+    }
 
     public OrderCanonical(Long ecommerceId, Long externalId, String code, String name) {
         this.ecommerceId = ecommerceId;
@@ -63,7 +71,7 @@ public class OrderCanonical {
     private Long ecommerceId;
     private Long trackerId;
     private Long externalId;
-    private Long bridgePurchaseId;
+    private Long purchaseId;
     private String motorizedId;
 
     // Canonical cost
@@ -73,7 +81,7 @@ public class OrderCanonical {
     private BigDecimal totalAmount;
 
     // Canonical local and company
-    private String localCodeCompany;
+    private String companyCode;
     private String localCode;
     private String local;
     private String company;
@@ -81,6 +89,7 @@ public class OrderCanonical {
     private String localAddress;
     private BigDecimal localLongitude;
     private BigDecimal localLatitude;
+    private String inkaVentaId;
     private Long localId;
 
     // canonical client
@@ -113,5 +122,7 @@ public class OrderCanonical {
     private Integer attemptTracker;
 
     private String source;
+
+    private String action;
 
 }

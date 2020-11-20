@@ -8,6 +8,7 @@ import java.util.List;
 public class ActionDto {
 
     private String action;
+    private String companyCode;
     private OrderStatusDto orderStatusDto;
     private String externalBillingId;
     private String trackerId;

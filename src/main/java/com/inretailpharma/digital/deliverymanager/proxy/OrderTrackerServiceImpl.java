@@ -28,30 +28,6 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderToTracker(OrderCanonical orderCanonical) {
-    	log.info("[START] call to OrderTracker - sendOrderToTracker - uri:{} - body:{}",
-                externalServicesProperties.getOrderTrackerCreateOrderUri(), orderCanonical);
-    	
-    	return WebClient
-            	.create(externalServicesProperties.getOrderTrackerCreateOrderUri())
-            	.post()
-            	.bodyValue(orderCanonical)
-            	.retrieve()
-            	.bodyToMono(String.class)
-            	.map(body -> {
-            		log.info("[END] call to OrderTracker - sendOrderToTracker - s:{}", body);
-            		return orderCanonical;
-            	})
-            	.defaultIfEmpty(
-            			new OrderCanonical()
-            	)
-            	.onErrorResume(ex -> {
-            		log.error("[ERROR] call to OrderTracker - sendOrderToTracker", ex);
-            		return Mono.just(new OrderCanonical());
-            	});
-    }
-    
-    @Override
 	public Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
     	log.info("[START] call to OrderTracker - assignOrders - uri:{} - body:{}",
                 externalServicesProperties.getOrderTrackerAssignOrdersUri(), projectedGroupCanonical);
@@ -130,4 +106,30 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
                     return Mono.just(Constant.OrderTrackerResponseCode.ERROR_CODE);
                 });
 	}
+
+
+	@Override
+	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical) {
+		log.info("[START] call to OrderTracker - sendOrderToTracker - uri:{} - body:{}",
+				externalServicesProperties.getOrderTrackerCreateOrderUri(), orderCanonical);
+
+		return WebClient
+				.create(externalServicesProperties.getOrderTrackerCreateOrderUri())
+				.post()
+				.bodyValue(orderCanonical)
+				.retrieve()
+				.bodyToMono(String.class)
+				.map(body -> {
+					log.info("[END] call to OrderTracker - sendOrderToTracker - s:{}", body);
+					return orderCanonical;
+				})
+				.defaultIfEmpty(
+						new OrderCanonical()
+				)
+				.onErrorResume(ex -> {
+					log.error("[ERROR] call to OrderTracker - sendOrderToTracker", ex);
+					return Mono.just(new OrderCanonical());
+				});
+	}
+
 }

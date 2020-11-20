@@ -49,6 +49,8 @@ public class OrderFulfillmentItem {
     @Column(name = "fractional_discount")
     private BigDecimal fractionalDiscount;
 
+    @Column(name = "fractionated_price")
+    private BigDecimal fractionatedPrice;
 
     @Column(name="presentation_id")
     private Integer presentationId;
@@ -59,7 +61,16 @@ public class OrderFulfillmentItem {
     @Column(name="quantity_units")
     private Integer quantityUnits;
 
+    @Column(name="quantity_unit_minimium")
+    private Integer quantityUnitMinimum;
+
     @Column(name="quantity_presentation")
     private Integer quantityPresentation;
+
+    @Column(name="family_type")
+    private String familyType;
+
+    @Column(name="value_UMV")
+    private Integer valueUMV;
 
 }

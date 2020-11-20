@@ -15,6 +15,7 @@ public class ExternalServicesProperties {
     @Value("${external-service.audit.time-out}")
     private Integer timeout;
 
+    // properties insink-tracker to DD endpoint
     @Value("${external-service.dispatcher.insink-tracker.uri}")
     private String dispatcherInsinkTrackerUri;
 
@@ -27,14 +28,12 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.insink-tracker.read-timeout}")
     private String dispatcherInsinkTrackerReadTimeout;
 
-    @Value("${external-service.dispatcher.retry-seller-center.uri}")
-    private String dispatcherRetrySellerCenterUri;
+    // ------------------------------------------------------
 
-    // properties to DD endpoint tracker inka
+    // properties tracker to DD endpoint
     @Value("${external-service.dispatcher.tracker.uri}")
     private String dispatcherTrackerUri;
 
-    // properties to DD endpoint mifarma
     @Value("${external-service.dispatcher.tracker.uri-mifarma}")
     private String dispatcherTrackerUriMifarma;
 
@@ -43,6 +42,40 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.dispatcher.tracker.read-timeout}")
     private String dispatcherTrackerReadTimeout;
+
+    // ------------------------------------------------------
+
+
+    // properties legacy-system to DD endpoint
+    @Value("${external-service.dispatcher.legacy-system.uri}")
+    private String dispatcherLegacySystemUri;
+
+    @Value("${external-service.dispatcher.legacy-system.uri-mifarma}")
+    private String dispatcherLegacySystemUriMifarma;
+
+    @Value("${external-service.dispatcher.legacy-system.connect-timeout}")
+    private String dispatcherLegacySystemConnectTimeout;
+
+    @Value("${external-service.dispatcher.legacy-system.read-timeout}")
+    private String dispatcherLegacySystemReadTimeout;
+
+    // ------------------------------------------------------
+
+    // properties order/ecommerce/{orderId} to DD endpoint
+    @Value("${external-service.dispatcher.order-ecommerce.uri}")
+    private String dispatcherOrderEcommerceUri;
+
+    @Value("${external-service.dispatcher.order-ecommerce.connect-timeout}")
+    private String dispatcherOrderEcommerceConnectTimeout;
+
+    @Value("${external-service.dispatcher.order-ecommerce.read-timeout}")
+    private String dispatcherOrderEcommerceReadTimeout;
+
+    // ------------------------------------------------------
+
+    @Value("${external-service.dispatcher.retry-seller-center.uri}")
+    private String dispatcherRetrySellerCenterUri;
+
 
     // properties to inkatracker lite to update
     @Value("${external-service.inkatrackerlite.update-order.uri}")
@@ -54,6 +87,8 @@ public class ExternalServicesProperties {
     @Value("${external-service.inkatrackerlite.update-order.read-timeout}")
     private String inkatrackerLiteUpdateOrderReadTimeOut;
 
+    // ------------------------------------------------------
+
     // properties to inkatracker lite to create
     @Value("${external-service.inkatrackerlite.create-order.uri}")
     private String inkatrackerLiteCreateOrderUri;
@@ -63,6 +98,8 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.inkatrackerlite.create-order.read-timeout}")
     private String inkatrackerLiteCreateOrderReadTimeOut;
+    // ------------------------------------------------------
+
 
     // properties to inkatracker
     @Value("${external-service.inkatracker.create-order.uri}")
@@ -82,6 +119,23 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.inkatracker.update-status-order.read-timeout}")
     private String inkatrackerUpdateOrderReadTimeOut;
+    // ------------------------------------------------------
+
+    // ********* properties to inkatracker temporary
+
+    @Value("${external-service.temporary.create-order.uri}")
+    private String temporaryCreateOrderUri;
+
+    @Value("${external-service.temporary.update-order.uri}")
+    private String temporaryUpdateOrderUri;
+
+    @Value("${external-service.temporary.create-order.connect-timeout}")
+    private String temporaryCreateOrderConnectTimeOut;
+
+    @Value("${external-service.temporary.create-order.read-timeout}")
+    private String temporaryCreateOrderReadTimeOut;
+    // ------------------------------------------------------
+
 
     // properties to order tracker
     @Value("${external-service.order-tracker.create-order.uri}")
@@ -95,7 +149,9 @@ public class ExternalServicesProperties {
     
     @Value("${external-service.order-tracker.update-order-status.uri}")
     private String orderTrackerUpdateOrderStatusUri;
-    
+    // ------------------------------------------------------
+
+    // properties fulfillmentcenter
     @Value("${external-service.fulfillment-center.get-center.uri}")
     private String fulfillmentCenterGetCenterUri;
 

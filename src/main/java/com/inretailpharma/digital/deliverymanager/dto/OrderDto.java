@@ -2,9 +2,11 @@ package com.inretailpharma.digital.deliverymanager.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PersonToPickupDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -14,14 +16,17 @@ import java.util.List;
 public class OrderDto {
 
     private String source;
+
+    @NotNull
     private String localCode;
     private String companyCode;
     private String serviceTypeCode;
 
+    @NotNull
     private Long ecommercePurchaseId;
     private Long trackerId;
     private Long externalPurchaseId;
-    private Long bridgePurchaseId;
+    private Integer purchaseNumber;
 
     private BigDecimal deliveryCost;
     private BigDecimal discountApplied;
@@ -43,7 +48,6 @@ public class OrderDto {
     private List<OrderItemDto> orderItem;
     private List<OrderItemEditedDto> itemsRetired;
 
-
     private ScheduleServiceTypeDto schedules;
 
     private Constant.ActionOrder action;
@@ -53,10 +57,9 @@ public class OrderDto {
     private String notes;
     private String sourceCompanyName;
 
-    private Date payOrderDate;
-    private Date scheduledOrderDate;
-    private String transactionOrderDate;
-    private Integer purchaseNumber;
-    private Long paymentMethodId;
-    private Long creditCardId;
+    // campos que son necesarios para enviar al insink
+    private String districtCodeBilling;
+    private Long zoneIdBilling;
+
+    private PersonToPickupDto personToPickup;
 }

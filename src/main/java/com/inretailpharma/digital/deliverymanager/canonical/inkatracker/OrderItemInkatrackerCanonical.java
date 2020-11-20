@@ -1,11 +1,15 @@
 package com.inretailpharma.digital.deliverymanager.canonical.inkatracker;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class OrderItemInkatrackerCanonical {
 
     private String sku;
+    private String productId;
     private String sap;
     private String name;
     private String shortDescription;
@@ -21,5 +25,7 @@ public class OrderItemInkatrackerCanonical {
     private boolean prescription;
     private Integer quantityUnits;
     private Integer quantityPresentation;
+    private Integer quantityUnitMinimium;
+    private Integer valueUMV;
 
 }

@@ -15,8 +15,17 @@ public class PaymentMethod {
     @Column(table = "payment_method", name="payment_type")
     private PaymentType paymentType;
 
+    @Column(table = "payment_method", name="card_provider_id")
+    private Integer cardProviderId;
+
+    @Column(table = "payment_method", name="card_provider_code")
+    private String cardProviderCode;
+
     @Column(table = "payment_method", name="card_provider")
     private String cardProvider;
+
+    @Column(table = "payment_method", name="bin")
+    private String bin;
 
     @Column(table = "payment_method", name="card_name")
     private String cardName;
@@ -33,18 +42,34 @@ public class PaymentMethod {
     @Column(table = "payment_method", name="payment_note")
     private String paymentNote;
 
+    @Column(table = "payment_method", name="coupon")
+    private String coupon;
+
     public enum PaymentType {
 
-        CASH("CASH"), CASH_DOLAR("CASH_DOLAR"), CARD("POS"), ONLINE_PAYMENT("ONLINE");
+        CASH(1,"CASH", "Efectivo"), CASH_DOLAR(1,"CASH_DOLAR", "Efectivo en dólares"),
+        CARD(2,"POS", "Pago con P.O.S"), ONLINE_PAYMENT(3,"ONLINE", "Pago en línea");
 
-        private final String kit;
+        private final Integer id;
+        private final String code;
+        private final String description;
 
-        PaymentType(String kit) {
-            this.kit = kit;
+        PaymentType(Integer id, String code, String description) {
+            this.id = id;
+            this.code = code;
+            this.description = description;
         }
 
-        public String kit() {
-            return kit;
+        public Integer getId() {
+            return id;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDescription() {
+            return description;
         }
 
         public static PaymentType getPaymentTypeByNameType(String type) {

@@ -10,9 +10,15 @@ public class OrderInkatrackerCanonical {
 
     private Long orderExternalId;
     private OrderStatusInkatrackerCanonical orderStatus;
+    private OrderStatusInkatrackerCanonical status;
     private Long inkaDeliveryId;
     private String source;
+    private String callSource;
     private Long dateCreated;
+    private Long startDate;
+    private Long endDate;
+    private Long cancelDate;
+    private String cancelMessageNote;
     private Integer deliveryService;
     private Long maxDeliveryTime;
     private Double deliveryCost;
@@ -38,6 +44,7 @@ public class OrderInkatrackerCanonical {
     private String endHour;
     private String daysToPickUp;
     private String messageToPickup;
+    private String localCode;
     private String companyCode;
     private String companyName;
     private String errorDetail;
@@ -47,6 +54,11 @@ public class OrderInkatrackerCanonical {
     private DrugstoreCanonical drugstoreSource;
     private boolean assignedDrugstoreNew;
     private String priority;
+    private String newUserId;
+    private Long deliveryServiceId;
+    private String purchaseId;
     private List<InvoicedOrderCanonical> invoicedList;
+    private String drugstoreAddress;
+    private PersonToPickupDto personToPickup;
 
 }
