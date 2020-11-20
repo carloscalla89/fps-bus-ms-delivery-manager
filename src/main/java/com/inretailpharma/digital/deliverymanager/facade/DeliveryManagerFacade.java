@@ -109,7 +109,8 @@ public class DeliveryManagerFacade {
                                             Optional.ofNullable(order.getOrderStatus().getName())
                                                     .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
                                                     .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
-                                                    .orElse(order.getOrderStatus().getName())
+                                                    .orElse(order.getOrderStatus().getName()),
+                                            null, null
 
                                     )
                                     .flatMap(s -> {
@@ -184,7 +185,7 @@ public class DeliveryManagerFacade {
                                                     storeCenterCanonical,
                                                     iOrderFulfillment.getExternalId(),
                                                     null,
-                                                    Constant.OrderStatus.CONFIRMED_TRACKER.name())
+                                                    Constant.OrderStatus.CONFIRMED_TRACKER.name(),null, null)
                                             .flatMap(s -> {
                                                 OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
                                                 return Mono.just(orderCanonical);
@@ -254,7 +255,7 @@ public class DeliveryManagerFacade {
                                                                                                 Optional.ofNullable(orderResp.getOrderStatus().getName())
                                                                                                         .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
                                                                                                         .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
-                                                                                                        .orElse(orderResp.getOrderStatus().getName())
+                                                                                                        .orElse(orderResp.getOrderStatus().getName()), null, null
                                                                                         )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 
@@ -364,7 +365,9 @@ public class DeliveryManagerFacade {
                                                         storeCenterCanonical,
                                                         iOrderFulfillment.getExternalId(),
                                                         null,
-                                                        Constant.OrderStatus.CANCELLED_ORDER.name())
+                                                        Constant.OrderStatus.CANCELLED_ORDER.name(),
+                                                        actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation()
+                                                )
                                                 .flatMap(s -> {
                                                     OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
                                                     return Mono.just(orderCanonical);

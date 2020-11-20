@@ -35,7 +35,8 @@ public class ObjectToMapper {
     public OrderInkatrackerCanonical convertOrderToOrderInkatrackerCanonical(IOrderFulfillment iOrderFulfillment,
                                                                              List<IOrderItemFulfillment> itemFulfillments,
                                                                              StoreCenterCanonical storeCenterCanonical,
-                                                                             Long externalId, String status) {
+                                                                             Long externalId, String status,
+                                                                             String orderCancelCode, String orderCancelObservation) {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
         orderInkatrackerCanonical.setOrderExternalId(iOrderFulfillment.getEcommerceId());
@@ -80,8 +81,8 @@ public class ObjectToMapper {
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
 
         orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
-        orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(iOrderFulfillment, status));
-        orderInkatrackerCanonical.setStatus(getFromOrderCanonical(iOrderFulfillment, status));
+        orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation));
+        orderInkatrackerCanonical.setStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation));
         orderInkatrackerCanonical.setTotalCost(iOrderFulfillment.getTotalCost().doubleValue());
         orderInkatrackerCanonical.setSubtotal(iOrderFulfillment.getSubTotalCost().doubleValue());
 
@@ -305,13 +306,29 @@ public class ObjectToMapper {
         return canonical;
     }
 
-    private OrderStatusInkatrackerCanonical getFromOrderCanonical(IOrderFulfillment iOrderFulfillment, String status) {
+    private OrderStatusInkatrackerCanonical getFromOrderCanonical(IOrderFulfillment iOrderFulfillment, String status,
+                                                                  String orderCancelCode, String orderCancelObservation) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
         orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
                 Timestamp.valueOf(iOrderFulfillment.getScheduledTime()).getTime()
         );
         orderStatusInkatrackerCanonical.setDescription(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
+
+        if (status != null && status.equalsIgnoreCase(Constant.OrderStatusTracker.getByName(status).name())) {
+
+            orderStatusInkatrackerCanonical.setCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
+
+            orderStatusInkatrackerCanonical.setCancelDate(
+                    Optional.ofNullable(iOrderFulfillment.getCancelledOrder())
+                            .map(c -> Timestamp.valueOf(c).getTime())
+                            .orElse(Timestamp.valueOf(DateUtils.getLocalDateTimeFormatNow()).getTime())
+            );
+
+            orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
+            orderStatusInkatrackerCanonical.setCustomNote(orderCancelObservation);
+            orderStatusInkatrackerCanonical.setCancelMessageNote(orderCancelObservation);
+        }
 
         return orderStatusInkatrackerCanonical;
     }
