@@ -21,5 +21,6 @@ public class ClientCanonical {
 
     private String userId;
     private String notificationToken;
+    private String newUserId;
 
 }

@@ -10,16 +10,20 @@ public interface IOrderFulfillment {
     Long getEcommerceId();
     Long getTrackerId();
     Long getExternalId();
-    Long getBridgePurchaseId();
+    Integer getPurchaseId();
+
 
     BigDecimal getTotalCost();
+    BigDecimal getSubTotalCost();
     BigDecimal getDeliveryCost();
     BigDecimal getDiscountApplied();
 
     LocalDateTime getCreatedOrder();
     LocalDateTime getScheduledTime();
-    LocalDateTime getConfirmedSchedule();
     LocalDateTime getConfirmedOrder();
+    LocalDateTime getCancelledOrder();
+    LocalDateTime getConfirmedInsinkOrder();
+    String getTransactionOrderDate();
 
     String getFirstName();
     String getLastName();
@@ -28,8 +32,10 @@ public interface IOrderFulfillment {
     String getPhone();
     String getBirthDate();
     String getAnonimous();
-    Integer getInkaClub();
+    String getInkaClub();
     String getNotificationToken();
+    String getUserId();
+    String getNewUserId();
 
     String getCenterCode();
     String getCenterName();
@@ -40,20 +46,26 @@ public interface IOrderFulfillment {
     LocalTime getStartHour();
     LocalTime getEndHour();
 
-
     String getStatusCode();
-    Integer getAttempt();
-    Integer getAttemptTracker();
-    String getStatusType();
+    String getStatusName();
     String getStatusDetail();
 
+    Integer getAttempt();
+    Integer getAttemptTracker();
+
+    String getServiceTypeShortCode();
     String getServiceTypeCode();
     String getServiceTypeName();
     String getServiceType();
     String getServiceEnabled();
+    boolean getNewCodeServiceEnabled();
 
     String getPaymentType();
+    Integer getCardProviderId();
     String getCardProvider();
+    String getCardProviderCode();
+    String getBin();
+    String getCoupon();
     BigDecimal getPaidAmount();
     BigDecimal getChangeAmount();
 
@@ -80,4 +92,17 @@ public interface IOrderFulfillment {
     String getSource();
     String getOrderNotes();
     String getSourceCompanyName();
+
+    String getDistrictCode();
+    Long getZoneId();
+    Integer getDaysPickup();
+
+    // Person to pickup order when the order is ret
+
+    String getPickupUserId();
+    String getPickupFullName();
+    String getPickupEmail();
+    String getPickupDocumentType();
+    String getPickupDocumentNumber();
+    String getPickupPhone();
 }

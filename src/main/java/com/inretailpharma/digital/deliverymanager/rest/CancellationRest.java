@@ -5,10 +5,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancell
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
 import com.inretailpharma.digital.deliverymanager.facade.CancellationFacade;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/fulfillment/cancellation")
-@Api(value = "CancellationRest", produces = "application/json")
 @Slf4j
 public class CancellationRest {
 
@@ -31,11 +26,6 @@ public class CancellationRest {
         this.cancellationFacade = cancellationFacade;
     }
 
-    @ApiOperation(value = "Obtener los códigos y descripción de cancelación de una orden",
-            tags = { "Controlador DeliveryManager" })
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Lista obtenida correctamente", response = List.class),
-            @ApiResponse(code = 500, message = "No creado") })
     @GetMapping("/reason")
     public ResponseEntity<Flux<CancellationCanonical>> getCancellationReasonsCode(
             @RequestParam(name="appType") String appType) {
@@ -51,10 +41,6 @@ public class CancellationRest {
 
     }
 
-    @ApiOperation(value = "cancelar órdenes que han excedido los días permitidos para entregar o recoger")
-    @ApiResponses(value = { //
-            @ApiResponse(code = 200, message = "Órdenes canceladas correctamente", response = OrderCancelledCanonical.class),
-            @ApiResponse(code = 500, message = "No creado") })
     @PutMapping("/orders")
     public Flux<OrderCancelledCanonical> cancelOrderProcess(
             @RequestBody CancellationDto cancellationDto) {

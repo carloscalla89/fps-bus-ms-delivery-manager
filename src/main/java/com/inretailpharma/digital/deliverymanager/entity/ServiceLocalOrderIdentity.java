@@ -24,19 +24,6 @@ public class ServiceLocalOrderIdentity implements Serializable {
     @JoinColumn(name="service_type_code",referencedColumnName = "code")
     private ServiceType serviceType;
 
-    /*
-    @MapsId("centerCompanyIdentity")
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumns({
-            @JoinColumn(name="center_code",referencedColumnName="center_code"),
-            @JoinColumn(name="company_code",referencedColumnName="company_code"),
-    })
-    private CenterCompanyFulfillment centerCompanyFulfillment;
-
-     */
-
-
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="order_fulfillment_id",referencedColumnName = "id")
     private OrderFulfillment orderFulfillment;

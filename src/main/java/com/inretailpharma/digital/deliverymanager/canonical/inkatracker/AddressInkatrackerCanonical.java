@@ -17,4 +17,5 @@ public class AddressInkatrackerCanonical {
     private Double latitude;
     private Double longitude;
     private Integer zoneEta;
+    private ZoneTrackerCanonical zone;
 }

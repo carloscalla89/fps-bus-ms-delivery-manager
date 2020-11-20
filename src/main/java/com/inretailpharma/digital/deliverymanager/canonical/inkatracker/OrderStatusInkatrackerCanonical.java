@@ -9,4 +9,6 @@ public class OrderStatusInkatrackerCanonical {
     private Long statusDate;
     private String customNote;
     private String code;
+    private String description;
+    private Long cancelledDate;
 }

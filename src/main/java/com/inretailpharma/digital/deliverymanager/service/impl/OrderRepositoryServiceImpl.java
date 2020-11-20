@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.stereotype.Service;
 
 import com.inretailpharma.digital.deliverymanager.entity.Client;
 import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
@@ -199,12 +199,14 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
                     Long orderFulfillmentId = itemOriginal.getOrderFulfillmentId();
                     String productCode = itemOriginal.getProductCode();
                     Integer quantity = itemDto.getQuantity();
+                    Integer quantityPresentation = itemDto.getQuantity();
                     BigDecimal unitPrice = itemDto.getUnitPrice();
                     BigDecimal totalPrice = itemDto.getTotalPrice();
                     Integer quantityUnits= itemDto.getQuantityUnits();
+
                     Constant.Logical fractionated = Constant.Logical.parse(itemDto.getFractionated());
-                    String presentationDescription = itemDto.getShortDescription();
-                    orderRepository.updateItemsPartialOrder(quantity, unitPrice, totalPrice, fractionated.getValueString(), orderFulfillmentId,quantityUnits, productCode,presentationDescription);
+                    String presentationDescription = itemDto.getPresentationDescription();
+                    orderRepository.updateItemsPartialOrder(quantity, quantityPresentation,unitPrice, totalPrice, fractionated.name(), orderFulfillmentId,quantityUnits, productCode,presentationDescription);
                 }
             }
         }
@@ -228,4 +230,5 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         orderRepository.updatePaymentMethod(paidAmount,changeAmount,"Parcial",orderFulfillmentId);
         log.info("PaymentMethod updated succesfully");
     }
+
 }

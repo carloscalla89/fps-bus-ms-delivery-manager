@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 public class StoreCenterCanonical {
 
     private Long legacyId;
+    private String inkaVentaId;
     private String localCode;
     private String companyCode;
     private String name;
@@ -24,6 +25,11 @@ public class StoreCenterCanonical {
 
     public StoreCenterCanonical(String localCode) {
         this.localCode = localCode;
+    }
+
+    public StoreCenterCanonical(String localCode, String companyCode) {
+        this.localCode = localCode;
+        this.companyCode = companyCode;
     }
 
 }

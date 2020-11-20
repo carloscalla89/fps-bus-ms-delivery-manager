@@ -1,5 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.util;
 
+import org.apache.commons.validator.GenericValidator;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +27,17 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     public static String getLocalDateTimeWithFormat(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
+    }
+
+    public static LocalTime getLocalTimeWithValidFormat(String localtime) {
+
+        if (GenericValidator.isDate(localtime, TIME_TEMPLATE_HOUR_MINUTE, true)) {
+            return LocalTime.parse(localtime, DateTimeFormatter.ofPattern(TIME_TEMPLATE_HOUR_MINUTE));
+        } else if (GenericValidator.isDate(localtime, TIME_TEMPLATE, true)) {
+            return LocalTime.parse(localtime, DateTimeFormatter.ofPattern(TIME_TEMPLATE));
+        } else {
+            return null;
+        }
     }
 
     public static LocalTime getLocalTimeFromStringWithFormatHourandMinute(String localtime) {

@@ -38,4 +38,10 @@ public class Client  implements Serializable {
     @Column(name="notification_token")
     private String notificationToken;
 
+    @Column(name="user_id")
+    private String userId;
+
+    @Column(name="new_user_id")
+    private String newUserId;
+
 }

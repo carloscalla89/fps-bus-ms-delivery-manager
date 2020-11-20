@@ -12,30 +12,52 @@ external-service:
       uri: http://us-dd/order/insink-tracker
       uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/insink-tracker
       connect-timeout: 30000
-      read-timeout: 480
+      read-timeout: 60000
     tracker:
       uri: http://us-dd/order/tracker
       uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/tracker
       connect-timeout: 30000
-      read-timeout: 480
+      read-timeout: 60000
+    legacy-system:
+      uri: http://us-dd/order/legacy-system
+      uri-mifarma: http://ddmfuat.backend.cindyinkafarma.com/order/legacy-system
+      connect-timeout: 30000
+      read-timeout: 60000
+    order-ecommerce:
+      uri: http://us-dd/order/ecommerce
+      connect-timeout: 30000
+      read-timeout: 60000
   inkatracker-lite:
+    create-order:
+      uri: http://us-inkatrackerlite/nvr/orders/create
+      connect-timeout: 30000
+      read-timeout: 60000
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
       connect-timeout: 30000
-      read-timeout: 360
+      read-timeout: 60000
   inkatracker:
     create-order:
       uri: http://us-inkatracker/nvr/orders/create
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
     update-order:
       uri: http://us-inkatracker/nvr/orders/create
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
     update-status-order:
       uri: http://us-inkatracker/nvr/orders
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
+  temporary:
+    create-order:
+      uri: http://us-temporary/nvr/orders/create
+      connect-timeout: 30000
+      read-timeout: 60000
+    update-order:
+      uri: http://us-temporary/nvr/orders/update
+      connect-timeout: 30000
+      read-timeout: 60000
   order-tracker:
     create-order:
       uri: http://us-ordertracker/order
@@ -56,9 +78,9 @@ external-service:
   fulfillment-center:
     get-center:
       uri: http://us-fulfillment-center/fulfillment/store/
-      connect-timeout: 10000
-      read-timeout: 120000
+      connect-timeout: 15000
+      read-timeout: 30000
     get-company-center:
       uri: http://us-fulfillment-center/fulfillment/store/
-      connect-timeout: 10000
-      read-timeout: 120000
+      connect-timeout: 15000
+      read-timeout: 60000
