@@ -186,7 +186,7 @@ public class AbstractOrderService implements OrderExternalService {
 
 
 	protected Mono<OrderCanonical> mapResponseFromTracker(ClientResponse clientResponse, Long id, Long ecommerceId,
-														  Long externalId) {
+														  Long externalId, String statusName) {
 		OrderCanonical orderCanonical = new OrderCanonical();
 		orderCanonical.setId(id);
 		orderCanonical.setEcommerceId(ecommerceId);
@@ -197,7 +197,16 @@ public class AbstractOrderService implements OrderExternalService {
 		if (clientResponse.statusCode().is2xxSuccessful()) {
 
 			orderCanonical.setTrackerId(ecommerceId);
-			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.CONFIRMED_TRACKER.name(), null);
+
+			if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
+					|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())) {
+
+				orderStatus = objectToMapper.getOrderStatusInkatracker(statusName, null);
+			} else {
+				orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.CONFIRMED_TRACKER.name(), null);
+			}
+
+
 
 			orderCanonical.setOrderStatus(orderStatus);
 
@@ -212,7 +221,7 @@ public class AbstractOrderService implements OrderExternalService {
 
 	}
 
-	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusCode) {
+	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusName) {
 
 		OrderCanonical orderCanonical = new OrderCanonical();
 		orderCanonical.setEcommerceId(id);
@@ -220,8 +229,8 @@ public class AbstractOrderService implements OrderExternalService {
 
 		OrderStatusCanonical orderStatus;
 
-		if (statusCode.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.getCode())
-				|| statusCode.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.getCode())) {
+		if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
+				|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())) {
 
 			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name(), e.getMessage());
 

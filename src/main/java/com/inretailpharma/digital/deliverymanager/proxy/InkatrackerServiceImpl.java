@@ -172,7 +172,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
-                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId)
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId, statusName)
                             )
                             .doOnSuccess(s -> log.info("Response is Success in inkatracker:{}",s))
                             .defaultIfEmpty(
@@ -188,7 +188,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                 log.error("Error in inkatracker:{}",e.getMessage());
                             })
                             .onErrorResume(e -> mapResponseErrorFromTracker(e, iOrderFulfillment.getOrderId(),
-                                    iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getStatusCode())
+                                    iOrderFulfillment.getEcommerceId(), statusName)
                             );
 
                 });
