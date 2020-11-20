@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.mapper;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -322,7 +323,7 @@ public class ObjectToMapper {
             orderStatusInkatrackerCanonical.setCancelDate(
                     Optional.ofNullable(iOrderFulfillment.getCancelledOrder())
                             .map(c -> Timestamp.valueOf(c).getTime())
-                            .orElse(Timestamp.valueOf(DateUtils.getLocalDateTimeFormatNow()).getTime())
+                            .orElse(Timestamp.valueOf(LocalDateTime.now()).getTime())
             );
 
             orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
