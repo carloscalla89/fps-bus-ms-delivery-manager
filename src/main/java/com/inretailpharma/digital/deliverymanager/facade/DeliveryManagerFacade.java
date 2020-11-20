@@ -457,12 +457,7 @@ public class DeliveryManagerFacade {
 
                         OrderCanonical resultOrderNotFound = new OrderCanonical();
 
-                        resultOrderNotFound.setOrderStatus(os);
-                        resultOrderNotFound.setEcommerceId(ecommercePurchaseId);
 
-                        return Mono.just(resultOrderNotFound);
-
-                    });
                         resultOrderNotFound.setOrderStatus(os);
                         resultOrderNotFound.setEcommerceId(ecommercePurchaseId);
 
