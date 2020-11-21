@@ -5,10 +5,21 @@ import lombok.Data;
 @Data
 public class OrderStatusInkatrackerCanonical {
 
-    private String statusName;
-    private Long statusDate;
-    private String customNote;
+    // ambos
     private String code;
     private String description;
+    private String statusName;
+
+    // inkatracker cuando se cancela
+    private Long statusDate;
+    private String customNote;
+
+    // inkatrackerlite cuando se cancela
+    private Long cancelDate;
+    private String cancelReasonCode;
+    private String cancelMessageNote;
+
+
+    // pendiente por asignar
     private Long cancelledDate;
 }

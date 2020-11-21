@@ -45,11 +45,11 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
     public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                                    List<IOrderItemFulfillment> itemFulfillments,
                                                    StoreCenterCanonical storeCenterCanonical,
-                                                   Long externalId, String statusDetail, String statusName) {
+                                                   Long externalId, String statusDetail, String statusName, String code, String obs) {
         return Mono
                 .just(objectToMapper
                         .convertOrderToOrderInkatrackerCanonical(
-                                iOrderFulfillment, itemFulfillments, storeCenterCanonical, externalId, Constant.OrderStatus.CONFIRMED_TRACKER.name()
+                                iOrderFulfillment, itemFulfillments, storeCenterCanonical, externalId, Constant.OrderStatus.CONFIRMED_TRACKER.name(), null, null
                         )
                 )
                 .flatMap(b -> {
@@ -72,7 +72,7 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
-                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId)
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId, null)
                             )
                             .doOnSuccess(s -> log.info("Response is Success in inkatracker:{}",s))
                             .defaultIfEmpty(

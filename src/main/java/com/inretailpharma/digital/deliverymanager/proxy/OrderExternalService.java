@@ -27,7 +27,7 @@ public interface OrderExternalService {
     Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments,
                                             StoreCenterCanonical storeCenterCanonical, Long externalId, String statusDetail,
-                                            String statusName);
+                                            String statusName, String orderCancelCode, String orderCancelObservation);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical);
     Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments, String action,
