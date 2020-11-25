@@ -151,6 +151,8 @@ public class ObjectToMapper {
                         .orElse(null)
         );
 
+        orderInkatrackerCanonical.setSourceCompanyName(iOrderFulfillment.getSourceCompanyName());
+
         return orderInkatrackerCanonical;
     }
 

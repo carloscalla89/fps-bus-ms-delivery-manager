@@ -60,5 +60,6 @@ public class OrderInkatrackerCanonical {
     private List<InvoicedOrderCanonical> invoicedList;
     private String drugstoreAddress;
     private PersonToPickupDto personToPickup;
+    private String sourceCompanyName;
 
 }
