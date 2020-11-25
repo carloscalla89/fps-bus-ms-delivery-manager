@@ -520,7 +520,7 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setFractionatedPrice(r.getFractionatedPrice());
                     orderFulfillmentItem.setPresentationId(r.getPresentationId());
                     orderFulfillmentItem.setPresentationDescription(r.getPresentationDescription());
-                    orderFulfillmentItem.setQuantityUnits(r.getQuantity());
+                    orderFulfillmentItem.setQuantityUnits(r.getQuantityUnits());
                     orderFulfillmentItem.setQuantityUnitMinimum(r.getQuantityUnitMinimium());
                     orderFulfillmentItem.setQuantityPresentation(r.getQuantityPresentation());
                     orderFulfillmentItem.setFamilyType(r.getFamilyType());
