@@ -564,15 +564,10 @@ public class DeliveryManagerFacade {
 			IOrderResponseFulfillment orderResponseFulfillment=x.get();	    
 			log.info("OrderResponseFulfillment--->:"+orderResponseFulfillment);
 			OrderResponseCanonical orderResponseCanonical = OrderResponseCanonical.builder()
-                .scheduledOrderDate(orderResponseFulfillment.getScheduledOrderDate())
-				.payOrderDate(orderResponseFulfillment.getPayOrderDate())
-				.transactionOrderDate(orderResponseFulfillment.getTransactionOrderDate())				
-				.purchaseNumber(orderResponseFulfillment.getPurchaseNumber())
-                .posCode(orderResponseFulfillment.getPosCode())
-                .creditCardId(orderResponseFulfillment.getCreditCardId())
-                .paymentMethodId(orderResponseFulfillment.getPaymentMethodId())
-                .confirmedOrder(orderResponseFulfillment.getConfirmedOrder())
-				.build();
+               .creditCardId(orderResponseFulfillment.getCreditCardId())
+               .paymentMethodId(orderResponseFulfillment.getPaymentMethodId())
+               .confirmedOrder(orderResponseFulfillment.getConfirmedOrder())
+                    .build();
 			log.info("END FACADE getOrderByOrderNumber:"+orderNumber);
 			return Mono.just(orderResponseCanonical);
 		})
