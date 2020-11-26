@@ -59,7 +59,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, o.source, " +
             "o.external_purchase_id as externalId, o.bridge_purchase_id as bridgePurchaseId, " +
             "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, o.discount_applied as discountApplied, " +
-            "o.created_order as createdOrder, o.scheduled_time as scheduledTime, " +
+            "o.created_order as createdOrder, o.scheduled_time as scheduledTime, o.source_company_name as sourceCompanyName, " +
             "o.confirmed_order as confirmedOrder, o.cancelled_order as cancelledOrder, o.confirmed_insink_order as confirmedInsinkOrder," +
             "c.first_name as firstName, c.last_name as lastName, c.email, c.document_number as documentNumber, " +
             "c.phone, c.birth_date as birthDate, c.anonimous, c.inkaclub as inkaClub, c.notification_token as notificationToken, " +

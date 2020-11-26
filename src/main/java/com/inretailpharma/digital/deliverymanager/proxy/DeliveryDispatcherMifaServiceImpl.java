@@ -179,7 +179,7 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
                     });
 
         } else {
-            dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUri();
+            dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUriMiFarma();
 
             log.info("url dispatcher new desactivated:{} - company:{}", dispatcherUri, iOrderFulfillment.getCompanyCode());
 
