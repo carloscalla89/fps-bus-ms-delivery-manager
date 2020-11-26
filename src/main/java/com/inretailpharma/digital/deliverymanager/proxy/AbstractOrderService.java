@@ -224,8 +224,8 @@ public class AbstractOrderService implements OrderExternalService {
 	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusName) {
 
 		OrderCanonical orderCanonical = new OrderCanonical();
-		orderCanonical.setEcommerceId(id);
-		orderCanonical.setId(ecommerceId);
+		orderCanonical.setId(id);
+		orderCanonical.setEcommerceId(ecommerceId);
 
 		OrderStatusCanonical orderStatus;
 
