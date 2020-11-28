@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.dto.ecommerce;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,8 +9,7 @@ import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class OrderDto {
 
     @NotBlank

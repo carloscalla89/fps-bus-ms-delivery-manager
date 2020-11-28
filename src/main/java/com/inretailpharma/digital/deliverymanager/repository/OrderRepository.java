@@ -58,7 +58,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, o.source, " +
             "o.external_purchase_id as externalId, o.bridge_purchase_id as bridgePurchaseId, " +
-            "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, o.discount_applied as discountApplied, " +
+            "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, " +
+            "o.discount_applied as discountApplied, o.total_cost_no_discount as totalCostNoDiscount, " +
             "o.created_order as createdOrder, o.scheduled_time as scheduledTime, o.source_company_name as sourceCompanyName, " +
             "o.confirmed_order as confirmedOrder, o.cancelled_order as cancelledOrder, o.confirmed_insink_order as confirmedInsinkOrder," +
             "c.first_name as firstName, c.last_name as lastName, c.email, c.document_number as documentNumber, " +
@@ -99,7 +100,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "oi.unit_price as unitPrice, oi.total_price as totalPrice, oi.fractionated, oi.value_UMV as valueUmv, " +
             "oi.ean_code as eanCode, oi.presentation_id as presentationId, oi.presentation_description as presentationDescription, " +
             "oi.quantity_units as quantityUnits, oi.quantity_presentation as quantityPresentation, oi.quantity_unit_minimium as quantityUnitMinimium," +
-            "oi.family_type as familyType, oi.fractionated_price as fractionatedPrice " +
+            "oi.family_type as familyType, oi.fractionated_price as fractionatedPrice, oi.fractional_discount as fractionalDiscount " +
             "from order_fulfillment_item oi " +
             "where oi.order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true

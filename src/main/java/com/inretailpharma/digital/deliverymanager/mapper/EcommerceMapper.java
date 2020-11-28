@@ -7,6 +7,7 @@ import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class EcommerceMapper {
 
@@ -178,9 +180,9 @@ public class EcommerceMapper {
                     .map(BigDecimal::doubleValue)
                     .orElse(NumberUtils.DOUBLE_ZERO)
             );
-            paymentDto.setGrossPrice(orderFulfillment.getTotalCost().doubleValue());
+            paymentDto.setGrossPrice(orderFulfillment.getSubTotalCost().doubleValue());
             paymentDto.setProductsTotalCost(orderFulfillment.getTotalCost().doubleValue());
-            paymentDto.setProductsTotalCostNoDiscount(orderFulfillment.getTotalCost().subtract(orderFulfillment.getDeliveryCost()).doubleValue());
+            paymentDto.setProductsTotalCostNoDiscount(orderFulfillment.getTotalCost().doubleValue());
 
             orderDto.setPaymentAmountDto(paymentDto);
 
@@ -241,6 +243,7 @@ public class EcommerceMapper {
                                 .map(BigDecimal::doubleValue)
                                 .orElse(NumberUtils.DOUBLE_ZERO)
                 );
+                itemDto.setFractionalDiscount(product.getFractionalDiscount());
                 orderItems.add(itemDto);
             }
 
@@ -269,6 +272,8 @@ public class EcommerceMapper {
             orderDto.setDeliveryTime(orderFulfillment.getLeadTime());
             orderDto.setCompanyCode(orderFulfillment.getCompanyCode());
         }
+
+        log.info("mapper dto to DD:{}",orderDto);
 
         return orderDto;
     }

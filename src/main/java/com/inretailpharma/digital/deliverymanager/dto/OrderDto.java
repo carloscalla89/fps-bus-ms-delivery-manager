@@ -30,9 +30,9 @@ public class OrderDto {
 
     private BigDecimal deliveryCost;
     private BigDecimal discountApplied;
-    private BigDecimal subTotalCost;
+    private BigDecimal subTotalCost; // gross price
     private BigDecimal totalCost;
-
+    private BigDecimal totalCostNoDiscount;
     private OrderStatusDto orderStatusDto;
 
     private ClientDto client;

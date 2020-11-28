@@ -85,7 +85,11 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical));
         orderInkatrackerCanonical.setStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical));
         orderInkatrackerCanonical.setTotalCost(iOrderFulfillment.getTotalCost().doubleValue());
-        orderInkatrackerCanonical.setSubtotal(iOrderFulfillment.getSubTotalCost().doubleValue());
+        orderInkatrackerCanonical.setSubtotal(
+                Optional.ofNullable(iOrderFulfillment.getTotalCostNoDiscount())
+                        .map(BigDecimal::doubleValue)
+                        .orElse(iOrderFulfillment.getTotalCost().doubleValue())
+        );
 
 
         orderInkatrackerCanonical.setPaymentMethod(getPaymentMethodFromOrderCanonical(iOrderFulfillment));
@@ -316,7 +320,7 @@ public class ObjectToMapper {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
         orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
-                Timestamp.valueOf(iOrderFulfillment.getScheduledTime()).getTime()
+                Timestamp.valueOf(iOrderFulfillment.getConfirmedOrder()).getTime()
         );
         orderStatusInkatrackerCanonical.setDescription(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
 
@@ -483,6 +487,7 @@ public class ObjectToMapper {
         orderFulfillment.setDiscountApplied(orderDto.getDiscountApplied());
         orderFulfillment.setSubTotalCost(orderDto.getSubTotalCost());
         orderFulfillment.setTotalCost(orderDto.getTotalCost());
+        orderFulfillment.setTotalCostNoDiscount(orderDto.getTotalCostNoDiscount());
         orderFulfillment.setDeliveryCost(orderDto.getDeliveryCost());
     }
 
@@ -697,6 +702,7 @@ public class ObjectToMapper {
         orderCanonical.setDiscountApplied(orderDto.getDiscountApplied());
         orderCanonical.setSubTotalCost(orderDto.getSubTotalCost());
         orderCanonical.setTotalAmount(orderDto.getTotalCost());
+        orderCanonical.setTotalCostNoDiscount(orderDto.getTotalCostNoDiscount());
 
         // set status
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();

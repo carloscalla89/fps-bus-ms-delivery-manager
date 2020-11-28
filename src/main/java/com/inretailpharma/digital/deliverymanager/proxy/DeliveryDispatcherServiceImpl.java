@@ -170,7 +170,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                     .flatMap(clientResponse -> mapResponseFromDispatcher(clientResponse,
                             iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getCompanyCode())
                     )
-                    .doOnSuccess(s -> log.info("Response is Success from dispatcher IKF:{}",s))
+                    .doOnSuccess(s -> log.info("Response is Success from dispatcher IKF"))
                     .defaultIfEmpty(
                             new OrderCanonical(
                                     iOrderFulfillment.getEcommerceId(),
