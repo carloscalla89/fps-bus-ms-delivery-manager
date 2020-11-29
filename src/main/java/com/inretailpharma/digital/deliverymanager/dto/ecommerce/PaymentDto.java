@@ -24,7 +24,9 @@ public class PaymentDto {
     @NotNull
     @Min(0)
     private Double deliveryCost;
+
     private String coupon;
 
     private Double amount;
+
 }

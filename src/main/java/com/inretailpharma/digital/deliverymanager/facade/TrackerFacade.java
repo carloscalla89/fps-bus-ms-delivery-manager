@@ -202,10 +202,11 @@ public class TrackerFacade {
 
 		List<IOrderItemFulfillment> orderItemDtoList = orderTransaction.getOrderItemByOrderFulfillmentId(orderDto.getOrderId());
 		List<OrderItemCanonical> orderItemCanonicalList = orderItemDtoList.stream()
-				.map(objectToMapper::convertIOrderItemDtoToOrderItemFulfillmentCanonical)
-				.collect(Collectors.toList());
-
+				.map(o -> objectToMapper.convertIOrderItemDtoToOrderItemFulfillmentCanonical(o, orderDto.getPartial()))
+				.collect(Collectors.toList());		
+		
 		orderCanonical.setOrderItems(orderItemCanonicalList);
+		
 		return orderCanonical;
     }
     

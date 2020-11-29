@@ -106,4 +106,6 @@ public interface IOrderFulfillment {
     String getPickupDocumentType();
     String getPickupDocumentNumber();
     String getPickupPhone();
+    
+    Boolean getPartial();
 }

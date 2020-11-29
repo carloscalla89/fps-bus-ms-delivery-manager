@@ -479,6 +479,7 @@ public interface Constant {
         String NOT_DEFINED_SERVICE = "NDS";
         String COMPANY_CODE_IFK = "IKF";
         String COMPANY_CODE_MF = "MF";
+        Integer COLLECTION_PRESENTATION_ID = 3;
     }
 
     enum DeliveryManagerStatus {

@@ -81,7 +81,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "rt.name as receiptType, rt.document_number as documentNumberReceipt, rt.ruc as ruc, " +
             "rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt, rt.receipt_note as noteReceipt," +
             "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, " +
-            "af.department, af.notes, af.latitude, af.longitude " +
+            "af.department, af.notes, af.latitude, af.longitude, o.partial " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -152,7 +152,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "  total_Price = :totalPrice ," +
             "  fractionated = :fractionated, " +
             " quantity_units = :quantityUnits, "+
-            " presentation_description = :presentation_description "+
+            " presentation_description = :presentation_description, "+
+            " presentation_id = :presentation_id "+
             " where order_fulfillment_id = :orderFulfillmentId " +
             " and product_code = :productCode",
             nativeQuery = true)
@@ -164,7 +165,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                                  @Param("orderFulfillmentId") Long orderFulfillmentId,
                                  @Param("quantityUnits") Integer quantityUnits,
                                  @Param("productCode") String productCode,
-                                 @Param("presentation_description") String presentation_description
+                                 @Param("presentation_description") String presentation_description,
+                                 @Param("presentation_id") Integer presentation_id
                                  );
 
     @Modifying

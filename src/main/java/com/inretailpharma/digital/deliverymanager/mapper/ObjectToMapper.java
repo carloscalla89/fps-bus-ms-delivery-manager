@@ -3,7 +3,10 @@ package com.inretailpharma.digital.deliverymanager.mapper;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
@@ -12,6 +15,19 @@ import com.inretailpharma.digital.deliverymanager.entity.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.DrugstoreCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderItemInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderStatusInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PaymentMethodInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PersonToPickupDto;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.PreviousStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptInkatrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ScheduledCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ZoneTrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
@@ -22,6 +38,15 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusC
 import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.entity.Address;
+import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
+import com.inretailpharma.digital.deliverymanager.entity.Client;
+import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillmentItem;
+import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
+import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
+import com.inretailpharma.digital.deliverymanager.entity.ReceiptType;
+import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -654,13 +679,15 @@ public class ObjectToMapper {
             orderCanonical.setAddress(address);
             orderCanonical.setReceipt(receipt);
             orderCanonical.setPaymentMethod(paymentMethod);
+            
+            orderCanonical.setPartial(o.getPartial());
         });
 
         log.debug("[END] map-convertIOrderDtoToOrderFulfillmentCanonical:{}", orderCanonical);
         return orderCanonical;
     }
     
-    public OrderItemCanonical convertIOrderItemDtoToOrderItemFulfillmentCanonical(IOrderItemFulfillment iOrderItemFulfillment) {
+    public OrderItemCanonical convertIOrderItemDtoToOrderItemFulfillmentCanonical(IOrderItemFulfillment iOrderItemFulfillment, Boolean partial) {
     	log.debug("[START] map-convertIOrderItemDtoToOrderItemFulfillmentCanonical");
     	
     	OrderItemCanonical orderItemCanonical = new OrderItemCanonical();
@@ -673,6 +700,32 @@ public class ObjectToMapper {
     		orderItemCanonical.setUnitPrice(o.getUnitPrice());
     		orderItemCanonical.setTotalPrice(o.getTotalPrice());
     		orderItemCanonical.setFractionated(Constant.Logical.Y.name().equals(o.getFractionated()));
+
+    		if (Constant.Constans.COLLECTION_PRESENTATION_ID.equals(o.getPresentationId())) {
+    			
+				if (Boolean.TRUE.equals(partial)) {
+					
+        			if (Constant.Logical.Y.name().equalsIgnoreCase(o.getFractionated())) {
+        				
+        				if (o.getQuantityUnits() > 0) {
+        					orderItemCanonical.setQuantity(o.getQuantity()/o.getQuantityUnits());
+        				} else {
+        					log.error("[ERROR] convertIOrderItemDtoToOrderItemFulfillmentCanonical orderItem {} invalid QuantityUnits ({}) "
+        							, o.getOrderFulfillmentId(), o.getQuantityUnits());
+        					orderItemCanonical.setQuantity(o.getQuantity());
+        				}
+        				
+        			} else {    				
+        				orderItemCanonical.setQuantity(o.getQuantity());
+        			}    			
+        			
+        		} else {
+        			orderItemCanonical.setQuantity(o.getQuantityPresentation());
+        		}
+			} else {
+				orderItemCanonical.setQuantity(o.getQuantity());
+			}
+    		
     	});
     	
     	log.debug("[END] map-convertIOrderItemDtoToOrderItemFulfillmentCanonical:{}", orderItemCanonical);
