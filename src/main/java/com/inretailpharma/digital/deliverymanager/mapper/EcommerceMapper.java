@@ -183,7 +183,8 @@ public class EcommerceMapper {
             paymentDto.setGrossPrice(orderFulfillment.getSubTotalCost().doubleValue());
             paymentDto.setProductsTotalCost(orderFulfillment.getTotalCost().doubleValue());
             paymentDto.setProductsTotalCostNoDiscount(orderFulfillment.getTotalCost().doubleValue());
-
+            paymentDto.setCoupon(orderFulfillment.getCoupon());
+            paymentDto.setAmount(Optional.ofNullable(orderFulfillment.getPaidAmount()).map(BigDecimal::doubleValue).orElse(null));
             orderDto.setPaymentAmountDto(paymentDto);
 
             PaymentMethodDto paymentMethodDto = new PaymentMethodDto();
@@ -202,7 +203,6 @@ public class EcommerceMapper {
                 paymentMethodDto.setCardProviderId(orderFulfillment.getCardProviderId());
                 paymentMethodDto.setCardProviderCode(orderFulfillment.getCardProviderCode());
                 paymentMethodDto.setBin(orderFulfillment.getBin());
-                paymentMethodDto.setCoupon(orderFulfillment.getCoupon());
             }
 
             orderDto.setPaymentMethod(paymentMethodDto);
@@ -248,7 +248,7 @@ public class EcommerceMapper {
             }
 
             orderDto.setItems(orderItems);
-            orderDto.setAmount(Optional.ofNullable(orderFulfillment.getChangeAmount())
+            orderDto.setAmount(Optional.ofNullable(orderFulfillment.getPaidAmount())
                     .map(BigDecimal::doubleValue)
                     .orElse(NumberUtils.DOUBLE_ZERO));
             orderDto.setCreditCardProviderId(Constant.DEFAULT_SC_CARD_PROVIDER_ID);

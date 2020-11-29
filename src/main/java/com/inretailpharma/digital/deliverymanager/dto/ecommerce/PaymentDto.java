@@ -1,13 +1,13 @@
 package com.inretailpharma.digital.deliverymanager.dto.ecommerce;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
+@Data
 public class PaymentDto {
 
     @NotNull
@@ -24,15 +24,7 @@ public class PaymentDto {
     @NotNull
     @Min(0)
     private Double deliveryCost;
+    private String coupon;
 
-    @Override
-    public String toString() {
-        return "PaymentDto{" +
-                "productsTotalCostNoDiscount=" + productsTotalCostNoDiscount +
-                ", grossPrice=" + grossPrice +
-                ", discountApplied=" + discountApplied +
-                ", productsTotalCost=" + productsTotalCost +
-                ", deliveryCost=" + deliveryCost +
-                '}';
-    }
+    private Double amount;
 }
