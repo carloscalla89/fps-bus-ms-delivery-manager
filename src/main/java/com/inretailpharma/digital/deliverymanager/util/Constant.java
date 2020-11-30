@@ -6,13 +6,45 @@ import java.util.Optional;
 
 public interface Constant {
 
+    enum CancellationStockDispatcher {
+
+        CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("C05","Producto no disponible en el Delivery Center"),
+        CANCELLED_ORDER_NOT_ENOUGH_STOCK("C05","Producto no disponible en el Delivery Center"),
+        NONE(null, null);
+
+        private String id;
+        private String reason;
+
+        CancellationStockDispatcher(String id, String reason) {
+            this.id = id;
+            this.reason = reason;
+        }
+
+        public static CancellationStockDispatcher getByName(String name) {
+
+            return EnumUtils.getEnumList(CancellationStockDispatcher.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(NONE);
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+    }
+
     enum StatusDispatcherResult {
 
         INVALID_STRUCTURE("ERROR_INSERT_INKAVENTA"),
         ORDER_RESERVED("SUCCESS_RESERVED_ORDER"),
         ORDER_REGISTERED("CONFIRMED"),
-        NOT_ENOUGH_STOCK("CANCELLED_ORDER"),
-        NOT_ENOUGH_STOCK_PAYMENT_ONLINE("CANCELLED_ORDER_ONLINE_PAYMENT"),
+        NOT_ENOUGH_STOCK("CANCELLED_ORDER_NOT_ENOUGH_STOCK"),
+        NOT_ENOUGH_STOCK_PAYMENT_ONLINE("CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK"),
         ORDER_FAILED("ERROR_INSERT_INKAVENTA"),
         NONE("ERROR_INSERT_INKAVENTA");
 
@@ -349,8 +381,10 @@ public interface Constant {
 
         ERROR_TO_CANCEL_ORDER("33",  false),
         ERROR_DELIVER("34",  false),
-        CANCELLED_ORDER("11",true),
+        CANCELLED_ORDER("11",true), // se cancela orden desde el pos unificado y/o otro cliente
+        CANCELLED_ORDER_NOT_ENOUGH_STOCK("11",true),  // se cancela una orden por que no hay stock al llamarse desde el DD
         CANCELLED_ORDER_ONLINE_PAYMENT("37",  true),
+        CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("37",  true), // se cancela una orden con pago en línea por que no hay stock al llamarse desde el DD
         ORDER_FAILED("38",  false),
         INVOICED("40", true),
         ERROR_INVOICED("41", false),

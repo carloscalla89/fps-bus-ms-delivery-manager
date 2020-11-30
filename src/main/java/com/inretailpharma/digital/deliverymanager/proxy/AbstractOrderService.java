@@ -147,19 +147,16 @@ public class AbstractOrderService implements OrderExternalService {
 						orderStatus.setName(orderStatusUtil.name());
 						orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
-						Optional.of(statusDispatcher.isSuccessProcess())
-								.filter(r -> r)
-								.ifPresent(r -> {
+						if (!statusDispatcher.isSuccessProcess()) {
+							String stringBuffer = "code error:" +
+									dispatcherResponse.getErrorCode() +
+									", description:" +
+									statusDispatcher.getDescription() +
+									", detail:" +
+									dispatcherResponse.getMessageDetail();
 
-									String stringBuffer = "code error:" +
-											dispatcherResponse.getErrorCode() +
-											", description:" +
-											statusDispatcher.getDescription() +
-											", detail:" +
-											dispatcherResponse.getMessageDetail();
-
-									orderStatus.setDetail(stringBuffer);
-								});
+							orderStatus.setDetail(stringBuffer);
+						}
 
 						OrderCanonical resultCanonical = new OrderCanonical();
 						resultCanonical.setEcommerceId(ecommerceId);
