@@ -1,15 +1,16 @@
 package com.inretailpharma.digital.deliverymanager.dto.ecommerce;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class OrderDto {
 
     @NotBlank
@@ -44,12 +45,12 @@ public class OrderDto {
     @NotNull
     private Integer creditCardProviderId;
     @NotNull
-    private Double discountApplied;
+    private BigDecimal discountApplied;
     @NotBlank
     private String deliveryType;
     @NotNull
     @Min(0)
-    private Double amount;
+    private BigDecimal amount;
     private String marketplaceName;
     private String deliveryServiceName;
 

@@ -79,6 +79,7 @@ public class OrderCanonical {
     private BigDecimal discountApplied;
     private BigDecimal subTotalCost;
     private BigDecimal totalAmount;
+    private BigDecimal totalCostNoDiscount;
 
     // Canonical local and company
     private String companyCode;
@@ -124,5 +125,6 @@ public class OrderCanonical {
     private String source;
 
     private String action;
+    private Boolean partial;
 
 }
