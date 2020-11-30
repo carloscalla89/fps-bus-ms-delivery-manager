@@ -202,11 +202,13 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
                     Integer quantityPresentation = itemDto.getQuantity();
                     BigDecimal unitPrice = itemDto.getUnitPrice();
                     BigDecimal totalPrice = itemDto.getTotalPrice();
+                    Integer presentationID = itemDto.getPresentationId();
                     Integer quantityUnits= itemDto.getQuantityUnits();
 
                     Constant.Logical fractionated = Constant.Logical.parse(itemDto.getFractionated());
                     String presentationDescription = itemDto.getPresentationDescription();
-                    orderRepository.updateItemsPartialOrder(quantity, quantityPresentation,unitPrice, totalPrice, fractionated.name(), orderFulfillmentId,quantityUnits, productCode,presentationDescription);
+                    orderRepository.updateItemsPartialOrder(quantity, quantityPresentation,unitPrice, totalPrice, fractionated.name(),
+                            orderFulfillmentId,quantityUnits, productCode,presentationDescription,presentationID);
                 }
             }
         }

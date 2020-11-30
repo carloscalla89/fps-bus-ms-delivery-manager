@@ -14,7 +14,8 @@ public interface IOrderFulfillment {
 
 
     BigDecimal getTotalCost();
-    BigDecimal getSubTotalCost();
+    BigDecimal getSubTotalCost(); // gross price
+    BigDecimal getTotalCostNoDiscount();
     BigDecimal getDeliveryCost();
     BigDecimal getDiscountApplied();
 
@@ -105,4 +106,6 @@ public interface IOrderFulfillment {
     String getPickupDocumentType();
     String getPickupDocumentNumber();
     String getPickupPhone();
+    
+    Boolean getPartial();
 }

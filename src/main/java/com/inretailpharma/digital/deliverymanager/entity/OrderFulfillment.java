@@ -46,8 +46,11 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="discount_applied")
     private BigDecimal discountApplied;
 
+    @Column(name="total_cost_no_discount")
+    private BigDecimal totalCostNoDiscount;
+
     @Column(name="sub_total_cost")
-    private BigDecimal subTotalCost;
+    private BigDecimal subTotalCost; // gross price
 
     @Column(name="total_cost")
     private BigDecimal totalCost;

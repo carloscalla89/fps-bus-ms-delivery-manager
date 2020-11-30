@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.dto.ecommerce;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -51,25 +52,6 @@ public class ItemDto {
     private Double fractionatedPrice;
     @NotNull
     private Integer presentationType;
+    private BigDecimal fractionalDiscount;
 
-    @Override
-    public String toString() {
-        return "ItemDto{" +
-                "productId='" + productId + '\'' +
-                ", productSapCode='" + productSapCode + '\'' +
-                ", name='" + name + '\'' +
-                ", shortDescription='" + shortDescription + '\'' +
-                ", brand='" + brand + '\'' +
-                ", quantity=" + quantity +
-                ", quantityUnits=" + quantityUnits +
-                ", fractionated=" + fractionated +
-                ", unitPrice=" + unitPrice +
-                ", totalPrice=" + totalPrice +
-                ", presentation='" + presentation + '\'' +
-                ", familyType='" + familyType + '\'' +
-                ", eanCode='" + eanCode + '\'' +
-                ", fractionatedPrice=" + fractionatedPrice +
-                ", presentationType=" + presentationType +
-                '}';
-    }
 }
