@@ -111,8 +111,12 @@ public class DeliveryManagerFacade {
                                                     .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
                                                     .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
                                                     .orElse(order.getOrderStatus().getName()),
-                                            null, null
-
+                                            Optional.ofNullable(order.getOrderStatus())
+                                                    .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
+                                                    .orElse(null),
+                                            Optional.ofNullable(order.getOrderStatus())
+                                                    .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
+                                                    .orElse(null)
                                     )
                                     .flatMap(s -> {
 
