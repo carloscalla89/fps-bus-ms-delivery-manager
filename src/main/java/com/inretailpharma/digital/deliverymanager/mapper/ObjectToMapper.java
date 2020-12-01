@@ -182,6 +182,8 @@ public class ObjectToMapper {
 
         orderInkatrackerCanonical.setSourceCompanyName(iOrderFulfillment.getSourceCompanyName());
 
+
+
         return orderInkatrackerCanonical;
     }
 
@@ -371,6 +373,9 @@ public class ObjectToMapper {
                             .map(c -> Timestamp.valueOf(c).getTime())
                             .orElse(Timestamp.valueOf(LocalDateTime.now()).getTime())
             );
+
+            orderInkatrackerCanonical.setCancelReasonCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
+            orderInkatrackerCanonical.setCancelMessageNote(orderCancelObservation);
         }
 
         return orderStatusInkatrackerCanonical;
