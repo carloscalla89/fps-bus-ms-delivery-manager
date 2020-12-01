@@ -77,7 +77,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "st.enabled as serviceEnabled, st.send_new_code_enabled as newCodeServiceEnabled, " +
             "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
             "pm.change_amount as changeAmount, pm.card_provider_id as cardProviderId, pm.card_provider_code as cardProviderCode," +
-            "pm.bin, pm.coupon," +
+            "pm.bin, pm.coupon, pm.payment_transaction_id as paymentTransactionId, " +
             "rt.name as receiptType, rt.document_number as documentNumberReceipt, rt.ruc as ruc, " +
             "rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt, rt.receipt_note as noteReceipt," +
             "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, " +
