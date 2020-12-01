@@ -173,6 +173,7 @@ public interface Constant {
         String DAYS_PICKUP_MAX_RET = "DAYS_PICKUP_MAX_RET";
         String ACTIVATED_DD_IKF = "ACTIVATED_DD_IKF";
         String ACTIVATED_DD_MF = "ACTIVATED_DD_MF";
+        String ACTIVATED_DD_ = "ACTIVATED_DD_";
     }
 
     interface InsinkErrorCode {

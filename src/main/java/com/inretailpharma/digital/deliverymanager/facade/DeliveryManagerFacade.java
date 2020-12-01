@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
+import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -44,6 +46,7 @@ public class DeliveryManagerFacade {
     private OrderExternalService orderExternalServiceAudit;
     private CenterCompanyService centerCompanyService;
     private OrderCancellationService orderCancellationService;
+    private ApplicationParameterService applicationParameterService;
     private final ApplicationContext context;
 
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
@@ -51,13 +54,15 @@ public class DeliveryManagerFacade {
                                  @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                                  ApplicationContext context,
                                  CenterCompanyService centerCompanyService,
-                                 OrderCancellationService orderCancellationService) {
+                                 OrderCancellationService orderCancellationService,
+                                 ApplicationParameterService applicationParameterService) {
 
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.centerCompanyService = centerCompanyService;
         this.orderCancellationService = orderCancellationService;
+        this.applicationParameterService = applicationParameterService;
         this.context = context;
 
     }
@@ -86,10 +91,14 @@ public class DeliveryManagerFacade {
                     return orderCanonicalResponse;
                 })
                 .flatMap(order -> {
-                    log.info("[START] Preparation to send order:{}, status:{}",order.getEcommerceId(), order.getOrderStatus());
+                    log.info("[START] Preparation to send order:{}, companyCode:{}, status:{}",order.getEcommerceId(),
+                            order.getCompanyCode(), order.getOrderStatus());
 
                     if (order.getOrderDetail().isServiceEnabled()
-                            && (Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()))
+                            && Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()
+                            && Constant.Logical.getByValueString(
+                                    getApplicationParameter(Constant.ApplicationsParameters.ACTIVATED_DD_+Optional.ofNullable(order.getCompanyCode()).orElse("MF"))
+                            ).value())
                     {
 
                         OrderExternalService orderExternalServiceTracker = (OrderExternalService)context.getBean(
@@ -601,6 +610,11 @@ public class DeliveryManagerFacade {
             orderStatusNotFound.setStatusDate(DateUtils.getLocalDateTimeNow());
             return Mono.just(resultDefault);
         }
+    }
+
+    private String getApplicationParameter(String code) {
+        return applicationParameterService
+                .getApplicationParameterByCodeIs(code).getValue();
     }
 
 }
