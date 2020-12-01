@@ -19,6 +19,7 @@ public class PaymentMethodDto {
     private String cardProvider;
     private String bin;
     private String coupon;
+    private String paymentTransactionId;
 
 }
 

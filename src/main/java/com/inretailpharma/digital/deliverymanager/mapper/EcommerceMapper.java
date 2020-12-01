@@ -94,6 +94,7 @@ public class EcommerceMapper {
                 paymentMethodDto.setCardProviderId(orderFulfillment.getCardProviderId());
                 paymentMethodDto.setCardProviderCode(orderFulfillment.getCardProviderCode());
                 paymentMethodDto.setBin(orderFulfillment.getBin());
+                paymentMethodDto.setPaymentTransactionId(orderFulfillment.getPaymentTransactionId());
             }
 
             orderDto.setPaymentMethod(paymentMethodDto);
