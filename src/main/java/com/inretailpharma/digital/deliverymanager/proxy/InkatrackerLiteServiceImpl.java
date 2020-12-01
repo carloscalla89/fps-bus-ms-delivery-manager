@@ -12,6 +12,7 @@ import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +26,15 @@ import java.util.List;
 @Service("inkatrackerlite")
 public class InkatrackerLiteServiceImpl extends AbstractOrderService implements OrderExternalService {
 
+    private ApplicationParameterService applicationParameterService;
     private ExternalServicesProperties externalServicesProperties;
     private ObjectToMapper objectToMapper;
 
-    public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties, ObjectToMapper objectToMapper) {
+    public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties, ObjectToMapper objectToMapper,
+                                      ApplicationParameterService applicationParameterService) {
         this.externalServicesProperties = externalServicesProperties;
         this.objectToMapper = objectToMapper;
+        this.applicationParameterService = applicationParameterService;
     }
 
 
@@ -41,6 +45,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                                    Long externalId, String statusDetail, String statusName,
                                                    String orderCancelCode, String orderCancelObservation) {
 
+        String dayToPickup = getApplicationParameter(Constant.ApplicationsParameters.DAYS_PICKUP_MAX_RET);
+
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
                         storeCenterCanonical, externalId, statusName, orderCancelCode, orderCancelObservation)
@@ -48,7 +54,10 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                 .flatMap(b -> {
 
                     try {
-                        log.info("Order prepared to send inkatracker lite:{}",new ObjectMapper().writeValueAsString(b));
+                        b.setDaysToPickUp(dayToPickup);
+
+                        log.info("Order prepared to send inkatracker lite:{}",
+                                new ObjectMapper().writeValueAsString(b));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
@@ -156,5 +165,9 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
                     return Mono.just(orderCanonical);
                 });
+    }
+    private String getApplicationParameter(String code) {
+        return applicationParameterService
+                .getApplicationParameterByCodeIs(code).getValue();
     }
 }

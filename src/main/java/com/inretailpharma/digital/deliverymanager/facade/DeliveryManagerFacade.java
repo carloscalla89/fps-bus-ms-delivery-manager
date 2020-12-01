@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
-import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import org.apache.commons.lang3.StringUtils;
