@@ -12,4 +12,5 @@ public class PaymentMethodCanonical {
     private BigDecimal paidAmount;
     private BigDecimal changeAmount;
     private String note;
+    private String paymentTransactionId;
 }

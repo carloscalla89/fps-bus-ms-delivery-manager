@@ -599,7 +599,7 @@ public class ObjectToMapper {
         paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
         paymentMethod.setCoupon(orderDto.getPayment().getCoupon());
-
+        paymentMethod.setPaymentTransactionId(orderDto.getPayment().getPaymentTransactionId());
         orderFulfillment.setPaymentMethod(paymentMethod);
 
         // object receipt
@@ -884,6 +884,7 @@ public class ObjectToMapper {
         paymentMethod.setCardProvider(orderDto.getPayment().getCardProvider());
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
         paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
+        paymentMethod.setPaymentTransactionId(orderDto.getPayment().getPaymentTransactionId());
         orderCanonical.setPaymentMethod(paymentMethod);
 
         log.info("[END] convertEntityToOrderCanonical");

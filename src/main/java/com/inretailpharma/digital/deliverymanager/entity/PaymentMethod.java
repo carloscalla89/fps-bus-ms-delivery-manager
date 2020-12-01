@@ -45,6 +45,9 @@ public class PaymentMethod {
     @Column(table = "payment_method", name="coupon")
     private String coupon;
 
+    @Column(table = "payment_method", name="payment_transaction_id")
+    private String paymentTransactionId;
+
     public enum PaymentType {
 
         CASH(1,"CASH", "Efectivo"), CASH_DOLAR(1,"CASH_DOLAR", "Efectivo en dólares"),
