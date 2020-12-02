@@ -80,6 +80,9 @@ public class OrderTransaction {
         ServiceLocalOrder serviceLocalOrder = objectMapper.getFromOrderDto(centerCompanyCanonical, orderDto);
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
 
+        serviceLocalOrder.setCancellationCode(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId());
+        serviceLocalOrder.setCancellationObservation(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getReason());
+
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
         // Set the values of return of transaction as wrapped
