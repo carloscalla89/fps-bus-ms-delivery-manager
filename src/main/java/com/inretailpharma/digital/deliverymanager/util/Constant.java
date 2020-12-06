@@ -29,6 +29,16 @@ public interface Constant {
                     .orElse(NONE);
         }
 
+        public static String getDetailCancelStock(String name, String observation, String detail) {
+
+            return EnumUtils.getEnumList(CancellationStockDispatcher.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst()
+                    .map(d -> detail)
+                    .orElse(observation);
+        }
+
         public String getId() {
             return id;
         }

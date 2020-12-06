@@ -61,7 +61,7 @@ public class ObjectToMapper {
     public OrderInkatrackerCanonical convertOrderToOrderInkatrackerCanonical(IOrderFulfillment iOrderFulfillment,
                                                                              List<IOrderItemFulfillment> itemFulfillments,
                                                                              StoreCenterCanonical storeCenterCanonical,
-                                                                             Long externalId, String status,
+                                                                             Long externalId, String status, String detail,
                                                                              String orderCancelCode, String orderCancelObservation) {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
@@ -107,8 +107,13 @@ public class ObjectToMapper {
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
 
         orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
-        orderInkatrackerCanonical.setOrderStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical));
-        orderInkatrackerCanonical.setStatus(getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical));
+        // ====set Status to tracker
+        orderInkatrackerCanonical.setOrderStatus(
+                getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical, detail));
+        orderInkatrackerCanonical.setStatus(
+                getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical, detail));
+        // ====
+
         orderInkatrackerCanonical.setTotalCost(iOrderFulfillment.getTotalCost().doubleValue());
         orderInkatrackerCanonical.setSubtotal(
                 Optional.ofNullable(iOrderFulfillment.getTotalCostNoDiscount())
@@ -343,7 +348,8 @@ public class ObjectToMapper {
 
     private OrderStatusInkatrackerCanonical getFromOrderCanonical(IOrderFulfillment iOrderFulfillment, String status,
                                                                   String orderCancelCode, String orderCancelObservation,
-                                                                  OrderInkatrackerCanonical orderInkatrackerCanonical) {
+                                                                  OrderInkatrackerCanonical orderInkatrackerCanonical,
+                                                                  String detail) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
         orderStatusInkatrackerCanonical.setStatusName(Constant.OrderStatusTracker.getByName(status).getTrackerStatus());
         orderStatusInkatrackerCanonical.setStatusDate(
@@ -365,8 +371,14 @@ public class ObjectToMapper {
             );
 
             orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
-            orderStatusInkatrackerCanonical.setCustomNote(orderCancelObservation);
-            orderStatusInkatrackerCanonical.setCancelMessageNote(orderCancelObservation);
+
+            orderStatusInkatrackerCanonical.setCustomNote(
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation, detail)
+            );
+
+            orderStatusInkatrackerCanonical.setCancelMessageNote(
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation, detail)
+            );
 
             orderInkatrackerCanonical.setCancelDate(
                     Optional.ofNullable(iOrderFulfillment.getCancelledOrder())
@@ -375,7 +387,9 @@ public class ObjectToMapper {
             );
 
             orderInkatrackerCanonical.setCancelReasonCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
-            orderInkatrackerCanonical.setCancelMessageNote(orderCancelObservation);
+            orderInkatrackerCanonical.setCancelMessageNote(
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation, detail)
+            );
         }
 
         return orderStatusInkatrackerCanonical;

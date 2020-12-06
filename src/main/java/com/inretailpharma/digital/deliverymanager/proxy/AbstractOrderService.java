@@ -196,7 +196,9 @@ public class AbstractOrderService implements OrderExternalService {
 			orderCanonical.setTrackerId(ecommerceId);
 
 			if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
-					|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())) {
+					|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())
+					|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
+					|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name())) {
 
 				orderStatus = objectToMapper.getOrderStatusInkatracker(statusName, null);
 			} else {

@@ -77,6 +77,7 @@ public class OrderTransaction {
         serviceLocalOrderIdentity.setOrderStatus(orderStatus);
         // ----------------------------------------------------
 
+        // set ServiceDetail from delivery dispatcher and set store canonical
         ServiceLocalOrder serviceLocalOrder = objectMapper.getFromOrderDto(centerCompanyCanonical, orderDto);
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
 
