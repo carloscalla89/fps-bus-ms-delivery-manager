@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -43,6 +45,7 @@ public class DeliveryManagerFacade {
     private OrderExternalService orderExternalServiceAudit;
     private CenterCompanyService centerCompanyService;
     private OrderCancellationService orderCancellationService;
+    private ApplicationParameterService applicationParameterService;
     private final ApplicationContext context;
 
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
@@ -50,13 +53,15 @@ public class DeliveryManagerFacade {
                                  @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                                  ApplicationContext context,
                                  CenterCompanyService centerCompanyService,
-                                 OrderCancellationService orderCancellationService) {
+                                 OrderCancellationService orderCancellationService,
+                                 ApplicationParameterService applicationParameterService) {
 
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.centerCompanyService = centerCompanyService;
         this.orderCancellationService = orderCancellationService;
+        this.applicationParameterService = applicationParameterService;
         this.context = context;
 
     }
@@ -85,10 +90,14 @@ public class DeliveryManagerFacade {
                     return orderCanonicalResponse;
                 })
                 .flatMap(order -> {
-                    log.info("[START] Preparation to send order:{}, status:{}",order.getEcommerceId(), order.getOrderStatus());
+                    log.info("[START] Preparation to send order:{}, companyCode:{}, status:{}",order.getEcommerceId(),
+                            order.getCompanyCode(), order.getOrderStatus());
 
                     if (order.getOrderDetail().isServiceEnabled()
-                            && (Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()))
+                            && Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()
+                            && Constant.Logical.getByValueString(
+                                    getApplicationParameter(Constant.ApplicationsParameters.ACTIVATED_DD_+Optional.ofNullable(order.getCompanyCode()).orElse("MF"))
+                            ).value())
                     {
 
                         OrderExternalService orderExternalServiceTracker = (OrderExternalService)context.getBean(
@@ -110,8 +119,12 @@ public class DeliveryManagerFacade {
                                                     .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
                                                     .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
                                                     .orElse(order.getOrderStatus().getName()),
-                                            null, null
-
+                                            Optional.ofNullable(order.getOrderStatus())
+                                                    .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
+                                                    .orElse(null),
+                                            Optional.ofNullable(order.getOrderStatus())
+                                                    .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
+                                                    .orElse(null)
                                     )
                                     .flatMap(s -> {
 
@@ -245,17 +258,20 @@ public class DeliveryManagerFacade {
                                                                                                 orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
                                                                                                 storeCenterCanonical,
                                                                                                 orderResp.getExternalId(),
-                                                                                                (Constant
-                                                                                                        .OrderStatus
-                                                                                                        .getByCode(Optional
-                                                                                                                .ofNullable(orderResp.getOrderStatus())
-                                                                                                                .map(OrderStatusCanonical::getCode)
-                                                                                                                .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                                                                                                        ).isSuccess())?null:orderResp.getOrderStatus().getDetail(),
-                                                                                                Optional.ofNullable(orderResp.getOrderStatus().getName())
-                                                                                                        .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
+                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                        .filter(d -> !StringUtils.isEmpty(d.getDetail()))
+                                                                                                        .map(OrderStatusCanonical::getDetail)
+                                                                                                        .orElse(null),
+                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                        .filter(r -> r.getName().equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
                                                                                                         .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
-                                                                                                        .orElse(orderResp.getOrderStatus().getName()), null, null
+                                                                                                        .orElse(Optional.ofNullable(orderResp.getOrderStatus()).map(OrderStatusCanonical::getName).orElse(null)),
+                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                        .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
+                                                                                                        .orElse(null),
+                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                        .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
+                                                                                                        .orElse(null)
                                                                                         )
                                                                                         .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 
@@ -366,7 +382,8 @@ public class DeliveryManagerFacade {
                                                         iOrderFulfillment.getExternalId(),
                                                         null,
                                                         Constant.OrderStatus.CANCELLED_ORDER.name(),
-                                                        actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation()
+                                                        actionDto.getOrderCancelCode(),
+                                                        actionDto.getOrderCancelObservation()
                                                 )
                                                 .flatMap(s -> {
                                                     OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
@@ -592,6 +609,11 @@ public class DeliveryManagerFacade {
             orderStatusNotFound.setStatusDate(DateUtils.getLocalDateTimeNow());
             return Mono.just(resultDefault);
         }
+    }
+
+    private String getApplicationParameter(String code) {
+        return applicationParameterService
+                .getApplicationParameterByCodeIs(code).getValue();
     }
 
 }

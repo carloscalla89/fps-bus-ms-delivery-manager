@@ -39,7 +39,7 @@ public class PaymentMethod {
     @Column(table = "payment_method", name="change_amount")
     private BigDecimal changeAmount;
 
-    @Column(table = "payment_method", name="payment_note")
+    @Column(table = "payment_method ", name="payment_note")
     private String paymentNote;
 
     @Column(table = "payment_method", name="coupon")
