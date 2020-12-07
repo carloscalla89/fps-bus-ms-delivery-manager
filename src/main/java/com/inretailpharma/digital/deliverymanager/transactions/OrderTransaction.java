@@ -77,8 +77,12 @@ public class OrderTransaction {
         serviceLocalOrderIdentity.setOrderStatus(orderStatus);
         // ----------------------------------------------------
 
+        // set ServiceDetail from delivery dispatcher and set store canonical
         ServiceLocalOrder serviceLocalOrder = objectMapper.getFromOrderDto(centerCompanyCanonical, orderDto);
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
+
+        serviceLocalOrder.setCancellationCode(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId());
+        serviceLocalOrder.setCancellationObservation(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getReason());
 
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
@@ -172,13 +176,15 @@ public class OrderTransaction {
                         .orElse(PaymentMethod.PaymentType.CASH.name())
                         .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.getCode());
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.getCode());
+            orderStatus.setType(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name());
 
         } else if (Optional
                 .ofNullable(orderDto.getOrderStatusDto().getCode())
                 .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER.getCode());
+            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.getCode());
+            orderStatus.setType(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name());
 
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 

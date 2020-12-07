@@ -18,6 +18,7 @@ public class OrderInkatrackerCanonical {
     private Long startDate;
     private Long endDate;
     private Long cancelDate;
+    private String cancelReasonCode;
     private String cancelMessageNote;
     private Integer deliveryService;
     private Long maxDeliveryTime;
@@ -61,5 +62,8 @@ public class OrderInkatrackerCanonical {
     private String drugstoreAddress;
     private PersonToPickupDto personToPickup;
     private String sourceCompanyName;
+
+
+
 
 }
