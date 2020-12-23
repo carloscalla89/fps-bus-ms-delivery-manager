@@ -95,9 +95,7 @@ public class DeliveryManagerFacade {
 
                     if (order.getOrderDetail().isServiceEnabled()
                             && Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()
-                            && Constant.Logical.getByValueString(
-                                    getApplicationParameter(Constant.ApplicationsParameters.ACTIVATED_DD_+Optional.ofNullable(order.getCompanyCode()).orElse("MF"))
-                            ).value())
+                            && checkIfOrderIsRoutable(order))
                     {
 
                         OrderExternalService orderExternalServiceTracker = (OrderExternalService)context.getBean(
@@ -610,10 +608,19 @@ public class DeliveryManagerFacade {
             return Mono.just(resultDefault);
         }
     }
-
-    private String getApplicationParameter(String code) {
-        return applicationParameterService
-                .getApplicationParameterByCodeIs(code).getValue();
+    
+    private boolean checkIfOrderIsRoutable(OrderCanonical order) {
+    	String key = Constant.ApplicationsParameters.ACTIVATED_SEND_ + order.getSource() + "_" + order.getCompanyCode();
+    	log.info("validating if order {} is routable: key {}", order.getEcommerceId(), key);
+    	
+    	return Optional.ofNullable(applicationParameterService.getApplicationParameterByCodeIs(key))
+    			.map(param -> {
+    				log.info("key {} found: value {}", param.getCode(), param.getValue());
+    				return Constant.Logical.getByValueString(param.getValue()).value();
+    			})
+    			.orElseGet(() -> {
+    				log.error("ERROR key {} not found");
+    				return false;
+    			});
     }
-
 }

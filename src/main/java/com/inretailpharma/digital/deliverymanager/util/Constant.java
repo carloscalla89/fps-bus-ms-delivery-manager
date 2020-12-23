@@ -184,6 +184,8 @@ public interface Constant {
         String ACTIVATED_DD_IKF = "ACTIVATED_DD_IKF";
         String ACTIVATED_DD_MF = "ACTIVATED_DD_MF";
         String ACTIVATED_DD_ = "ACTIVATED_DD_";
+        
+        String ACTIVATED_SEND_ = "ACTIVATED_SEND_";
     }
 
     interface InsinkErrorCode {
