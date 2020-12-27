@@ -51,7 +51,8 @@ public class PaymentMethod {
     public enum PaymentType {
 
         CASH(1,"CASH", "Efectivo"), CASH_DOLAR(1,"CASH_DOLAR", "Efectivo en dólares"),
-        CARD(2,"POS", "Pago con P.O.S"), ONLINE_PAYMENT(3,"ONLINE", "Pago en línea");
+        CARD(2,"POS", "Pago con P.O.S"), ONLINE_PAYMENT(3,"ONLINE", "Pago en línea"),
+        MARKETPLACE(5, "MARKETPLACE", "Marketplace");
 
         private final Integer id;
         private final String code;
