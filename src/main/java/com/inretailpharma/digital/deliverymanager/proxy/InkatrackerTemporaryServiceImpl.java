@@ -64,7 +64,7 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
                             .clientConnector(
                                     generateClientConnector(
                                             Integer.parseInt(externalServicesProperties.getTemporaryCreateOrderConnectTimeOut()),
-                                            Integer.parseInt(externalServicesProperties.getTemporaryCreateOrderReadTimeOut())
+                                            Long.parseLong(externalServicesProperties.getTemporaryCreateOrderReadTimeOut())
                                     )
                             )
                             .baseUrl(externalServicesProperties.getInkatrackerCreateOrderUri())
@@ -121,7 +121,7 @@ public class InkatrackerTemporaryServiceImpl extends AbstractOrderService implem
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getInkatrackerUpdateStatusOrderConnectTimeOut()),
-                                Integer.parseInt(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
+                                Long.parseLong(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
                         )
                 )
                 .baseUrl(externalServicesProperties.getInkatrackerUpdateStatusOrderUri())

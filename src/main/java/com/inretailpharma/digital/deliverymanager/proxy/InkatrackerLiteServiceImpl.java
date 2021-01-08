@@ -69,7 +69,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             .clientConnector(
                                     generateClientConnector(
                                             Integer.parseInt(externalServicesProperties.getInkatrackerLiteCreateOrderConnectTimeOut()),
-                                            Integer.parseInt(externalServicesProperties.getInkatrackerLiteCreateOrderReadTimeOut())
+                                            Long.parseLong(externalServicesProperties.getInkatrackerLiteCreateOrderReadTimeOut())
                                     )
                             )
                             .baseUrl(externalServicesProperties.getInkatrackerLiteCreateOrderUri())
@@ -116,7 +116,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderConnectTimeOut()),
-                                Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
+                                Long.parseLong(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
                         )
                 )
                 .baseUrl(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())

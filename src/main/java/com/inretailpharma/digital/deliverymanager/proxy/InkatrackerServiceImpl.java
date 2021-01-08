@@ -77,7 +77,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getInkatrackerUpdateStatusOrderConnectTimeOut()),
-                                Integer.parseInt(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
+                                Long.parseLong(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
                         )
                 )
                 .baseUrl(externalServicesProperties.getInkatrackerUpdateStatusOrderUri())
@@ -163,7 +163,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             .clientConnector(
                                     generateClientConnector(
                                             Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()),
-                                            Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
+                                            Long.parseLong(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
                                     )
                             )
                             .baseUrl(externalServicesProperties.getInkatrackerCreateOrderUri())

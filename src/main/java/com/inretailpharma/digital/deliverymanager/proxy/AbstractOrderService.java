@@ -110,7 +110,7 @@ public class AbstractOrderService implements OrderExternalService {
 		return null;
 	}
 
-	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, int readTimeOut) {
+	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, long readTimeOut) {
 		log.info("generateClientConnector, connectionTimeOut:{}, readTimeOut:{}",connectionTimeOut,readTimeOut);
 		HttpClient httpClient = HttpClient.create()
 				.tcpConfiguration(tcpClient -> {

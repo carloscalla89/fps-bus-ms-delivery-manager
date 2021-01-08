@@ -75,7 +75,7 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
                     .clientConnector(
                             generateClientConnector(
                                     Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()),
-                                    Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
+                                    Long.parseLong(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
                             )
                     )
                     .baseUrl(dispatcherUri)
@@ -188,7 +188,7 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
                     .clientConnector(
                             generateClientConnector(
                                     Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()),
-                                    Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
+                                    Long.parseLong(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
                             )
                     )
                     .baseUrl(dispatcherUri)
@@ -298,7 +298,7 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()),
-                                Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
+                                Long.parseLong(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
                         )
                 )
                 .baseUrl(dispatcherUri)
