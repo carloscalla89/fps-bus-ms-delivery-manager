@@ -111,7 +111,7 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, int readTimeOut) {
-
+		log.info("generateClientConnector, connectionTimeOut:{}, readTimeOut:{}",connectionTimeOut,readTimeOut);
 		HttpClient httpClient = HttpClient.create()
 				.tcpConfiguration(tcpClient -> {
 					tcpClient = tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeOut);
@@ -121,6 +121,8 @@ public class AbstractOrderService implements OrderExternalService {
 					);
 					return tcpClient;
 				});
+
+
 
 		return new ReactorClientHttpConnector(httpClient);
 

@@ -30,8 +30,8 @@ external-service:
   inkatracker-lite:
     create-order:
       uri: http://us-inkatrackerlite/nvr/orders/create
-      connect-timeout: 240
-      read-timeout: 360
+      connect-timeout: 30000
+      read-timeout: 60000
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
       connect-timeout: 30000
