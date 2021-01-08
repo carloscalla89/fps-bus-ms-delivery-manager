@@ -186,34 +186,39 @@ public class AbstractOrderService implements OrderExternalService {
 
 	protected Mono<OrderCanonical> mapResponseFromTracker(ClientResponse clientResponse, Long id, Long ecommerceId,
 														  Long externalId, String statusName) {
-		OrderCanonical orderCanonical = new OrderCanonical();
-		orderCanonical.setId(id);
-		orderCanonical.setEcommerceId(ecommerceId);
-		orderCanonical.setExternalId(externalId);
 
-		OrderStatusCanonical orderStatus;
 
 		if (clientResponse.statusCode().is2xxSuccessful()) {
 
-			orderCanonical.setTrackerId(ecommerceId);
 
-			if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
-					|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())
-					|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
-					|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name())) {
+            return clientResponse
+                        .bodyToMono(OrderCanonical.class)
+                        .flatMap(r -> {
+                            OrderCanonical orderCanonical = new OrderCanonical();
+                            orderCanonical.setId(id);
+                            orderCanonical.setEcommerceId(ecommerceId);
+                            orderCanonical.setExternalId(externalId);
 
-				orderStatus = objectToMapper.getOrderStatusInkatracker(statusName, null);
-			} else {
-				orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.CONFIRMED_TRACKER.name(), null);
-			}
+                            OrderStatusCanonical orderStatus;
+                            orderCanonical.setTrackerId(ecommerceId);
 
+                            if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
+                                    || statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())
+                                    || statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
+                                    || statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name())) {
 
+                                orderStatus = objectToMapper.getOrderStatusInkatracker(statusName, null);
+                            } else {
+                                orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.CONFIRMED_TRACKER.name(), null);
+                            }
 
-			orderCanonical.setOrderStatus(orderStatus);
+                            orderCanonical.setOrderStatus(orderStatus);
 
-			return Mono.just(orderCanonical);
+                            return Mono.just(orderCanonical);
+                        });
+
 		} else {
-
+            log.info("status code is different:{}",clientResponse.statusCode());
 			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
 
 			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
