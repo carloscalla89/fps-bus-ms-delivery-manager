@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,8 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class DeliveryManagerFacade {
+
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
@@ -354,10 +357,10 @@ public class DeliveryManagerFacade {
                         if (iOrderFulfillment.getSource().equals("SC")) {
 
                             ControversyRequestDto controversyRequestDto = new ControversyRequestDto();
-                            controversyRequestDto.setDate(new Date().toString());
-//                            controversyRequestDto.setText();
-//                            controversyRequestDto.setType();
-                            String orderId = "";
+                            controversyRequestDto.setDate(format.format(new Date()));
+                            controversyRequestDto.setText("Cotroversia Test");
+                            controversyRequestDto.setType("CT");
+                            String orderId = iOrderFulfillment.getOrderId().toString();
                             addControversies(controversyRequestDto, orderId);
                         }
 
@@ -640,6 +643,7 @@ public class DeliveryManagerFacade {
     }
 
     private void addControversies(ControversyRequestDto controversyRequestDto, String orderId) {
+        restTemplate = new RestTemplate();
         String personResultAsJsonStr =
                 restTemplate.postForObject("http://uS-Seller-Center/sellercenter/orders/" + orderId + "/controversies",
                         controversyRequestDto, String.class);
