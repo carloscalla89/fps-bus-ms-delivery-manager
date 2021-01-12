@@ -207,6 +207,9 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderByecommerceId(ecommerceId);
     }
 
+    public IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId) {
+        return orderRepositoryService.getOrderLightByecommerceId(ecommerceId);
+    }
 
     public List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId) {
         return orderRepositoryService.getOrderItemByOrderFulfillmentId(orderFulfillmentId);
@@ -287,16 +290,6 @@ public class OrderTransaction {
 
     public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
         return orderRepositoryService.getOrderByOrderNumber(orderNumber);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updatePartialOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId) {
-        log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
-                        "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
-                ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
-
-
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)

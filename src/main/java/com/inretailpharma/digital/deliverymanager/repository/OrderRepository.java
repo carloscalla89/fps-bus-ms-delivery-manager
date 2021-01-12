@@ -98,12 +98,11 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
             "s.order_status_code as statusCode, os.type as statusName, s.status_detail as statusDetail," +
-            "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
-            "pm.change_amount as changeAmount, pm.card_provider_id as cardProviderId, pm.card_provider_code as cardProviderCode," +
-            "pm.bin, pm.coupon, pm.payment_transaction_id as paymentTransactionId, " +
+            "pm.payment_type as paymentType, st.type as serviceType " +
             "from order_fulfillment o " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
             "inner join order_status os on os.code = s.order_status_code " +
+            "inner join service_type st on st.code = s.service_type_code " +
             "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
             "where o.ecommerce_purchase_id = :ecommerceId",
             nativeQuery = true
