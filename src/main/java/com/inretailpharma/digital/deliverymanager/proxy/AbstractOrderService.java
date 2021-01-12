@@ -196,13 +196,48 @@ public class AbstractOrderService implements OrderExternalService {
                         .thenReturn((getResponse(id, ecommerceId, externalId, statusName)));
 
 		} else {
-            log.info("status code is different:{}",clientResponse.statusCode());
+            log.error("Error in response from tracker, ecommerceId:{}, statusCode:{}",ecommerceId,clientResponse.statusCode());
 			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
 
 			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
 
 		}
 
+	}
+
+	protected Mono<OrderCanonical> mapResponseFromUpdateTracker(ClientResponse clientResponse, Long ecommerceId,
+																Constant.OrderStatusTracker orderStatusInkatracker) {
+
+
+		if (clientResponse.statusCode().is2xxSuccessful()) {
+
+			return clientResponse
+					.bodyToMono(Void.class)
+					.thenReturn((getResponse(orderStatusInkatracker)));
+
+		} else {
+			log.error("Error in response from Updatetracker, ecommerceId:{}, statusCode:{}"
+					,ecommerceId,clientResponse.statusCode());
+			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
+
+			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
+
+		}
+
+	}
+
+	private OrderCanonical getResponse(Constant.OrderStatusTracker orderStatusInkatracker) {
+		OrderCanonical orderCanonical = new OrderCanonical();
+
+		Constant.OrderStatus orderStatusResult = orderStatusInkatracker.getOrderStatus();
+
+		OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+		orderStatus.setCode(orderStatusResult.getCode());
+		orderStatus.setName(orderStatusResult.name());
+		orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+		orderCanonical.setOrderStatus(orderStatus);
+
+		return orderCanonical;
 	}
 
 	private OrderCanonical getResponse(Long id, Long ecommerceId,

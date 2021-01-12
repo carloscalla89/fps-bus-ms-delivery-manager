@@ -95,6 +95,22 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
+
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
+            "s.order_status_code as statusCode, os.type as statusName, s.status_detail as statusDetail," +
+            "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
+            "pm.change_amount as changeAmount, pm.card_provider_id as cardProviderId, pm.card_provider_code as cardProviderCode," +
+            "pm.bin, pm.coupon, pm.payment_transaction_id as paymentTransactionId, " +
+            "from order_fulfillment o " +
+            "inner join order_process_status s on o.id = s.order_fulfillment_id " +
+            "inner join order_status os on os.code = s.order_status_code " +
+            "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
+            "where o.ecommerce_purchase_id = :ecommerceId",
+            nativeQuery = true
+    )
+    List<IOrderFulfillment> getOrderLightByecommerceId(@Param("ecommerceId") Long ecommerceId);
+
+
     @Query(value ="select oi.order_fulfillment_id as orderFulfillmentId,oi.product_code as productCode, oi.product_sap_code as productSapCode, " +
             "oi.name as nameProduct, oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, " +
             "oi.unit_price as unitPrice, oi.total_price as totalPrice, oi.fractionated, oi.value_UMV as valueUmv, " +

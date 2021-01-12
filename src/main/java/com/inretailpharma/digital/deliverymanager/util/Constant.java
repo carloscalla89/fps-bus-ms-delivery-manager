@@ -460,6 +460,14 @@ public interface Constant {
                     .orElse(NOT_FOUND_CODE);
         }
 
+        public static OrderStatus getOrderStatusByName(String name) {
+            return EnumUtils.getEnumList(OrderStatus.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(NOT_FOUND_CODE);
+        }
+
         public static boolean getFinalStatusByCode(String code) {
             return EnumUtils.getEnumList(OrderStatus.class)
                     .stream()
