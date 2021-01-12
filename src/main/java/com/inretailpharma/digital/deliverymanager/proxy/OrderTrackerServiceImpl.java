@@ -60,13 +60,13 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 	        	.patch()
 	        	.bodyValue(unassignedCanonical)
 	        	.exchange()
-	        	.map(r -> {	        		
+	        	.flatMap(r -> {
 	        		if (r.statusCode().is2xxSuccessful()) {
 	        			log.info("[END] call to OrderTracker - unassignOrders - status {}", r.statusCode());
-	        			return Constant.OrderTrackerResponseCode.SUCCESS_CODE;
+						return r.bodyToMono(Void.class).thenReturn(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
 	        		} else {
 	        			log.error("[ERROR] call to OrderTracker - unassignOrders - status {}", r.statusCode());
-	        			return Constant.OrderTrackerResponseCode.ERROR_CODE;
+						return r.bodyToMono(Void.class).thenReturn(Constant.OrderTrackerResponseCode.ERROR_CODE);
 	        		}
 	        	})
 	        	.defaultIfEmpty(Constant.OrderTrackerResponseCode.EMPTY_CODE)
@@ -91,13 +91,17 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
                 				.path("/{ecommerceId}/status/{status}")
                                 .build(ecommerceId, status))
                 .exchange()
-	        	.map(r -> {	        		
+	        	.flatMap(r -> {
 	        		if (r.statusCode().is2xxSuccessful()) {
+
 	        			log.info("[END] call to OrderTracker - updateOrderStatus - status {}", r.statusCode());
-	        			return Constant.OrderTrackerResponseCode.SUCCESS_CODE;
+
+	        			return r.bodyToMono(Void.class).thenReturn(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
+
 	        		} else {
 	        			log.error("[ERROR] call to OrderTracker - updateOrderStatus - status {}", r.statusCode());
-	        			return Constant.OrderTrackerResponseCode.ERROR_CODE;
+
+	        			return r.bodyToMono(Void.class).thenReturn(Constant.OrderTrackerResponseCode.ERROR_CODE);
 	        		}
 	        	})
 	        	.defaultIfEmpty(Constant.OrderTrackerResponseCode.EMPTY_CODE)
