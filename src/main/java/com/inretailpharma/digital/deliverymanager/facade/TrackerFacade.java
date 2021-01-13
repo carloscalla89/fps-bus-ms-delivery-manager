@@ -178,10 +178,10 @@ public class TrackerFacade {
 								.filter(resultCode -> resultCode.equalsIgnoreCase(Constant.OrderTrackerResponseCode.SUCCESS_CODE))
 								.flatMap(resultCode -> Mono.just(getOrderTrackerResponse(
 										resultCode, filtredOrder.getOrderId(), filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType()))
-								).switchIfEmpty(Mono.just(getOrderTrackerResponse(
+								).switchIfEmpty(Mono.defer(() -> Mono.just(getOrderTrackerResponse(
 										Constant.OrderTrackerResponseCode.ERROR_CODE, filtredOrder.getOrderId(),
-										filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType())
-								));
+										filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType())))
+								);
 					}
 
 					return Mono.just(getOrderTrackerResponse(
@@ -189,7 +189,7 @@ public class TrackerFacade {
 					);
 
 
-				}).switchIfEmpty(Mono.empty());
+				}).switchIfEmpty(Mono.defer(Mono::empty) );
 
 	}
 
