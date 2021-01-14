@@ -362,6 +362,9 @@ public class DeliveryManagerFacade {
                             controversyRequestDto.setType("CT");
                             String orderId = iOrderFulfillment.getOrderId().toString();
                             addControversies(controversyRequestDto, orderId);
+                            
+                            System.out.println(controversyRequestDto);
+                            System.out.println(orderId);
                         }
 
                         CancellationCodeReason codeReason;
