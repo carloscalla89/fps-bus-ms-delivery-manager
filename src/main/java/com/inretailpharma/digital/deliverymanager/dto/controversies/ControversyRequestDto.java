@@ -1,8 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.dto.controversies;
 
 import java.util.List;
-
-import com.inretailpharma.digital.sellercenter.dto.controversies.CommentRequestDto;
 import lombok.Data;
 
 @Data
