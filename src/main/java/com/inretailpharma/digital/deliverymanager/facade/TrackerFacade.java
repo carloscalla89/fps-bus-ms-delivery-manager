@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -165,19 +166,31 @@ public class TrackerFacade {
 
 	public Mono<OrderTrackerResponseCanonical> updateOrderStatus(Long ecommerceId, String status) {
 		log.info("[START] update order: {} status: {} - external tracker", ecommerceId, status);
-		return orderExternalOrderTracker
-				.updateOrderStatus(ecommerceId, status)
-				.flatMap(statusCode -> {
-					log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, status, statusCode);
+
+		return Mono
+				.justOrEmpty(orderTransaction.getOrderLightByecommerceId(ecommerceId))
+				.filter(order -> !order.getServiceType().equalsIgnoreCase(Constant.ServiceTypeCodes.PICKUP))
+				.flatMap(filtredOrder -> {
+
+					if (!filtredOrder.getServiceType().equalsIgnoreCase(Constant.ServiceTypeCodes.PICKUP)) {
+						return orderExternalOrderTracker
+								.updateOrderStatus(filtredOrder.getEcommerceId(), status)
+								.filter(resultCode -> resultCode.equalsIgnoreCase(Constant.OrderTrackerResponseCode.SUCCESS_CODE))
+								.flatMap(resultCode -> Mono.just(getOrderTrackerResponse(
+										resultCode, filtredOrder.getOrderId(), filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType()))
+								).switchIfEmpty(Mono.defer(() -> Mono.just(getOrderTrackerResponse(
+										Constant.OrderTrackerResponseCode.ERROR_CODE, filtredOrder.getOrderId(),
+										filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType())))
+								);
+					}
+
+					return Mono.just(getOrderTrackerResponse(
+							Constant.OrderTrackerResponseCode.SUCCESS_CODE, filtredOrder.getOrderId(), filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType())
+					);
 
 
-					auditOrder(ecommerceId, Constant.OrderStatus.getByName(status));
+				}).switchIfEmpty(Mono.defer(Mono::empty) );
 
-					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-					response.setStatusCode(statusCode);
-					return Mono.just(response);
-
-				});
 	}
 
 	public Mono<OrderTrackerResponseCanonical> sendOrder(OrderToAssignCanonical orderToAssignCanonical) {
@@ -219,4 +232,24 @@ public class TrackerFacade {
     	orderExternalServiceAudit.updateOrderReactive(
         		new OrderCanonical(ecommerceId, status.getCode(), status.name(), detail)).subscribe();
     }
+
+    private OrderTrackerResponseCanonical getOrderTrackerResponse(String result,Long orderId, Long ecommerceId, String trackerStatus,
+																  String paymentType) {
+
+		log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, trackerStatus, result);
+
+		Constant.OrderStatus orderStatus = Constant.OrderStatusTracker.getOrderStatusByTrackerStatus(trackerStatus, paymentType);
+
+		// Para actualizar los últimos status en el fulfillment
+		orderTransaction.updateStatusOrder(orderId, orderStatus.getCode(), null);
+
+		// enviar a la auditoría el cambio del status
+		auditOrder(ecommerceId, orderStatus);
+
+		OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
+		response.setStatusCode(result);
+		return response;
+
+
+	}
 }
