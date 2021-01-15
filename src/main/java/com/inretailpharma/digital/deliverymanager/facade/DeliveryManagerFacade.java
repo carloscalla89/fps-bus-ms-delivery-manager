@@ -360,7 +360,7 @@ public class DeliveryManagerFacade {
 
                             ControversyRequestDto controversyRequestDto = new ControversyRequestDto();
                             controversyRequestDto.setDate(format.format(new Date()));
-                            controversyRequestDto.setText("Cotroversia Test");
+                            controversyRequestDto.setText("Controversia Test");
                             controversyRequestDto.setType("CT");
                             addControversies(controversyRequestDto, iOrderFulfillment.getEcommerceId());
 
@@ -644,10 +644,10 @@ public class DeliveryManagerFacade {
                 });
     }
 
-    private void addControversies(ControversyRequestDto controversyRequestDto, Long orderId) {
+    private void addControversies(ControversyRequestDto controversyRequestDto, Long EcommerceId) {
         restTemplate = new RestTemplate();
         String personResultAsJsonStr =
-                restTemplate.postForObject("http://uS-Seller-Center/sellercenter/orders/" + orderId + "/controversies",
+                restTemplate.postForObject("http://uS-Seller-Center/sellercenter/orders/" + EcommerceId + "/controversies",
                         controversyRequestDto, String.class);
         log.info("[END] RESPONSE ADD CONTROVERSY = {}", personResultAsJsonStr);
     }
