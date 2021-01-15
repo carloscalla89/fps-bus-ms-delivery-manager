@@ -353,18 +353,17 @@ public class DeliveryManagerFacade {
                     );
 
                     if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
+                        log.info("[START] REQUEST-CANCEL-ORDER");
 
-                        if (iOrderFulfillment.getSource().equals("SC")) {
+                        if (iOrderFulfillment != null && iOrderFulfillment.getSource().equals("SC")) {
+                            log.info(" REQUEST TO ADD CONTROVERSY FOR ECOMMERCEORDERID={}", iOrderFulfillment.getEcommerceId());
 
                             ControversyRequestDto controversyRequestDto = new ControversyRequestDto();
                             controversyRequestDto.setDate(format.format(new Date()));
                             controversyRequestDto.setText("Cotroversia Test");
                             controversyRequestDto.setType("CT");
-                            String orderId = iOrderFulfillment.getOrderId().toString();
-                            addControversies(controversyRequestDto, orderId);
-                            
-                            System.out.println(controversyRequestDto);
-                            System.out.println(orderId);
+                            addControversies(controversyRequestDto, iOrderFulfillment.getEcommerceId());
+
                         }
 
                         CancellationCodeReason codeReason;
@@ -645,12 +644,12 @@ public class DeliveryManagerFacade {
                 });
     }
 
-    private void addControversies(ControversyRequestDto controversyRequestDto, String orderId) {
+    private void addControversies(ControversyRequestDto controversyRequestDto, Long orderId) {
         restTemplate = new RestTemplate();
         String personResultAsJsonStr =
                 restTemplate.postForObject("http://uS-Seller-Center/sellercenter/orders/" + orderId + "/controversies",
                         controversyRequestDto, String.class);
-        System.out.println(personResultAsJsonStr);
-
+        log.info("[END] RESPONSE ADD CONTROVERSY = {}", personResultAsJsonStr);
     }
+
 }
