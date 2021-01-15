@@ -77,7 +77,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getInkatrackerUpdateStatusOrderConnectTimeOut()),
-                                Integer.parseInt(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
+                                Long.parseLong(externalServicesProperties.getInkatrackerUpdateOrderReadTimeOut())
                         )
                 )
                 .baseUrl(externalServicesProperties.getInkatrackerUpdateStatusOrderUri())
@@ -89,55 +89,21 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                     .build(ecommerceId))
                                     .body(Mono.just(orderTrackerCanonical), OrderTrackerCanonical.class)
                                     .exchange()
-                                    .map(r -> {
-                                        log.info("response r :{}", r);
-                                        log.info("response action :{}", action);
-                                        log.info("response:{}", r.statusCode());
-
-                                        OrderCanonical orderCanonical = new OrderCanonical();
-                                        orderCanonical.setExternalId(Optional.ofNullable(actionDto.getExternalBillingId()).map(Long::parseLong).orElse(null));
-
-                                        Constant.OrderStatus os;
-                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-
-                                        if (r.statusCode().is2xxSuccessful()) {
-                                            os = orderStatusInkatracker.getOrderStatus();
-
-                                        } else {
-                                            os = orderStatusInkatracker.getOrderStatusError();
-                                            orderStatus.setDetail(r.statusCode().getReasonPhrase());
-                                        }
-
-                                        orderStatus.setCode(os.getCode());
-                                        orderStatus.setName(os.name());
-                                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                                        orderCanonical.setOrderStatus(orderStatus);
-
-
-                                        return orderCanonical;
-                                    })
+                                    .flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, ecommerceId, orderStatusInkatracker))
+                                    .doOnSuccess(s -> log.info("Response is Success in inkatracker Update:{}",s))
                                     .defaultIfEmpty(
                                             new OrderCanonical(
                                                     ecommerceId,
                                                     Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(),
                                                     Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name())
                                     )
-                                    .onErrorResume(e -> {
+                                    .doOnError(e -> {
                                         e.printStackTrace();
-                                        log.error("Error in inkatracker call {} ",e.getMessage());
-
-                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                        orderStatus.setCode(orderStatusInkatracker.getOrderStatusError().getCode());
-                                        orderStatus.setName(orderStatusInkatracker.getOrderStatusError().name());
-                                        orderStatus.setDetail(e.getMessage());
-                                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                                        OrderCanonical orderCanonical = new OrderCanonical();
-                                        orderCanonical.setOrderStatus(orderStatus);
-
-                                        return Mono.just(orderCanonical);
-                                    });
+                                        log.error("Error in inkatracker when its sent to update:{}",e.getMessage());
+                                    })
+                                    .onErrorResume(e -> mapResponseErrorFromTracker(e, ecommerceId,
+                                            ecommerceId, orderStatusInkatracker.getOrderStatusError().name())
+                                    );
 
     }
 
@@ -163,7 +129,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             .clientConnector(
                                     generateClientConnector(
                                             Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()),
-                                            Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
+                                            Long.parseLong(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
                                     )
                             )
                             .baseUrl(externalServicesProperties.getInkatrackerCreateOrderUri())

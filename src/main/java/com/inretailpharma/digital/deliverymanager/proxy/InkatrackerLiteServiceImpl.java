@@ -69,7 +69,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             .clientConnector(
                                     generateClientConnector(
                                             Integer.parseInt(externalServicesProperties.getInkatrackerLiteCreateOrderConnectTimeOut()),
-                                            Integer.parseInt(externalServicesProperties.getInkatrackerLiteCreateOrderReadTimeOut())
+                                            Long.parseLong(externalServicesProperties.getInkatrackerLiteCreateOrderReadTimeOut())
                                     )
                             )
                             .baseUrl(externalServicesProperties.getInkatrackerLiteCreateOrderUri())
@@ -116,7 +116,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderConnectTimeOut()),
-                                Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
+                                Long.parseLong(externalServicesProperties.getInkatrackerLiteUpdateOrderReadTimeOut())
                         )
                 )
                 .baseUrl(externalServicesProperties.getInkatrackerLiteUpdateOrderUri())
@@ -128,43 +128,22 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                 .queryParam("action",orderStatusInkatracker.getTrackerLiteStatus())
                                 .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
                                 .build(ecommerceId))
-                .retrieve()
-                .bodyToMono(OrderInfoCanonical.class)
-                .map(r -> {
-                    log.info("response:{}", r);
-                    OrderCanonical orderCanonical = new OrderCanonical();
-
-                    Constant.OrderStatus orderStatusResult = orderStatusInkatracker.getOrderStatus();
-
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(orderStatusResult.getCode());
-                    orderStatus.setName(orderStatusResult.name());
-                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-                    orderCanonical.setOrderStatus(orderStatus);
-
-                    return orderCanonical;
-                })
+                .exchange()
+                .flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, ecommerceId, orderStatusInkatracker))
+                .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite Update:{}",s))
                 .defaultIfEmpty(
                         new OrderCanonical(
                                 ecommerceId,
                                 Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.getCode(),
                                 Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name())
                 )
-                .onErrorResume(e -> {
+                .doOnError(e -> {
                     e.printStackTrace();
-                    log.error("Error in inkatrackerlite call {} ",e.getMessage());
-                    OrderCanonical orderCanonical = new OrderCanonical();
-                    Constant.OrderStatus orderStatusResult = orderStatusInkatracker.getOrderStatusError();
-                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(orderStatusResult.getCode());
-                    orderStatus.setName(orderStatusResult.name());
-                    orderStatus.setDetail(e.getMessage());
-                    orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                    orderCanonical.setOrderStatus(orderStatus);
-
-                    return Mono.just(orderCanonical);
-                });
+                    log.error("Error in inkatracker-lite when its sent to update:{}",e.getMessage());
+                })
+                .onErrorResume(e -> mapResponseErrorFromTracker(e, ecommerceId,
+                        ecommerceId, orderStatusInkatracker.getOrderStatusError().name())
+                );
     }
     private String getApplicationParameter(String code) {
         return applicationParameterService

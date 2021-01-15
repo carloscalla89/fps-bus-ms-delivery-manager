@@ -28,6 +28,7 @@ public interface OrderRepositoryService {
     List<IOrderFulfillment> getListOrdersToCancel(String serviceType,String companyCode, Integer maxDayPickup, String statustype);
     List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId);
     IOrderFulfillment getOrderByecommerceId(Long ecommerceId);
+    IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId);
     void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,
                                    Integer attempt, String orderStatusCode, String statusDetail);
     void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,
@@ -45,7 +46,7 @@ public interface OrderRepositoryService {
 
     Client saveClient(Client client);
 
-    List<OrderStatus> getOrderStatusByTypeIs(String statusName);
+
 
     <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
 

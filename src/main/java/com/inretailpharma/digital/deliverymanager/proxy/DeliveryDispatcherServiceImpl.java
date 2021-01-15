@@ -66,7 +66,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderConnectTimeOut()),
-                                Integer.parseInt(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
+                                Long.parseLong(externalServicesProperties.getInkatrackerCreateOrderReadTimeOut())
                         )
                 )
                 .baseUrl(inkatrackerUri)
@@ -157,7 +157,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                     .clientConnector(
                             generateClientConnector(
                                     Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemConnectTimeout()),
-                                    Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemReadTimeout())
+                                    Long.parseLong(externalServicesProperties.getDispatcherLegacySystemReadTimeout())
                             )
                     )
                     .baseUrl(dispatcherUri)
@@ -202,7 +202,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemConnectTimeout()),
-                                Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemReadTimeout())
+                                Long.parseLong(externalServicesProperties.getDispatcherLegacySystemReadTimeout())
                         )
                 )
                 .baseUrl(dispatcherUri)
@@ -327,7 +327,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getDispatcherOrderEcommerceConnectTimeout()),
-                                Integer.parseInt(externalServicesProperties.getDispatcherOrderEcommerceReadTimeout())
+                                Long.parseLong(externalServicesProperties.getDispatcherOrderEcommerceReadTimeout())
                         )
                 )
                 .baseUrl(externalServicesProperties.getDispatcherOrderEcommerceUri())

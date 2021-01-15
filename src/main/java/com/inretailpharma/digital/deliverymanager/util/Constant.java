@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.util;
 
+import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import org.apache.commons.lang3.EnumUtils;
 
 import java.util.Optional;
@@ -290,6 +291,15 @@ public interface Constant {
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("CANCELLED", "CANCELLED",OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK,
                 OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.CANCEL_ORDER.name()),
 
+        REJECTED_ORDER("REJECTED", "REJECTED", OrderStatus.CANCELLED_ORDER,
+                OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.CANCEL_ORDER.name()),
+
+        REJECTED_ORDER_ONLINE_PAYMENT("REJECTED", "REJECTED",OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT,
+                OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.CANCEL_ORDER.name()),
+
+        REJECTED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("REJECTED", "REJECTED",OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK,
+                OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.CANCEL_ORDER.name()),
+
         ERROR_INSERT_TRACKER("CONFIRMED", "CONFIRMED",OrderStatus.ERROR_INSERT_TRACKER,
                 OrderStatus.ERROR_INSERT_TRACKER, ActionOrder.ATTEMPT_TRACKER_CREATE.name()),
 
@@ -305,7 +315,7 @@ public interface Constant {
         SUCCESS_RESERVED_ORDER("CONFIRMED", "CONFIRMED",OrderStatus.CONFIRMED_TRACKER,
                 OrderStatus.ERROR_INSERT_INKAVENTA, ActionOrder.NONE.name()),
 
-        DELIVERED_ORDER("DELIVER_ORDER", "DELIVERED", OrderStatus.DELIVERED_ORDER,
+        DELIVERED_ORDER("DELIVERED", "DELIVERED", OrderStatus.DELIVERED_ORDER,
                 OrderStatus.ERROR_DELIVER, ActionOrder.DELIVER_ORDER.name()),
 
         NOT_FOUND_ACTION("NOT_FOUND_ACTION", "NOT_FOUND_ACTION",OrderStatus.NOT_FOUND_CODE,
@@ -342,6 +352,38 @@ public interface Constant {
                     .findFirst()
                     .orElse(NOT_FOUND_ACTION);
         }
+
+        public static OrderStatus getOrderStatusByTrackerStatus(String trackerStatus, String paymentMethod) {
+
+            OrderStatus orderStatus = OrderStatus.CANCELLED_ORDER;
+
+            switch (trackerStatus) {
+                case "CANCELLED":
+
+                    if (paymentMethod.equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
+
+                        orderStatus = OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT;
+
+                    }
+
+                    break;
+                case "REJECTED":
+                    if (paymentMethod.equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
+
+                        orderStatus = OrderStatus.REJECTED_ORDER_ONLINE_PAYMENT;
+
+                    }
+                    break;
+                default:
+                    orderStatus = OrderStatus.DELIVERED_ORDER;
+
+            }
+
+            return orderStatus;
+
+
+        }
+
 
         public static OrderStatusTracker getByActionName(String actionName) {
             return EnumUtils.getEnumList(OrderStatusTracker.class)
@@ -404,6 +446,11 @@ public interface Constant {
         CANCELLED_ORDER_NOT_ENOUGH_STOCK("11",true),  // se cancela una orden por que no hay stock al llamarse desde el DD
         CANCELLED_ORDER_ONLINE_PAYMENT("37",  true),
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("37",  true), // se cancela una orden con pago en línea por que no hay stock al llamarse desde el DD
+
+        REJECTED_ORDER("11",true), // se cancela orden desde el pos unificado y/o otro cliente
+        REJECTED_ORDER_ONLINE_PAYMENT("37",  true),
+        REJECTED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("37",  true), // se cancela una orden con pago en línea por que no hay stock al llamarse desde el DD
+
         ORDER_FAILED("38",  false),
         INVOICED("40", true),
         ERROR_INVOICED("41", false),
@@ -459,6 +506,8 @@ public interface Constant {
                     .findFirst()
                     .orElse(NOT_FOUND_CODE);
         }
+
+
 
         public static boolean getFinalStatusByCode(String code) {
             return EnumUtils.getEnumList(OrderStatus.class)
@@ -559,5 +608,9 @@ public interface Constant {
                     .orElse(NONE);
         }
 
+    }
+
+    interface ServiceTypeCodes {
+        String PICKUP = "PICKUP";
     }
 }
