@@ -89,3 +89,8 @@ external-service:
       uri: http://uS-Seller-Center/sellercenter/orders/
       connect-timeout: 10000
       read-timeout: 120000
+    add-controversy:
+      uri: http://uS-Seller-Center/sellercenter/orders/
+      connect-timeout: 10000
+      read-timeout: 120000
+
