@@ -17,10 +17,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     private static final String DATE_TEMPLATE = "yyyy-MM-dd";
     private static final String FORMATE_DATE_CUSTOM = "EEEE, dd MMMM";
     private static final String DATETIME_TEMPLATE = "yyyy-MM-dd HH:mm:ss";
-    private static final String DATETIME_TEMPLATE_V2 = "yyyy-MM-ddTHH:mm:ss";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_TEMPLATE);
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATETIME_TEMPLATE);
-    private static final SimpleDateFormat dateFormatV2 = new SimpleDateFormat(DATETIME_TEMPLATE_V2);
 
 
     public static String getLocalTimeWithFormat(LocalTime localtime) {
@@ -105,6 +103,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     public static String getLocalDateTimeNowStr() {
-    	return dateFormatV2.format(LocalDate.now().format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE_V2)));
+    	return dateTimeFormat.format(new Date());
     }
 }
