@@ -25,7 +25,7 @@ public class SellerCenterServiceImpl extends AbstractOrderService implements Ord
 		log.info("[START] call to SellerCenter - add controversy - uri:{} - body:{}", uri, controversyRequestDto);
     	
     	return WebClient
-            	.create()
+            	.create(uri)
             	.post()
             	.bodyValue(controversyRequestDto)
             	.retrieve()

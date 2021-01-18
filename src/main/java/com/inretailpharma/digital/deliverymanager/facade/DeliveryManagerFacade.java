@@ -357,7 +357,7 @@ public class DeliveryManagerFacade {
                             controversyRequestDto.setText(Constant.SellerCenter.ControversyTypes.CT.getDescription());
                             controversyRequestDto.setType(Constant.SellerCenter.ControversyTypes.CT.getType());
                             
-                            sellerCenterService.addControversy(controversyRequestDto, iOrderFulfillment.getEcommerceId());
+                            sellerCenterService.addControversy(controversyRequestDto, iOrderFulfillment.getEcommerceId()).subscribe();
                             
                             log.info("[END] add controversy");
                         }
