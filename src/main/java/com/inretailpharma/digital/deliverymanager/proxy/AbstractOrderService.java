@@ -11,7 +11,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Assigne
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-
+import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
@@ -108,6 +108,11 @@ public class AbstractOrderService implements OrderExternalService {
 	@Override
 	public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
 		return null;
+	}
+	
+	@Override
+	public Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long EcommerceId) {
+		throw new UnsupportedOperationException();
 	}
 
 	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, int readTimeOut) {

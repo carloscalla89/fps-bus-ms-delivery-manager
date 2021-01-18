@@ -560,4 +560,39 @@ public interface Constant {
         }
 
     }
+    
+    interface SellerCenter {
+    	String BEAN_SERVICE_NAME = "sellerCenterService";
+    	
+    	enum ControversyTypes {
+        	CT("CT", "Controversia"),
+        	D("D", "Devolución"),
+        	DR("DR", "Solicitud de Devolución"),
+        	PP("PP", "No pagado"),
+        	RC("RC", "Despacho rechazado"),
+        	CC("CC", "Cancelado por el cliente"),
+        	EC("EC", "Error de cliente"),
+        	PI("PI", "Primer despacho infructuoso"),
+        	DI("DI", "Despacho infructuoso"),
+        	CS("CS", "Cancelado por el seller");
+        	
+        	private String type;
+        	private String description;
+        	
+        	ControversyTypes(String type, String description) {
+        		this.type = type;
+        		this.description = description;
+        	}
+
+    		public String getType() {
+    			return type;
+    		}
+
+    		public String getDescription() {
+    			return description;
+    		}
+        }
+    }
+    
+    
 }

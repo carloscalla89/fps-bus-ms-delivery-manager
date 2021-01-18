@@ -1,35 +1,30 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderDetailCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
 import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
 import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
-
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
@@ -37,15 +32,12 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 
 
 @Slf4j
 @Component
 public class DeliveryManagerFacade {
-
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
@@ -54,8 +46,6 @@ public class DeliveryManagerFacade {
     private OrderCancellationService orderCancellationService;
     private ApplicationParameterService applicationParameterService;
     private final ApplicationContext context;
-
-    private RestTemplate restTemplate;
 
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  ObjectToMapper objectToMapper,
@@ -353,17 +343,23 @@ public class DeliveryManagerFacade {
                     );
 
                     if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
-                        log.info("[START] REQUEST-CANCEL-ORDER");
+                        log.info("[START] REQUEST-CANCEL-ORDER for orderId = {}", iOrderFulfillment.getEcommerceId());
 
-                        if (iOrderFulfillment != null && iOrderFulfillment.getSource().equals("SC")) {
-                            log.info(" REQUEST TO ADD CONTROVERSY FOR ECOMMERCEORDERID={}", iOrderFulfillment.getEcommerceId());
-
+                        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.Source.SC.name())) {
+                        	OrderExternalService sellerCenterService = (OrderExternalService) context.getBean(
+                                    Constant.SellerCenter.BEAN_SERVICE_NAME
+                            );
+                        	
+                        	log.info("[START] Add controversy because of order cancellation comming from seller center");
+                        	
                             ControversyRequestDto controversyRequestDto = new ControversyRequestDto();
-                            controversyRequestDto.setDate(format.format(new Date()));
-                            controversyRequestDto.setText("Controversia Test");
-                            controversyRequestDto.setType("CT");
-                            addControversies(controversyRequestDto, iOrderFulfillment.getEcommerceId());
-
+                            controversyRequestDto.setDate(DateUtils.getLocalDateTimeNowStr());
+                            controversyRequestDto.setText(Constant.SellerCenter.ControversyTypes.CT.getDescription());
+                            controversyRequestDto.setType(Constant.SellerCenter.ControversyTypes.CT.getType());
+                            
+                            sellerCenterService.addControversy(controversyRequestDto, iOrderFulfillment.getEcommerceId());
+                            
+                            log.info("[END] add controversy");
                         }
 
                         CancellationCodeReason codeReason;
@@ -642,14 +638,6 @@ public class DeliveryManagerFacade {
                     log.error("ERROR key {} not found");
                     return false;
                 });
-    }
-
-    private void addControversies(ControversyRequestDto controversyRequestDto, Long EcommerceId) {
-        restTemplate = new RestTemplate();
-        String personResultAsJsonStr =
-                restTemplate.postForObject("http://uS-Seller-Center/sellercenter/orders/" + EcommerceId + "/controversies",
-                        controversyRequestDto, String.class);
-        log.info("[END] RESPONSE ADD CONTROVERSY = {}", personResultAsJsonStr);
     }
 
 }
