@@ -354,7 +354,7 @@ public class DeliveryManagerFacade {
                         	
                             ControversyRequestDto controversyRequestDto = new ControversyRequestDto();
                             controversyRequestDto.setDate(DateUtils.getLocalDateTimeNowStr());
-                            controversyRequestDto.setText(Constant.SellerCenter.ControversyTypes.CT.getDescription());
+                            controversyRequestDto.setText(actionDto.getOrderCancelObservation() != null ? actionDto.getOrderCancelObservation() : "");
                             controversyRequestDto.setType(Constant.SellerCenter.ControversyTypes.CT.getType());
                             
                             sellerCenterService.addControversy(controversyRequestDto, iOrderFulfillment.getEcommerceId()).subscribe();
