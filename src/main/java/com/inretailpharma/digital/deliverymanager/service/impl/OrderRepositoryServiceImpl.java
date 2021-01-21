@@ -107,6 +107,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId) {
+        return orderRepository.getOrderLightByecommerceId(ecommerceId).stream().findFirst().orElse(null);
+    }
+
+    @Override
     public void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,
                                           Integer attempt, String orderStatusCode, String statusDetail) {
         serviceLocalOrderRepository.updateRetryingOrderStatusProcess(orderFulfillmentId, attemptTracker, attempt,
@@ -160,10 +165,6 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return clientRepository.save(client);
     }
 
-    @Override
-    public List<OrderStatus> getOrderStatusByTypeIs(String statusName) {
-        return orderStatusRepository.getOrderStatusByTypeIs(statusName);
-    }
 
 	@Override
 	public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {

@@ -17,4 +17,15 @@ public class GroupCanonical implements Serializable{
     private Long timeRemaining;
     private PickUpDetailsCanonical pickUpDetails;
     private OrderCanonical order;
+
+    @Override
+    public String toString() {
+        return "GroupCanonical{" +
+                "position=" + position +
+                ", orderId=" + orderId +
+                ", eta=" + eta +
+                ", timeRemaining=" + timeRemaining +
+                ", pickUpDetails=" + pickUpDetails +
+                '}';
+    }
 }
