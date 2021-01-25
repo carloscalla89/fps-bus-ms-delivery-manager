@@ -313,7 +313,8 @@ public class DeliveryManagerFacade {
                     );
 
                     return onlinePayment.getResultfromOnlinePaymentExternalServices(ecommercePurchaseId,
-                            iOrderFulfillment.getSource(), iOrderFulfillment.getCompanyCode(), actionDto)
+                            iOrderFulfillment.getSource(), iOrderFulfillment.getServiceTypeShortCode(),
+                            iOrderFulfillment.getCompanyCode(), actionDto)
                         .map(r -> {
                             log.info("[START] to update online payment order = {}", r);
 

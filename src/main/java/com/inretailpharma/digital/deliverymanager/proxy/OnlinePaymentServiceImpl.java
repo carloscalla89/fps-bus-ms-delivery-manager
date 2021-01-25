@@ -22,11 +22,13 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
 
     @Override
     public Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source,
-                                                                           String companyCode, ActionDto actionDto) {
+                                                                           String serviceTypeShortCode, String companyCode,
+                                                                           ActionDto actionDto) {
 
         OnlinePaymentOrder onlinePaymentOrder = new OnlinePaymentOrder();
         onlinePaymentOrder.setEcommerceExternalId(String.valueOf(ecommercePurchaseId));
         onlinePaymentOrder.setSource(source);
+        onlinePaymentOrder.setServiceTypeShortCode(serviceTypeShortCode);
 
         String onlinePaymentUri = null;
         switch (companyCode) {

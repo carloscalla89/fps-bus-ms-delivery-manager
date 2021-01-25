@@ -38,7 +38,9 @@ public interface OrderExternalService {
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
     Mono<String> updateOrderStatus(Long ecommerceId, String status);
     Mono<OrderCanonical> updateOrderStatus(Long ecommerceId, ActionDto actionDto);
-    Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source, String companyCode, ActionDto actionDto);
+    Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source,
+                                                                    String serviceTypeShortCode, String companyCode,
+                                                                    ActionDto actionDto);
     Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId);
     Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long ecommerceId);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto);
