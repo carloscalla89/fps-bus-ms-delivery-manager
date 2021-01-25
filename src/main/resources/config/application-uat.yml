@@ -97,7 +97,7 @@ external-service:
   online-payment:
     liquidated:
       uri: https://visauat.cindibyinkafarma.com/visa/confirmation
-      uri-mifa: https://visauat.cindibyinkafarma.com/visa/confirmation
+      uri-mifa: https://visamfuat.cindibyinkafarma.com/visa/confirmation
       connect-timeout: 10000
       read-timeout: 120000
     rejected:
