@@ -98,6 +98,11 @@ public class AbstractOrderService implements OrderExternalService {
 
 	@Override
 	public Mono<OrderCanonical> updateOrderStatus(Long ecommerceId,  ActionDto actionDto) {
+		return null;
+	}
+
+	public Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source,
+																		   String companyCode, ActionDto actionDto) {
 		throw new UnsupportedOperationException();
 	}
 

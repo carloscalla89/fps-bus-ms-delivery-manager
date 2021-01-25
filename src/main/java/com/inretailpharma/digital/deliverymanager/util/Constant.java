@@ -192,7 +192,6 @@ public interface Constant {
 
     interface OnlinePayment {
         String LIQUIDETED = "LIQUIDETED";
-        String REJECTED = "REJECTED";
     }
 
     enum ActionOrder {
@@ -227,8 +226,6 @@ public interface Constant {
         ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED"),
 
         LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago"),
-        REJECTED_ONLINE_PAYMENT(6, "Acción para informar el rechazo del pago"),
-
 
         FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden"),
 
@@ -477,7 +474,6 @@ public interface Constant {
         INVOICED("40", false),
 
         LIQUIDATED_ONLINE_PAYMENT("42", true),
-        REJECTED_ONLINE_PAYMENT("43", true),
         SUCCESS_RESULT_ONLINE_PAYMENT("44", false),
         ERROR_RESULT_ONLINE_PAYMENT("-1", false),
 

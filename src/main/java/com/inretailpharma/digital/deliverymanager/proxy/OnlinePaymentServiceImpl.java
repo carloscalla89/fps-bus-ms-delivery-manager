@@ -6,7 +6,6 @@ import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServ
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -22,19 +21,19 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
     }
 
     @Override
-    public Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, ActionDto actionDto) {
+    public Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source,
+                                                                           String companyCode, ActionDto actionDto) {
 
         OnlinePaymentOrder onlinePaymentOrder = new OnlinePaymentOrder();
         onlinePaymentOrder.setEcommerceExternalId(String.valueOf(ecommercePurchaseId));
+        onlinePaymentOrder.setSource(source);
 
-        String onlinePaymentUri = StringUtils.EMPTY;
-        switch (actionDto.getAction()) {
-            case Constant.ActionName.LIQUIDATED_ONLINE_PAYMENT:
+        String onlinePaymentUri = null;
+        switch (companyCode) {
+            case Constant.Constans.COMPANY_CODE_IFK:
                 onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();
-                break;
-            case Constant.ActionName.REJECTED_ONLINE_PAYMENT:
-                onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();
-                break;
+            case Constant.Constans.COMPANY_CODE_MF:
+                onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUriMifa();
             default:
         }
 

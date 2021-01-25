@@ -312,7 +312,8 @@ public class DeliveryManagerFacade {
                         Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
                     );
 
-                    resultCanonical = onlinePayment.getResultfromOnlinePaymentExternalServices(ecommercePurchaseId, actionDto)
+                    return onlinePayment.getResultfromOnlinePaymentExternalServices(ecommercePurchaseId,
+                            iOrderFulfillment.getSource(), iOrderFulfillment.getCompanyCode(), actionDto)
                         .map(r -> {
                             log.info("[START] to update online payment order = {}", r);
 
@@ -323,9 +324,6 @@ public class DeliveryManagerFacade {
                                 paymentRsp.setName(status.name());
                                 r.setOrderStatus(paymentRsp);
                                 String onlinePaymentStatus = Constant.OnlinePayment.LIQUIDETED;
-                                if(REJECTED_ONLINE_PAYMENT.name().equals(status.name())) {
-                                    onlinePaymentStatus = Constant.OnlinePayment.REJECTED;
-                                }
                                 log.info("[PROCESS] to update online payment order::{}, status::{}", iOrderFulfillment.getOrderId(), onlinePaymentStatus);
                                 orderTransaction.updateOrderOnlinePaymentStatusByExternalId(iOrderFulfillment.getOrderId(),onlinePaymentStatus);
                             }
