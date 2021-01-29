@@ -28,7 +28,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static String getLocalDateTimeWithFormat(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
     }
-
+    
     public static LocalTime getLocalTimeWithValidFormat(String localtime) {
 
         if (GenericValidator.isDate(localtime, TIME_TEMPLATE_HOUR_MINUTE, true)) {
@@ -102,4 +102,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return hour*60;
     }
 
+    public static String getLocalDateTimeNowStr() {
+    	return dateTimeFormat.format(new Date());
+    }
 }

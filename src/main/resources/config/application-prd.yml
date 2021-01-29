@@ -87,3 +87,12 @@ external-service:
       uri: http://us-fulfillment-center/fulfillment/store/
       connect-timeout: 15000
       read-timeout: 60000
+  seller-center:
+    get-controversies:
+      uri: http://uS-Seller-Center/sellercenter/orders/
+      connect-timeout: 10000
+      read-timeout: 120000
+    add-controversy:
+      uri: http://uS-Seller-Center/sellercenter/orders/
+      connect-timeout: 10000
+      read-timeout: 120000
