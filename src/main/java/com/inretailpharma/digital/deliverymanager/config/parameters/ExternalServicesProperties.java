@@ -164,4 +164,7 @@ public class ExternalServicesProperties {
     @Value("${external-service.fulfillment-center.get-company-center.uri}")
     private String fulfillmentCenterGetCompanyCenterUri;
 
+    // properties seller-center
+    @Value("${external-service.seller-center.add-controversy.uri}")
+    private String addControversyUri;
 }
