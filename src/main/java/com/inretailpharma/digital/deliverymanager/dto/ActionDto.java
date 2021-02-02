@@ -17,5 +17,6 @@ public class ActionDto {
     private String orderCancelClientReason;
     private String orderCancelAppType;
     private String orderCancelObservation;
+    private String source;
     private List<InvoicedOrderDto> invoicedOrderList;
 }

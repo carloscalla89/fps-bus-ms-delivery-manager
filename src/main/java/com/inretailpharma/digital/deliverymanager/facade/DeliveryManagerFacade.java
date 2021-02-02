@@ -162,12 +162,12 @@ public class DeliveryManagerFacade {
 
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
 
-        IOrderFulfillment iOrderFulfillment = orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
+        IOrderFulfillment iOrderFulfillmentLight = orderTransaction.getOrderLightByecommerceId(ecommercePurchaseId);
         Constant.ActionOrder action = Constant.ActionOrder.getByName(actionDto.getAction());
 
         if (action.name().equalsIgnoreCase(Constant.ActionOrder.FILL_ORDER.name())
-                || (Optional.ofNullable(iOrderFulfillment).isPresent()
-                && !Constant.OrderStatus.getFinalStatusByCode(iOrderFulfillment.getStatusCode())
+                || (Optional.ofNullable(iOrderFulfillmentLight).isPresent()
+                && !Constant.OrderStatus.getFinalStatusByCode(iOrderFulfillmentLight.getStatusCode())
         )
         ) {
 
@@ -176,27 +176,29 @@ public class DeliveryManagerFacade {
             switch (action.getCode()) {
                 case 1:
 
+                    IOrderFulfillment iOrderFulfillmentCase1 = orderTransaction.getOrderLightByecommerceId(ecommercePurchaseId);
+
                     OrderExternalService orderServiceTracker = (OrderExternalService) context.getBean(
-                            Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                            Constant.TrackerImplementation.getByCode(iOrderFulfillmentCase1.getServiceTypeCode()).getName()
                     );
 
                     if (Constant.ActionOrder.ATTEMPT_TRACKER_CREATE.name().equalsIgnoreCase(actionDto.getAction())) {
 
                         return centerCompanyService
-                                .getExternalInfo(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
+                                .getExternalInfo(iOrderFulfillmentCase1.getCompanyCode(), iOrderFulfillmentCase1.getCenterCode())
                                 .flatMap(storeCenterCanonical -> {
                                     // creando la orden a tracker
 
                                     return orderServiceTracker
                                             .sendOrderToTracker(
-                                                    iOrderFulfillment,
-                                                    orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
+                                                    iOrderFulfillmentCase1,
+                                                    orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillmentCase1.getOrderId()),
                                                     storeCenterCanonical,
-                                                    iOrderFulfillment.getExternalId(),
+                                                    iOrderFulfillmentCase1.getExternalId(),
                                                     null,
                                                     Constant.OrderStatus.CONFIRMED_TRACKER.name(), null, null)
                                             .flatMap(s -> {
-                                                OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
+                                                OrderCanonical orderCanonical = processTransaction(iOrderFulfillmentCase1, s);
                                                 return Mono.just(orderCanonical);
                                             });
                                 });
@@ -206,31 +208,35 @@ public class DeliveryManagerFacade {
 
                         actionDto
                                 .setExternalBillingId(
-                                        Optional.ofNullable(iOrderFulfillment.getExternalId())
+                                        Optional.ofNullable(iOrderFulfillmentCase1.getExternalId())
                                                 .map(String::valueOf)
                                                 .orElse(actionDto.getExternalBillingId())
                                 );
 
                         return orderServiceTracker
-                                .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
+                                .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillmentCase1.getCompanyCode())
                                 .flatMap(r -> {
-                                    OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, r);
+                                    OrderCanonical orderCanonical = processTransaction(iOrderFulfillmentCase1, r);
 
                                     return Mono.just(orderCanonical);
                                 });
                     }
+
+
                 case 2:
 
+                    IOrderFulfillment iOrderFulfillmentCase2 = orderTransaction.getOrderLightByecommerceId(ecommercePurchaseId);
+
                     OrderExternalService orderExternalServiceDispatcher = (OrderExternalService) context.getBean(
-                            Constant.DispatcherImplementation.getByCompanyCode(iOrderFulfillment.getCompanyCode()).getName()
+                            Constant.DispatcherImplementation.getByCompanyCode(iOrderFulfillmentCase2.getCompanyCode()).getName()
                     );
 
                     return centerCompanyService
-                            .getExternalInfo(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
+                            .getExternalInfo(iOrderFulfillmentCase2.getCompanyCode(), iOrderFulfillmentCase2.getCenterCode())
                             .flatMap(storeCenterCanonical -> orderExternalServiceDispatcher
                                     .sendOrderEcommerce(
-                                            iOrderFulfillment,
-                                            orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
+                                            iOrderFulfillmentCase2,
+                                            orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillmentCase2.getOrderId()),
                                             action.name(),
                                             storeCenterCanonical
                                     )
@@ -245,13 +251,13 @@ public class DeliveryManagerFacade {
                                                 ).isSuccess())) {
 
                                             OrderExternalService serviceTracker = (OrderExternalService) context.getBean(
-                                                    Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                                                    Constant.TrackerImplementation.getByCode(iOrderFulfillmentCase2.getServiceTypeCode()).getName()
                                             );
 
                                             return serviceTracker
                                                     .sendOrderToTracker(
-                                                            iOrderFulfillment,
-                                                            orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
+                                                            iOrderFulfillmentCase2,
+                                                            orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillmentCase2.getOrderId()),
                                                             storeCenterCanonical,
                                                             orderResp.getExternalId(),
                                                             Optional.ofNullable(orderResp.getOrderStatus())
@@ -269,24 +275,23 @@ public class DeliveryManagerFacade {
                                                                     .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
                                                                     .orElse(null)
                                                     )
-                                                    .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
+                                                    .flatMap(s -> Mono.just(processTransaction(iOrderFulfillmentCase2, s)));
 
                                         } else {
 
-                                            return Mono.just(processTransaction(iOrderFulfillment, orderResp));
+                                            return Mono.just(processTransaction(iOrderFulfillmentCase2, orderResp));
 
                                         }
 
                                     })
                             );
 
-
                 case 3:
                     // Update the status when the order was released from Dispatcher
                     log.info("Starting to update the released order when the order come from dispatcher:{}", ecommerceId);
 
-                    int attemptTracker = Optional.ofNullable(iOrderFulfillment.getAttemptTracker()).orElse(0);
-                    int attempt = Optional.ofNullable(iOrderFulfillment.getAttempt()).orElse(0) + 1;
+                    int attemptTracker = Optional.ofNullable(iOrderFulfillmentLight.getAttemptTracker()).orElse(0);
+                    int attempt = Optional.ofNullable(iOrderFulfillmentLight.getAttempt()).orElse(0) + 1;
 
                     OrderDto orderDto = new OrderDto();
                     orderDto.setExternalPurchaseId(Optional.ofNullable(actionDto.getExternalBillingId()).map(Long::parseLong).orElse(null));
@@ -300,7 +305,7 @@ public class DeliveryManagerFacade {
                     }
 
                     orderTransaction.updateReservedOrder(
-                            iOrderFulfillment.getOrderId(),
+                            iOrderFulfillmentLight.getOrderId(),
                             Optional.ofNullable(actionDto.getExternalBillingId()).map(Long::parseLong).orElse(null),
                             attempt,
                             orderStatusEntity.getCode(),
@@ -309,7 +314,7 @@ public class DeliveryManagerFacade {
 
                     OrderCanonical result = new OrderCanonical();
 
-                    result.setEcommerceId(iOrderFulfillment.getEcommerceId());
+                    result.setEcommerceId(iOrderFulfillmentLight.getEcommerceId());
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                     orderStatus.setCode(orderStatusEntity.getCode());
@@ -328,24 +333,25 @@ public class DeliveryManagerFacade {
 
                     result.setOrderDetail(orderDetail);
 
-                    result.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).map(Integer::longValue).orElse(null));
+                    result.setPurchaseId(Optional.ofNullable(iOrderFulfillmentLight.getPurchaseId()).map(Integer::longValue).orElse(null));
 
                     orderExternalServiceAudit.updateOrderReactive(result).subscribe();
 
                     return Mono.just(result);
 
+
                 case 4:
                     // call the service inkatracker-lite or inkatracker to update the order status (CANCEL, READY_FOR_PICKUP, DELIVERED)
-                    log.info("Service Type Code:{}", iOrderFulfillment.getServiceTypeCode());
+                    log.info("Service Type Code:{}", iOrderFulfillmentLight.getServiceTypeCode());
 
                     OrderExternalService orderExternalService2 = (OrderExternalService) context.getBean(
-                            Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
+                            Constant.TrackerImplementation.getByCode(iOrderFulfillmentLight.getServiceTypeCode()).getName()
                     );
 
                     if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
-                        log.info("[START] REQUEST-CANCEL-ORDER for orderId = {}", iOrderFulfillment.getEcommerceId());
+                        log.info("[START] REQUEST-CANCEL-ORDER for orderId = {}", iOrderFulfillmentLight.getEcommerceId());
 
-                        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.Source.SC.name())) {
+                        if (iOrderFulfillmentLight.getSource().equalsIgnoreCase(Constant.Source.SC.name())) {
                         	OrderExternalService sellerCenterService = (OrderExternalService) context.getBean(
                                     Constant.SellerCenter.BEAN_SERVICE_NAME
                             );
@@ -357,7 +363,7 @@ public class DeliveryManagerFacade {
                             controversyRequestDto.setText(actionDto.getOrderCancelObservation() != null ? actionDto.getOrderCancelObservation() : "");
                             controversyRequestDto.setType(Constant.SellerCenter.ControversyTypes.CT.getType());
                             
-                            sellerCenterService.addControversy(controversyRequestDto, iOrderFulfillment.getEcommerceId()).subscribe();
+                            sellerCenterService.addControversy(controversyRequestDto, iOrderFulfillmentLight.getEcommerceId()).subscribe();
                             
                             log.info("[END] add controversy");
                         }
@@ -379,28 +385,30 @@ public class DeliveryManagerFacade {
 
 
                         // Esta condición está para saber si una orden se manda a cancelar pero no está en el tracker porque de seguro falló al momento de registrarse
-                        if (Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
-                                || Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
+                        if (Constant.OrderStatus.getByCode(iOrderFulfillmentLight.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
+                                || Constant.OrderStatus.getByCode(iOrderFulfillmentLight.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
 
+
+                            IOrderFulfillment iOrderFulfillmentCase4 = orderTransaction.getOrderLightByecommerceId(ecommercePurchaseId);
 
                             return centerCompanyService
-                                    .getExternalInfo(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
+                                    .getExternalInfo(iOrderFulfillmentLight.getCompanyCode(), iOrderFulfillmentLight.getCenterCode())
                                     .flatMap(storeCenterCanonical -> {
                                         // creando la orden a tracker CON EL ESTADO CANCELLED
 
                                         return orderExternalService2
                                                 .sendOrderToTracker(
-                                                        iOrderFulfillment,
-                                                        orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()),
+                                                        iOrderFulfillmentCase4,
+                                                        orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillmentLight.getOrderId()),
                                                         storeCenterCanonical,
-                                                        iOrderFulfillment.getExternalId(),
+                                                        iOrderFulfillmentLight.getExternalId(),
                                                         null,
                                                         Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                         actionDto.getOrderCancelCode(),
                                                         actionDto.getOrderCancelObservation()
                                                 )
                                                 .flatMap(s -> {
-                                                    OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
+                                                    OrderCanonical orderCanonical = processTransaction(iOrderFulfillmentCase4, s);
                                                     return Mono.just(orderCanonical);
                                                 });
                                     })
@@ -410,13 +418,13 @@ public class DeliveryManagerFacade {
                                         orderTransaction.updateStatusCancelledOrder(
                                                 r.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
                                                 actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
-                                                r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
+                                                r.getOrderStatus().getCode(), iOrderFulfillmentCase4.getOrderId()
                                         );
 
                                         r.setEcommerceId(ecommercePurchaseId);
-                                        r.setExternalId(iOrderFulfillment.getExternalId());
-                                        r.setTrackerId(iOrderFulfillment.getTrackerId());
-                                        r.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).map(Integer::longValue).orElse(null));
+                                        r.setExternalId(iOrderFulfillmentCase4.getExternalId());
+                                        r.setTrackerId(iOrderFulfillmentCase4.getTrackerId());
+                                        r.setPurchaseId(Optional.ofNullable(iOrderFulfillmentCase4.getPurchaseId()).map(Integer::longValue).orElse(null));
                                         r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
 
                                         if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
@@ -431,10 +439,10 @@ public class DeliveryManagerFacade {
 
                     }
 
-                    actionDto.setExternalBillingId(Optional.ofNullable(iOrderFulfillment.getExternalId()).map(Object::toString).orElse(null));
+                    actionDto.setExternalBillingId(Optional.ofNullable(iOrderFulfillmentLight.getExternalId()).map(Object::toString).orElse(null));
 
                     return orderExternalService2
-                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillment.getCompanyCode())
+                            .getResultfromExternalServices(ecommercePurchaseId, actionDto, iOrderFulfillmentLight.getCompanyCode())
                             .map(r -> {
 
                                 log.info("[START] to update order");
@@ -444,12 +452,12 @@ public class DeliveryManagerFacade {
                                     orderTransaction.updateStatusCancelledOrder(
                                             r.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
                                             actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
-                                            r.getOrderStatus().getCode(), iOrderFulfillment.getOrderId()
+                                            r.getOrderStatus().getCode(), iOrderFulfillmentLight.getOrderId()
                                     );
                                 } else {
 
                                     if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
-                                        orderTransaction.updateStatusOrder(iOrderFulfillment.getOrderId(), r.getOrderStatus().getCode(),
+                                        orderTransaction.updateStatusOrder(iOrderFulfillmentLight.getOrderId(), r.getOrderStatus().getCode(),
                                                 r.getOrderStatus().getDetail());
                                     }
 
@@ -459,9 +467,9 @@ public class DeliveryManagerFacade {
                                 log.info("[END] to update order");
 
                                 r.setEcommerceId(ecommercePurchaseId);
-                                r.setExternalId(iOrderFulfillment.getExternalId());
-                                r.setTrackerId(iOrderFulfillment.getTrackerId());
-                                r.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).map(Integer::longValue).orElse(null));
+                                r.setExternalId(iOrderFulfillmentLight.getExternalId());
+                                r.setTrackerId(iOrderFulfillmentLight.getTrackerId());
+                                r.setPurchaseId(Optional.ofNullable(iOrderFulfillmentLight.getPurchaseId()).map(Integer::longValue).orElse(null));
                                 r.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
 
                                 if (!r.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
@@ -504,7 +512,7 @@ public class DeliveryManagerFacade {
         } else {
 
             return Optional
-                    .ofNullable(iOrderFulfillment)
+                    .ofNullable(iOrderFulfillmentLight)
                     .map(s -> {
 
                         OrderStatusCanonical os = new OrderStatusCanonical();
