@@ -9,7 +9,6 @@ pipeline {
                     sh "mvn clean install -Dmaven.test.skip=true"
                 }
             }
-           
             stage ('Create docker image') {
                 steps {
                     sh '$(aws ecr get-login --no-include-email --region us-west-2)'
