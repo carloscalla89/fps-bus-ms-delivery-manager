@@ -72,10 +72,17 @@ public class OrderDto {
      */
     private String stockType;
 
-    //3 precios
+    /**
+     * Fecha: 15/04/2021
+     * autor: Equipo Growth
+     * Campos referentes a 3 precios
+     */
     private BigDecimal subTotalWithNoSpecificPaymentMethod;
     private BigDecimal totalWithNoSpecificPaymentMethod;
     private BigDecimal totalWithPaymentMethod;
     private String paymentMethodCardType;
+
+
+
 
 }
