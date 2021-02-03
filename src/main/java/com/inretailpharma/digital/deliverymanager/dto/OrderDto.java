@@ -62,4 +62,6 @@ public class OrderDto {
     private Long zoneIdBilling;
 
     private PersonToPickupDto personToPickup;
+
+    private String externalChannelId;
 }

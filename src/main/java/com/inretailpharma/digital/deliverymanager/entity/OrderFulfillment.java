@@ -37,6 +37,9 @@ public class OrderFulfillment extends OrderEntity<Long> {
     @Column(name="external_purchase_id")
     private Long externalPurchaseId;
 
+    @Column(name="external_channel_id")
+    private String externalChannelId;
+
     @Column(name="purchase_number")
     private Integer purchaseNumber;
 

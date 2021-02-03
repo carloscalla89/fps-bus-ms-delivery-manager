@@ -79,6 +79,7 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setCancelDate(
                 Optional.ofNullable(iOrderFulfillment.getCancelledOrder()).map(c -> Timestamp.valueOf(c).getTime()).orElse(null)
         );
+        orderInkatrackerCanonical.setExternalChannelId(iOrderFulfillment.getExternalChannelId());
 
         orderInkatrackerCanonical.setMaxDeliveryTime(
                 Timestamp.valueOf(
@@ -546,6 +547,7 @@ public class ObjectToMapper {
         orderFulfillment.setTrackerId(orderDto.getTrackerId());
         orderFulfillment.setExternalPurchaseId(orderDto.getExternalPurchaseId());
         orderFulfillment.setPurchaseNumber(orderDto.getPurchaseNumber());
+        orderFulfillment.setExternalChannelId(orderDto.getExternalChannelId());
 
         // set Cost from order
         setCostsOrder(orderFulfillment, orderDto);

@@ -11,6 +11,7 @@ public interface IOrderFulfillment {
     Long getTrackerId();
     Long getExternalId();
     Integer getPurchaseId();
+    String getExternalChannelId();
 
 
     BigDecimal getTotalCost();
