@@ -78,7 +78,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
-                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId, statusName)
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
+                                    externalId, statusName, orderCancelCode, orderCancelObservation)
                             )
                             .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite:{}",s))
                             .defaultIfEmpty(
@@ -86,7 +87,9 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                             iOrderFulfillment.getOrderId(),
                                             iOrderFulfillment.getEcommerceId(),
                                             objectToMapper.getOrderStatusInkatracker(
-                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name(), "Result inkatracker-lite is empty")
+                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name(),
+                                                    "Result inkatracker-lite is empty",
+                                                    orderCancelCode, orderCancelObservation)
                                     )
                             )
                             .doOnError(e -> {
@@ -94,7 +97,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                 log.error("Error in inkatracker-lite:{}",e.getMessage());
                             })
                             .onErrorResume(e -> mapResponseErrorFromTracker(e, iOrderFulfillment.getOrderId(),
-                                    iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getStatusCode())
+                                    iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getStatusCode(),
+                                    orderCancelCode, orderCancelObservation)
                             );
 
                 }).doOnSuccess((f) ->  log.info("[END] Create Order To Tracker lite- orderCanonical:{}",f));
@@ -103,7 +107,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
 
     @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
+                                                              String serviceType) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
@@ -142,39 +147,9 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                     log.error("Error in inkatracker-lite when its sent to update:{}",e.getMessage());
                 })
                 .onErrorResume(e -> mapResponseErrorFromTracker(e, ecommerceId,
-                        ecommerceId, orderStatusInkatracker.getOrderStatusError().name())
-                ).flatMap(response -> {
-                    // Bloque para enviar al order-tracker
-                    /*
-
-                        Si es (RET no lo envío al order-tracker o si el action es PICK_ORDER)
-                            entonces no lo envío al order-tracker
-
-                        SINO
-                            Si el action es PREPARE y es DELIVERY
-                            entonces lo envío al Order-tracker
-
-                            Si el action es ASIGN_ORDER
-                            entonces no lo envío al order-tracker
-
-                            Si el action es ARRIVE_ORDER
-                            entonces no lo envío al order-tracker
-
-                            Si el action es ON_ROUTE_ORDER
-                            entonces no lo envío al order-tracker
-
-                            Si el action es DELIVER_ORDER, REJECTED o CANCELLED_ORDER y el origin es OMNI_DELIVERY
-                            entonces no lo envío al order-tracker
-
-                            Si el action es CANCEL_ORDER o DELIVER_ORDER y no tiene origin,
-                            entonces lo envío al order-tracker
-
-                            Si el action es CANCEL_ORDER y el origin es APP o WEB,
-                            entonces lo envío al order-tracker
-
-                     */
-
-                });
+                        ecommerceId, orderStatusInkatracker.getOrderStatusError().name(),
+                        actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation())
+                );
     }
     private String getApplicationParameter(String code) {
         return applicationParameterService

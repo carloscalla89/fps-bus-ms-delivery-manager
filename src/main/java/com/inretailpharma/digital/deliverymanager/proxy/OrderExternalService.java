@@ -21,9 +21,11 @@ public interface OrderExternalService {
 
     Mono<Void> sendOrderReactive(OrderCanonical orderCanonical);
     Mono<Void> updateOrderReactive(OrderCanonical orderCanonical);
-    Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company);
-    Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical);
-    Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto);
+    Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
+                                                       String serviceType);
+
+
+
     Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments,
                                             StoreCenterCanonical storeCenterCanonical, Long externalId, String statusDetail,
@@ -35,6 +37,9 @@ public interface OrderExternalService {
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
     Mono<String> updateOrderStatus(Long ecommerceId, String status);
+    Mono<OrderCanonical> updateOrderStatus(Long ecommerceId, ActionDto actionDto);
     Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId);
     Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long ecommerceId);
+    Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto);
+
 }

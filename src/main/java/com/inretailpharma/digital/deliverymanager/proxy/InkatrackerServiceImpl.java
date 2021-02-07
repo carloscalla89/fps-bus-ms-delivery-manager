@@ -34,6 +34,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
     private ExternalServicesProperties externalServicesProperties;
     private ObjectToMapper objectToMapper;
 
+
+
     public InkatrackerServiceImpl(ExternalServicesProperties externalServicesProperties,
                                   ObjectToMapper objectToMapper) {
 
@@ -42,7 +44,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
     }
 
     @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
+                                                              String serviceType) {
         log.info("[START]  connect inkatracker   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
@@ -102,7 +105,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                         log.error("Error in inkatracker when its sent to update:{}",e.getMessage());
                                     })
                                     .onErrorResume(e -> mapResponseErrorFromTracker(e, ecommerceId,
-                                            ecommerceId, orderStatusInkatracker.getOrderStatusError().name())
+                                            ecommerceId, orderStatusInkatracker.getOrderStatusError().name(),
+                                            actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation())
                                     );
 
     }
@@ -138,7 +142,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
-                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId, statusName)
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
+                                    externalId, statusName, orderCancelCode, orderCancelObservation)
                             )
                             .doOnSuccess(s -> log.info("Response is Success in inkatracker:{}",s))
                             .defaultIfEmpty(
@@ -146,7 +151,11 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                             iOrderFulfillment.getOrderId(),
                                             iOrderFulfillment.getEcommerceId(),
                                             objectToMapper.getOrderStatusInkatracker(
-                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name(), "Result inkatracker is empty")
+                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name(),
+                                                    "Result inkatracker is empty",
+                                                    orderCancelCode,
+                                                    orderCancelObservation
+                                            )
                                     )
                             )
                             .doOnError(e -> {
@@ -154,7 +163,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                 log.error("Error in inkatracker:{}",e.getMessage());
                             })
                             .onErrorResume(e -> mapResponseErrorFromTracker(e, iOrderFulfillment.getOrderId(),
-                                    iOrderFulfillment.getEcommerceId(), statusName)
+                                    iOrderFulfillment.getEcommerceId(), statusName, orderCancelCode, orderCancelObservation)
                             );
 
                 });

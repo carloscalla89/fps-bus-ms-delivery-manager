@@ -158,17 +158,6 @@ public class OrderTransaction {
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
 
         } else if (Optional
-                .ofNullable(orderDto.getOrderStatusDto().getCode())
-                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER.getCode())) {
-
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RELEASE_DISPATCHER_ORDER.getCode());
-        } else if(Optional
-                .ofNullable(orderDto.getOrderStatusDto().getCode())
-                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING.getCode())) {
-
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_UPDATE_TRACKER_BILLING.getCode());
-
-        } else if (Optional
                     .ofNullable(orderDto.getOrderStatusDto().getCode())
                     .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
                     && Optional

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -113,6 +114,46 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 
 
 	@Override
+	public Mono<OrderCanonical> updateOrderStatus(Long ecommerceId, ActionDto actionDto) {
+		log.info("[START] call to OrderTracker - updateOrderStatus - uri:{} - ecommerceId:{} - action:{}",
+				externalServicesProperties.getOrderTrackerUpdateOrderStatusUri(), ecommerceId, actionDto.getAction());
+
+		log.info("[START] connect order-tracker   - ecommerceId:{} - actionOrder:{}",
+				ecommerceId, actionDto.getAction());
+
+		Constant.OrderStatusTracker orderStatusInkatracker = Constant.OrderStatusTracker.getByActionName(actionDto.getAction());
+
+		log.info("url to create orderTracker:{}",externalServicesProperties.getOrderTrackerCreateOrderUri());
+
+		return WebClient
+				.builder()
+				.baseUrl(externalServicesProperties.getOrderTrackerUpdateOrderStatusUri())
+				.build()
+				.patch()
+				.uri(builder ->
+						builder
+								.path("/{ecommerceId}/status/{status}")
+								.build(ecommerceId, orderStatusInkatracker.getTrackerLiteStatus()))
+				.exchange()
+				.flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, ecommerceId, orderStatusInkatracker))
+				.doOnSuccess(s -> log.info("Response is Success in order-tracker:{}",s))
+				.defaultIfEmpty(
+						new OrderCanonical(
+								ecommerceId,
+								Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.getCode(),
+								Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name())
+				)
+				.doOnError(e -> {
+					e.printStackTrace();
+					log.error("Error in inkatracker-lite when its sent to update:{}",e.getMessage());
+				})
+				.onErrorResume(e -> mapResponseErrorFromTracker(e, ecommerceId,
+						ecommerceId, orderStatusInkatracker.getOrderStatusError().name(),
+						actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation())
+				);
+	}
+
+	@Override
 	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical) {
 		log.info("[START] call to OrderTracker - sendOrderToTracker - uri:{} - body:{}",
 				externalServicesProperties.getOrderTrackerCreateOrderUri(), orderCanonical);
@@ -135,5 +176,37 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 					return Mono.just(new OrderCanonical());
 				});
 	}
+	@Override
+	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto) {
 
+		log.info("[START] connect order-tracker   - ecommerceId:{} - actionOrder:{}",
+				orderCanonical.getEcommerceId(), actionDto.getAction());
+
+		Constant.OrderStatusTracker orderStatusInkatracker = Constant.OrderStatusTracker.getByActionName(actionDto.getAction());
+
+		log.info("url to create orderTracker:{}",externalServicesProperties.getOrderTrackerCreateOrderUri());
+
+
+		return WebClient
+				.create(externalServicesProperties.getOrderTrackerCreateOrderUri())
+				.post()
+				.bodyValue(orderCanonical)
+				.exchange()
+				.flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, orderCanonical.getEcommerceId(), orderStatusInkatracker))
+				.doOnSuccess(s -> log.info("Response is Success in inkatracker-lite Update:{}",s))
+				.defaultIfEmpty(
+						new OrderCanonical(
+								orderCanonical.getEcommerceId(),
+								Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.getCode(),
+								Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name())
+				)
+				.doOnError(e -> {
+					e.printStackTrace();
+					log.error("Error in inkatracker-lite when its sent to update:{}",e.getMessage());
+				})
+				.onErrorResume(e -> mapResponseErrorFromTracker(e, orderCanonical.getEcommerceId(),
+						orderCanonical.getEcommerceId(), orderStatusInkatracker.getOrderStatusError().name(),
+						actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation())
+				);
+	}
 }

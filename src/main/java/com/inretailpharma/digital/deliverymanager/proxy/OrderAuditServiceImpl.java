@@ -83,9 +83,4 @@ public class OrderAuditServiceImpl extends AbstractOrderService  implements Orde
 
     }
 
-    @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
-        return null;
-    }
-
 }

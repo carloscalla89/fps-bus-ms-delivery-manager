@@ -60,6 +60,7 @@ public interface IOrderFulfillment {
     String getServiceType();
     String getServiceEnabled();
     boolean getNewCodeServiceEnabled();
+    boolean getSendNewFlow();
 
     String getPaymentType();
     Integer getCardProviderId();

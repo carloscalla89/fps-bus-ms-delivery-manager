@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -7,7 +8,9 @@ import java.util.List;
 
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
+
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderCanonical {
 
     public OrderCanonical() {

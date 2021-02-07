@@ -299,7 +299,8 @@ public class ObjectToMapper {
         return serviceLocalOrder;
     }
 
-    public OrderStatusCanonical getOrderStatusInkatracker(String name, String errorDetail) {
+    public OrderStatusCanonical getOrderStatusInkatracker(String name, String errorDetail, String cancellationCode,
+                                                          String cancellationObservation) {
 
         Constant.OrderStatus status = Constant.OrderStatusTracker.getByName(name).getOrderStatus();
 
@@ -307,6 +308,8 @@ public class ObjectToMapper {
         orderStatus.setCode(status.getCode());
         orderStatus.setName(status.name());
         orderStatus.setDetail(errorDetail);
+        orderStatus.setCancellationCode(cancellationCode);
+        orderStatus.setCancellationObservation(cancellationObservation);
         orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
         return orderStatus;
