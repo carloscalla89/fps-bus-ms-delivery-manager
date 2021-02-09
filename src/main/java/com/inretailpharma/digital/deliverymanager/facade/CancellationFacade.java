@@ -98,8 +98,8 @@ public class CancellationFacade {
                             }).defaultIfEmpty(
                                     new OrderCanonical(
                                             r.getEcommerceId(),
-                                            Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.getCode(),
-                                            Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name()
+                                            Constant.OrderStatus.ERROR_CANCELLED.getCode(),
+                                            Constant.OrderStatus.ERROR_CANCELLED.name()
                                     )
                             )
                             .filter(s -> s.getOrderStatus() != null)

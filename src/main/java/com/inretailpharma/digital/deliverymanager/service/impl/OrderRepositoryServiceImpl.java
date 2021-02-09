@@ -112,6 +112,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommercesIds) {
+        return orderRepository.getOrderLightByecommercesIds(ecommercesIds);
+    }
+
+    @Override
     public void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,
                                           Integer attempt, String orderStatusCode, String statusDetail) {
         serviceLocalOrderRepository.updateRetryingOrderStatusProcess(orderFulfillmentId, attemptTracker, attempt,

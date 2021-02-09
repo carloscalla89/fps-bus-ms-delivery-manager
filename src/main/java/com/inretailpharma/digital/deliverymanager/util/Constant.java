@@ -264,27 +264,27 @@ public interface Constant {
         ON_STORE_ORDER("ON_STORE_ORDER", "ON_STORE", OrderStatus.CONFIRMED_TRACKER, OrderStatus.ERROR_INSERT_TRACKER,
                 ActionOrder.ON_STORE_ORDER.name()),
 
-        CANCELLED_ORDER("CANCELLED", "CANCELLED", OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_TO_CANCEL_ORDER,
+        CANCELLED_ORDER("CANCELLED", "CANCELLED", OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_CANCELLED,
                 ActionOrder.CANCEL_ORDER.name()),
 
         CANCELLED_ORDER_ONLINE_PAYMENT("CANCELLED", "CANCELLED", OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT,
-                OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.CANCEL_ORDER.name()),
+                OrderStatus.ERROR_CANCELLED, ActionOrder.CANCEL_ORDER.name()),
 
         CANCELLED_ORDER_NOT_ENOUGH_STOCK("CANCELLED", "CANCELLED", OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK,
-                OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.CANCEL_ORDER.name()),
+                OrderStatus.ERROR_CANCELLED, ActionOrder.CANCEL_ORDER.name()),
 
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("CANCELLED", "CANCELLED",
-                OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_TO_CANCEL_ORDER,
+                OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_CANCELLED,
                 ActionOrder.CANCEL_ORDER.name()),
 
-        REJECTED_ORDER("REJECTED", "REJECTED", OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_TO_CANCEL_ORDER,
+        REJECTED_ORDER("REJECTED", "REJECTED", OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_CANCELLED,
                 ActionOrder.CANCEL_ORDER.name()),
 
         REJECTED_ORDER_ONLINE_PAYMENT("REJECTED", "REJECTED", OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT,
-                OrderStatus.ERROR_TO_CANCEL_ORDER, ActionOrder.CANCEL_ORDER.name()),
+                OrderStatus.ERROR_CANCELLED, ActionOrder.CANCEL_ORDER.name()),
 
         REJECTED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("REJECTED", "REJECTED",
-                OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_TO_CANCEL_ORDER,
+                OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_CANCELLED,
                 ActionOrder.CANCEL_ORDER.name()),
 
         ERROR_INSERT_TRACKER("CONFIRMED", "CONFIRMED", OrderStatus.ERROR_INSERT_TRACKER,
@@ -302,7 +302,7 @@ public interface Constant {
         SUCCESS_RESERVED_ORDER("CONFIRMED", "CONFIRMED", OrderStatus.CONFIRMED_TRACKER,
                 OrderStatus.ERROR_INSERT_INKAVENTA, ActionOrder.NONE.name()),
 
-        DELIVERED_ORDER("DELIVERED", "DELIVERED", OrderStatus.DELIVERED_ORDER, OrderStatus.ERROR_DELIVER,
+        DELIVERED_ORDER("DELIVERED", "DELIVERED", OrderStatus.DELIVERED_ORDER, OrderStatus.ERROR_DELIVERED,
                 ActionOrder.DELIVER_ORDER.name()),
 
         NOT_FOUND_ACTION("NOT_FOUND_ACTION", "NOT_FOUND_ACTION", OrderStatus.NOT_FOUND_CODE, OrderStatus.NOT_FOUND_CODE,
@@ -327,8 +327,8 @@ public interface Constant {
         ASSIGNED_ORDER("ASSIGNED", "ASSIGNED", OrderStatus.ASSIGNED,
                            OrderStatus.ERROR_ASSIGNED, ActionOrder.ASSIGN_ORDER.name()),
 
-        ON_ROUTE_ORDER("ON_ROUTE", "ON_ROUTE", OrderStatus.ON_ROUTE_ORDER,
-                       OrderStatus.ERROR_ON_ROUTE, ActionOrder.ON_ROUTE_ORDER.name()),
+        ON_ROUTE_ORDER("ON_ROUTE", "ON_ROUTE", OrderStatus.ON_ROUTED_ORDER,
+                       OrderStatus.ERROR_ON_ROUTED, ActionOrder.ON_ROUTE_ORDER.name()),
 
         ARRIVED_ORDER("ARRIVED", "ARRIVED", OrderStatus.ARRIVED_ORDER,
                 OrderStatus.ERROR_ARRIVED, ActionOrder.ARRIVAL_ORDER.name());
@@ -414,17 +414,32 @@ public interface Constant {
 
         SUCCESS_FULFILLMENT_PROCESS("00", true),
 
-        // ==================================================================================================
+        // ========== ERRORES =================================================================
         ERROR_INSERT_TRACKER("01", false), ERROR_INSERT_INKAVENTA("02", false),
         ERROR_RESERVED_ORDER("03", false), ERROR_PICKED("04", false),
-        ERROR_PREPARED("04", false), ERROR_READY_FOR_PICKUP("05", false),
-        ERROR_ASSIGNED("07", false), ERROR_ON_ROUTE("06", false),
-        ERROR_ARRIVED("07", false),
+        ERROR_PREPARED("05", false), ERROR_READY_FOR_PICKUP("05", false),
+        ERROR_ASSIGNED("06", false), ERROR_ON_ROUTED("07", false),
+        ERROR_ARRIVED("08", false), ERROR_DELIVERED("09", false),
+        ERROR_CANCELLED("10", false),
+        // ==================================================================================================
 
-        ERROR_TO_CANCEL_ORDER("33", false), ERROR_DELIVER("34", false), CANCELLED_ORDER("11", true),
 
+        ORDER_FAILED("38", false), INVOICED("40", true), ERROR_INVOICED("41", false),
 
-        CANCELLED_ORDER_NOT_ENOUGH_STOCK("11", true), // se cancela una orden por que no hay stock
+        SUCCESS_RESERVED_ORDER("10", true),
+
+        CONFIRMED("15", true), CONFIRMED_TRACKER("16", true),
+
+        ASSIGNED("17", true),
+
+        PICKED_ORDER("18", true), PREPARED_ORDER("19", true),
+
+        ON_ROUTED_ORDER("20",true), ARRIVED_ORDER("21",true),
+
+        DELIVERED_ORDER("12", true), READY_PICKUP_ORDER("13", true),
+
+        // se cancela una orden por que no hay stock
+        CANCELLED_ORDER("11", true), CANCELLED_ORDER_NOT_ENOUGH_STOCK("11", true),
         CANCELLED_ORDER_ONLINE_PAYMENT("37", true),
 
         // se cancela una orden con pago en línea por falta de stock
@@ -436,21 +451,7 @@ public interface Constant {
         // se rechaza una orden con pago en línea por falta de stock
         REJECTED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("37", true),
 
-
-        ORDER_FAILED("38", false), INVOICED("40", true), ERROR_INVOICED("41", false),
-
-        SUCCESS_RESERVED_ORDER("10", true),
-
-        DELIVERED_ORDER("12", true), READY_PICKUP_ORDER("13", true),
-
-        CONFIRMED("15", true), CONFIRMED_TRACKER("16", true),
-
-        ASSIGNED("17", true),
-
-        PICKED_ORDER("18", true), PREPARED_ORDER("19", true),
-
-        ON_ROUTE_ORDER("20",true), ARRIVED_ORDER("21",true),
-        REJECTED("22",true),
+        // =======================================================================================================
 
         NOT_FOUND_CODE("-1", false), NOT_FOUND_ORDER("-1", false), NOT_FOUND_ACTION("-1", false),
         EMPTY_RESULT_CANCELLATION("-1", false), EMPTY_RESULT_DISPATCHER("-1", false),

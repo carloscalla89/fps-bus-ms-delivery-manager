@@ -5,6 +5,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTo
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,8 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.inretailpharma.digital.deliverymanager.facade.TrackerFacade;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/fulfillment/tracker")
@@ -88,6 +92,16 @@ public class TrackerRest {
                         .subscribeOn(Schedulers.parallel()),
                 HttpStatus.OK
         );
+
+    }
+
+    @PatchMapping("/orders/synchronize")
+    public Flux<OrderTrackerResponseCanonical> synchronizeOrderStatus(@RequestBody List<OrderSynchronizeDto> orders) {
+        log.info("[START] endpoint synchronizeOrderStatus /orders/synchronize {}",orders);
+
+        return trackerFacade
+                .synchronizeOrderStatus(orders)
+                .doOnComplete(() -> log.info("[END] endpoint synchronizeOrderStatus /orders/synchronize"));
 
     }
 

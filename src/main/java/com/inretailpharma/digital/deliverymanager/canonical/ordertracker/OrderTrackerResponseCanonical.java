@@ -9,6 +9,7 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderTrackerResponseCanonical implements Serializable {
 
+    private Long ecommerceId;
     private String statusCode;
     private String statusDescription;
     private String statusDetail;

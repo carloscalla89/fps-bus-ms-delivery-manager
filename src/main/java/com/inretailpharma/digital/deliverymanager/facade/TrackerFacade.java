@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
+import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -38,16 +41,18 @@ public class TrackerFacade {
 	private ObjectToMapper objectToMapper;
 	private OrderExternalService orderExternalOrderTracker;
 	private OrderExternalService orderExternalServiceAudit;
-
+	private OrderFacadeProxy orderFacadeProxy;
 
 	public TrackerFacade(OrderTransaction orderTransaction,
 						 ObjectToMapper objectToMapper,
 						 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
-						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit) {
+						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
+						 OrderFacadeProxy orderFacadeProxy) {
 		this.orderTransaction = orderTransaction;
 		this.objectToMapper = objectToMapper;
 		this.orderExternalOrderTracker = orderExternalOrderTracker;
 		this.orderExternalServiceAudit = orderExternalServiceAudit;
+		this.orderFacadeProxy = orderFacadeProxy;
 	}
 
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {   
@@ -205,6 +210,56 @@ public class TrackerFacade {
 					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
 					response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
 					return Mono.just(response);
+				});
+
+	}
+
+	public Flux<OrderTrackerResponseCanonical>  synchronizeOrderStatus(List<OrderSynchronizeDto> ordersList) {
+		log.info("[START] synchronizeOrderStatus list:{}",ordersList);
+
+		List<IOrderFulfillment> iOrdersFulfillment = orderTransaction
+														.getOrderLightByecommercesIds(
+																ordersList
+																		.stream()
+																		.map(OrderSynchronizeDto::getEcommerceId)
+																		.collect(Collectors.toSet())
+														);
+
+
+		return Flux
+				.fromIterable(iOrdersFulfillment)
+				.flatMap(order -> {
+					OrderSynchronizeDto orderSynchronizeDto = ordersList
+																.stream()
+																.filter(o -> o.getEcommerceId().equals(order.getEcommerceId()))
+																.findFirst()
+																.get();
+
+					ActionDto actionDto = new ActionDto();
+					actionDto.setAction(orderSynchronizeDto.getActionToOrder());
+
+					return orderFacadeProxy.sendToUpdateOrder(
+							order.getOrderId(),
+							order.getEcommerceId(),
+							order.getExternalId(),
+							actionDto,
+							order.getServiceType(),
+							order.getServiceTypeCode(),
+							order.getSource(),
+							order.getCompanyCode(),
+							order.getCenterCode(),
+							order.getStatusCode(),
+							order.getSendNewFlow()
+					);
+
+				}).flatMap(response -> {
+					OrderTrackerResponseCanonical orderTrackerResponseCanonical = new OrderTrackerResponseCanonical();
+					orderTrackerResponseCanonical.setEcommerceId(response.getEcommerceId());
+					orderTrackerResponseCanonical.setStatusCode(response.getOrderStatus().getCode());
+					orderTrackerResponseCanonical.setStatusDescription(response.getOrderStatus().getName());
+					orderTrackerResponseCanonical.setStatusDetail(response.getOrderStatus().getDetail());
+
+					return Flux.just(orderTrackerResponseCanonical);
 				});
 
 	}

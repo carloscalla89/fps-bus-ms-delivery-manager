@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.transactions;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -198,6 +199,10 @@ public class OrderTransaction {
 
     public IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId) {
         return orderRepositoryService.getOrderLightByecommerceId(ecommerceId);
+    }
+
+    public List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommerceId) {
+        return orderRepositoryService.getOrderLightByecommercesIds(ecommerceId);
     }
 
     public List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId) {

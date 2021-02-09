@@ -14,3 +14,36 @@ WHERE  code in
 'INKATRACKER_LITE_CALL_RAD','INKATRACKER_LITE_CALL_RET','INKATRACKER_LITE_EXP','INKATRACKER_LITE_PROG',
 'INKATRACKER_LITE_RAD','INKATRACKER_LITE_RET');
 
+
+UPDATE order_status
+set type = 'ERROR_PICKED'
+where code='04';
+
+UPDATE order_status
+set type = 'ERROR_PREPARED'
+where code='05';
+
+UPDATE order_status
+set type = 'ERROR_READY_FOR_PICKUP'
+where code='05';
+
+UPDATE order_status
+set type = 'ERROR_ASSIGNED'
+where code='06';
+
+UPDATE order_status
+set type = 'ERROR_ON_ROUTED'
+where code='07';
+
+UPDATE order_status
+set type = 'ERROR_ARRIVED'
+where code='08';
+
+UPDATE order_status
+set type = 'ERROR_DELIVERED'
+where code='09';
+
+UPDATE order_status
+set type = 'ERROR_CANCELLED'
+where code='10';
+

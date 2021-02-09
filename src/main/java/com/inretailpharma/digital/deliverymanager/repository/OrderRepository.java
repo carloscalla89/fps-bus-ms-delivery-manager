@@ -111,6 +111,20 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderFulfillment> getOrderLightByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
+            "o.external_purchase_id as externalId, o.tracker_id as trackerId, " +
+            "s.order_status_code as statusCode, os.type as statusName, s.status_detail as statusDetail," +
+            "pm.payment_type as paymentType, st.type as serviceType, st.code as serviceTypeCode, " +
+            "s.center_code as centerCode, s.company_code as companyCode, st.send_new_flow as sendNewFlow " +
+            "from order_fulfillment o " +
+            "inner join order_process_status s on o.id = s.order_fulfillment_id " +
+            "inner join order_status os on os.code = s.order_status_code " +
+            "inner join service_type st on st.code = s.service_type_code " +
+            "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
+            "where o.ecommerce_purchase_id in :ecommercesIds",
+            nativeQuery = true
+    )
+    List<IOrderFulfillment> getOrderLightByecommercesIds(@Param("ecommercesIds") Set<Long> ecommercesIds);
 
     @Query(value ="select oi.order_fulfillment_id as orderFulfillmentId,oi.product_code as productCode, oi.product_sap_code as productSapCode, " +
             "oi.name as nameProduct, oi.short_description as shortDescriptionProduct, oi.brand as brandProduct, oi.quantity, " +

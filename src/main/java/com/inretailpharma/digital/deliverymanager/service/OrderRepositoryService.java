@@ -29,6 +29,7 @@ public interface OrderRepositoryService {
     List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderFulfillmentId);
     IOrderFulfillment getOrderByecommerceId(Long ecommerceId);
     IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId);
+    List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommercesIds);
     void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,
                                    Integer attempt, String orderStatusCode, String statusDetail);
     void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,

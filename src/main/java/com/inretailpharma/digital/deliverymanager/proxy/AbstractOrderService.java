@@ -276,7 +276,7 @@ public class AbstractOrderService implements OrderExternalService {
 		if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
 				|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())) {
 
-			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name(),
+			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_CANCELLED.name(),
 					e.getMessage(), cancellationCode, cancellationObservation);
 
 		} else {
