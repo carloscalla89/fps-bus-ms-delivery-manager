@@ -17,68 +17,52 @@ import reactor.core.scheduler.Schedulers;
 public class OrderAuditServiceImpl extends AbstractOrderService  implements OrderExternalService {
 
     private final ExternalServicesProperties externalServicesProperties;
-    private ApplicationParameterService applicationParameterService;
 
-    public OrderAuditServiceImpl(ExternalServicesProperties externalServicesProperties,
-                                 ApplicationParameterService applicationParameterService) {
+    public OrderAuditServiceImpl(ExternalServicesProperties externalServicesProperties) {
         this.externalServicesProperties = externalServicesProperties;
-        this.applicationParameterService = applicationParameterService;
     }
 
 
     @Override
     public Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to createOrder - uri:{}",
-                externalServicesProperties.getUriApiService());
+        log.info("[START] service to call api audit to create - uri:{}, ecommerceId:{}, statusCode:{}, statusName:{}," +
+                        "statusDetail:{}", externalServicesProperties.getUriApiService(), orderAuditCanonical.getEcommerceId(),
+                orderAuditCanonical.getOrderStatus().getCode(), orderAuditCanonical.getOrderStatus().getName(),
+                orderAuditCanonical.getOrderStatus().getDetail());
 
-        return Mono
-                .justOrEmpty(
-                        applicationParameterService
-                                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT)
-                )
-                .filter(r -> {
-                    log.info("Parameter to call uS-Audit:{}",r.getValue());
+        return WebClient
+                .create(externalServicesProperties.getUriApiService())
+                .post()
+                .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                .retrieve()
+                .bodyToMono(String.class)
+                .retry(3)
+                .subscribeOn(Schedulers.parallel())
+                .doOnSuccess((r) -> log.info("[END] service to call api audit to createOrder:{}",r))
+                .then();
 
-                    return r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
-                }).map(r -> WebClient
-                                .create(externalServicesProperties.getUriApiService())
-                                .post()
-                                .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
-                                .retrieve()
-                                .bodyToMono(String.class)
-                                .retry(3)
-                                .subscribeOn(Schedulers.parallel())
-                                .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
-                ).then();
 
     }
 
 
     @Override
     public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to update - uri:{}",
-                externalServicesProperties.getUriApiService());
+        log.info("[START] service to call api audit to update - uri:{}, ecommerceId:{}, statusCode:{}, statusName:{}," +
+                  "statusDetail:{}", externalServicesProperties.getUriApiService(), orderAuditCanonical.getEcommerceId(),
+                orderAuditCanonical.getOrderStatus().getCode(), orderAuditCanonical.getOrderStatus().getName(),
+                orderAuditCanonical.getOrderStatus().getDetail());
 
-        return Mono
-                .justOrEmpty(
-                        applicationParameterService
-                                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT)
-                )
-                .filter(r -> {
-                    log.info("Parameter to call uS-Audit:{}",r.getValue());
+        return WebClient
+                .create(externalServicesProperties.getUriApiService())
+                .patch()
+                .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                .retrieve()
+                .bodyToMono(String.class)
+                .retry(3)
+                .subscribeOn(Schedulers.parallel())
+                .doOnSuccess((r) -> log.info("[END] service to call api audit to update:{}",r))
+                .then();
 
-                    return r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
-                })
-                .map(r -> WebClient
-                            .create(externalServicesProperties.getUriApiService())
-                            .patch()
-                            .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .retry(3)
-                            .subscribeOn(Schedulers.parallel())
-                            .subscribe(s -> log.info("[END] service to call api audit to update - s:{}",s))
-                ).then();
 
 
     }
