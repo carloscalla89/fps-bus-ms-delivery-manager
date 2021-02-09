@@ -7,6 +7,15 @@ CHANGE COLUMN `bin` `bin` VARCHAR(256) NULL;
 ALTER TABLE `service_type`
 ADD COLUMN `send_new_flow_enabled` tinyint(1) DEFAULT 0 AFTER `send_new_code_enabled`;
 
+ALTER TABLE `order_process_status`
+ADD COLUMN `date_created` DATETIME NULL DEFAULT NULL;
+
+ALTER TABLE `order_process_status`
+ADD COLUMN `date_last_updated` DATETIME NULL DEFAULT NULL;
+
+ALTER TABLE `order_process_status`
+ADD COLUMN `date_cancelled` DATETIME NULL DEFAULT NULL;
+
 UPDATE  service_type
 SET     send_new_flow_enabled = 1
 WHERE  code in

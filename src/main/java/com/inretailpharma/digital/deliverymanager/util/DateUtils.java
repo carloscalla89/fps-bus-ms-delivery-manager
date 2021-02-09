@@ -40,16 +40,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         }
     }
 
-    public static LocalTime getLocalTimeFromStringWithFormatHourandMinute(String localtime) {
-        return LocalTime.parse(localtime, DateTimeFormatter.ofPattern(TIME_TEMPLATE_HOUR_MINUTE));
-    }
 
     public static LocalDateTime getLocalDateTimeFromStringWithFormat(String localDateTime) {
         return LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
-    }
-
-    public static LocalDateTime getLocalDateTimeFromDateWithFormat(Date localDateTime) {
-        return LocalDateTime.parse(dateTimeFormat.format(localDateTime), DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
     }
 
     public static LocalDateTime getLocalDateTimeObjectNow() {
@@ -59,47 +52,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
                 DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
     }
 
-    public static LocalTime getLocalTimeFromStringWithFormat(String localtime) {
-        return LocalTime.parse(localtime, DateTimeFormatter.ofPattern(TIME_TEMPLATE));
-    }
-
-    public static LocalTime getLocalTimeFromDate(Date startHour) {
-        return LocalTime
-                .parse(
-                        dateFormat.format(startHour), DateTimeFormatter.ofPattern(TIME_TEMPLATE)
-                );
-    }
-
     public static String getLocalDateTimeNow() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
     }
 
-    public static LocalTime getLocalTimeNow() {
-        return LocalTime.parse(LocalTime.now().format(DateTimeFormatter.ofPattern(TIME_TEMPLATE)));
-    }
-
-    public static LocalDateTime getLocalDateTimeFormatNow() {
-        return LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE)));
-    }
-
-    public static LocalDate getLocalDateNow() {
-        return LocalDate.parse(LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_TEMPLATE)));
-    }
-
-    public static String getFormattedLocalDate(LocalDate localDate) {
-        Locale spanishLocale = new Locale("es", "ES");
-
-        return localDate.format(DateTimeFormatter.ofPattern(FORMATE_DATE_CUSTOM,spanishLocale));
-    }
-
-
 
     public static LocalDate getLocalDateFromStringDate(String localDate) {
         return LocalDate.parse(localDate, DateTimeFormatter.ofPattern(DATE_TEMPLATE));
-    }
-
-    public static Integer transformHourToMinutesFromHourLocalDate(Integer hour) {
-        return hour*60;
     }
 
     public static String getLocalDateTimeNowStr() {

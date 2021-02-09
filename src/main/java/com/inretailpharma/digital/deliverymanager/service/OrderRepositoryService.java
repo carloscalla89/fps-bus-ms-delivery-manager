@@ -5,6 +5,7 @@ import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -43,7 +44,8 @@ public interface OrderRepositoryService {
     void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
 
     void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                    String cancellationAppType, String orderStatusCode, Long orderFulfillmentId);
+                                    String cancellationAppType, String orderStatusCode, Long orderFulfillmentId,
+                                    LocalDateTime updateLast, LocalDateTime dateCancelled);
 
     Client saveClient(Client client);
 

@@ -160,9 +160,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 
     @Override
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId) {
+                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId,
+                                           LocalDateTime updateLast, LocalDateTime dateCancelled) {
+
         serviceLocalOrderRepository.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
-                cancellationAppType, orderStatusCode, orderFulfillmentId);
+                cancellationAppType, orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
     }
 
     @Override

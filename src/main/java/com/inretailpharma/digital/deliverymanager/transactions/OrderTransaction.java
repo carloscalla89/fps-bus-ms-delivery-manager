@@ -1,9 +1,11 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -84,7 +86,12 @@ public class OrderTransaction {
 
         serviceLocalOrder.setCancellationCode(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId());
         serviceLocalOrder.setCancellationObservation(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getReason());
-
+        serviceLocalOrder.setDateCreated(DateUtils.getLocalDateTimeObjectNow());
+        serviceLocalOrder.setDateCancelled(
+                Optional.ofNullable(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId())
+                        .map(res -> DateUtils.getLocalDateTimeObjectNow())
+                        .orElse(null)
+        );
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
         // Set the values of return of transaction as wrapped
@@ -273,13 +280,14 @@ public class OrderTransaction {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId) {
+                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId,
+                                           LocalDateTime updateLast, LocalDateTime dateCancelled) {
         log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
-                 "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}"
-                 ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId);
+                 "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}, updateLast:{}, dateCancelled:{}"
+                 ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
 
         orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
-                cancellationAppType, orderStatusCode, orderFulfillmentId);
+                cancellationAppType, orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
     }
 
     public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {

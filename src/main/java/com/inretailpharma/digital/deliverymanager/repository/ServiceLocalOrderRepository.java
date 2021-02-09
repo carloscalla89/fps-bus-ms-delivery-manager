@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalOrder, ServiceLocalOrderIdentity> {
 
     @Modifying
@@ -68,7 +70,8 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
     @Query(value = "Update order_process_status " +
             " set status_detail = :statusDetail, cancellation_observation = :cancellationObservation, " +
             " cancellation_code = :cancellationCode, cancellation_app_type = :cancellationAppType, " +
-            " order_status_code = :orderStatusCode" +
+            " order_status_code = :orderStatusCode, date_last_updated = :dateLastUpdated, " +
+            " date_cancelled = :dateCancelled " +
             " where order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true)
     void updateStatusCancelledOrder(@Param("statusDetail") String statusDetail,
@@ -76,7 +79,9 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
                                     @Param("cancellationCode") String cancellationCode,
                                     @Param("cancellationAppType") String cancellationAppType,
                                     @Param("orderStatusCode") String orderStatusCode,
-                                    @Param("orderFulfillmentId") Long orderFulfillmentId
+                                    @Param("orderFulfillmentId") Long orderFulfillmentId,
+                                    @Param("dateLastUpdated") LocalDateTime dateLastUpdated,
+                                    @Param("dateCancelled") LocalDateTime dateCancelled
 
     );
 

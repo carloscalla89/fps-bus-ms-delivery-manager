@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -78,6 +80,13 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         orderCancelCode,
                         orderCancelObservation,
                         null
+                ).flatMap(responses -> getOrderResponse(
+                                            responses,
+                                            externalId,
+                                            orderCancelCode,
+                                            orderCancelObservation,
+                                            null
+                                        )
                 );
 
     }
@@ -294,7 +303,11 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                 orderTransaction.updateStatusCancelledOrder(
                                         r.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
                                         actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
-                                        r.getOrderStatus().getCode(), iOrderFulfillmentCase4.getOrderId()
+                                        r.getOrderStatus().getCode(), iOrderFulfillmentCase4.getOrderId(),
+                                        DateUtils.getLocalDateTimeObjectNow(),
+                                        Optional.ofNullable(actionDto.getOrderCancelCode())
+                                                .map(oc -> DateUtils.getLocalDateTimeObjectNow()).orElse(null)
+
                                 );
 
                                 r.setEcommerceId(ecommerceId);
@@ -329,7 +342,10 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                             orderTransaction.updateStatusCancelledOrder(
                                     r.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
                                     actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
-                                    r.getOrderStatus().getCode(), orderId
+                                    r.getOrderStatus().getCode(), orderId,
+                                    DateUtils.getLocalDateTimeObjectNow(),
+                                    Optional.ofNullable(actionDto.getOrderCancelCode())
+                                            .map(oc -> DateUtils.getLocalDateTimeObjectNow()).orElse(null)
                             );
                         } else {
 
@@ -362,19 +378,21 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     private Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long externalId, String orderCancelCode,
                                                   String orderCancelObservation, String orderCancelAppType) {
 
+        LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
+
         orderTransaction.updateStatusCancelledOrder(
                 orderCanonical.getOrderStatus().getDetail(), orderCancelObservation,
                 orderCancelCode, orderCancelAppType,
-                orderCanonical.getOrderStatus().getCode(), orderCanonical.getId()
+                orderCanonical.getOrderStatus().getCode(), orderCanonical.getId(),
+                localDateTime, Optional.ofNullable(orderCancelCode).map(oc -> localDateTime).orElse(null)
         );
 
         orderCanonical.setExternalId(externalId);
-        orderCanonical.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeNow());
+        orderCanonical.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeWithFormat(localDateTime));
 
         if (!orderCanonical.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
             orderExternalServiceAudit.updateOrderReactive(orderCanonical).subscribe();
         }
-        log.info("[END] to update order");
 
         return Mono.just(orderCanonical);
 

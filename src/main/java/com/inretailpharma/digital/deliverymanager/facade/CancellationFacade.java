@@ -91,7 +91,8 @@ public class CancellationFacade {
                                 orderTransaction.updateStatusCancelledOrder(
                                         s.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
                                         actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
-                                        s.getOrderStatus().getCode(), r.getOrderId()
+                                        s.getOrderStatus().getCode(), r.getOrderId(),
+                                        DateUtils.getLocalDateTimeObjectNow(), DateUtils.getLocalDateTimeObjectNow()
                                 );
                                 log.info("[END] Processing the updating of cancelled order");
                                 return s;
