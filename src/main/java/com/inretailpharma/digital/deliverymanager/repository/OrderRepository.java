@@ -75,6 +75,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "s.pickup_phone as pickupPhone," +
             "st.code as serviceTypeCode, st.short_code as serviceTypeShortCode,  st.name as serviceTypeName, " +
             "st.enabled as serviceEnabled, st.send_new_code_enabled as newCodeServiceEnabled, st.type as serviceType, " +
+            "st.send_new_flow_enabled as sendNewFlow, " +
             "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
             "pm.change_amount as changeAmount, pm.card_provider_id as cardProviderId, pm.card_provider_code as cardProviderCode," +
             "pm.bin, pm.coupon, pm.payment_transaction_id as paymentTransactionId, " +
@@ -100,7 +101,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, " +
             "s.order_status_code as statusCode, os.type as statusName, s.status_detail as statusDetail," +
             "pm.payment_type as paymentType, st.type as serviceType, st.code as serviceTypeCode, " +
-            "s.center_code as centerCode, s.company_code as companyCode, st.send_new_flow as sendNewFlow " +
+            "s.center_code as centerCode, s.company_code as companyCode, st.send_new_flow_enabled as sendNewFlow " +
             "from order_fulfillment o " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
             "inner join order_status os on os.code = s.order_status_code " +
@@ -115,7 +116,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, " +
             "s.order_status_code as statusCode, os.type as statusName, s.status_detail as statusDetail," +
             "pm.payment_type as paymentType, st.type as serviceType, st.code as serviceTypeCode, " +
-            "s.center_code as centerCode, s.company_code as companyCode, st.send_new_flow as sendNewFlow " +
+            "s.center_code as centerCode, s.company_code as companyCode, st.send_new_flow_enabled as sendNewFlow " +
             "from order_fulfillment o " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
             "inner join order_status os on os.code = s.order_status_code " +
