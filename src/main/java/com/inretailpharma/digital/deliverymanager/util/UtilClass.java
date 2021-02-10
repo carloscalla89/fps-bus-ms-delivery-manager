@@ -83,7 +83,7 @@ public class UtilClass {
     public List<Class<?>> getClassesToSend() {
 
         if (serviceType.equalsIgnoreCase(Constant.Constans.PICKUP)) {
-            return Collections.singletonList(InkatrackerLiteServiceImpl.class);
+            return Collections.singletonList(TrackerAdapterImpl.class);
 
         } else {
 
