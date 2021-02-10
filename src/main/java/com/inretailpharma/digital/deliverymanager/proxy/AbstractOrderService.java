@@ -204,7 +204,8 @@ public class AbstractOrderService implements OrderExternalService {
 								cancellationObservation)));
 
 		} else {
-            log.error("Error in response from tracker, ecommerceId:{}, statusCode:{}",ecommerceId,clientResponse);
+            log.error("Error in response from tracker, ecommerceId:{}, statusCode:{}",
+					ecommerceId,clientResponse.statusCode());
 			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
 
 			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);

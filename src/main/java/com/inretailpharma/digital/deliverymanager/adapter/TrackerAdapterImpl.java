@@ -23,7 +23,7 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
                                                  Long externalId, String statusDetail, String statusName,
                                                  String orderCancelCode, String orderCancelObservation,
                                                  String orderCancelAppType) {
-
+        log.info("sendOrderTracker - ecommercePurchaseId:{}, ",ecommercePurchaseId);
         IOrderFulfillment iOrderFulfillmentCase4 = this.getOrderTransaction().getOrderByecommerceId(ecommercePurchaseId);
 
         return centerCompanyService

@@ -217,6 +217,7 @@ public interface Constant {
 
         // =========== nuevos actions que se enviarán desde el order-tracker
         ASSIGN_ORDER(4, "Acción para asignar órdenes"),
+        UNASSIGN_ORDER(4, "Acción para asignar órdenes"),
         ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE"),
         ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED"),
 
@@ -552,6 +553,7 @@ public interface Constant {
         Integer COLLECTION_PRESENTATION_ID = 3;
         String PICKUP = "PICKUP";
         String DELIVERY = "DELIVERY";
+        String PICK_ORDER = "PICK_ORDER";
         String PREPARE_ORDER = "PREPARE_ORDER";
         String ASSIGN_ORDER = "ASSIGN_ORDER";
         String ON_ROUTE_ORDER = "ON_ROUTE_ORDER";

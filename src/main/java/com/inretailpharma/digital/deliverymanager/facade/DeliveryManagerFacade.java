@@ -176,6 +176,7 @@ public class DeliveryManagerFacade {
 
                         return orderFacadeProxy
                                     .sendOrderToTracker(
+                                            iOrderFulfillmentLight.getOrderId(),
                                             ecommercePurchaseId,
                                             iOrderFulfillmentLight.getExternalId(),
                                             iOrderFulfillmentLight.getServiceTypeCode(),
@@ -240,6 +241,7 @@ public class DeliveryManagerFacade {
 
                                             return orderFacadeProxy
                                                             .sendOrderToTracker(
+                                                                    iOrderFulfillmentLight.getOrderId(),
                                                                     ecommercePurchaseId,
                                                                     orderResp.getExternalId(),
                                                                     iOrderFulfillmentLight.getServiceTypeCode(),
@@ -264,7 +266,16 @@ public class DeliveryManagerFacade {
                                                             );
 
                                         } else {
-                                            return Mono.just(orderFacadeProxy.processTransaction(iOrderFulfillmentCase2, orderResp));
+
+                                            return orderFacadeProxy
+                                                    .getOrderResponse(
+                                                            orderResp,
+                                                            iOrderFulfillmentLight.getOrderId(),
+                                                            iOrderFulfillmentLight.getEcommerceId(),
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null);
 
                                         }
 

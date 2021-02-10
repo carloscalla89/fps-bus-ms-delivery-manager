@@ -32,11 +32,11 @@ external-service:
       read-timeout: 60000
   inkatracker-lite:
     create-order:
-      uri: http://localhost:8283/nvr/orders/create
+      uri: http://inkatrackerliteci02.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://localhost:8283/v2/unattended-orders
+      uri: http://inkatrackerliteci02.backend.cindibyinkafarma.com/v2/unattended-orders
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker:
@@ -63,19 +63,19 @@ external-service:
       read-timeout: 60000
   order-tracker:
     create-order:
-      uri: http://us-ordertracker/order
+      uri: http://ordertrackerci02.backend.cindibyinkafarma.com/order
       connect-timeout: 10000
       read-timeout: 120000
     assign-orders:
-      uri: http://us-ordertracker/orders/status/assigned
+      uri: http://ordertrackerci02.backend.cindibyinkafarma.com/orders/status/assigned
       connect-timeout: 10000
       read-timeout: 120000
     unassign-orders:
-      uri: http://us-ordertracker/orders/status/unassigned
+      uri: http://ordertrackerci02.backend.cindibyinkafarma.com/orders/status/unassigned
       connect-timeout: 10000
       read-timeout: 120000
     update-order-status:
-      uri: http://us-ordertracker/order
+      uri: http://ordertrackerci02.backend.cindibyinkafarma.com/order
       connect-timeout: 10000
       read-timeout: 120000
   fulfillment-center:

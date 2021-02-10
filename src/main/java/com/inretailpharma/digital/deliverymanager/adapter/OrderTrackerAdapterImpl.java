@@ -39,6 +39,8 @@ public class OrderTrackerAdapterImpl extends AdapterAbstract implements AdapterI
     private Mono<OrderCanonical> createOrder(Long id, Long ecommerceId, ActionDto actionDto,
                                              OrderExternalService orderExternalService) {
 
+        log.info("[START] createOrder to Order-tracker - ecommerceId:{}, actionDto:{},", ecommerceId, actionDto);
+
         IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(ecommerceId);
         OrderCanonical orderCanonical = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderDto);
 

@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 public interface OrderFacadeProxy {
 
-    Mono<OrderCanonical> sendOrderToTracker(Long ecommerceId, Long externalId, String serviceTypeCode,
+    Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String serviceTypeCode,
                                             String statusDetail, String statusName, String orderCancelCode,
                                             String orderCancelObservation);
 
@@ -16,5 +16,6 @@ public interface OrderFacadeProxy {
                                            String companyCode, String localCode, String statusCode,
                                            boolean sendToUpdateOrder);
 
-    OrderCanonical processTransaction(IOrderFulfillment iOrderFulfillment, OrderCanonical r);
+    Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
+                                          String orderCancelCode, String orderCancelObservation, String orderCancelAppType);
 }

@@ -140,8 +140,8 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 				.defaultIfEmpty(
 						new OrderCanonical(
 								ecommerceId,
-								Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.getCode(),
-								Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name())
+								Constant.OrderStatus.EMPTY_RESULT_ORDERTRACKER.getCode(),
+								Constant.OrderStatus.EMPTY_RESULT_ORDERTRACKER.name())
 				)
 				.doOnError(e -> {
 					e.printStackTrace();
@@ -192,13 +192,14 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 				.post()
 				.bodyValue(orderCanonical)
 				.exchange()
-				.flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, orderCanonical.getEcommerceId(), orderStatusInkatracker))
-				.doOnSuccess(s -> log.info("Response is Success in inkatracker-lite Update:{}",s))
+				.flatMap(clientResponse ->
+						mapResponseFromUpdateTracker(clientResponse, orderCanonical.getEcommerceId(), orderStatusInkatracker))
+				.doOnSuccess(s -> log.info("Response is Success in Order-Tracker create:{}",s))
 				.defaultIfEmpty(
 						new OrderCanonical(
 								orderCanonical.getEcommerceId(),
-								Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.getCode(),
-								Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name())
+								Constant.OrderStatus.EMPTY_RESULT_ORDERTRACKER.getCode(),
+								Constant.OrderStatus.EMPTY_RESULT_ORDERTRACKER.name())
 				)
 				.doOnError(e -> {
 					e.printStackTrace();

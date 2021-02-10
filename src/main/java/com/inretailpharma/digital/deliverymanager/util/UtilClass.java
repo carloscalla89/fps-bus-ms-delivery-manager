@@ -5,6 +5,7 @@ import com.inretailpharma.digital.deliverymanager.adapter.TrackerAdapterImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderTrackerServiceImpl;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Data
 @Slf4j
 public class UtilClass {
 
@@ -35,9 +37,9 @@ public class UtilClass {
 
     public Class<?> getClassImplementationToOrderExternalService(Class<?> classType) {
 
-        log.info("class implementation:{}", classType.getCanonicalName());
+        log.info("class implementation:{}", classType.getSimpleName());
 
-        if (classType.getCanonicalName().equalsIgnoreCase("TrackerAdapterImpl")) {
+        if (classType.getSimpleName().equalsIgnoreCase("TrackerAdapterImpl")) {
             return Constant.TrackerImplementation.getByCode(serviceTypeCode).getTrackerImplement();
         } else {
             return OrderTrackerServiceImpl.class;
@@ -96,6 +98,7 @@ public class UtilClass {
 
                     break;
 
+                case Constant.Constans.PICK_ORDER:
                 case Constant.Constans.ASSIGN_ORDER:
                 case Constant.Constans.ON_ROUTE_ORDER:
                 case Constant.Constans.ARRIVAL_ORDER:
