@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -235,31 +237,45 @@ public class TrackerFacade {
 																.findFirst()
 																.get();
 
-					ActionDto actionDto = new ActionDto();
-					actionDto.setAction(orderSynchronizeDto.getActionToOrder());
+					return Flux
+							.fromIterable(orderSynchronizeDto.getHistory())
+							.sort(Comparator. comparing(obj -> DateUtils.getLocalDateTimeFromStringWithFormat(obj.getActionDate())))
+							.flatMap(oh -> {
 
-					return orderFacadeProxy.sendToUpdateOrder(
-							order.getOrderId(),
-							order.getEcommerceId(),
-							order.getExternalId(),
-							actionDto,
-							order.getServiceType(),
-							order.getServiceTypeCode(),
-							order.getSource(),
-							order.getCompanyCode(),
-							order.getCenterCode(),
-							order.getStatusCode(),
-							order.getSendNewFlow()
-					);
+								ActionDto actionDto = new ActionDto();
+								actionDto.setAction(oh.getAction());
 
-				}).flatMap(response -> {
-					OrderTrackerResponseCanonical orderTrackerResponseCanonical = new OrderTrackerResponseCanonical();
-					orderTrackerResponseCanonical.setEcommerceId(response.getEcommerceId());
-					orderTrackerResponseCanonical.setStatusCode(response.getOrderStatus().getCode());
-					orderTrackerResponseCanonical.setStatusDescription(response.getOrderStatus().getName());
-					orderTrackerResponseCanonical.setStatusDetail(response.getOrderStatus().getDetail());
+								return orderFacadeProxy.sendToUpdateOrder(
+										order.getOrderId(),
+										order.getEcommerceId(),
+										order.getExternalId(),
+										actionDto,
+										order.getServiceType(),
+										order.getServiceTypeCode(),
+										order.getSource(),
+										order.getCompanyCode(),
+										order.getCenterCode(),
+										order.getStatusCode(),
+										order.getSendNewFlow()
+								);
 
-					return Flux.just(orderTrackerResponseCanonical);
+							})
+							.flatMap(response -> {
+								OrderTrackerResponseCanonical orderTrackerResponseCanonical = new OrderTrackerResponseCanonical();
+								orderTrackerResponseCanonical.setEcommerceId(response.getEcommerceId());
+								orderTrackerResponseCanonical.setStatusCode(response.getOrderStatus().getCode());
+								orderTrackerResponseCanonical.setStatusDescription(response.getOrderStatus().getName());
+								orderTrackerResponseCanonical.setStatusDetail(response.getOrderStatus().getDetail());
+
+								return Flux.just(orderTrackerResponseCanonical);
+							});
+
+
+
+
+
+
+
 				});
 
 	}

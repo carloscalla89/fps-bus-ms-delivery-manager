@@ -9,6 +9,7 @@ spring:
 external-service:
   audit:
     create-order: http://auditci02.backend.cindibyinkafarma.com/audit/order
+    update-order-history-audit: http://us-audit/audit/order/history
     time-out: 20000
   dispatcher:
     insink-tracker:

@@ -45,6 +45,10 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     @Autowired
     private AdapterInterface adapterTrackerInterface;
 
+    @Qualifier("auditadapter")
+    @Autowired
+    private AdapterInterface adapterAuditInterface;
+
     @Autowired
     private final ApplicationContext context;
 
@@ -55,7 +59,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     @Override
     public Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String serviceTypeCode,
                                                    String statusDetail, String statusName, String orderCancelCode,
-                                                   String orderCancelObservation) {
+                                                   String orderCancelObservation,boolean sendNewAudit) {
 
         UtilClass utilClass = new UtilClass(serviceTypeCode);
 
@@ -76,7 +80,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                             externalId,
                                             orderCancelCode,
                                             orderCancelObservation,
-                                            null
+                                            null,
+                                            sendNewAudit
                                         )
                 );
 
@@ -86,10 +91,10 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     public Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
                                                   String serviceType, String serviceTypeCode, String source,
                                                   String companyCode, String localCode, String statusCode,
-                                                  boolean sendToUpdateOrder) {
+                                                  boolean sendNewAudit) {
 
         log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendToUpdateOrder:{}, serviceType:{}, " +
-                 "serviceTypeCode:{}", orderId, ecommerceId, actionDto, sendToUpdateOrder, serviceType, serviceTypeCode);
+                 "serviceTypeCode:{}", orderId, ecommerceId, actionDto, sendNewAudit, serviceType, serviceTypeCode);
 
         CancellationCodeReason codeReason;
 
@@ -149,7 +154,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                 externalId,
                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                 actionDto.getOrderCancelObservation(),
-                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null)
+                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
+                                                sendNewAudit
                                             )
                         );
 
@@ -178,7 +184,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                     externalId,
                                                     Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                     actionDto.getOrderCancelObservation(),
-                                                    Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null)
+                                                    Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
+                                                    sendNewAudit
                                                 )
                         )
                         .buffer()
@@ -243,7 +250,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         externalId,
                         null,
                         null,
-                        null
+                        null,
+                        sendNewAudit
                         )
                 )
                 .buffer()
@@ -288,7 +296,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     @Override
     public Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                                   String orderCancelCode, String orderCancelObservation,
-                                                  String orderCancelAppType) {
+                                                  String orderCancelAppType, boolean sendNewAudit) {
 
         LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
 
@@ -305,7 +313,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         orderCanonical.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeWithFormat(localDateTime));
 
         if (!orderCanonical.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
-            orderExternalServiceAudit.updateOrderReactive(orderCanonical).subscribe();
+            adapterAuditInterface.updateExternalAudit(sendNewAudit, orderCanonical).subscribe();
         }
 
         return Mono.just(orderCanonical);

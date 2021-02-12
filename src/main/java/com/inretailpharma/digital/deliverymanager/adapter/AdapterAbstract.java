@@ -40,7 +40,10 @@ public class AdapterAbstract implements AdapterInterface{
         return null;
     }
 
-
+    @Override
+    public Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical) {
+        return null;
+    }
 
 
 }

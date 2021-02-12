@@ -183,7 +183,8 @@ public class DeliveryManagerFacade {
                                             null,
                                             Constant.OrderStatus.CONFIRMED_TRACKER.name(),
                                             null,
-                                            null
+                                            null,
+                                            iOrderFulfillmentLight.getSendNewFlow()
                                             );
 
                     } else {
@@ -261,7 +262,8 @@ public class DeliveryManagerFacade {
                                                                             .orElse(null),
                                                                     Optional.ofNullable(orderResp.getOrderStatus())
                                                                             .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
-                                                                            .orElse(null)
+                                                                            .orElse(null),
+                                                                    iOrderFulfillmentLight.getSendNewFlow()
 
                                                             );
 
@@ -275,7 +277,9 @@ public class DeliveryManagerFacade {
                                                             null,
                                                             null,
                                                             null,
-                                                            null);
+                                                            null,
+                                                            iOrderFulfillmentLight.getSendNewFlow()
+                                                    );
 
                                         }
 

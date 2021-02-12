@@ -9,13 +9,14 @@ public interface OrderFacadeProxy {
 
     Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String serviceTypeCode,
                                             String statusDetail, String statusName, String orderCancelCode,
-                                            String orderCancelObservation);
+                                            String orderCancelObservation, boolean sendNewAudit);
 
     Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
                                            String serviceType, String serviceTypeCode, String source,
                                            String companyCode, String localCode, String statusCode,
-                                           boolean sendToUpdateOrder);
+                                           boolean sendNewAudit);
 
     Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
-                                          String orderCancelCode, String orderCancelObservation, String orderCancelAppType);
+                                          String orderCancelCode, String orderCancelObservation, String orderCancelAppType,
+                                          boolean sendNewAudit);
 }

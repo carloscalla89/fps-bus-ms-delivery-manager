@@ -8,9 +8,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "external-service")
 public class ExternalServicesProperties {
 
-
     @Value("${external-service.audit.create-order}")
     private String uriApiService;
+
+    @Value("${external-service.audit.update-order-history-audit}")
+    private String uriUpdateHistoryAuditApiService;
 
     @Value("${external-service.audit.time-out}")
     private Integer timeout;
@@ -42,6 +44,8 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.dispatcher.tracker.read-timeout}")
     private String dispatcherTrackerReadTimeout;
+
+
 
     // ------------------------------------------------------
 

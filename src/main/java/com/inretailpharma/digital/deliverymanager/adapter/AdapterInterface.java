@@ -16,6 +16,8 @@ public interface AdapterInterface {
                                                        Long orderId, String orderCancelCode,
                                                        String orderCancelObservation, String orderCancelAppType);
 
+    Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
+
 
 
 }
