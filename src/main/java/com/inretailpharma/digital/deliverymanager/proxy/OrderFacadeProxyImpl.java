@@ -112,7 +112,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                 log.info("[START] Add controversy because of order cancellation comming from seller center");
 
                 ControversyRequestDto controversyRequestDto = new ControversyRequestDto();
-                controversyRequestDto.setDate(DateUtils.getLocalDateTimeNowStr());
+                controversyRequestDto.setDate(DateUtils.getLocalDateTimeNow());
                 controversyRequestDto.setText(actionDto.getOrderCancelObservation() != null ? actionDto.getOrderCancelObservation() : "");
                 controversyRequestDto.setType(Constant.SellerCenter.ControversyTypes.CT.getType());
 

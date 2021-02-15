@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
+import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -57,6 +58,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class ObjectToMapper {
+
+    public AuditHistoryDto getAuditHistoryDtoFromObject(OrderCanonical orderCanonical) {
+
+        AuditHistoryDto auditHistoryDto = new AuditHistoryDto();
+        auditHistoryDto.setEcommerceId(orderCanonical.getEcommerceId());
+        auditHistoryDto.setStatusCode(orderCanonical.getOrderStatus().getCode());
+        auditHistoryDto.setStatusName(orderCanonical.getOrderStatus().getName());
+        auditHistoryDto.setSource(orderCanonical.getSource());
+        auditHistoryDto.setTimeFromUi(DateUtils.getLocalDateTimeNow());
+
+        return auditHistoryDto;
+    }
 
     public OrderInkatrackerCanonical convertOrderToOrderInkatrackerCanonical(IOrderFulfillment iOrderFulfillment,
                                                                              List<IOrderItemFulfillment> itemFulfillments,
@@ -192,19 +205,6 @@ public class ObjectToMapper {
         return orderInkatrackerCanonical;
     }
 
-    public OrderFulfillment getMinimunObjectToInsert(OrderDto orderDto) {
-
-        OrderFulfillment orderFulfillment = new OrderFulfillment();
-        orderFulfillment.setEcommercePurchaseId(orderDto.getEcommercePurchaseId());
-
-        orderFulfillment.setClient(getClientFromOrderDto(orderDto));
-
-        setSchedulesAndDates(orderFulfillment, orderDto);
-        setCostsOrder(orderFulfillment, orderDto);
-
-        return orderFulfillment;
-
-    }
 
     private Client getClientFromOrderDto(OrderDto orderDto) {
         // object client

@@ -61,7 +61,4 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return LocalDate.parse(localDate, DateTimeFormatter.ofPattern(DATE_TEMPLATE));
     }
 
-    public static String getLocalDateTimeNowStr() {
-    	return dateTimeFormat.format(new Date());
-    }
 }

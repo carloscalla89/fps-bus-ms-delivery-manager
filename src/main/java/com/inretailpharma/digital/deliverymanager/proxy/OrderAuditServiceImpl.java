@@ -71,9 +71,21 @@ public class OrderAuditServiceImpl extends AbstractOrderService  implements Orde
                 externalServicesProperties.getUriUpdateHistoryAuditApiService(), auditHistoryDto);
 
         return WebClient
-                .create(externalServicesProperties.getUriUpdateHistoryAuditApiService())
+                .builder()
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getAuditConnectTimeout()),
+                                Long.parseLong(externalServicesProperties.getAuditReadTimeout())
+                        )
+                )
+                .baseUrl(externalServicesProperties.getUriUpdateHistoryAuditApiService())
+                .build()
                 .patch()
-                .body(Mono.just(auditHistoryDto), OrderCanonical.class)
+                .uri(builder ->
+                        builder
+                                .path("/{orderExternalId}")
+                                .build(auditHistoryDto.getEcommerceId()))
+                .body(Mono.just(auditHistoryDto), AuditHistoryDto.class)
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.bodyToMono(Void.class))
                 .retry(3)
