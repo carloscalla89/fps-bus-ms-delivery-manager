@@ -20,7 +20,6 @@ import java.util.List;
 
 public interface OrderExternalService {
 
-    Mono<Void> sendOrderReactive(OrderCanonical orderCanonical);
     Mono<Void> updateOrderReactive(OrderCanonical orderCanonical);
     Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
                                                        String serviceType);
@@ -43,5 +42,6 @@ public interface OrderExternalService {
     Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long ecommerceId);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto);
     Mono<Void> updateOrderNewAudit(AuditHistoryDto orderCanonical);
+    Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode);
 
 }

@@ -1,7 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.adapter;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +37,19 @@ public class AuditAdapterImpl extends AdapterAbstract implements AdapterInterfac
 
         return orderExternalServiceAudit.updateOrderReactive(orderAudit);
 
+    }
 
+    @Override
+    public Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAudit) {
+
+        if (sendNewAudit) {
+
+            orderExternalServiceAudit
+                    .updateOrderNewAudit(objectToMapper.getAuditHistoryDtoFromObject(orderAudit))
+                    .subscribe();
+
+        }
+
+        return orderExternalServiceAudit.updateOrderReactive(orderAudit);
     }
 }

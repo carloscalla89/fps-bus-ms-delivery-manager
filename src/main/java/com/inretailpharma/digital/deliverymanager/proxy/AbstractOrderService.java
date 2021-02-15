@@ -45,11 +45,6 @@ public class AbstractOrderService implements OrderExternalService {
 	private ObjectToMapper objectToMapper;
 
 	@Override
-	public Mono<Void> sendOrderReactive(OrderCanonical orderCanonical) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
 		throw new UnsupportedOperationException();
 	}
@@ -120,6 +115,11 @@ public class AbstractOrderService implements OrderExternalService {
 	@Override
 	public Mono<Void> updateOrderNewAudit(AuditHistoryDto orderCanonical) {
 		return null;
+	}
+
+	@Override
+	public Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode) {
+		throw new UnsupportedOperationException();
 	}
 
 	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, long readTimeOut) {

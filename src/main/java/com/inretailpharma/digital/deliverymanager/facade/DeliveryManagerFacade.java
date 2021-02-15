@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +22,6 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderRespon
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
-import com.inretailpharma.digital.deliverymanager.service.CenterCompanyService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
@@ -37,25 +36,19 @@ public class DeliveryManagerFacade {
 
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
-    private OrderExternalService orderExternalServiceAudit;
-    private CenterCompanyService centerCompanyService;
     private ApplicationParameterService applicationParameterService;
     private final ApplicationContext context;
-
     private OrderFacadeProxy orderFacadeProxy;
 
+    @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  ObjectToMapper objectToMapper,
-                                 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                                  ApplicationContext context,
-                                 CenterCompanyService centerCompanyService,
                                  ApplicationParameterService applicationParameterService,
                                  OrderFacadeProxy orderFacadeProxy) {
 
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
-        this.orderExternalServiceAudit = orderExternalServiceAudit;
-        this.centerCompanyService = centerCompanyService;
         this.applicationParameterService = applicationParameterService;
         this.context = context;
         this.orderFacadeProxy = orderFacadeProxy;
@@ -67,7 +60,7 @@ public class DeliveryManagerFacade {
         log.info("[START] createOrder facade:{}", orderDto);
 
         return Mono
-                .defer(() -> centerCompanyService.getExternalInfo(orderDto.getCompanyCode(), orderDto.getLocalCode()))
+                .defer(() -> orderFacadeProxy.getStoreByCompanyCodeAndLocalCode(orderDto.getCompanyCode(), orderDto.getLocalCode()))
                 .zipWith(Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)), (storeCenter, orderFulfillment) -> {
 
                     OrderWrapperResponse wrapperResponse = orderTransaction.createOrderTransaction(
@@ -79,9 +72,7 @@ public class DeliveryManagerFacade {
                     OrderCanonical orderCanonicalResponse = objectToMapper
                             .setsOrderWrapperResponseToOrderCanonical(wrapperResponse, orderDto);
 
-                    orderExternalServiceAudit
-                            .sendOrderReactive(orderCanonicalResponse)
-                            .subscribe();
+                    orderFacadeProxy.createExternalAudit(true,orderCanonicalResponse);
 
                     return orderCanonicalResponse;
                 })
@@ -125,9 +116,7 @@ public class DeliveryManagerFacade {
                                             s.getId(), Optional.ofNullable(s.getAttemptTracker()).orElse(0) + 1,
                                             s.getOrderStatus().getCode(), s.getOrderStatus().getDetail(), s.getTrackerId());
 
-                                    orderExternalServiceAudit
-                                            .updateOrderReactive(s)
-                                            .subscribe(rs -> log.info("result audit:{}", rs));
+                                    orderFacadeProxy.updateExternalAudit(true,s);
 
                                     return Mono.just(s);
                                 });
@@ -171,7 +160,6 @@ public class DeliveryManagerFacade {
             switch (action.getCode()) {
                 case 1:
 
-
                     if (Constant.ActionOrder.ATTEMPT_TRACKER_CREATE.name().equalsIgnoreCase(actionDto.getAction())) {
 
                         return orderFacadeProxy
@@ -184,6 +172,8 @@ public class DeliveryManagerFacade {
                                             Constant.OrderStatus.CONFIRMED_TRACKER.name(),
                                             null,
                                             null,
+                                            iOrderFulfillmentLight.getCompanyCode(),
+                                            iOrderFulfillmentLight.getCenterCode(),
                                             iOrderFulfillmentLight.getSendNewFlow()
                                             );
 
@@ -219,8 +209,10 @@ public class DeliveryManagerFacade {
                             Constant.DispatcherImplementation.getByCompanyCode(iOrderFulfillmentCase2.getCompanyCode()).getName()
                     );
 
-                    return centerCompanyService
-                            .getExternalInfo(iOrderFulfillmentCase2.getCompanyCode(), iOrderFulfillmentCase2.getCenterCode())
+                    return orderFacadeProxy
+                            .getStoreByCompanyCodeAndLocalCode(
+                                    iOrderFulfillmentCase2.getCompanyCode(), iOrderFulfillmentCase2.getCenterCode()
+                            )
                             .flatMap(storeCenterCanonical -> orderExternalServiceDispatcher
                                     .sendOrderEcommerce(
                                             iOrderFulfillmentCase2,
@@ -263,6 +255,8 @@ public class DeliveryManagerFacade {
                                                                     Optional.ofNullable(orderResp.getOrderStatus())
                                                                             .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
                                                                             .orElse(null),
+                                                                    iOrderFulfillmentLight.getCompanyCode(),
+                                                                    iOrderFulfillmentLight.getCenterCode(),
                                                                     iOrderFulfillmentLight.getSendNewFlow()
 
                                                             );
