@@ -562,8 +562,7 @@ public interface Constant {
         String CANCEL_ORDER = "CANCEL_ORDER";
         String REJECT_ORDER = "REJECT_ORDER";
         String ORIGIN_OMNI_DELIVERY = "OMNI_DELIVERY";
-        String ORIGIN_DIGITAL_APP = "APP";
-        String ORIGIN_DIGITAL_WEB = "WEB";
+        String ORIGIN_DIGITAL = "DIGITAL";
     }
 
     enum DeliveryManagerStatus {

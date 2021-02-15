@@ -115,8 +115,7 @@ public class UtilClass {
 
                         classList.add(TrackerAdapterImpl.class);
 
-                    } else if (Constant.Constans.ORIGIN_DIGITAL_APP.equalsIgnoreCase(origin)
-                                || Constant.Constans.ORIGIN_DIGITAL_WEB.equalsIgnoreCase(origin)) {
+                    } else if (Constant.Constans.ORIGIN_DIGITAL.equalsIgnoreCase(origin)) {
 
                         classList.add(OrderTrackerAdapterImpl.class);
 
