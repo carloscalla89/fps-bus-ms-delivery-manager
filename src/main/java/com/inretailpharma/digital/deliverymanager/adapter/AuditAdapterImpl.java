@@ -35,7 +35,7 @@ public class AuditAdapterImpl extends AdapterAbstract implements AdapterInterfac
 
         }
 
-        return orderExternalServiceAudit.updateOrderReactive(orderAudit);
+        return orderExternalServiceAudit.sendOrderReactive(orderAudit);
 
     }
 

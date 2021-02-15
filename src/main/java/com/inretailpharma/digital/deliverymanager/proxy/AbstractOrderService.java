@@ -55,7 +55,10 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
-
+	@Override
+	public Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical) {
+		return null;
+	}
 	@Override
 	public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
 												   List<IOrderItemFulfillment> itemFulfillments,
