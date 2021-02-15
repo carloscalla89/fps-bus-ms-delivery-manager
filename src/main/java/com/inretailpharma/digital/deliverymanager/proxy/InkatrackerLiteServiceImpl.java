@@ -132,6 +132,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                 .path("/{orderExternalId}")
                                 .queryParam("action",orderStatusInkatracker.getTrackerLiteStatus())
                                 .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
+                                .queryParam("origin",actionDto.getOrigin())
+                                .queryParam("observation",actionDto.getOrderCancelObservation())
                                 .build(ecommerceId))
                 .exchange()
                 .flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, ecommerceId, orderStatusInkatracker))
