@@ -98,8 +98,8 @@ public class DeliveryManagerFacade {
                                         Optional.ofNullable(order.getOrderStatus())
                                                 .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
                                                 .orElse(null),
-                                        order.getLocalCode(),
                                         order.getCompanyCode(),
+                                        order.getLocalCode(),
                                         true
                                 );
 

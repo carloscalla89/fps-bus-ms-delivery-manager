@@ -15,5 +15,6 @@ public class AuditHistoryDto {
     private BigDecimal longitude;
     private String statusCode;
     private String statusName;
+    private String statusDetail;
 
 }

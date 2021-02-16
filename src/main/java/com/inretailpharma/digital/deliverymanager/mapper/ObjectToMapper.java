@@ -66,6 +66,7 @@ public class ObjectToMapper {
         auditHistoryDto.setStatusCode(orderCanonical.getOrderStatus().getCode());
         auditHistoryDto.setStatusName(orderCanonical.getOrderStatus().getName());
         auditHistoryDto.setSource(orderCanonical.getSource());
+        auditHistoryDto.setStatusDetail(orderCanonical.getOrderStatus().getDetail());
         auditHistoryDto.setTimeFromUi(DateUtils.getLocalDateTimeNow());
 
         return auditHistoryDto;
