@@ -39,9 +39,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     private AdapterInterface adapterAuditInterface;
 
-
     private OrderExternalService externalStoreService;
-
 
     private final ApplicationContext context;
 

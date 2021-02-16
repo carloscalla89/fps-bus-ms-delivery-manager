@@ -52,34 +52,7 @@ public class UtilClass {
         return Constant.TrackerImplementation.getByCode(serviceTypeCode).getTrackerImplement();
 
     }
-    /*
 
-                        Si es (RET no lo envío al order-tracker o si el action es PICK_ORDER)
-                            entonces no lo envío al order-tracker
-
-                        SINO
-                            Si el action es PREPARE
-                            entonces lo envío al Order-tracker
-
-                            Si el action es ASSIGN_ORDER
-                            entonces no lo envío al order-tracker
-
-                            Si el action es ARRIVE_ORDER
-                            entonces no lo envío al order-tracker
-
-                            Si el action es ON_ROUTE_ORDER
-                            entonces no lo envío al order-tracker
-
-                            Si el action es DELIVER_ORDER, REJECTED o CANCELLED_ORDER y el origin es OMNI_DELIVERY
-                            entonces no lo envío al order-tracker
-
-                            Si el action es CANCEL_ORDER o DELIVER_ORDER y no tiene origin,
-                            entonces lo envío al order-tracker
-
-                            Si el action es CANCEL_ORDER y el origin es APP o WEB,
-                            entonces lo envío al order-tracker
-
-                     */
     public List<Class<?>> getClassesToSend() {
 
         if (serviceType.equalsIgnoreCase(Constant.Constans.PICKUP)) {

@@ -28,7 +28,7 @@ public class AuditAdapterImpl extends AdapterAbstract implements AdapterInterfac
     public Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAudit) {
 
         if (sendNewAudit) {
-
+            log.info("Send to create to new audit history");
             orderExternalServiceAudit
                     .updateOrderNewAudit(objectToMapper.getAuditHistoryDtoFromObject(orderAudit))
                     .subscribe();
@@ -43,7 +43,7 @@ public class AuditAdapterImpl extends AdapterAbstract implements AdapterInterfac
     public Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAudit) {
 
         if (sendNewAudit) {
-
+            log.info("Send to update to new audit history");
             orderExternalServiceAudit
                     .updateOrderNewAudit(objectToMapper.getAuditHistoryDtoFromObject(orderAudit))
                     .subscribe();

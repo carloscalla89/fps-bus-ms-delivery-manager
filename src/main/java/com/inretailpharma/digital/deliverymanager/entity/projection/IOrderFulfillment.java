@@ -59,7 +59,6 @@ public interface IOrderFulfillment {
     String getServiceTypeName();
     String getServiceType();
     String getServiceEnabled();
-    boolean getNewCodeServiceEnabled();
     boolean getSendNewFlow();
 
     String getPaymentType();

@@ -80,7 +80,7 @@ public class OrderAuditServiceImpl extends AbstractOrderService  implements Orde
                 )
                 .baseUrl(externalServicesProperties.getUriUpdateHistoryAuditApiService())
                 .build()
-                .patch()
+                .post()
                 .uri(builder ->
                         builder
                                 .path("/{orderExternalId}")

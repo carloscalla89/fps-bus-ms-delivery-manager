@@ -762,6 +762,8 @@ public class ObjectToMapper {
 
         OrderCanonical orderCanonical = new OrderCanonical();
 
+        orderCanonical.setId(orderWrapperResponse.getFulfillmentId());
+
         // set ecommerce(shoppingcart) id
         orderCanonical.setEcommerceId(orderDto.getEcommercePurchaseId());
 
