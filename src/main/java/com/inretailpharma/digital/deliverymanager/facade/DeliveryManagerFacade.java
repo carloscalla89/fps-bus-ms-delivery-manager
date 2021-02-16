@@ -119,6 +119,8 @@ public class DeliveryManagerFacade {
                             Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode()
                     );
 
+                    orderFacadeProxy.createExternalAudit(true,orderStatusCanonical);
+
                     return Mono.just(orderStatusCanonical);
                 })
                 .doOnSuccess(r -> log.info("[END] createOrder facade success"));
