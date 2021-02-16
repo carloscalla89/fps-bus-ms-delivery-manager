@@ -81,7 +81,7 @@ public class DeliveryManagerFacade {
                             order.getCompanyCode(), order.getOrderStatus());
 
                     if (order.getOrderDetail().isServiceEnabled()
-                            && Constant.OrderStatus.getByCode(order.getOrderStatus().getCode()).isSuccess()
+                            && Constant.OrderStatus.getByName(order.getOrderStatus().getName()).isSuccess()
                             && checkIfOrderIsRoutable(order)) {
 
                         OrderExternalService orderExternalServiceTracker = (OrderExternalService) context.getBean(

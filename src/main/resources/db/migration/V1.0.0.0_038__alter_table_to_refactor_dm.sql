@@ -56,3 +56,74 @@ UPDATE order_status
 set type = 'ERROR_CANCELLED'
 where code='10';
 
+UPDATE order_status
+set type = 'CANCELLED_ORDER'
+where code='11';
+
+UPDATE order_status
+set type = 'DELIVERED_ORDER'
+where code='12';
+
+UPDATE order_status
+set type = 'READY_PICKUP_ORDER'
+where code='13';
+
+UPDATE order_status
+set type = 'CONFIRMED'
+where code='15';
+
+UPDATE order_status
+set type = 'CONFIRMED_TRACKER'
+where code='16';
+
+UPDATE order_status
+set type = 'ASSIGNED'
+where code='17';
+
+UPDATE order_status
+set type = 'PICKED_ORDER'
+where code='18';
+
+UPDATE order_status
+set type = 'PREPARED_ORDER'
+where code='19';
+
+UPDATE order_status
+set type = 'ON_ROUTED_ORDER'
+where code='20';
+
+UPDATE order_status
+set type = 'ARRIVED_ORDER'
+where code='21';
+
+UPDATE order_status
+set type = 'CANCELLED_ORDER_NOT_ENOUGH_STOCK'
+where code='31';
+
+UPDATE order_status
+set type = 'CANCELLED_ORDER_ONLINE_PAYMENT'
+where code='32';
+
+UPDATE order_status
+set type = 'CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK'
+where code='33';
+
+UPDATE order_status
+set type = 'REJECTED_ORDER'
+where code='34';
+
+UPDATE order_status
+set type = 'REJECTED_ORDER_ONLINE_PAYMENT'
+where code='35';
+
+UPDATE order_status
+set type = 'ORDER_FAILED'
+where code='38';
+
+UPDATE order_status
+set type = 'INVOICED'
+where code='40';
+
+UPDATE order_status
+set type = 'ERROR_INVOICED'
+where code='41';

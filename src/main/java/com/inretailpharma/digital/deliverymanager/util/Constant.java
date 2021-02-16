@@ -425,7 +425,7 @@ public interface Constant {
         // ==================================================================================================
 
 
-        ORDER_FAILED("38", false), INVOICED("40", true), ERROR_INVOICED("41", false),
+        INVOICED("40", true), ERROR_INVOICED("41", false),
 
         SUCCESS_RESERVED_ORDER("10", true),
 
@@ -440,17 +440,14 @@ public interface Constant {
         DELIVERED_ORDER("12", true), READY_PICKUP_ORDER("13", true),
 
         // se cancela una orden por que no hay stock
-        CANCELLED_ORDER("11", true), CANCELLED_ORDER_NOT_ENOUGH_STOCK("11", true),
-        CANCELLED_ORDER_ONLINE_PAYMENT("37", true),
+        CANCELLED_ORDER("11", true), CANCELLED_ORDER_NOT_ENOUGH_STOCK("31", true),
+        CANCELLED_ORDER_ONLINE_PAYMENT("32", true),
 
         // se cancela una orden con pago en línea por falta de stock
-        CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("37", true),
+        CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("33", true),
 
-        REJECTED_ORDER("11", true), // se cancela orden desde el pos unificado y/o otro cliente
-        REJECTED_ORDER_ONLINE_PAYMENT("37", true),
-
-        // se rechaza una orden con pago en línea por falta de stock
-        REJECTED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("37", true),
+        REJECTED_ORDER("34", true), // se cancela orden desde el pos unificado y/o otro cliente
+        REJECTED_ORDER_ONLINE_PAYMENT("35", true),  ORDER_FAILED("38", false),
 
         // =======================================================================================================
 
