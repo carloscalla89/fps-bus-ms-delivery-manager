@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.onlinepayment.OnlinePaymentOrder;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
@@ -41,14 +42,23 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
         log.info("ecommercePurchaseId::{}, url:{}", ecommercePurchaseId, onlinePaymentUri);
 
         return WebClient
-                .create(onlinePaymentUri)
+                .builder()
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getOnlinePaymentLiquidatedConnectTimeOut()),
+                                Long.parseLong(externalServicesProperties.getOnlinePaymentLiquidatedReadTimeOut())
+                        )
+                )
+                .baseUrl(onlinePaymentUri)
+                .build()
                 .post()
-                .bodyValue(onlinePaymentOrder)
+                .body(Mono.just(onlinePaymentOrder), OnlinePaymentOrder.class)
                 .retrieve()
                 .bodyToMono(OrderCanonical.class)
                 .doOnSuccess(r -> log.info("[SUCCESS] call to online Payment - response"))
                 .onErrorResume(e -> {
-                    log.info("[ERROR] call to online Payment - response {}", e);
+                    e.printStackTrace();
+                    log.info("[ERROR] call to online Payment - response {}", e.getMessage());
                     return Mono.just(new OrderCanonical(
                             ecommercePurchaseId,
                             Constant.OrderStatus.ERROR_RESULT_ONLINE_PAYMENT.getCode(),
@@ -59,5 +69,6 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
                                 Constant.OrderStatus.SUCCESS_RESULT_ONLINE_PAYMENT.getCode(),
                                 Constant.OrderStatus.SUCCESS_RESULT_ONLINE_PAYMENT.name())
                 );
+
     }
 }

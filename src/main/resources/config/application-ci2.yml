@@ -39,12 +39,12 @@ external-service:
       read-timeout: 60000
     update-order:
       uri: http://us-inkatrackerlite/v2/unattended-orders
-      connect-timeout: 240
-      read-timeout: 360
+      connect-timeout: 30000
+      read-timeout: 60000
     update-onlinepayment-status-order:
       uri: http://us-inkatrackerlite/nvr/onlinepayment/orders
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
   inkatracker:
     create-order:
       uri: http://us-inkatracker/nvr/orders/create
@@ -56,12 +56,12 @@ external-service:
       read-timeout: 60000
     update-status-order:
       uri: http://us-inkatracker/nvr/orders
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
     update-onlinepayment-status-order:
       uri: http://us-inkatracker/nvr/onlinepayment/orders
-      connect-timeout: 240000
-      read-timeout: 480
+      connect-timeout: 30000
+      read-timeout: 60000
   order-tracker:
     create-order:
       uri: http://us-ordertracker/order

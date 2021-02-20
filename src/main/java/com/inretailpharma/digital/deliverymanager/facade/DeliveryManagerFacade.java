@@ -308,31 +308,14 @@ public class DeliveryManagerFacade {
 
                 case 6:
 
-                    OrderExternalService orderExternalService1 = (OrderExternalService)context.getBean(
-                        Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getName()
-                    );
-
-                    return onlinePayment.getResultfromOnlinePaymentExternalServices(ecommercePurchaseId,
-                            iOrderFulfillment.getSource(), iOrderFulfillment.getServiceTypeShortCode(),
-                            iOrderFulfillment.getCompanyCode(), actionDto)
-                        .map(r -> {
-                            log.info("[START] to update online payment order = {}", r);
-
-                            if(SUCCESS_RESULT_ONLINE_PAYMENT.getCode().equals(r.getOrderStatus().getCode())) {
-                                Constant.OrderStatus status = Constant.OrderStatus.getByName(action.name());
-                                OrderStatusCanonical paymentRsp = new OrderStatusCanonical();
-                                paymentRsp.setCode(status.getCode());
-                                paymentRsp.setName(status.name());
-                                r.setOrderStatus(paymentRsp);
-                                String onlinePaymentStatus = Constant.OnlinePayment.LIQUIDETED;
-                                log.info("[PROCESS] to update online payment order::{}, status::{}", iOrderFulfillment.getOrderId(), onlinePaymentStatus);
-                                orderTransaction.updateOrderOnlinePaymentStatusByExternalId(iOrderFulfillment.getOrderId(),onlinePaymentStatus);
-                            }
-                            log.info("[END] to update order");
-                            return r;
-                        });
-
-                    break;
+                    return orderFacadeProxy
+                                .getfromOnlinePaymentExternalServices(
+                                        iOrderFulfillmentLight.getOrderId(),
+                                        iOrderFulfillmentLight.getEcommerceId(),
+                                        iOrderFulfillmentLight.getSource(),
+                                        iOrderFulfillmentLight.getServiceTypeShortCode(),
+                                        iOrderFulfillmentLight.getCompanyCode(),
+                                        actionDto);
 
                 default:
                     OrderCanonical resultDefault = new OrderCanonical();

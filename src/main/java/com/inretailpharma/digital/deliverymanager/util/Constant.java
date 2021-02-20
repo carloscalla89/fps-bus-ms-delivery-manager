@@ -255,7 +255,6 @@ public interface Constant {
                     .findFirst().orElse(NONE);
         }
     }
-
     enum OrderStatusTracker {
 
         UPDATE_TRACKER_BILLING("UPDATE_TRACKER_BILLING", "UPDATE_TRACKER_BILLING", OrderStatus.CONFIRMED_TRACKER,
@@ -331,10 +330,10 @@ public interface Constant {
 
         // =============================== nuevos estados 02-02-21
         ASSIGNED_ORDER("ASSIGNED", "ASSIGNED", OrderStatus.ASSIGNED,
-                           OrderStatus.ERROR_ASSIGNED, ActionOrder.ASSIGN_ORDER.name()),
+                OrderStatus.ERROR_ASSIGNED, ActionOrder.ASSIGN_ORDER.name()),
 
         ON_ROUTE_ORDER("ON_ROUTE", "ON_ROUTE", OrderStatus.ON_ROUTED_ORDER,
-                       OrderStatus.ERROR_ON_ROUTED, ActionOrder.ON_ROUTE_ORDER.name()),
+                OrderStatus.ERROR_ON_ROUTED, ActionOrder.ON_ROUTE_ORDER.name()),
 
         ARRIVED_ORDER("ARRIVED", "ARRIVED", OrderStatus.ARRIVED_ORDER,
                 OrderStatus.ERROR_ARRIVED, ActionOrder.ARRIVAL_ORDER.name());
@@ -387,7 +386,7 @@ public interface Constant {
         }
 
         OrderStatusTracker(String trackerStatus, String trackerLiteStatus, OrderStatus orderStatus,
-                OrderStatus orderStatusError, String actionName) {
+                           OrderStatus orderStatusError, String actionName) {
             this.trackerStatus = trackerStatus;
             this.trackerLiteStatus = trackerLiteStatus;
             this.orderStatus = orderStatus;
@@ -454,39 +453,21 @@ public interface Constant {
         REJECTED_ORDER("34", true), // se cancela orden desde el pos unificado y/o otro cliente
         REJECTED_ORDER_ONLINE_PAYMENT("35", true),  ORDER_FAILED("38", false),
 
-        // =======================================================================================================
-
-        NOT_FOUND_CODE("-1", false), NOT_FOUND_ORDER("-1", false), NOT_FOUND_ACTION("-1", false),
-        EMPTY_RESULT_CANCELLATION("-1", false), EMPTY_RESULT_DISPATCHER("-1", false),
-
-        CANCELLED_ORDER("11",true),
-        DELIVERED_ORDER("12",  false),
-        READY_PICKUP_ORDER("13",  true),
-        RELEASED_ORDER("14", true),
-
-        CONFIRMED("15",  true),
-        ON_STORE("16",  true),
-        ASSIGNED("17",  true),
-        PREPARED("18",  true),
-        ON_ROUTE("19",  true),
-        ARRIVED("20",  true),
-        REJECTED("21",  true),
-        INVOICED("40", false),
-
+        // status cuando se llama al microservicio de visa - bbr
         LIQUIDATED_ONLINE_PAYMENT("42", true),
         SUCCESS_RESULT_ONLINE_PAYMENT("44", false),
         ERROR_RESULT_ONLINE_PAYMENT("-1", false),
 
-        NOT_FOUND_CODE("-1",  false),
-        NOT_FOUND_ORDER("-1",  false),
-        NOT_DEFINED_ERROR("-1",  false),
-        NOT_DEFINED_STATUS("-1",  false),
-        NOT_FOUND_ACTION("-1",  false),
-        EMPTY_RESULT_CANCELLATION("-1", false),
-        EMPTY_RESULT_DISPATCHER("-1",  false),
+
+        // =======================================================================================================
+
+        NOT_FOUND_CODE("-1", false), NOT_FOUND_ORDER("-1", false), NOT_FOUND_ACTION("-1", false),
+        EMPTY_RESULT_CANCELLATION("-1", false), EMPTY_RESULT_DISPATCHER("-1", false),
+        EMPTY_RESULT_INKATRACKER("-1", false),
 
         EMPTY_RESULT_INKATRACKERLITE("-1", false), END_STATUS_RESULT("-1", false),
         EMPTY_RESULT_ORDERTRACKER("-1", false);
+
 
         private String code;
         private boolean isSuccess;

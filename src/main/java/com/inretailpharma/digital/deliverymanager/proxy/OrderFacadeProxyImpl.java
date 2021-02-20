@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static com.inretailpharma.digital.deliverymanager.util.Constant.OrderStatus.SUCCESS_RESULT_ONLINE_PAYMENT;
+
 @Slf4j
 @Component("proxy")
 public class OrderFacadeProxyImpl implements OrderFacadeProxy{
@@ -41,6 +43,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     private OrderExternalService externalStoreService;
 
+    private OrderExternalService externalOnlinePaymentService;
+
     private final ApplicationContext context;
 
     @Autowired
@@ -48,6 +52,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                 @Qualifier("trackeradapter") AdapterInterface adapterTrackerInterface,
                                 @Qualifier("auditadapter") AdapterInterface adapterAuditInterface,
                                 @Qualifier("store") OrderExternalService externalStoreService,
+                                @Qualifier("onlinePayment") OrderExternalService externalOnlinePaymentService,
                                 ApplicationContext context) {
 
         this.orderCancellationService = orderCancellationService;
@@ -55,6 +60,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         this.adapterTrackerInterface = adapterTrackerInterface;
         this.adapterAuditInterface = adapterAuditInterface;
         this.externalStoreService = externalStoreService;
+        this.externalOnlinePaymentService = externalOnlinePaymentService;
         this.context = context;
     }
 
@@ -304,14 +310,34 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     }
 
     @Override
-    public void updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical) {
-
-        adapterAuditInterface.updateExternalAudit(sendNewAudit, orderAuditCanonical).subscribe();
+    public Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode) {
+        return externalStoreService.getStoreByCompanyCodeAndLocalCode(companyCode, localcode);
     }
 
     @Override
-    public Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode) {
-        return externalStoreService.getStoreByCompanyCodeAndLocalCode(companyCode, localcode);
+    public Mono<OrderCanonical> getfromOnlinePaymentExternalServices(Long orderId, Long ecommercePurchaseId, String source,
+                                                                     String serviceTypeShortCode, String companyCode,
+                                                                     ActionDto actionDto) {
+
+        return externalOnlinePaymentService
+                .getResultfromOnlinePaymentExternalServices(ecommercePurchaseId, source, serviceTypeShortCode, companyCode, actionDto)
+                .map(r -> {
+                    log.info("[START] to update online payment order = {}", r);
+
+                    if(SUCCESS_RESULT_ONLINE_PAYMENT.getCode().equals(r.getOrderStatus().getCode())) {
+                        Constant.OrderStatus status = Constant.OrderStatus.getByName(actionDto.getAction());
+                        OrderStatusCanonical paymentRsp = new OrderStatusCanonical();
+                        paymentRsp.setCode(status.getCode());
+                        paymentRsp.setName(status.name());
+                        r.setOrderStatus(paymentRsp);
+                        String onlinePaymentStatus = Constant.OnlinePayment.LIQUIDETED;
+                        log.info("[PROCESS] to update online payment order::{}, status::{}", orderId, onlinePaymentStatus);
+                        orderTransaction.updateOrderOnlinePaymentStatusByExternalId(orderId,onlinePaymentStatus);
+                    }
+                    log.info("[END] to update order");
+                    return r;
+                });
+
     }
 
     private Mono<OrderCanonical> getMapOrderCanonicalSwitchEmpty(Long ecommerceId, String action) {

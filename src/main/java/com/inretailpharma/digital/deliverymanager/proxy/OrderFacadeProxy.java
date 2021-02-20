@@ -24,7 +24,9 @@ public interface OrderFacadeProxy {
 
     void createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
 
-    void updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
-
     Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode);
+
+    Mono<OrderCanonical> getfromOnlinePaymentExternalServices(Long orderId, Long ecommercePurchaseId, String source,
+                                                              String serviceTypeShortCode, String companyCode,
+                                                              ActionDto actionDto);
 }
