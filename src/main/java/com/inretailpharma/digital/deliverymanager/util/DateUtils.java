@@ -20,6 +20,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_TEMPLATE);
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATETIME_TEMPLATE);
 
+    public static String getFormatDateTimeTemplate() {
+        return DATETIME_TEMPLATE;
+    }
 
     public static String getLocalTimeWithFormat(LocalTime localtime) {
         return localtime.format(DateTimeFormatter.ofPattern(TIME_TEMPLATE));

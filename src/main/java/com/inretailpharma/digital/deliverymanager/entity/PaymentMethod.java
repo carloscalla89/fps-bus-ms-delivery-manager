@@ -5,6 +5,7 @@ import org.apache.commons.lang3.EnumUtils;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Embeddable
@@ -47,6 +48,15 @@ public class PaymentMethod {
 
     @Column(table = "payment_method", name="payment_transaction_id")
     private String paymentTransactionId;
+
+    @Column(table = "payment_method", name="provider_card_commercial_code")
+    private String providerCardCommercialCode;
+
+    @Column(table = "payment_method", name="num_pan_visanet")
+    private String numPanVisanet;
+
+    @Column(table = "payment_method", name="transaction_date_visanet")
+    private LocalDateTime transactionDateVisanet;
 
     public enum PaymentType {
 

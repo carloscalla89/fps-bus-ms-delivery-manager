@@ -14,6 +14,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.GenericValidator;
 import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
@@ -625,6 +626,13 @@ public class ObjectToMapper {
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
         paymentMethod.setCoupon(orderDto.getPayment().getCoupon());
         paymentMethod.setPaymentTransactionId(orderDto.getPayment().getPaymentTransactionId());
+        paymentMethod.setProviderCardCommercialCode(orderDto.getPayment().getProviderCardCommercialCode());
+        paymentMethod.setNumPanVisanet(orderDto.getPayment().getNumPanVisaNet());
+
+        Optional.ofNullable(orderDto.getPayment().getTransactionDateVisaNet())
+                .filter(res -> GenericValidator.isDate(res, DateUtils.getFormatDateTimeTemplate(), true))
+                .ifPresent(res -> paymentMethod.setTransactionDateVisanet(DateUtils.getLocalDateTimeFromStringWithFormat(res)));
+
         orderFulfillment.setPaymentMethod(paymentMethod);
 
         // object receipt
