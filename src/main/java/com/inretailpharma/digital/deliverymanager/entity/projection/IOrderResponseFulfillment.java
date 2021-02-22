@@ -10,4 +10,6 @@ public interface IOrderResponseFulfillment {
     Long getPaymentMethodId();
     Long getCreditCardId();
     String getConfirmedOrder();
+    String getTransactionId();
+    
 }

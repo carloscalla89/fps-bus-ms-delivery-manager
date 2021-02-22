@@ -9,11 +9,7 @@ pipeline {
                     sh "mvn clean install -Dmaven.test.skip=true"
                 }
             }
-            stage ('Scan with Sonar') {
-                steps {
-                    sh "mvn sonar:sonar -Dsonar.projectKey=us-deliverymanager -Dsonar.organization=inkafarma -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=3c0956000976dc861ac1522183b7133e925ed7c1 -Dsonar.scanner.force-deprecated-java-version-grace-period=true"
-                }
-            }
+           
             stage ('Create docker image') {
                 steps {
                     sh '$(aws ecr get-login --no-include-email --region us-west-2)'
