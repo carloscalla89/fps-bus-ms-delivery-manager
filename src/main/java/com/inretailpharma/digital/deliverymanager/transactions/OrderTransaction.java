@@ -53,8 +53,8 @@ public class OrderTransaction {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public OrderWrapperResponse createOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto,
-                                                       StoreCenterCanonical centerCompanyCanonical) {
+    public OrderCanonical processOrderTransaction(OrderFulfillment orderFulfillment, OrderDto orderDto,
+                                                  StoreCenterCanonical centerCompanyCanonical) {
 
         log.info("[START ] createOrderReactive");
 
@@ -94,7 +94,7 @@ public class OrderTransaction {
         );
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
-        // Set the values of return of transaction as wrapped
+        // Set values to return wrapped
         OrderWrapperResponse orderWrapperResponse = new OrderWrapperResponse();
 
         orderWrapperResponse.setFulfillmentId(orderFulfillmentResp.getId());
@@ -122,12 +122,9 @@ public class OrderTransaction {
         orderWrapperResponse.setLocalLatitude(centerCompanyCanonical.getLatitude());
         orderWrapperResponse.setLocalLongitude(centerCompanyCanonical.getLongitude());
 
-
-
         log.info("[END] createOrderReactive");
-        return orderWrapperResponse;
+        return objectMapper.setsOrderWrapperResponseToOrderCanonical(orderWrapperResponse, orderDto);
     }
-
 
     public OrderStatus  getStatusOrderFromDeliveryDispatcher(OrderDto orderDto) {
         OrderStatus orderStatus;

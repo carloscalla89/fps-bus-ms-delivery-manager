@@ -5,9 +5,7 @@ import java.util.Optional;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
@@ -15,7 +13,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderRespons
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
@@ -28,9 +25,6 @@ import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-
-import static com.inretailpharma.digital.deliverymanager.util.Constant.OrderStatus.*;
-
 @Slf4j
 @Component
 public class DeliveryManagerFacade {
@@ -38,14 +32,12 @@ public class DeliveryManagerFacade {
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
     private ApplicationParameterService applicationParameterService;
-    private OrderExternalService onlinePayment;
     private final ApplicationContext context;
     private OrderFacadeProxy orderFacadeProxy;
 
     @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  ObjectToMapper objectToMapper,
-                                 @Qualifier("onlinePayment") OrderExternalService onlinePayment,
                                  ApplicationContext context,
                                  ApplicationParameterService applicationParameterService,
                                  OrderFacadeProxy orderFacadeProxy) {
@@ -53,7 +45,6 @@ public class DeliveryManagerFacade {
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.applicationParameterService = applicationParameterService;
-        this.onlinePayment = onlinePayment;
         this.context = context;
         this.orderFacadeProxy = orderFacadeProxy;
 
@@ -67,14 +58,12 @@ public class DeliveryManagerFacade {
                 .defer(() -> orderFacadeProxy.getStoreByCompanyCodeAndLocalCode(orderDto.getCompanyCode(), orderDto.getLocalCode()))
                 .zipWith(Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)), (storeCenter, orderFulfillment) -> {
 
-                    OrderWrapperResponse wrapperResponse = orderTransaction.createOrderTransaction(
-                            orderFulfillment,
-                            orderDto,
-                            storeCenter
-                    );
-
-                    OrderCanonical orderCanonicalResponse = objectToMapper
-                            .setsOrderWrapperResponseToOrderCanonical(wrapperResponse, orderDto);
+                    OrderCanonical orderCanonicalResponse = orderTransaction
+                                                                .processOrderTransaction(
+                                                                        orderFulfillment,
+                                                                        orderDto,
+                                                                        storeCenter
+                                                                );
 
                     orderFacadeProxy.createExternalAudit(true,orderCanonicalResponse);
 
