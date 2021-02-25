@@ -131,22 +131,6 @@ public class ExternalServicesProperties {
     private String inkatrackerUpdateOrderReadTimeOut;
     // ------------------------------------------------------
 
-    // ********* properties to inkatracker temporary
-
-    @Value("${external-service.temporary.create-order.uri}")
-    private String temporaryCreateOrderUri;
-
-    @Value("${external-service.temporary.update-order.uri}")
-    private String temporaryUpdateOrderUri;
-
-    @Value("${external-service.temporary.create-order.connect-timeout}")
-    private String temporaryCreateOrderConnectTimeOut;
-
-    @Value("${external-service.temporary.create-order.read-timeout}")
-    private String temporaryCreateOrderReadTimeOut;
-    // ------------------------------------------------------
-
-
     // properties to order tracker
     @Value("${external-service.order-tracker.create-order.uri}")
     private String orderTrackerCreateOrderUri; 
