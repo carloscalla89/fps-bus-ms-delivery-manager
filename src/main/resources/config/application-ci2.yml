@@ -97,6 +97,16 @@ external-service:
       uri: http://uS-Seller-Center/sellercenter/orders/
       connect-timeout: 10000
       read-timeout: 120000
+  online-payment:
+    liquidated:
+      uri: https://visauat.cindibyinkafarma.com/visa/confirmation
+      uri-mifa: https://visamfuat.cindibyinkafarma.com/visa/confirmation
+      connect-timeout: 10000
+      read-timeout: 120000
+    rejected:
+      uri: https://visauat.cindibyinkafarma.com/visa/rejected
+      connect-timeout: 10000
+      read-timeout: 120000
   notification-lambda:
     send-message:
       uri: https://h66xgj99rd.execute-api.us-east-1.amazonaws.com/CI02/messaging
