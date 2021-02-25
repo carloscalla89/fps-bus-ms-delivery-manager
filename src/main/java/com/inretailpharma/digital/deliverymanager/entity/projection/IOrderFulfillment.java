@@ -59,7 +59,10 @@ public interface IOrderFulfillment {
     String getServiceTypeName();
     String getServiceType();
     String getServiceEnabled();
+    String getServiceChannel();
     boolean getSendNewFlow();
+    boolean getSendNotificationByChannel();
+    boolean getSendNotificationByStatus();
 
     String getPaymentType();
     Integer getCardProviderId();

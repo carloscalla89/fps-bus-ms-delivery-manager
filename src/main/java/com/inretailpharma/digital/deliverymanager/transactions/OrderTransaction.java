@@ -70,7 +70,7 @@ public class OrderTransaction {
         serviceLocalOrderIdentity.setServiceType(
                 Optional
                         .ofNullable(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()))
-                        .orElse(orderRepositoryService.getServiceTypeByCode(Constant.Constans.NOT_DEFINED_SERVICE))
+                        .orElse(orderRepositoryService.getServiceTypeByCode(Constant.NOT_DEFINED_SERVICE))
 
         );
         serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillmentResp);
@@ -164,7 +164,7 @@ public class OrderTransaction {
 
         } else if (Optional
                     .ofNullable(orderDto.getOrderStatusDto().getCode())
-                    .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
+                    .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
                     && Optional
                         .ofNullable(orderDto.getPayment().getType())
                         .orElse(PaymentMethod.PaymentType.CASH.name())
@@ -175,7 +175,7 @@ public class OrderTransaction {
 
         } else if (Optional
                 .ofNullable(orderDto.getOrderStatusDto().getCode())
-                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
+                .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.getCode());
             orderStatus.setType(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name());
@@ -185,7 +185,7 @@ public class OrderTransaction {
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
         } else if (Optional
                 .ofNullable(orderDto.getOrderStatusDto().getCode())
-                .orElse(Constant.Constans.SUCCESS_CODE).equalsIgnoreCase(Constant.DeliveryManagerStatus.ORDER_FAILED.name())) {
+                .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.DeliveryManagerStatus.ORDER_FAILED.name())) {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ORDER_FAILED.getCode());
 

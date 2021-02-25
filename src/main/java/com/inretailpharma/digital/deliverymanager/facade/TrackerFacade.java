@@ -253,10 +253,15 @@ public class TrackerFacade {
 										order.getServiceType(),
 										order.getServiceTypeCode(),
 										order.getSource(),
+										order.getServiceChannel(),
 										order.getCompanyCode(),
 										order.getCenterCode(),
 										order.getStatusCode(),
-										order.getSendNewFlow()
+										order.getFirstName(),
+										order.getPhone(),
+										order.getSendNewFlow(),
+										order.getSendNotificationByChannel(),
+										order.getSendNotificationByStatus()
 								);
 
 							})

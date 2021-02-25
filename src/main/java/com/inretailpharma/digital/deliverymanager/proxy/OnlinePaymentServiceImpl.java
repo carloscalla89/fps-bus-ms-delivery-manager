@@ -32,10 +32,10 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
         onlinePaymentOrder.setServiceTypeShortCode(serviceTypeShortCode);
 
         String onlinePaymentUri = null;
-        if(Constant.Constans.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
+        if(Constant.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
             onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();
         }
-        if(Constant.Constans.COMPANY_CODE_MF.equalsIgnoreCase(companyCode)) {
+        if(Constant.COMPANY_CODE_MF.equalsIgnoreCase(companyCode)) {
             onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUriMifa();
         }
 

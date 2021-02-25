@@ -259,8 +259,8 @@ public class ObjectToMapper {
 
 
         // Set attempt of attempt to insink and tracker
-        serviceLocalOrder.setAttempt(Constant.Constans.ONE_ATTEMPT);
-        serviceLocalOrder.setAttemptTracker(Constant.Constans.ONE_ATTEMPT);
+        serviceLocalOrder.setAttempt(Constant.ONE_ATTEMPT);
+        serviceLocalOrder.setAttemptTracker(Constant.ONE_ATTEMPT);
 
 
         Optional
@@ -734,7 +734,7 @@ public class ObjectToMapper {
     		orderItemCanonical.setTotalPrice(o.getTotalPrice());
     		orderItemCanonical.setFractionated(Constant.Logical.Y.name().equals(o.getFractionated()));
 
-    		if (Constant.Constans.COLLECTION_PRESENTATION_ID.equals(o.getPresentationId())) {
+    		if (Constant.COLLECTION_PRESENTATION_ID.equals(o.getPresentationId())) {
     			
 				if (Boolean.TRUE.equals(partial)) {
 					

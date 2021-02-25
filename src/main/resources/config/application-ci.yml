@@ -94,3 +94,8 @@ external-service:
       uri: http://uS-Seller-Center/sellercenter/orders/
       connect-timeout: 10000
       read-timeout: 120000
+  notification-lambda:
+    send-message:
+      uri: https://h66xgj99rd.execute-api.us-east-1.amazonaws.com/CI02/messaging
+      connect-timeout: 10000
+      read-timeout: 120000

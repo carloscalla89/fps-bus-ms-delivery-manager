@@ -96,13 +96,16 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
-
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
-            "o.external_purchase_id as externalId, o.tracker_id as trackerId, " +
-            "s.order_status_code as statusCode, os.type as statusName, s.status_detail as statusDetail," +
-            "pm.payment_type as paymentType, st.type as serviceType, st.code as serviceTypeCode, " +
-            "s.center_code as centerCode, s.company_code as companyCode, st.send_new_flow_enabled as sendNewFlow " +
+            "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
+            "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
+            "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
+            "s.store_center_type as storeCenterType, s.store_center_address as storeCenterAddress, " +
+            "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as channel, " +
+            "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
+            "c.first_name as firstName, c.phone " +
             "from order_fulfillment o " +
+            "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
             "inner join order_status os on os.code = s.order_status_code " +
             "inner join service_type st on st.code = s.service_type_code " +
@@ -113,11 +116,15 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     List<IOrderFulfillment> getOrderLightByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
-            "o.external_purchase_id as externalId, o.tracker_id as trackerId, " +
-            "s.order_status_code as statusCode, os.type as statusName, s.status_detail as statusDetail," +
-            "pm.payment_type as paymentType, st.type as serviceType, st.code as serviceTypeCode, " +
-            "s.center_code as centerCode, s.company_code as companyCode, st.send_new_flow_enabled as sendNewFlow " +
+            "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
+            "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
+            "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
+            "s.store_center_type as storeCenterType, s.store_center_address as storeCenterAddress, " +
+            "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as channel, " +
+            "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
+            "c.first_name as firstName, c.phone " +
             "from order_fulfillment o " +
+            "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
             "inner join order_status os on os.code = s.order_status_code " +
             "inner join service_type st on st.code = s.service_type_code " +

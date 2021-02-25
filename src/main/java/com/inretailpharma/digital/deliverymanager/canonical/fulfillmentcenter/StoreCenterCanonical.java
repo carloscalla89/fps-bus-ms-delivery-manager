@@ -18,6 +18,7 @@ public class StoreCenterCanonical {
     private String address;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    private String localType;
 
     public StoreCenterCanonical() {
 

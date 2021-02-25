@@ -165,12 +165,6 @@ public class ExternalServicesProperties {
     @Value("${external-service.fulfillment-center.get-center.uri}")
     private String fulfillmentCenterGetCenterUri;
 
-    //product properties
-    @Value("${external-service.product.details}")
-    private String productDetailsUri;
-    @Value("${external-service.product.timeout}")
-    private Integer productTimeout;
-
     @Value("${external-service.fulfillment-center.get-company-center.uri}")
     private String fulfillmentCenterGetCompanyCenterUri;
 
@@ -189,4 +183,17 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.online-payment.liquidated.read-timeout}")
     private String onlinePaymentLiquidatedReadTimeOut;
+
+
+    // properties lambda notification
+    @Value("${external-service.notification-lambda.send-message.uri}")
+    private String notificationLambdaUri;
+
+    @Value("${external-service.notification-lambda.send-message.connect-timeout}")
+    private String notificationLambdaConnectTimeOut;
+
+    @Value("${external-service.notification-lambda.send-message.read-timeout}")
+    private String notificationLambdaReadTimeOut;
+
+
 }

@@ -160,9 +160,7 @@ public class DeliveryManagerFacade {
                     } else {
                         // actualizando la orden a tracker
 
-                        actionDto
-                                .setExternalBillingId(ecommercePurchaseId.toString());
-
+                        actionDto.setExternalBillingId(ecommercePurchaseId.toString());
 
                         return orderFacadeProxy
                                     .sendToUpdateOrder(
@@ -173,10 +171,15 @@ public class DeliveryManagerFacade {
                                             iOrderFulfillmentLight.getServiceType(),
                                             iOrderFulfillmentLight.getServiceTypeCode(),
                                             iOrderFulfillmentLight.getSource(),
+                                            iOrderFulfillmentLight.getServiceChannel(),
                                             iOrderFulfillmentLight.getCompanyCode(),
                                             iOrderFulfillmentLight.getCenterCode(),
                                             iOrderFulfillmentLight.getStatusCode(),
-                                            iOrderFulfillmentLight.getSendNewFlow()
+                                            iOrderFulfillmentLight.getFirstName(),
+                                            iOrderFulfillmentLight.getPhone(),
+                                            iOrderFulfillmentLight.getSendNewFlow(),
+                                            iOrderFulfillmentLight.getSendNotificationByChannel(),
+                                            iOrderFulfillmentLight.getSendNotificationByStatus()
                                     );
                     }
 
@@ -271,10 +274,15 @@ public class DeliveryManagerFacade {
                                             iOrderFulfillmentLight.getServiceType(),
                                             iOrderFulfillmentLight.getServiceTypeCode(),
                                             iOrderFulfillmentLight.getSource(),
+                                            iOrderFulfillmentLight.getServiceChannel(),
                                             iOrderFulfillmentLight.getCompanyCode(),
                                             iOrderFulfillmentLight.getCenterCode(),
                                             iOrderFulfillmentLight.getStatusCode(),
-                                            iOrderFulfillmentLight.getSendNewFlow()
+                                            iOrderFulfillmentLight.getFirstName(),
+                                            iOrderFulfillmentLight.getPhone(),
+                                            iOrderFulfillmentLight.getSendNewFlow(),
+                                            iOrderFulfillmentLight.getSendNotificationByChannel(),
+                                            iOrderFulfillmentLight.getSendNotificationByStatus()
                                     );
 
                 case 5:

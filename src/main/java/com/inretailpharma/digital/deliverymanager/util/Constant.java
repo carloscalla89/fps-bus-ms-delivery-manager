@@ -9,7 +9,6 @@ import java.util.Optional;
 
 public interface Constant {
 
-
     enum CancellationStockDispatcher {
 
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el Delivery Center"),
@@ -549,28 +548,29 @@ public interface Constant {
         }
     }
 
-    interface Constans {
-        Integer ONE_ATTEMPT = 1;
-        String SUCCESS_CODE = "00";
-        String NOT_DEFINED_CENTER = "NDC";
-        String NOT_DEFINED_COMPANY = "NDC";
-        String NOT_DEFINED_SERVICE = "NDS";
-        String COMPANY_CODE_IFK = "IKF";
-        String COMPANY_CODE_MF = "MF";
-        Integer COLLECTION_PRESENTATION_ID = 3;
-        String PICKUP = "PICKUP";
-        String DELIVERY = "DELIVERY";
-        String PICK_ORDER = "PICK_ORDER";
-        String PREPARE_ORDER = "PREPARE_ORDER";
-        String ASSIGN_ORDER = "ASSIGN_ORDER";
-        String ON_ROUTE_ORDER = "ON_ROUTE_ORDER";
-        String ARRIVAL_ORDER = "ARRIVAL_ORDER";
-        String DELIVER_ORDER = "DELIVER_ORDER";
-        String CANCEL_ORDER = "CANCEL_ORDER";
-        String REJECT_ORDER = "REJECT_ORDER";
-        String ORIGIN_OMNI_DELIVERY = "OMNI_DELIVERY";
-        String ORIGIN_DIGITAL = "DIGITAL";
-    }
+    String SUCCESS = "SUCCESS";
+    String ERROR_PROCESS = "Functional service Error";
+    Integer ONE_ATTEMPT = 1;
+    String SUCCESS_CODE = "00";
+    String NOT_DEFINED_CENTER = "NDC";
+    String NOT_DEFINED_COMPANY = "NDC";
+    String NOT_DEFINED_SERVICE = "NDS";
+    String COMPANY_CODE_IFK = "IKF";
+    String COMPANY_CODE_MF = "MF";
+    Integer COLLECTION_PRESENTATION_ID = 3;
+    String PICKUP = "PICKUP";
+    String DELIVERY = "DELIVERY";
+    String PICK_ORDER = "PICK_ORDER";
+    String PREPARE_ORDER = "PREPARE_ORDER";
+    String ASSIGN_ORDER = "ASSIGN_ORDER";
+    String ON_ROUTE_ORDER = "ON_ROUTE_ORDER";
+    String ARRIVAL_ORDER = "ARRIVAL_ORDER";
+    String DELIVER_ORDER = "DELIVER_ORDER";
+    String CANCEL_ORDER = "CANCEL_ORDER";
+    String REJECT_ORDER = "REJECT_ORDER";
+    String ORIGIN_OMNI_DELIVERY = "OMNI_DELIVERY";
+    String ORIGIN_DIGITAL = "DIGITAL";
+
 
     enum DeliveryManagerStatus {
 

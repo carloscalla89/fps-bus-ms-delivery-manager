@@ -9,9 +9,7 @@ import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyR
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
-import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
-import com.inretailpharma.digital.deliverymanager.util.UtilClass;
+import com.inretailpharma.digital.deliverymanager.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +39,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     private AdapterInterface adapterAuditInterface;
 
+    private AdapterInterface adapterNotificationInterface;
+
     private OrderExternalService externalStoreService;
 
     private OrderExternalService externalOnlinePaymentService;
@@ -51,6 +51,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     public OrderFacadeProxyImpl(OrderCancellationService orderCancellationService, OrderTransaction orderTransaction,
                                 @Qualifier("trackeradapter") AdapterInterface adapterTrackerInterface,
                                 @Qualifier("auditadapter") AdapterInterface adapterAuditInterface,
+                                @Qualifier("notificationadapter") AdapterInterface adapterNotificationInterface,
                                 @Qualifier("store") OrderExternalService externalStoreService,
                                 @Qualifier("onlinePayment") OrderExternalService externalOnlinePaymentService,
                                 ApplicationContext context) {
@@ -59,6 +60,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         this.orderTransaction = orderTransaction;
         this.adapterTrackerInterface = adapterTrackerInterface;
         this.adapterAuditInterface = adapterAuditInterface;
+        this.adapterNotificationInterface = adapterNotificationInterface;
         this.externalStoreService = externalStoreService;
         this.externalOnlinePaymentService = externalOnlinePaymentService;
         this.context = context;
@@ -76,46 +78,56 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         return externalStoreService
                     .getStoreByCompanyCodeAndLocalCode(companyCode, localCode)
                     .flatMap(resultStore -> adapterTrackerInterface
-                            .sendOrderTracker(
-                                    ((OrderExternalService)context.getBean(utilClass.getClassToTracker())),
-                                    resultStore,
-                                    ecommerceId,
-                                    externalId,
-                                    statusDetail,
-                                    statusName,
-                                    orderCancelCode,
-                                    orderCancelObservation,
-                                    null
-                            ).flatMap(responses -> getOrderResponse(
-                                    responses,
-                                    orderId,
-                                    ecommerceId,
-                                    externalId,
-                                    orderCancelCode,
-                                    orderCancelObservation,
-                                    null,
-                                    sendNewAudit
-                                    )
-                            ));
+                                                .sendOrderTracker(
+                                                        ((OrderExternalService)context.getBean(utilClass.getClassToTracker())),
+                                                        resultStore,
+                                                        ecommerceId,
+                                                        externalId,
+                                                        statusDetail,
+                                                        statusName,
+                                                        orderCancelCode,
+                                                        orderCancelObservation,
+                                                        null
+                                                ).flatMap(responses -> getOrderResponse(
+                                                        responses,
+                                                        orderId,
+                                                        ecommerceId,
+                                                        externalId,
+                                                        orderCancelCode,
+                                                        orderCancelObservation,
+                                                        null,
+                                                        sendNewAudit
+                                                        )
+                                                )
+                    );
 
     }
 
     @Override
     public Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
-                                                  String serviceType, String serviceTypeCode, String source,
-                                                  String companyCode, String localCode, String statusCode,
-                                                  boolean sendNewAudit) {
+                                                  String serviceType, String serviceTypeCode, String source, String channel,
+                                                  String companyCode, String localCode, String statusCode, String clientName,
+                                                  String phone, boolean sendNewAudit, boolean sendNotificationByChannel,
+                                                  boolean sendNotificationByStatus) {
 
         log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendToUpdateOrder:{}, serviceType:{}, " +
-                 "serviceTypeCode:{}", orderId, ecommerceId, actionDto, sendNewAudit, serviceType, serviceTypeCode);
+                 "serviceTypeCode:{}, sendNotificationByChannel:{}, sendNotificationByStatus:{}", orderId, ecommerceId,
+                actionDto, sendNewAudit, serviceType, serviceTypeCode, sendNotificationByChannel, sendNotificationByStatus);
 
         CancellationCodeReason codeReason;
 
         UtilClass utilClass = new UtilClass(serviceTypeCode,serviceType, actionDto.getAction(), actionDto.getOrigin(),
                                             statusCode);
 
-        Function<List<OrderCanonical>, Publisher<? extends OrderCanonical>> publisherFunction =
-                responses -> getMapOrderCanonical(ecommerceId, actionDto.getAction());
+        Function<List<OrderCanonical>,Publisher<? extends Void>> publisherNotification =
+                responses -> processSendNotification(ecommerceId, actionDto, serviceType, serviceTypeCode,
+                        source, channel, companyCode, localCode, statusCode, clientName, phone, sendNotificationByChannel,
+                        sendNotificationByStatus);
+
+        Function<OrderCanonical,Mono<? extends Void>> publisherNotificationSingle =
+                responses -> processSendNotification(ecommerceId, actionDto, serviceType, serviceTypeCode,
+                        source, channel, companyCode, localCode, statusCode, clientName, phone, sendNotificationByChannel,
+                        sendNotificationByStatus);
 
         if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
@@ -136,8 +148,6 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
                     log.info("[END] add controversy");
             }
-
-
 
             if (actionDto.getOrderCancelCode() != null && actionDto.getOrderCancelAppType() != null) {
                 codeReason = orderCancellationService
@@ -177,7 +187,11 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             sendNewAudit
                                                             )
                                                     )
-                        );
+                        )
+                        .filter(response -> Constant.OrderStatus.getByName(response.getOrderStatus().getName()).isSuccess())
+                        .flatMap(publisherNotificationSingle)
+                        .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
+                        .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)));
 
 
             } else {
@@ -215,21 +229,10 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                         .stream()
                                         .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                         )
-                        .flatMap(publisherFunction)
-                        .switchIfEmpty(Mono.defer(() -> {
-                            OrderCanonical orderCanonical = new OrderCanonical();
-                            orderCanonical.setEcommerceId(ecommerceId);
-
-                            Constant.OrderStatus orderStatus = Constant.OrderStatusTracker.getByActionName(actionDto.getAction()).getOrderStatusError();
-                            OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
-                            orderStatusCanonical.setCode(orderStatus.getCode());
-                            orderStatusCanonical.setName(orderStatus.name());
-                            orderStatusCanonical.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                            orderCanonical.setOrderStatus(orderStatusCanonical);
-
-                            return Mono.just(orderCanonical);
-                        })).single();
+                        .flatMap(publisherNotification)
+                        .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
+                        .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)))
+                        .single();
             }
 
         }
@@ -268,12 +271,10 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                 .stream()
                                 .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                 )
-                .flatMap(publisherFunction)
-                .switchIfEmpty(Mono.defer(() -> getMapOrderCanonicalSwitchEmpty(ecommerceId, actionDto.getAction())))
+                .flatMap(publisherNotification)
+                .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
+                .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)))
                 .single();
-
-
-
     }
 
     @Override
@@ -340,35 +341,21 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     }
 
-    private Mono<OrderCanonical> getMapOrderCanonicalSwitchEmpty(Long ecommerceId, String action) {
-        OrderCanonical orderCanonical = new OrderCanonical();
-        orderCanonical.setEcommerceId(ecommerceId);
+    private Mono<Void> processSendNotification(Long ecommerceId, ActionDto actionDto, String serviceType,
+                                               String serviceTypeCode, String source, String channel, String companyCode,
+                                               String localCode, String statusCode, String clientName, String phone,
+                                               boolean sendNotificationByChannel, boolean sendNotificationByStatus) {
 
-        Constant.OrderStatus orderStatus = Constant.OrderStatusTracker.getByActionName(action).getOrderStatusError();
-        OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
-        orderStatusCanonical.setCode(orderStatus.getCode());
-        orderStatusCanonical.setName(orderStatus.name());
-        orderStatusCanonical.setStatusDate(DateUtils.getLocalDateTimeNow());
+        if (sendNotificationByChannel && sendNotificationByStatus) {
 
-        orderCanonical.setOrderStatus(orderStatusCanonical);
+            return adapterNotificationInterface
+                        .sendNotification(channel, serviceTypeCode, statusCode, ecommerceId, companyCode, localCode, null,
+                                phone, clientName, null, null, null
+                        );
 
-        return Mono.just(orderCanonical);
-    }
-    
-    private Mono<OrderCanonical> getMapOrderCanonical(Long ecommerceId, String action) {
+        }
 
-        OrderCanonical orderCanonical = new OrderCanonical();
-        orderCanonical.setEcommerceId(ecommerceId);
-
-        Constant.OrderStatus orderStatus = Constant.OrderStatusTracker.getByActionName(action).getOrderStatus();
-        OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
-        orderStatusCanonical.setCode(orderStatus.getCode());
-        orderStatusCanonical.setName(orderStatus.name());
-        orderStatusCanonical.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-        orderCanonical.setOrderStatus(orderStatusCanonical);
-
-        return Mono.just(orderCanonical);
+        return Mono.when();
 
     }
 

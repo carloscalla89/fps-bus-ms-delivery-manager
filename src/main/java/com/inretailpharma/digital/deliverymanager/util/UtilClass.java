@@ -55,7 +55,7 @@ public class UtilClass {
 
     public List<Class<?>> getClassesToSend() {
 
-        if (serviceType.equalsIgnoreCase(Constant.Constans.PICKUP)) {
+        if (serviceType.equalsIgnoreCase(Constant.PICKUP)) {
             return Collections.singletonList(TrackerAdapterImpl.class);
 
         } else {
@@ -65,30 +65,30 @@ public class UtilClass {
 
             switch (actionName) {
 
-                case Constant.Constans.PREPARE_ORDER:
+                case Constant.PREPARE_ORDER:
                     classList.add(TrackerAdapterImpl.class);
                     classList.add(OrderTrackerAdapterImpl.class);
 
                     break;
 
-                case Constant.Constans.PICK_ORDER:
-                case Constant.Constans.ASSIGN_ORDER:
-                case Constant.Constans.ON_ROUTE_ORDER:
-                case Constant.Constans.ARRIVAL_ORDER:
+                case Constant.PICK_ORDER:
+                case Constant.ASSIGN_ORDER:
+                case Constant.ON_ROUTE_ORDER:
+                case Constant.ARRIVAL_ORDER:
 
                     classList.add(TrackerAdapterImpl.class);
 
                     break;
 
-                case Constant.Constans.DELIVER_ORDER:
-                case Constant.Constans.CANCEL_ORDER:
-                case Constant.Constans.REJECT_ORDER:
+                case Constant.DELIVER_ORDER:
+                case Constant.CANCEL_ORDER:
+                case Constant.REJECT_ORDER:
 
-                    if (Constant.Constans.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
+                    if (Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
 
                         classList.add(TrackerAdapterImpl.class);
 
-                    } else if (Constant.Constans.ORIGIN_DIGITAL.equalsIgnoreCase(origin)) {
+                    } else if (Constant.ORIGIN_DIGITAL.equalsIgnoreCase(origin)) {
 
                         classList.add(OrderTrackerAdapterImpl.class);
 
