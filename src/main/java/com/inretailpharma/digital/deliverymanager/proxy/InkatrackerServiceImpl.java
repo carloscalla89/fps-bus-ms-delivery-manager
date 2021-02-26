@@ -11,18 +11,14 @@ import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -150,7 +146,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                     new OrderCanonical(
                                             iOrderFulfillment.getOrderId(),
                                             iOrderFulfillment.getEcommerceId(),
-                                            objectToMapper.getOrderStatusInkatracker(
+                                            objectToMapper.getOrderStatus(
                                                     Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name(),
                                                     "Result inkatracker is empty",
                                                     orderCancelCode,
@@ -162,7 +158,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                 e.printStackTrace();
                                 log.error("Error in inkatracker:{}",e.getMessage());
                             })
-                            .onErrorResume(e -> mapResponseErrorFromTracker(e, iOrderFulfillment.getOrderId(),
+                            .onErrorResume(e -> mapResponseErrorWhenTheOrderIsCreated(e, iOrderFulfillment.getOrderId(),
                                     iOrderFulfillment.getEcommerceId(), statusName, orderCancelCode, orderCancelObservation)
                             );
 

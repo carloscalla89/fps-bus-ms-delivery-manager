@@ -301,10 +301,10 @@ public class ObjectToMapper {
         return serviceLocalOrder;
     }
 
-    public OrderStatusCanonical getOrderStatusInkatracker(String name, String errorDetail, String cancellationCode,
+    public OrderStatusCanonical getOrderStatus(String name, String errorDetail, String cancellationCode,
                                                           String cancellationObservation) {
 
-        Constant.OrderStatus status = Constant.OrderStatusTracker.getByName(name).getOrderStatus();
+        Constant.OrderStatus status = Constant.OrderStatus.getByName(name);
 
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
         orderStatus.setCode(status.getCode());

@@ -248,30 +248,14 @@ public class AbstractOrderService implements OrderExternalService {
 		} else {
 			log.error("Error in response from Updatetracker, ecommerceId:{}, statusCode:{}"
 					,ecommerceId,clientResponse.statusCode());
+
 			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
 
 			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
 
-		}
-
-	}
-
-	protected Mono<String> mapFromClientResponse(ClientResponse clientResponse, String ecommerceId) {
-
-		if (clientResponse.statusCode().is2xxSuccessful()) {
-
-			return clientResponse
-					.bodyToMono(Void.class)
-					.thenReturn(Constant.SUCCESS);
-
-		} else {
-			log.error("Error in response from Updatetracker, ecommerceId:{}, statusCode:{}"
-					,ecommerceId,clientResponse.statusCode());
-			ResponseErrorGeneric<String> responseErrorGeneric = new ResponseErrorGeneric<>();
-
-			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
 
 		}
+
 	}
 
 
@@ -299,7 +283,7 @@ public class AbstractOrderService implements OrderExternalService {
 		orderCanonical.setTrackerId(externalId);
 
         orderCanonical.setOrderStatus(
-        		objectToMapper.getOrderStatusInkatracker(statusName, null, cancellationCode, cancellationObservation)
+        		objectToMapper.getOrderStatus(statusName, null, cancellationCode, cancellationObservation)
 		);
 
         return orderCanonical;
@@ -312,20 +296,32 @@ public class AbstractOrderService implements OrderExternalService {
 		orderCanonical.setId(id);
 		orderCanonical.setEcommerceId(ecommerceId);
 
-		OrderStatusCanonical orderStatus;
+		OrderStatusCanonical orderStatus = objectToMapper
+												.getOrderStatus(statusName, e.getMessage(), cancellationCode, cancellationObservation);
 
-		if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
-				|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())) {
+		orderCanonical.setOrderStatus(orderStatus);
 
-			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_CANCELLED.name(),
-					e.getMessage(), cancellationCode, cancellationObservation);
+		return Mono.just(orderCanonical);
+	}
 
+	protected Mono<OrderCanonical> mapResponseErrorWhenTheOrderIsCreated(Throwable e, Long id, Long ecommerceId,
+																		 String statusName, String cancellationCode,
+																		 String cancellationObservation) {
+
+		OrderCanonical orderCanonical = new OrderCanonical();
+		orderCanonical.setId(id);
+		orderCanonical.setEcommerceId(ecommerceId);
+
+		String status;
+
+		if (cancellationCode != null) {
+			status = Constant.OrderStatus.ERROR_CANCELLED.name();
 		} else {
-
-			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_INSERT_TRACKER.name(),
-					e.getMessage(), cancellationCode, cancellationObservation);
-
+			status = statusName;
 		}
+
+		OrderStatusCanonical orderStatus = objectToMapper
+				.getOrderStatus(status, e.getMessage(), cancellationCode, cancellationObservation);
 
 		orderCanonical.setOrderStatus(orderStatus);
 

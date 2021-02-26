@@ -3,9 +3,7 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -14,7 +12,6 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFu
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -86,7 +83,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                     new OrderCanonical(
                                             iOrderFulfillment.getOrderId(),
                                             iOrderFulfillment.getEcommerceId(),
-                                            objectToMapper.getOrderStatusInkatracker(
+                                            objectToMapper.getOrderStatus(
                                                     Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name(),
                                                     "Result inkatracker-lite is empty",
                                                     orderCancelCode, orderCancelObservation)
@@ -96,7 +93,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                 e.printStackTrace();
                                 log.error("Error in inkatracker-lite:{}",e.getMessage());
                             })
-                            .onErrorResume(e -> mapResponseErrorFromTracker(e, iOrderFulfillment.getOrderId(),
+                            .onErrorResume(e -> mapResponseErrorWhenTheOrderIsCreated(e, iOrderFulfillment.getOrderId(),
                                     iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getStatusCode(),
                                     orderCancelCode, orderCancelObservation)
                             );

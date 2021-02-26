@@ -204,7 +204,7 @@ public interface Constant {
 
         RELEASE_ORDER(2, "Liberar orden reservada"),
 
-
+        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada"),
         CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada"),
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada"),
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger"),
@@ -281,15 +281,17 @@ public interface Constant {
                 OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_CANCELLED,
                 ActionOrder.CANCEL_ORDER.name()),
 
-        REJECTED_ORDER("REJECTED", "REJECTED", OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_CANCELLED,
-                ActionOrder.CANCEL_ORDER.name()),
+
+
+        REJECTED_ORDER("REJECTED", "REJECTED", OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_REJECTED,
+                ActionOrder.REJECT_ORDER.name()),
 
         REJECTED_ORDER_ONLINE_PAYMENT("REJECTED", "REJECTED", OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT,
-                OrderStatus.ERROR_CANCELLED, ActionOrder.CANCEL_ORDER.name()),
+                OrderStatus.ERROR_REJECTED, ActionOrder.REJECT_ORDER.name()),
 
         REJECTED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("REJECTED", "REJECTED",
-                OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_CANCELLED,
-                ActionOrder.CANCEL_ORDER.name()),
+                OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_REJECTED,
+                ActionOrder.REJECT_ORDER.name()),
 
         ERROR_INSERT_TRACKER("CONFIRMED", "CONFIRMED", OrderStatus.ERROR_INSERT_TRACKER,
                 OrderStatus.ERROR_INSERT_TRACKER, ActionOrder.ATTEMPT_TRACKER_CREATE.name()),
@@ -424,7 +426,7 @@ public interface Constant {
         ERROR_PREPARED("05", false), ERROR_READY_FOR_PICKUP("05", false),
         ERROR_ASSIGNED("06", false), ERROR_ON_ROUTED("07", false),
         ERROR_ARRIVED("08", false), ERROR_DELIVERED("09", false),
-        ERROR_CANCELLED("10", false),
+        ERROR_CANCELLED("10", false),ERROR_REJECTED("10", false),
         // ==================================================================================================
 
 
