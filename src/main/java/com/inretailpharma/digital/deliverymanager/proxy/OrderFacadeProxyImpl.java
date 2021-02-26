@@ -352,10 +352,9 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         .sendNotification(channel, serviceTypeCode, statusCode, ecommerceId, companyCode, localCode, null,
                                 phone, clientName, null, null, null
                         );
-
         }
 
-        return Mono.when();
+        return Mono.when(Mono.just(Constant.SUCCESS));
 
     }
 

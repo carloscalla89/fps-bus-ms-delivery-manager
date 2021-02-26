@@ -3,11 +3,14 @@ package com.inretailpharma.digital.deliverymanager.adapter;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.PayloadDto;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service("notificationadapter")
 public class NotificationAdapterImpl extends AdapterAbstract implements AdapterInterface {
 
@@ -38,9 +41,11 @@ public class NotificationAdapterImpl extends AdapterAbstract implements AdapterI
 
         messageDto.setPayload(payloadDto);
 
-        notificationExternalService.sendNotification(messageDto).subscribe();
+        notificationExternalService
+                .sendNotification(messageDto)
+                .subscribe(response -> log.info("Response notification service:{} with request:{}",response,messageDto));
 
-        return Mono.when();
+        return Mono.when(Mono.just(Constant.SUCCESS));
     }
 
 
