@@ -100,7 +100,6 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
             "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
             "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
-            "s.store_center_type as storeCenterType, s.store_center_address as storeCenterAddress, " +
             "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as channel, " +
             "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
             "c.first_name as firstName, c.phone " +
@@ -119,7 +118,6 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
             "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
             "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
-            "s.store_center_type as storeCenterType, s.store_center_address as storeCenterAddress, " +
             "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as channel, " +
             "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
             "c.first_name as firstName, c.phone " +
