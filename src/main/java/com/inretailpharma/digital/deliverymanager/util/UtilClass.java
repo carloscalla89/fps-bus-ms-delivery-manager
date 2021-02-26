@@ -22,17 +22,20 @@ public class UtilClass {
     private String actionName;
     private String origin;
     private String orderStatus;
+    private boolean sendNewFlow;
 
     public UtilClass(String serviceTypeCode) {
         this.serviceTypeCode = serviceTypeCode;
     }
 
-    public UtilClass(String serviceTypeCode, String serviceType, String actionName, String origin, String orderStatus) {
+    public UtilClass(String serviceTypeCode, String serviceType, String actionName, String origin, String orderStatus,
+                     boolean sendNewFlow) {
         this.serviceTypeCode = serviceTypeCode;
         this.serviceType = serviceType;
         this.actionName = actionName;
         this.origin = origin;
         this.orderStatus = orderStatus;
+        this.sendNewFlow = sendNewFlow;
     }
 
     public Class<?> getClassImplementationToOrderExternalService(Class<?> classType) {
@@ -67,7 +70,10 @@ public class UtilClass {
 
                 case Constant.PREPARE_ORDER:
                     classList.add(TrackerAdapterImpl.class);
-                    classList.add(OrderTrackerAdapterImpl.class);
+
+                    if (sendNewFlow) {
+                        classList.add(OrderTrackerAdapterImpl.class);
+                    }
 
                     break;
 
@@ -100,7 +106,10 @@ public class UtilClass {
 
                     } else {
                         classList.add(TrackerAdapterImpl.class);
-                        classList.add(OrderTrackerAdapterImpl.class);
+
+                        if (sendNewFlow) {
+                            classList.add(OrderTrackerAdapterImpl.class);
+                        }
                     }
 
                     break;

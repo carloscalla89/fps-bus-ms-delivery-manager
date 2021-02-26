@@ -107,17 +107,17 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     public Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
                                                   String serviceType, String serviceTypeCode, String source, String channel,
                                                   String companyCode, String localCode, String statusCode, String clientName,
-                                                  String phone, boolean sendNewAudit, boolean sendNotificationByChannel,
+                                                  String phone, boolean sendNewFlow, boolean sendNotificationByChannel,
                                                   boolean sendNotificationByStatus) {
 
-        log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendToUpdateOrder:{}, serviceType:{}, " +
+        log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendNewFlow:{}, serviceType:{}, " +
                  "serviceTypeCode:{}, sendNotificationByChannel:{}, sendNotificationByStatus:{}", orderId, ecommerceId,
-                actionDto, sendNewAudit, serviceType, serviceTypeCode, sendNotificationByChannel, sendNotificationByStatus);
+                actionDto, sendNewFlow, serviceType, serviceTypeCode, sendNotificationByChannel, sendNotificationByStatus);
 
         CancellationCodeReason codeReason;
 
         UtilClass utilClass = new UtilClass(serviceTypeCode,serviceType, actionDto.getAction(), actionDto.getOrigin(),
-                                            statusCode);
+                                            statusCode, sendNewFlow);
 
         Function<List<OrderCanonical>,Publisher<? extends Void>> publisherNotification =
                 responses -> processSendNotification(ecommerceId, actionDto, serviceType, serviceTypeCode,
@@ -184,7 +184,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                             actionDto.getOrderCancelObservation(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
-                                                            sendNewAudit
+                                                            sendNewFlow
                                                             )
                                                     )
                         )
@@ -220,7 +220,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                     Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                     actionDto.getOrderCancelObservation(),
                                                     Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
-                                                    sendNewAudit
+                                                    sendNewFlow
                                                 )
                         )
                         .buffer()
@@ -262,7 +262,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         null,
                         null,
                         null,
-                        sendNewAudit
+                        sendNewFlow
                         )
                 )
                 .buffer()
