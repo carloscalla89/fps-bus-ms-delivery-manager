@@ -52,7 +52,7 @@ public class AdapterAbstract implements AdapterInterface{
     }
 
     @Override
-    public Mono<Void> sendNotification(String channel, String serviceTypeCode, String orderStatus, Long ecommerceId,
+    public Mono<Boolean> sendNotification(String channel, String serviceTypeCode, String orderStatus, Long ecommerceId,
                                        String brand, String localCode, String localTypeCode, String phoneNumber,
                                        String clientName, String expiredDate, String confirmedDate, String address){
         return null;

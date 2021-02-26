@@ -119,12 +119,12 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         UtilClass utilClass = new UtilClass(serviceTypeCode,serviceType, actionDto.getAction(), actionDto.getOrigin(),
                                             statusCode, sendNewFlow);
 
-        Function<List<OrderCanonical>,Publisher<? extends Void>> publisherNotification =
+        Function<List<OrderCanonical>,Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(ecommerceId, actionDto, serviceType, serviceTypeCode,
                         source, channel, companyCode, localCode, statusCode, clientName, phone, sendNotificationByChannel,
                         sendNotificationByStatus);
 
-        Function<OrderCanonical,Mono<? extends Void>> publisherNotificationSingle =
+        Function<OrderCanonical,Mono<? extends Boolean>> publisherNotificationSingle =
                 responses -> processSendNotification(ecommerceId, actionDto, serviceType, serviceTypeCode,
                         source, channel, companyCode, localCode, statusCode, clientName, phone, sendNotificationByChannel,
                         sendNotificationByStatus);
@@ -341,7 +341,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     }
 
-    private Mono<Void> processSendNotification(Long ecommerceId, ActionDto actionDto, String serviceType,
+    private Mono<Boolean> processSendNotification(Long ecommerceId, ActionDto actionDto, String serviceType,
                                                String serviceTypeCode, String source, String channel, String companyCode,
                                                String localCode, String statusCode, String clientName, String phone,
                                                boolean sendNotificationByChannel, boolean sendNotificationByStatus) {
@@ -354,7 +354,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         );
         }
 
-        return Mono.when(Mono.just(Constant.SUCCESS));
+        return Mono.just(true);
 
     }
 

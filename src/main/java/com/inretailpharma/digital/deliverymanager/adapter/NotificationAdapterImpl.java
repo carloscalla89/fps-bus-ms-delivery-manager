@@ -22,7 +22,7 @@ public class NotificationAdapterImpl extends AdapterAbstract implements AdapterI
     }
 
     @Override
-    public Mono<Void> sendNotification(String channel, String serviceTypeCode, String orderStatus, Long ecommerceId,
+    public Mono<Boolean> sendNotification(String channel, String serviceTypeCode, String orderStatus, Long ecommerceId,
                                        String brand, String localCode, String localTypeCode, String phoneNumber,
                                        String clientName, String expiredDate, String confirmedDate, String address) {
 
@@ -45,7 +45,7 @@ public class NotificationAdapterImpl extends AdapterAbstract implements AdapterI
                 .sendNotification(messageDto)
                 .subscribe(response -> log.info("Response notification service:{} with request:{}",response,messageDto));
 
-        return Mono.when(Mono.just(Constant.SUCCESS));
+        return Mono.just(true);
     }
 
 
