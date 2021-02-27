@@ -196,13 +196,9 @@ public interface Constant {
     enum ActionOrder {
 
         ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker"),
-        UPDATE_TRACKER_BILLING(1, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
-        ON_RELEASE_ORDER(1, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
-        ON_STORE_ORDER(1, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
+        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
 
         ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink"),
-
-        RELEASE_ORDER(2, "Liberar orden reservada"),
 
         REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada"),
         CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada"),
@@ -256,15 +252,6 @@ public interface Constant {
     }
     enum OrderStatusTracker {
 
-        UPDATE_TRACKER_BILLING("UPDATE_TRACKER_BILLING", "UPDATE_TRACKER_BILLING", OrderStatus.CONFIRMED_TRACKER,
-                OrderStatus.ERROR_INSERT_TRACKER, ActionOrder.UPDATE_TRACKER_BILLING.name()),
-
-        RELEASE_ORDER("ON_STORE_ORDER", "ON_STORE", OrderStatus.CONFIRMED_TRACKER, OrderStatus.ERROR_INSERT_TRACKER,
-                ActionOrder.RELEASE_ORDER.name()),
-
-        ON_RELEASE_ORDER("ON_STORE_ORDER", "ON_STORE", OrderStatus.CONFIRMED_TRACKER, OrderStatus.ERROR_INSERT_TRACKER,
-                ActionOrder.ON_RELEASE_ORDER.name()),
-
         ON_STORE_ORDER("ON_STORE_ORDER", "ON_STORE", OrderStatus.CONFIRMED_TRACKER, OrderStatus.ERROR_INSERT_TRACKER,
                 ActionOrder.ON_STORE_ORDER.name()),
 
@@ -280,8 +267,6 @@ public interface Constant {
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("CANCELLED", "CANCELLED",
                 OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_CANCELLED,
                 ActionOrder.CANCEL_ORDER.name()),
-
-
 
         REJECTED_ORDER("REJECTED", "REJECTED", OrderStatus.CANCELLED_ORDER, OrderStatus.ERROR_REJECTED,
                 ActionOrder.REJECT_ORDER.name()),

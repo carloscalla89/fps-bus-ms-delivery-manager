@@ -140,49 +140,20 @@ public class DeliveryManagerFacade {
             switch (action.getCode()) {
                 case 1:
 
-                    if (Constant.ActionOrder.ATTEMPT_TRACKER_CREATE.name().equalsIgnoreCase(actionDto.getAction())) {
-
-                        return orderFacadeProxy
-                                    .sendOrderToTracker(
-                                            iOrderFulfillmentLight.getOrderId(),
-                                            ecommercePurchaseId,
-                                            iOrderFulfillmentLight.getExternalId(),
-                                            iOrderFulfillmentLight.getServiceTypeCode(),
-                                            null,
-                                            Constant.OrderStatus.CONFIRMED_TRACKER.name(),
-                                            null,
-                                            null,
-                                            iOrderFulfillmentLight.getCompanyCode(),
-                                            iOrderFulfillmentLight.getCenterCode(),
-                                            iOrderFulfillmentLight.getSendNewFlow()
-                                            );
-
-                    } else {
-                        // actualizando la orden a tracker
-
-                        actionDto.setExternalBillingId(ecommercePurchaseId.toString());
-
-                        return orderFacadeProxy
-                                    .sendToUpdateOrder(
-                                            iOrderFulfillmentLight.getOrderId(),
-                                            iOrderFulfillmentLight.getEcommerceId(),
-                                            iOrderFulfillmentLight.getExternalId(),
-                                            actionDto,
-                                            iOrderFulfillmentLight.getServiceType(),
-                                            iOrderFulfillmentLight.getServiceTypeCode(),
-                                            iOrderFulfillmentLight.getSource(),
-                                            iOrderFulfillmentLight.getServiceChannel(),
-                                            iOrderFulfillmentLight.getCompanyCode(),
-                                            iOrderFulfillmentLight.getCenterCode(),
-                                            iOrderFulfillmentLight.getStatusCode(),
-                                            iOrderFulfillmentLight.getFirstName(),
-                                            iOrderFulfillmentLight.getPhone(),
-                                            iOrderFulfillmentLight.getSendNewFlow(),
-                                            iOrderFulfillmentLight.getSendNotificationByChannel(),
-                                            iOrderFulfillmentLight.getSendNotificationByStatus()
-                                    );
-                    }
-
+                    return orderFacadeProxy
+                            .sendOrderToTracker(
+                                    iOrderFulfillmentLight.getOrderId(),
+                                    ecommercePurchaseId,
+                                    iOrderFulfillmentLight.getExternalId(),
+                                    iOrderFulfillmentLight.getServiceTypeCode(),
+                                    null,
+                                    Constant.OrderStatus.CONFIRMED_TRACKER.name(),
+                                    null,
+                                    null,
+                                    iOrderFulfillmentLight.getCompanyCode(),
+                                    iOrderFulfillmentLight.getCenterCode(),
+                                    iOrderFulfillmentLight.getSendNewFlow()
+                            );
 
                 case 2:
 

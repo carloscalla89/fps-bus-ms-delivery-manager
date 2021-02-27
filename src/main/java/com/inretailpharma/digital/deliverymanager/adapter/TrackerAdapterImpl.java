@@ -27,7 +27,7 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
         return orderExternalService
                     .sendOrderToTracker(
                             iOrderFulfillmentCase4,
-                            orderTransaction.getOrderItemByOrderFulfillmentId(ecommercePurchaseId),
+                            orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillmentCase4.getOrderId()),
                             storeCenter,
                             externalId,
                             statusDetail,
