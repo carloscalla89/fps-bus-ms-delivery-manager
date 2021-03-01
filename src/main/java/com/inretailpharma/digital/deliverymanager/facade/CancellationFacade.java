@@ -74,9 +74,7 @@ public class CancellationFacade {
                     actionDto.setOrderCancelCode(cancellationDto.getCancellationCode());
                     actionDto.setOrderCancelObservation(cancellationDto.getObservation());
 
-                    OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
-                            Constant.TrackerImplementation.getByCode(r.getServiceTypeCode()).getName()
-                    );
+                    OrderExternalService orderExternalService = (OrderExternalService)context.getBean(r.getClassImplement());
 
                     return orderExternalService
                             .getResultfromExternalServices(r.getEcommerceId(), actionDto, cancellationDto.getCompanyCode(),

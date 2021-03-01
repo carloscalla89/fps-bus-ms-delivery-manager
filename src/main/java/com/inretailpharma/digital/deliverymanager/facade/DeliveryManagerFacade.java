@@ -70,8 +70,9 @@ public class DeliveryManagerFacade {
                     return orderCanonicalResponse;
                 })
                 .flatMap(order -> {
-                    log.info("[START] Preparation to send order:{}, companyCode:{}, status:{}", order.getEcommerceId(),
-                            order.getCompanyCode(), order.getOrderStatus());
+                    log.info("[START] Preparation to send order:{}, companyCode:{}, status:{}, classImplement:{}",
+                            order.getEcommerceId(), order.getCompanyCode(), order.getOrderStatus(),
+                            order.getOrderDetail().getServiceClassImplement());
 
                     if (order.getOrderDetail().isServiceEnabled()
                             && Constant.OrderStatus.getByName(order.getOrderStatus().getName()).isSuccess()

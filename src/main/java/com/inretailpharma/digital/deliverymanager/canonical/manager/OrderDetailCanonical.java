@@ -12,6 +12,7 @@ public class OrderDetailCanonical {
     private String serviceType; // (DELIVERY) or PICKUP(PICKUP)
     private boolean serviceEnabled; // TRUE = ENABLED , FALSE = DISABLED
     private String serviceSourceChannel; // DIGITAL, CALL_CENTER
+    private String serviceClassImplement; // inkatrackerlite, inkatracker
 
     // schedules
     private String confirmedSchedule;

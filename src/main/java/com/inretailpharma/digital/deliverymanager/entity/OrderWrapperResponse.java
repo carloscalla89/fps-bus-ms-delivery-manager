@@ -18,6 +18,8 @@ public class OrderWrapperResponse {
     private String serviceName;
     private String serviceSourcechannel;
     private String serviceEnabled;
+    private String serviceClassImplement;
+
     private Integer attemptBilling;
     private Integer attemptTracker;
     private String localCode;

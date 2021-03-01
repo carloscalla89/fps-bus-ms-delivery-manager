@@ -109,6 +109,7 @@ public class OrderTransaction {
         orderWrapperResponse.setServiceType(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getType());
         orderWrapperResponse.setServiceSourcechannel(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getSourceChannel());
         orderWrapperResponse.setServiceEnabled(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getEnabled());
+        orderWrapperResponse.setServiceClassImplement(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getClassImplement());
 
         orderWrapperResponse.setAttemptBilling(serviceLocalOrderResponse.getAttempt());
         orderWrapperResponse.setAttemptTracker(serviceLocalOrderResponse.getAttemptTracker());

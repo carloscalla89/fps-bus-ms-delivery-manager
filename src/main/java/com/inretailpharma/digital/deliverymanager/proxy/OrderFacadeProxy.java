@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface OrderFacadeProxy {
 
-    Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String serviceTypeCode,
+    Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplement,
                                             String statusDetail, String statusName, String orderCancelCode,
                                             String orderCancelObservation, String companyCode, String localCode,
                                             boolean sendNewAudit);

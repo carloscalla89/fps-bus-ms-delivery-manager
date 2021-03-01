@@ -60,6 +60,7 @@ public interface IOrderFulfillment {
     String getServiceType();
     String getServiceEnabled();
     String getServiceChannel();
+    String getClassImplement();
     boolean getSendNewFlow();
     boolean getSendNotificationByChannel();
     boolean getSendNotificationByStatus();

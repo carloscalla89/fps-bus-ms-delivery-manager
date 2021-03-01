@@ -12,7 +12,8 @@ public interface Constant {
     enum CancellationStockDispatcher {
 
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el Delivery Center"),
-        CANCELLED_ORDER_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el Delivery Center"), NONE(null, null);
+        CANCELLED_ORDER_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el Delivery Center"),
+        NONE(null, null);
 
         private String id;
         private String reason;
@@ -90,64 +91,31 @@ public interface Constant {
     }
 
     enum TrackerImplementation {
-        INKATRACKER_LITE_RAD(4, "inkatrackerlite", "RAD", "RAD", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_EXP(4, "inkatrackerlite", "EXP", "RAD", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_PROG(4, "inkatrackerlite", "PROG", "RAD", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_AM_PM(4, "inkatrackerlite", "AM_PM", "RAD", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_RET(4, "inkatrackerlite", "RET", "RET", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_CALL_RAD(4, "inkatrackerlite", "RAD", "RAD", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_CALL_EXP(4, "inkatrackerlite", "EXP", "RAD", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_CALL_PROG(4, "inkatrackerlite", "PROG", "RAD", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_CALL_AM_PM(4, "inkatrackerlite", "AM_PM", "RAD", InkatrackerLiteServiceImpl.class),
-        INKATRACKER_LITE_CALL_RET(4, "inkatrackerlite", "RET", "RET", InkatrackerLiteServiceImpl.class),
+        inkatrackerlite(4, InkatrackerLiteServiceImpl.class), inkatracker(3, InkatrackerServiceImpl.class),
+        NONE(4, InkatrackerLiteServiceImpl.class);
 
-        INKATRACKER_RAD(3, "inkatracker", "RAD", "RAD", InkatrackerServiceImpl.class),
-        INKATRACKER_EXP(3, "inkatracker", "EXP", "RAD", InkatrackerServiceImpl.class),
-        INKATRACKER_PROG(3, "inkatracker", "PROG", "RAD", InkatrackerServiceImpl.class),
-        INKATRACKER_AM_PM(3, "inkatracker", "AM_PM", "RAD", InkatrackerServiceImpl.class),
-
-        NONE(3, "not_found", "RAD", "RAD", null);
-
-        private int id;
-        private String name;
-        private String serviceTypeCode;
-        private String serviceTypeCodeOld;
+        Integer id;
         private Class trackerImplement;
 
-        TrackerImplementation(int id, String name, String serviceTypeCode, String serviceTypeCodeOld,
-                              Class trackerImplement) {
+        TrackerImplementation(Integer id, Class trackerImplement) {
             this.id = id;
-            this.name = name;
-            this.serviceTypeCode = serviceTypeCode;
-            this.serviceTypeCodeOld = serviceTypeCodeOld;
             this.trackerImplement = trackerImplement;
         }
 
-        public static TrackerImplementation getByCode(String code) {
-
-            return EnumUtils.getEnumList(TrackerImplementation.class).stream()
-                    .filter(item -> item.name().equalsIgnoreCase(code)).findFirst().orElse(NONE);
-        }
-
-        public int getId() {
+        public Integer getId() {
             return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getServiceTypeCode() {
-            return serviceTypeCode;
-        }
-
-        public String getServiceTypeCodeOld() {
-            return serviceTypeCodeOld;
         }
 
         public Class getTrackerImplement() {
             return trackerImplement;
         }
+
+        public static TrackerImplementation getIdByClassImplement(String classImplement) {
+
+            return EnumUtils.getEnumList(TrackerImplementation.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(classImplement)).findFirst().orElse(NONE);
+        }
+
     }
 
     interface OrderTrackerResponseCode {
@@ -369,6 +337,22 @@ public interface Constant {
         public static OrderStatusTracker getByActionName(String actionName) {
             return EnumUtils.getEnumList(OrderStatusTracker.class).stream()
                     .filter(item -> item.actionName.equalsIgnoreCase(actionName)).findFirst().orElse(NOT_FOUND_ACTION);
+        }
+
+        public static String getByActionNameAndServiceTypeCoce(String actionName, String classImplementTracker) {
+            return EnumUtils.getEnumList(OrderStatusTracker.class).stream()
+                    .filter(item -> item.actionName.equalsIgnoreCase(actionName))
+                    .findFirst()
+                    .map(res -> {
+
+                        if (classImplementTracker.equalsIgnoreCase(TrackerImplementation.inkatracker.name())) {
+                            return res.getTrackerStatus();
+                        }
+
+                        return res.getTrackerLiteStatus();
+
+
+                    }).orElse(NOT_FOUND_ACTION.orderStatusError.getCode());
         }
 
         OrderStatusTracker(String trackerStatus, String trackerLiteStatus, OrderStatus orderStatus,

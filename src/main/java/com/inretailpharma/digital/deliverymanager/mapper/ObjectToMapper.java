@@ -118,7 +118,9 @@ public class ObjectToMapper {
                         .map(BigDecimal::doubleValue)
                         .orElse(null));
 
-        orderInkatrackerCanonical.setDeliveryService(Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getId());
+        orderInkatrackerCanonical.setDeliveryService(
+                Constant.TrackerImplementation.getIdByClassImplement(iOrderFulfillment.getClassImplement()).getId()
+        );
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
 
         orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
@@ -177,7 +179,9 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setDeliveryType(iOrderFulfillment.getServiceTypeShortCode());
 
 
-        orderInkatrackerCanonical.setDeliveryServiceId((long) Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getId());
+        orderInkatrackerCanonical.setDeliveryServiceId(
+                (long) Constant.TrackerImplementation.getIdByClassImplement(iOrderFulfillment.getClassImplement()).getId()
+        );
         orderInkatrackerCanonical.setDrugstoreAddress(storeCenterCanonical.getAddress());
         orderInkatrackerCanonical.setDaysToPickUp(
                 Optional.ofNullable(iOrderFulfillment.getDaysPickup())
@@ -936,6 +940,8 @@ public class ObjectToMapper {
                 Constant.Logical.getByValueString(orderWrapperResponse.getServiceEnabled()).value()
         );
         orderCanonical.getOrderDetail().setServiceSourceChannel(orderWrapperResponse.getServiceSourcechannel());
+        orderCanonical.getOrderDetail().setServiceClassImplement(orderWrapperResponse.getServiceClassImplement());
+
         orderCanonical.getOrderDetail().setAttempt(orderWrapperResponse.getAttemptBilling());
         orderCanonical.getOrderDetail().setAttemptTracker(orderWrapperResponse.getAttemptTracker());
 

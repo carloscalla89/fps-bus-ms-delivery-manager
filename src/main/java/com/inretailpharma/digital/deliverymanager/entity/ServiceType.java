@@ -16,6 +16,8 @@ public class ServiceType {
     private String type;
     @Column(name="source_channel")
     private String sourceChannel;
+    @Column(name="class_implement")
+    private String classImplement;
     private String description;
     private String enabled;
 

@@ -17,20 +17,20 @@ import java.util.List;
 @Slf4j
 public class UtilClass {
 
-    private String serviceTypeCode;
+    private String classImplementTracker;
     private String serviceType;
     private String actionName;
     private String origin;
     private String orderStatus;
     private boolean sendNewFlow;
 
-    public UtilClass(String serviceTypeCode) {
-        this.serviceTypeCode = serviceTypeCode;
+    public UtilClass(String classImplementTracker) {
+        this.classImplementTracker = classImplementTracker;
     }
 
-    public UtilClass(String serviceTypeCode, String serviceType, String actionName, String origin, String orderStatus,
+    public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin, String orderStatus,
                      boolean sendNewFlow) {
-        this.serviceTypeCode = serviceTypeCode;
+        this.classImplementTracker = classImplementTracker;
         this.serviceType = serviceType;
         this.actionName = actionName;
         this.origin = origin;
@@ -43,7 +43,7 @@ public class UtilClass {
         log.info("class implementation:{}", classType.getSimpleName());
 
         if (classType.getSimpleName().equalsIgnoreCase("TrackerAdapterImpl")) {
-            return Constant.TrackerImplementation.getByCode(serviceTypeCode).getTrackerImplement();
+            return Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getTrackerImplement();
         } else {
             return OrderTrackerServiceImpl.class;
         }
@@ -52,7 +52,7 @@ public class UtilClass {
 
     public Class<?> getClassToTracker() {
 
-        return Constant.TrackerImplementation.getByCode(serviceTypeCode).getTrackerImplement();
+        return Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getTrackerImplement();
 
     }
 
