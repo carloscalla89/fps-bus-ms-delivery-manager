@@ -76,6 +76,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "st.code as serviceTypeCode, st.short_code as serviceTypeShortCode,  st.name as serviceTypeName, " +
             "st.enabled as serviceEnabled, st.send_new_code_enabled as newCodeServiceEnabled, st.type as serviceType, " +
             "st.send_new_flow_enabled as sendNewFlow, st.class_implement as classImplement, " +
+            "st.send_notification_enabled as sendNotificationByChannel, " +
             "pm.payment_type as paymentType, pm.card_provider as cardProvider, pm.paid_amount as paidAmount, " +
             "pm.change_amount as changeAmount, pm.card_provider_id as cardProviderId, pm.card_provider_code as cardProviderCode," +
             "pm.bin, pm.coupon, pm.payment_transaction_id as paymentTransactionId, " +
@@ -100,9 +101,9 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
             "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
             "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
-            "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as channel, " +
+            "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as serviceChannel, " +
             "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
-            "st.class_implement as classImplement, " +
+            "st.class_implement as classImplement, st.short_code as serviceTypeShortCode, " +
             "c.first_name as firstName, c.phone " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +

@@ -63,7 +63,6 @@ public interface IOrderFulfillment {
     String getClassImplement();
     boolean getSendNewFlow();
     boolean getSendNotificationByChannel();
-    boolean getSendNotificationByStatus();
 
     String getPaymentType();
     Integer getCardProviderId();

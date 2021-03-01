@@ -14,10 +14,10 @@ public interface OrderFacadeProxy {
                                             boolean sendNewAudit);
 
     Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
-                                           String serviceType, String serviceTypeCode, String source, String channel,
-                                           String companyCode, String localCode, String statusCode, String clientName,
-                                           String phone, boolean sendNewAudit, boolean sendNotificationByChannel,
-                                           boolean sendNotificationByStatus);
+                                           String serviceType, String serviceShortCode, String classImplementTracker,
+                                           String source, String channel, String companyCode, String localCode,
+                                           String statusCode, String clientName, String phone, boolean sendNewAudit,
+                                           boolean sendNotificationByChannel);
 
     Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                           String orderCancelCode, String orderCancelObservation, String orderCancelAppType,

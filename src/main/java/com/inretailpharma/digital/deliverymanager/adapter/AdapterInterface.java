@@ -20,7 +20,7 @@ public interface AdapterInterface {
 
     Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
     Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
-    Mono<Boolean> sendNotification(String channel, String serviceType, String orderStatus, Long ecommerceId,
+    Mono<Boolean> sendNotification(String channel, String serviceShortCode, String orderStatus, Long ecommerceId,
                                    String brand, String localCode, String localTypeCode, String phoneNumber,
                                    String clientName, String expiredDate, String confirmedDate, String address);
 

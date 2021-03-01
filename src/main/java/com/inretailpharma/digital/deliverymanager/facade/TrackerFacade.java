@@ -251,7 +251,8 @@ public class TrackerFacade {
 										order.getExternalId(),
 										actionDto,
 										order.getServiceType(),
-										order.getServiceTypeCode(),
+										order.getServiceTypeShortCode(),
+										order.getClassImplement(),
 										order.getSource(),
 										order.getServiceChannel(),
 										order.getCompanyCode(),
@@ -260,8 +261,7 @@ public class TrackerFacade {
 										order.getFirstName(),
 										order.getPhone(),
 										order.getSendNewFlow(),
-										order.getSendNotificationByChannel(),
-										order.getSendNotificationByStatus()
+										order.getSendNotificationByChannel()
 								);
 
 							})

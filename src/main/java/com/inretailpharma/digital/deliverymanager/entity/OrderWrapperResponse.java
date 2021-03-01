@@ -17,8 +17,12 @@ public class OrderWrapperResponse {
     private String serviceType;
     private String serviceName;
     private String serviceSourcechannel;
-    private String serviceEnabled;
     private String serviceClassImplement;
+    private boolean serviceSendNewFlowEnabled;
+    private boolean serviceSendNotificationEnabled;
+
+    private String serviceEnabled;
+
 
     private Integer attemptBilling;
     private Integer attemptTracker;

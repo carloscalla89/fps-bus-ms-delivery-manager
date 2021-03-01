@@ -10,9 +10,13 @@ public class OrderDetailCanonical {
     private String serviceShortCode; // RAD, RET, EXP, AM_PM, PROG
     private String serviceName; // inkatracker lite, inkatracker
     private String serviceType; // (DELIVERY) or PICKUP(PICKUP)
-    private boolean serviceEnabled; // TRUE = ENABLED , FALSE = DISABLED
     private String serviceSourceChannel; // DIGITAL, CALL_CENTER
     private String serviceClassImplement; // inkatrackerlite, inkatracker
+
+    private boolean serviceSendNewFlowEnabled; // TRUE = ENABLED , FALSE = DISABLED
+    private boolean serviceSendNotificationEnabled; // TRUE = ENABLED , FALSE = DISABLED
+    private boolean serviceEnabled; // TRUE = ENABLED , FALSE = DISABLED
+
 
     // schedules
     private String confirmedSchedule;

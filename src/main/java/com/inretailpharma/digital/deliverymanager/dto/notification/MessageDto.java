@@ -9,8 +9,8 @@ public class MessageDto {
     private String orderStatus;
     private String channel;
     private String deliveryTypeCode;
-    private String orderId;
-    private String localTypeCode;
+    private Long orderId;
+    private String localType;
     private String phoneNumber;
     private PayloadDto payload;
 

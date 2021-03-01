@@ -105,14 +105,15 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     @Override
     public Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
-                                                  String serviceType, String classImplementTracker, String source, String channel,
-                                                  String companyCode, String localCode, String statusCode, String clientName,
-                                                  String phone, boolean sendNewFlow, boolean sendNotificationByChannel,
-                                                  boolean sendNotificationByStatus) {
+                                                  String serviceType, String serviceShortCode, String classImplementTracker,
+                                                  String source, String channel, String companyCode, String localCode,
+                                                  String statusCode, String clientName, String phone,
+                                                  boolean sendNewFlow, boolean sendNotificationByChannel) {
 
         log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendNewFlow:{}, serviceType:{}, " +
-                 "classImplementTracker:{}, sendNotificationByChannel:{}, sendNotificationByStatus:{}", orderId, ecommerceId,
-                actionDto, sendNewFlow, serviceType, classImplementTracker, sendNotificationByChannel, sendNotificationByStatus);
+                 "serviceShortCode:{}, classImplementTracker:{}, channel:{}, sendNotificationByChannel:{}", orderId,
+                ecommerceId, actionDto, sendNewFlow, serviceType, serviceShortCode, classImplementTracker, channel,
+                sendNotificationByChannel);
 
         CancellationCodeReason codeReason;
 
@@ -120,12 +121,12 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                             statusCode, sendNewFlow);
 
         Function<List<OrderCanonical>,Publisher<? extends Boolean>> publisherNotification =
-                responses -> processSendNotification(ecommerceId, actionDto, serviceType, classImplementTracker, channel,
-                        companyCode, localCode, clientName, phone, sendNotificationByChannel, sendNotificationByStatus);
+                responses -> processSendNotification(ecommerceId, actionDto, serviceShortCode,
+                        classImplementTracker, channel, companyCode, localCode, clientName, phone, sendNotificationByChannel);
 
         Function<OrderCanonical,Mono<? extends Boolean>> publisherNotificationSingle =
-                responses -> processSendNotification(ecommerceId, actionDto, serviceType, classImplementTracker, channel,
-                        companyCode, localCode, clientName, phone, sendNotificationByChannel, sendNotificationByStatus);
+                responses -> processSendNotification(ecommerceId, actionDto, serviceShortCode,
+                        classImplementTracker, channel, companyCode, localCode, clientName, phone, sendNotificationByChannel);
 
         if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
@@ -339,21 +340,22 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     }
 
-    private Mono<Boolean> processSendNotification(Long ecommerceId, ActionDto actionDto, String serviceType,
-                                               String classImplementTracker,String channel, String companyCode,
-                                               String localCode, String clientName, String phone,
-                                               boolean sendNotificationByChannel, boolean sendNotificationByStatus) {
+    private Mono<Boolean> processSendNotification(Long ecommerceId, ActionDto actionDto, String serviceShortCode,
+                                                  String classImplementTracker,String channel, String companyCode,
+                                                  String localCode, String clientName, String phone,
+                                                  boolean sendNotificationByChannel) {
 
-        if (sendNotificationByChannel && sendNotificationByStatus) {
+        if (sendNotificationByChannel) {
 
             String statusToSend = Constant
                                     .OrderStatusTracker
                                     .getByActionNameAndServiceTypeCoce(actionDto.getAction(), classImplementTracker);
 
+            String localType = Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getLocalType();
 
             return adapterNotificationInterface
-                        .sendNotification(channel, serviceType, statusToSend, ecommerceId, companyCode, localCode, null,
-                                phone, clientName, null, null, null
+                        .sendNotification(channel, serviceShortCode, statusToSend, ecommerceId, companyCode, localCode,
+                                localType, phone, clientName, null, null, null
                         );
         }
 

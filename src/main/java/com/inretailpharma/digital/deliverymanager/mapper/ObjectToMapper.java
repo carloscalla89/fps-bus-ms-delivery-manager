@@ -936,11 +936,15 @@ public class ObjectToMapper {
         orderCanonical.getOrderDetail().setServiceShortCode(orderWrapperResponse.getServiceShortCode());
         orderCanonical.getOrderDetail().setServiceName(orderWrapperResponse.getServiceName());
         orderCanonical.getOrderDetail().setServiceType(orderWrapperResponse.getServiceType());
+        orderCanonical.getOrderDetail().setServiceSourceChannel(orderWrapperResponse.getServiceSourcechannel());
+        orderCanonical.getOrderDetail().setServiceClassImplement(orderWrapperResponse.getServiceClassImplement());
+
+        orderCanonical.getOrderDetail().setServiceSendNewFlowEnabled(orderWrapperResponse.isServiceSendNewFlowEnabled());
+        orderCanonical.getOrderDetail().setServiceSendNotificationEnabled(orderWrapperResponse.isServiceSendNotificationEnabled());
         orderCanonical.getOrderDetail().setServiceEnabled(
                 Constant.Logical.getByValueString(orderWrapperResponse.getServiceEnabled()).value()
         );
-        orderCanonical.getOrderDetail().setServiceSourceChannel(orderWrapperResponse.getServiceSourcechannel());
-        orderCanonical.getOrderDetail().setServiceClassImplement(orderWrapperResponse.getServiceClassImplement());
+
 
         orderCanonical.getOrderDetail().setAttempt(orderWrapperResponse.getAttemptBilling());
         orderCanonical.getOrderDetail().setAttemptTracker(orderWrapperResponse.getAttemptTracker());

@@ -22,6 +22,9 @@ public class NotificationServiceImpl extends AbstractOrderService implements Ord
 
     @Override
     public Mono<Void> sendNotification(MessageDto messageDto) {
+        log.info("[START] sendNotification:uri{}, messageDto:{}", externalServicesProperties.getNotificationLambdaUri(),
+                messageDto);
+
         return WebClient
                 .builder()
                 .clientConnector(
@@ -36,7 +39,7 @@ public class NotificationServiceImpl extends AbstractOrderService implements Ord
                 .body(Mono.just(messageDto), MessageDto.class)
                 .exchange()
                 .subscribeOn(Schedulers.parallel())
-                .doOnSuccess(s -> log.info("Response notification is Success:{} with orderId:{}",s, messageDto.getOrderId()))
+                .doOnSuccess(s -> log.info("[END] Response sendNotification IS Success:{} with orderId:{}",s, messageDto.getOrderId()))
                 .doOnError(e -> {
                     e.printStackTrace();
                     log.error("Error to send lambda notification:{} with orderId:{}",e.getMessage(), messageDto.getOrderId());

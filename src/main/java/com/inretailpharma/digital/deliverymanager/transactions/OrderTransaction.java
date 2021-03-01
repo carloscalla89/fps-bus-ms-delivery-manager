@@ -108,6 +108,14 @@ public class OrderTransaction {
         orderWrapperResponse.setServiceName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getName());
         orderWrapperResponse.setServiceType(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getType());
         orderWrapperResponse.setServiceSourcechannel(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getSourceChannel());
+
+        orderWrapperResponse.setServiceSendNewFlowEnabled(
+                serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().isSendNewFlowEnabled()
+        );
+        orderWrapperResponse.setServiceSendNotificationEnabled(
+                serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().isSendNotificationEnabled()
+        );
+
         orderWrapperResponse.setServiceEnabled(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getEnabled());
         orderWrapperResponse.setServiceClassImplement(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getClassImplement());
 

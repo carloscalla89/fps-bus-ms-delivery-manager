@@ -91,15 +91,18 @@ public interface Constant {
     }
 
     enum TrackerImplementation {
-        inkatrackerlite(4, InkatrackerLiteServiceImpl.class), inkatracker(3, InkatrackerServiceImpl.class),
-        NONE(4, InkatrackerLiteServiceImpl.class);
+        inkatrackerlite(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE"),
+        inkatracker(3, InkatrackerServiceImpl.class,"DELIVERY_CENTER"),
+        NONE(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE");
 
-        Integer id;
+        private Integer id;
         private Class trackerImplement;
+        private String localType;
 
-        TrackerImplementation(Integer id, Class trackerImplement) {
+        TrackerImplementation(Integer id, Class trackerImplement, String localType) {
             this.id = id;
             this.trackerImplement = trackerImplement;
+            this.localType = localType;
         }
 
         public Integer getId() {
@@ -108,6 +111,10 @@ public interface Constant {
 
         public Class getTrackerImplement() {
             return trackerImplement;
+        }
+
+        public String getLocalType() {
+            return localType;
         }
 
         public static TrackerImplementation getIdByClassImplement(String classImplement) {

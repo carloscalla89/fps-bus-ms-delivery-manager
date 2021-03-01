@@ -65,7 +65,10 @@ public class DeliveryManagerFacade {
                                                                         storeCenter
                                                                 );
 
-                    orderFacadeProxy.createExternalAudit(true,orderCanonicalResponse);
+                    orderFacadeProxy.createExternalAudit(
+                            orderCanonicalResponse.getOrderDetail().isServiceSendNewFlowEnabled(),
+                            orderCanonicalResponse
+                    );
 
                     return orderCanonicalResponse;
                 })
@@ -83,7 +86,7 @@ public class DeliveryManagerFacade {
                                         order.getId(),
                                         order.getEcommerceId(),
                                         order.getExternalId(),
-                                        order.getOrderDetail().getServiceCode(),
+                                        order.getOrderDetail().getServiceClassImplement(),
                                         order.getOrderStatus().getDetail(),
                                         Optional.ofNullable(order.getOrderStatus().getName())
                                                 .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
@@ -97,7 +100,7 @@ public class DeliveryManagerFacade {
                                                 .orElse(null),
                                         order.getCompanyCode(),
                                         order.getLocalCode(),
-                                        true
+                                        order.getOrderDetail().isServiceSendNewFlowEnabled()
                                 );
 
                     }
@@ -146,7 +149,7 @@ public class DeliveryManagerFacade {
                                     iOrderFulfillmentLight.getOrderId(),
                                     ecommercePurchaseId,
                                     iOrderFulfillmentLight.getExternalId(),
-                                    iOrderFulfillmentLight.getServiceTypeCode(),
+                                    iOrderFulfillmentLight.getClassImplement(),
                                     null,
                                     Constant.OrderStatus.CONFIRMED_TRACKER.name(),
                                     null,
@@ -244,7 +247,8 @@ public class DeliveryManagerFacade {
                                             iOrderFulfillmentLight.getExternalId(),
                                             actionDto,
                                             iOrderFulfillmentLight.getServiceType(),
-                                            iOrderFulfillmentLight.getServiceTypeCode(),
+                                            iOrderFulfillmentLight.getServiceTypeShortCode(),
+                                            iOrderFulfillmentLight.getClassImplement(),
                                             iOrderFulfillmentLight.getSource(),
                                             iOrderFulfillmentLight.getServiceChannel(),
                                             iOrderFulfillmentLight.getCompanyCode(),
@@ -253,8 +257,7 @@ public class DeliveryManagerFacade {
                                             iOrderFulfillmentLight.getFirstName(),
                                             iOrderFulfillmentLight.getPhone(),
                                             iOrderFulfillmentLight.getSendNewFlow(),
-                                            iOrderFulfillmentLight.getSendNotificationByChannel(),
-                                            iOrderFulfillmentLight.getSendNotificationByStatus()
+                                            iOrderFulfillmentLight.getSendNotificationByChannel()
                                     );
 
                 case 5:

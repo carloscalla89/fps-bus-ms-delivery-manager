@@ -34,32 +34,32 @@ external-service:
       read-timeout: 60000
   inkatracker-lite:
     create-order:
-      uri: http://us-inkatrackerlite/nvr/orders/create
+      uri: http://inkatrackerliteci02.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://us-inkatrackerlite/v2/unattended-orders
-      connect-timeout: 240
-      read-timeout: 360
+      uri: http://inkatrackerliteci02.backend.cindibyinkafarma.com/v2/unattended-orders
+      connect-timeout: 30000
+      read-timeout: 60000
     update-onlinepayment-status-order:
-      uri: http://us-inkatrackerlite/nvr/onlinepayment/orders
+      uri: http://inkatrackerliteci02.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker:
     create-order:
-      uri: http://us-inkatracker/nvr/orders/create
+      uri: http://inkatrackerci02.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://us-inkatracker/nvr/orders/create
+      uri: http://inkatrackerci02.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-status-order:
-      uri: http://us-inkatracker/nvr/orders
+      uri: http://inkatrackerci02.backend.cindibyinkafarma.com/nvr/orders
       connect-timeout: 30000
       read-timeout: 60000
     update-onlinepayment-status-order:
-      uri: http://us-inkatracker/nvr/onlinepayment/orders
+      uri: http://inkatrackerci02.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   order-tracker:
