@@ -228,7 +228,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                         .stream()
                                         .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                         )
-                        .flatMap(publisherNotification)
+                        //.flatMap(publisherNotification)
                         .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
                         .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)))
                         .single();
