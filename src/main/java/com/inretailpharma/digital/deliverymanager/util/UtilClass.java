@@ -98,6 +98,11 @@ public class UtilClass {
 
                         classList.add(OrderTrackerAdapterImpl.class);
 
+                    } else if (Constant.ORIGIN_BBR.equalsIgnoreCase(origin)) {
+
+                        classList.add(TrackerAdapterImpl.class);
+                        classList.add(OrderTrackerAdapterImpl.class);
+
                     } else if (orderStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
                                 || orderStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED.name())
                                 || orderStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())){

@@ -208,7 +208,10 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                 orderId,
                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                 actionDto.getOrderCancelObservation(),
-                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null)
+                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
+                                                statusCode,
+                                                actionDto.getOrigin()
+
                                         )
                         )
                         .flatMap(responses -> getOrderResponse(
@@ -250,7 +253,9 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                         orderId,
                                         null,
                                         null,
-                                        null
+                                        null,
+                                        statusCode,
+                                        actionDto.getOrigin()
                                 )
                 )
                 .flatMap(responses -> getOrderResponse(

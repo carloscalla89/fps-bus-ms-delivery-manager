@@ -16,7 +16,8 @@ public interface AdapterInterface {
     Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService, Long ecommerceId,
                                                        ActionDto actionDto, String company, String serviceType,
                                                        Long orderId, String orderCancelCode,
-                                                       String orderCancelObservation, String orderCancelAppType);
+                                                       String orderCancelObservation, String orderCancelAppType,
+                                                       String statusCode, String origin);
 
     Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
     Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);

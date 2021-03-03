@@ -317,7 +317,7 @@ public class AbstractOrderService implements OrderExternalService {
 		if (cancellationCode != null) {
 			status = Constant.OrderStatus.ERROR_CANCELLED.name();
 		} else {
-			status = statusName;
+			status = Constant.OrderStatus.ERROR_INSERT_TRACKER.name();
 		}
 
 		OrderStatusCanonical orderStatus = objectToMapper

@@ -268,7 +268,7 @@ public interface Constant {
         SUCCESS_RESERVED_ORDER("CONFIRMED", "CONFIRMED", OrderStatus.CONFIRMED_TRACKER,
                 OrderStatus.ERROR_INSERT_INKAVENTA, ActionOrder.NONE.name()),
 
-        DELIVERED_ORDER("DELIVERED", "DELIVERED", OrderStatus.DELIVERED_ORDER, OrderStatus.ERROR_DELIVERED,
+        DELIVERED_ORDER("DELIVER_ORDER", "DELIVERED", OrderStatus.DELIVERED_ORDER, OrderStatus.ERROR_DELIVERED,
                 ActionOrder.DELIVER_ORDER.name()),
 
         NOT_FOUND_ACTION("NOT_FOUND_ACTION", "NOT_FOUND_ACTION", OrderStatus.NOT_FOUND_CODE, OrderStatus.NOT_FOUND_CODE,
@@ -472,6 +472,20 @@ public interface Constant {
                             || DELIVERED_ORDER.code.equalsIgnoreCase(code));
         }
 
+        public static boolean isToCreateOrderToOrderTracker(String code, String origin) {
+            return EnumUtils
+                    .getEnumList(OrderStatus.class)
+                    .stream()
+                    .anyMatch(item -> ORIGIN_BBR.equalsIgnoreCase(origin)
+                            && (ERROR_INSERT_TRACKER.code.equalsIgnoreCase(code)
+                                || ERROR_PICKED.code.equalsIgnoreCase(code)
+                                || PICKED_ORDER.code.equalsIgnoreCase(code)
+                                || ERROR_PREPARED.code.equalsIgnoreCase(code)
+                                || CONFIRMED.code.equalsIgnoreCase(code)
+                                || CONFIRMED_TRACKER.code.equalsIgnoreCase(code))
+                    );
+        }
+
         public String getCode() {
             return code;
         }
@@ -548,6 +562,7 @@ public interface Constant {
     String REJECT_ORDER = "REJECT_ORDER";
     String ORIGIN_OMNI_DELIVERY = "OMNI_DELIVERY";
     String ORIGIN_DIGITAL = "DIGITAL";
+    String ORIGIN_BBR = "BBR";
 
 
     enum DeliveryManagerStatus {

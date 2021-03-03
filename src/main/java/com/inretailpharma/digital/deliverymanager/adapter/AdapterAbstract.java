@@ -37,7 +37,8 @@ public class AdapterAbstract implements AdapterInterface{
     public Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService,
                                                               Long ecommerceId, ActionDto actionDto, String company,
                                                               String serviceType, Long orderId, String orderCancelCode,
-                                                              String orderCancelObservation, String orderCancelAppType) {
+                                                              String orderCancelObservation, String orderCancelAppType,
+                                                              String statusCode, String origin) {
         return null;
     }
 

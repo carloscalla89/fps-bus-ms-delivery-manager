@@ -18,19 +18,25 @@ import java.util.stream.Collectors;
 @Component("ordertrackeradapter")
 public class OrderTrackerAdapterImpl extends AdapterAbstract implements AdapterInterface{
 
-
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService, Long ecommerceId,
                                                               ActionDto actionDto, String company, String serviceType,
-                                                              Long id, String orderCancelCode,
-                                                              String orderCancelObservation, String orderCancelAppType) {
+                                                              Long id, String orderCancelCode, String orderCancelObservation,
+                                                              String orderCancelAppType, String statusCode, String origin) {
 
         if (actionDto.getAction().equalsIgnoreCase(Constant.ActionOrder.PREPARE_ORDER.name())) {
 
             return createOrder(id, ecommerceId, actionDto, orderExternalService);
 
+        } else if (Constant.OrderStatus.isToCreateOrderToOrderTracker(statusCode, origin)) {
+
+            return createOrder(id, ecommerceId, actionDto, orderExternalService)
+                    .flatMap(result -> orderExternalService.updateOrderStatus(ecommerceId, actionDto));
+
         } else {
+
             return orderExternalService.updateOrderStatus(ecommerceId, actionDto);
+
         }
 
     }

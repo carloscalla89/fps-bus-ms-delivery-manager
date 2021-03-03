@@ -42,8 +42,8 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService, Long ecommerceId,
                                                               ActionDto actionDto, String company, String serviceType,
-                                                              Long id, String orderCancelCode,
-                                                              String orderCancelObservation, String orderCancelAppType) {
+                                                              Long id, String orderCancelCode, String orderCancelObservation,
+                                                              String orderCancelAppType, String statusCode, String origin) {
         return orderExternalService
                 .getResultfromExternalServices(ecommerceId, actionDto, company, serviceType);
     }
