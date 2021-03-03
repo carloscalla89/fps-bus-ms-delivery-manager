@@ -260,6 +260,7 @@ public class TrackerFacade {
 										order.getStatusCode(),
 										order.getFirstName(),
 										order.getPhone(),
+										order.getScheduledTime(),
 										order.getSendNewFlow(),
 										order.getSendNotificationByChannel()
 								);

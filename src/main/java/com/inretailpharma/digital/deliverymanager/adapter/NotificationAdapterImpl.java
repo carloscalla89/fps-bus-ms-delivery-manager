@@ -38,6 +38,8 @@ public class NotificationAdapterImpl extends AdapterAbstract implements AdapterI
         PayloadDto payloadDto = new PayloadDto();
         payloadDto.setClientName(clientName);
         payloadDto.setAddress(address);
+        payloadDto.setExpirationDate(expiredDate);
+        payloadDto.setLocalCode(localCode);
 
         messageDto.setPayload(payloadDto);
 

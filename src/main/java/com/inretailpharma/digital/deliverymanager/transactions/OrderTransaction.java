@@ -229,50 +229,6 @@ public class OrderTransaction {
 
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateOrderRetrying(Long orderFulfillmentId, Integer attempt, Integer attemptTracker,
-                                    String orderStatusCode, String statusDetail, Long externalPurchaseId,
-                                    Long trackerId){
-        log.info("[START] updateOrderRetrying - orderFulfillmentId:{}, attempt:{}, attemptTracker:{}, " +
-                        "orderStatusCode:{}, statusDetail:{}, externalPurchaseId:{}, trackerId:{}",
-                orderFulfillmentId, attempt, attemptTracker, orderStatusCode, statusDetail, externalPurchaseId, trackerId);
-
-        orderRepositoryService.updateExternalAndTrackerId(orderFulfillmentId, externalPurchaseId, trackerId);
-
-        orderRepositoryService.updateRetryingOrderStatusProcess(
-                orderFulfillmentId, attemptTracker, attempt, orderStatusCode, statusDetail
-        );
-
-
-    }
-
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateOrderRetryingTracker(Long orderFulfillmentId, Integer attemptTracker,
-                                      String orderStatusCode, String statusDetail, Long trackerId){
-        log.info("[START] updateReattemtpTracker - orderFulfillmentId:{}, attempt:{}, " +
-                        "orderStatusCode:{}, statusDetail:{}, trackerId:{}",
-                orderFulfillmentId, attemptTracker, orderStatusCode, statusDetail, trackerId);
-
-        orderRepositoryService.updateTrackerId(orderFulfillmentId, trackerId);
-
-        orderRepositoryService.updateReattemtpTracker(
-                orderFulfillmentId, attemptTracker, orderStatusCode, statusDetail
-        );
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateReservedOrder(Long orderFulfillmentId, Long externalPurchaseId, Integer attempt, String orderStatusCode,
-                                    String statusDetail) {
-        log.info("[START] updateReservedOrder - orderFulfillmentId:{} - externalPurchaseId:{} , attempt:{}, " +
-                        "orderStatusCode:{}, statusDetail:{}",
-                orderFulfillmentId, externalPurchaseId, attempt, orderStatusCode, statusDetail);
-
-        orderRepositoryService.updateExternalIdToReservedOrder(orderFulfillmentId, externalPurchaseId);
-
-        orderRepositoryService.updateStatusToReservedOrder(orderFulfillmentId, attempt, orderStatusCode, statusDetail);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail) {
         log.info("[START] updateOrderStatus - orderFulfillmentId:{} - orderStatusCode:{}, statusDetail:{}",
                 orderFulfillmentId, orderStatusCode, statusDetail);

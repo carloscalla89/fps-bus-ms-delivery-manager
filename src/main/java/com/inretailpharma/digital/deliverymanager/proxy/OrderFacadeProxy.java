@@ -6,6 +6,8 @@ import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 public interface OrderFacadeProxy {
 
     Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplement,
@@ -16,8 +18,8 @@ public interface OrderFacadeProxy {
     Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
                                            String serviceType, String serviceShortCode, String classImplementTracker,
                                            String source, String channel, String companyCode, String localCode,
-                                           String statusCode, String clientName, String phone, boolean sendNewAudit,
-                                           boolean sendNotificationByChannel);
+                                           String statusCode, String clientName, String phone, LocalDateTime scheduledTime,
+                                           boolean sendNewAudit, boolean sendNotificationByChannel);
 
     Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                           String orderCancelCode, String orderCancelObservation, String orderCancelAppType,

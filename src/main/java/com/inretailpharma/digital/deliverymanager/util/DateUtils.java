@@ -31,7 +31,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static String getLocalDateTimeWithFormat(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
     }
-    
+
+    public static String getLocalDateWithFormat(LocalDateTime localDateTime) {
+        return localDateTime.format(DateTimeFormatter.ofPattern(DATE_TEMPLATE));
+    }
+
+
     public static LocalTime getLocalTimeWithValidFormat(String localtime) {
 
         if (GenericValidator.isDate(localtime, TIME_TEMPLATE_HOUR_MINUTE, true)) {

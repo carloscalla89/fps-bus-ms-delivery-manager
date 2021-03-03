@@ -6,7 +6,7 @@ import lombok.Data;
 public class PayloadDto {
 
     private String clientName;
-    private String expiredDate;
+    private String expirationDate;
     private String confirmedDate;
     private String address;
     private String localCode;

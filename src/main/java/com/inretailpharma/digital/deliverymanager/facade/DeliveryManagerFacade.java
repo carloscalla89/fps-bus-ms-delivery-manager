@@ -256,6 +256,7 @@ public class DeliveryManagerFacade {
                                             iOrderFulfillmentLight.getStatusCode(),
                                             iOrderFulfillmentLight.getFirstName(),
                                             iOrderFulfillmentLight.getPhone(),
+                                            iOrderFulfillmentLight.getScheduledTime(),
                                             iOrderFulfillmentLight.getSendNewFlow(),
                                             iOrderFulfillmentLight.getSendNotificationByChannel()
                                     );

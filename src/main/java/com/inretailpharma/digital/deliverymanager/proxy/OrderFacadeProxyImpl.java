@@ -6,7 +6,9 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
+import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.*;
@@ -45,6 +47,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     private OrderExternalService externalOnlinePaymentService;
 
+    private ApplicationParameterService applicationParameterService;
+
     private final ApplicationContext context;
 
     @Autowired
@@ -54,6 +58,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                 @Qualifier("notificationadapter") AdapterInterface adapterNotificationInterface,
                                 @Qualifier("store") OrderExternalService externalStoreService,
                                 @Qualifier("onlinePayment") OrderExternalService externalOnlinePaymentService,
+                                ApplicationParameterService applicationParameterService,
                                 ApplicationContext context) {
 
         this.orderCancellationService = orderCancellationService;
@@ -63,6 +68,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         this.adapterNotificationInterface = adapterNotificationInterface;
         this.externalStoreService = externalStoreService;
         this.externalOnlinePaymentService = externalOnlinePaymentService;
+        this.applicationParameterService = applicationParameterService;
         this.context = context;
     }
 
@@ -107,7 +113,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     public Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
                                                   String serviceType, String serviceShortCode, String classImplementTracker,
                                                   String source, String channel, String companyCode, String localCode,
-                                                  String statusCode, String clientName, String phone,
+                                                  String statusCode, String clientName, String phone, LocalDateTime scheduledTime,
                                                   boolean sendNewFlow, boolean sendNotificationByChannel) {
 
         log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendNewFlow:{}, serviceType:{}, " +
@@ -122,11 +128,13 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
         Function<List<OrderCanonical>,Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(ecommerceId, actionDto, serviceShortCode,
-                        classImplementTracker, source, channel, companyCode, localCode, clientName, phone, sendNotificationByChannel);
+                        classImplementTracker, source, companyCode, localCode, clientName, phone, serviceType,
+                        sendNotificationByChannel, scheduledTime);
 
         Function<OrderCanonical,Mono<? extends Boolean>> publisherNotificationSingle =
                 responses -> processSendNotification(ecommerceId, actionDto, serviceShortCode,
-                        classImplementTracker, source, channel, companyCode, localCode, clientName, phone, sendNotificationByChannel);
+                        classImplementTracker, source, companyCode, localCode, clientName, phone, serviceType,
+                        sendNotificationByChannel, scheduledTime);
 
         if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
@@ -346,9 +354,9 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     }
 
     private Mono<Boolean> processSendNotification(Long ecommerceId, ActionDto actionDto, String serviceShortCode,
-                                                  String classImplementTracker, String source, String channel,
-                                                  String companyCode, String localCode, String clientName, String phone,
-                                                  boolean sendNotificationByChannel) {
+                                                  String classImplementTracker, String source, String companyCode,
+                                                  String localCode, String clientName, String phone, String serviceType,
+                                                  boolean sendNotificationByChannel, LocalDateTime scheduledDate) {
 
         if (sendNotificationByChannel) {
 
@@ -358,9 +366,27 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
             String localType = Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getLocalType();
 
+            String expiredDate = null;
+
+            if (Constant.PICKUP.equalsIgnoreCase(serviceType)
+                    && Constant.ActionOrder.READY_PICKUP_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
+
+
+                int daysToExpiredRet = Integer
+                                        .parseInt(
+                                                applicationParameterService
+                                                        .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.DAYS_PICKUP_MAX_RET)
+                                                        .getValue()
+                                        );
+
+                expiredDate = DateUtils.getLocalDateWithFormat(scheduledDate.plusDays(daysToExpiredRet));
+
+                log.info("Get expired date:{}",expiredDate);
+            }
+
             return adapterNotificationInterface
                         .sendNotification(source, serviceShortCode, statusToSend, ecommerceId, companyCode, localCode,
-                                localType, phone, clientName, null, null, null
+                                localType, phone, clientName, expiredDate, null, null
                         );
         }
 
