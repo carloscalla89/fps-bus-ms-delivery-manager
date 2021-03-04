@@ -176,7 +176,6 @@ public class TrackerFacade {
 
 		return Mono
 				.justOrEmpty(orderTransaction.getOrderLightByecommerceId(ecommerceId))
-				.filter(order -> !order.getServiceType().equalsIgnoreCase(Constant.ServiceTypeCodes.PICKUP))
 				.flatMap(filtredOrder -> {
 
 					if (!filtredOrder.getServiceType().equalsIgnoreCase(Constant.ServiceTypeCodes.PICKUP)) {
