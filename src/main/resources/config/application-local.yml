@@ -9,7 +9,7 @@ spring:
 external-service:
   audit:
     create-order: http://auditci02.backend.cindibyinkafarma.com/audit/order
-    update-order-history-audit: http://us-audit/audit/order/history
+    update-order-history-audit: http://auditci02.backend.cindibyinkafarma.com/audit/order/history
     connect-timeout: 10000
     read-timeout: 10000
   dispatcher:

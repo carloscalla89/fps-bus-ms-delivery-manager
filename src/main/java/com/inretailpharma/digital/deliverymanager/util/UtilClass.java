@@ -118,8 +118,6 @@ public class UtilClass {
                     }
 
                     break;
-
-
             }
 
             return classList;

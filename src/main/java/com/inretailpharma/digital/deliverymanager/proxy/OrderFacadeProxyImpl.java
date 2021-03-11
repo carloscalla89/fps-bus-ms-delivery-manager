@@ -136,7 +136,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         classImplementTracker, source, companyCode, localCode, clientName, phone, serviceType,
                         sendNotificationByChannel, scheduledTime);
 
-        if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
+        if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())
+            || Constant.ActionOrder.REJECT_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
             if (source.equalsIgnoreCase(Constant.Source.SC.name())) {
 
@@ -158,16 +159,16 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
             if (actionDto.getOrderCancelCode() != null && actionDto.getOrderCancelAppType() != null) {
                 codeReason = orderCancellationService
-                            .geByCodeAndAppType(actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType());
+                                .geByCodeAndAppType(actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType());
             } else {
                 codeReason = orderCancellationService.geByCode(actionDto.getOrderCancelCode());
             }
 
-            // Esta condición está para saber si una orden se manda a cancelar pero no está en el tracker porque de seguro falló al momento de registrarse
+            // Esta condición está para saber si una orden se manda a cancelar pero no está en el tracker porque de
+            // seguro falló al momento de registrarse
 
             if (Constant.OrderStatus.getByCode(statusCode).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
                     || Constant.OrderStatus.getByCode(statusCode).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
-
 
                 return externalStoreService
                         .getStoreByCompanyCodeAndLocalCode(companyCode, localCode)
@@ -291,8 +292,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     @Override
     public Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
-                                                  String orderCancelCode, String orderCancelObservation,
-                                                  String orderCancelAppType, boolean sendNewAudit) {
+                                                 String orderCancelCode, String orderCancelObservation,
+                                                 String orderCancelAppType, boolean sendNewAudit) {
 
         LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
 
