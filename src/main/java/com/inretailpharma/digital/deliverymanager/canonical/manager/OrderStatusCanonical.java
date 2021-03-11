@@ -13,6 +13,7 @@ public class OrderStatusCanonical implements Serializable {
     private String name;
     private String detail;
     private String cancellationCode;
+    private String cancellationDescription;
     private String cancellationObservation;
     private String statusDate;
     private boolean successful;

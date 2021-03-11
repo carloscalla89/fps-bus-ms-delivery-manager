@@ -50,6 +50,8 @@ public interface IOrderFulfillment {
     String getStatusCode();
     String getStatusName();
     String getStatusDetail();
+    String getCancellationCode();
+    String getCancellationDescription();
 
     Integer getAttempt();
     Integer getAttemptTracker();

@@ -5,10 +5,13 @@ import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.St
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Slf4j
 @Component("trackeradapter")
@@ -48,6 +51,20 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
                 .getResultfromExternalServices(ecommerceId, actionDto, company, serviceType);
     }
 
+    @Override
+    public Mono<OrderCanonical> getOrder(IOrderFulfillment iOrderFulfillment) {
+        return Mono
+                .just(
+                        objectToMapper
+                                .getOrderFromIOrdersProjects(
+                                        iOrderFulfillment,
+                                        orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId())
+                                )
+                );
+
+
+
+    }
 
 
 }

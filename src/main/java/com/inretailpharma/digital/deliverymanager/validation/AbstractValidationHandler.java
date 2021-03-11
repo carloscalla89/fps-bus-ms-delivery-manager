@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.validation;
 
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,6 +29,9 @@ public abstract class AbstractValidationHandler<T, U extends Validator> {
 
     abstract protected Mono<ServerResponse> processDelivery(T validBody, final ServerRequest originalRequest);
 
+    abstract protected Mono<ServerResponse> processTracker(final ServerRequest originalRequest);
+    abstract protected Mono<ServerResponse> processTrackers(final ServerRequest originalRequest);
+
     public final Mono<ServerResponse> handleDeliveryOrders(final ServerRequest request) {
         return request
                 .bodyToMono(this.validationClass)
@@ -38,6 +43,48 @@ public abstract class AbstractValidationHandler<T, U extends Validator> {
                     if (errors == null || errors.getAllErrors()
                             .isEmpty()) {
                         return processDelivery(body, request);
+                    } else {
+                        return onValidationErrors(errors);
+                    }
+                });
+    }
+
+    public final Mono<ServerResponse> handleTrackerOrders(final ServerRequest request) {
+
+        OrderDto orderDto = new OrderDto();
+        orderDto.setEcommercePurchaseId(
+                Optional.ofNullable(request.pathVariable("ecommerceId"))
+                        .map(Long::parseLong)
+                        .orElse(null)
+        );
+
+        return  Mono.just(orderDto)
+                .flatMap(body -> {
+                    Errors errors = new BeanPropertyBindingResult(body, OrderDto.class.getName());
+                    this.validator.validate(body, errors);
+
+                    if (errors == null || errors.getAllErrors().isEmpty()) {
+
+                        return processTracker(request);
+                    } else {
+                        return onValidationErrors(errors);
+                    }
+                });
+    }
+
+    public final Mono<ServerResponse> handleTrackersOrders(final ServerRequest request) {
+
+        OrderDto orderDto = new OrderDto();
+        orderDto.setEcommerceIds(request.queryParam("ecommerceIds").orElse(null));
+        orderDto.setEcommercePurchaseId(0L);
+        return  Mono.just(orderDto)
+                .flatMap(body -> {
+                    Errors errors = new BeanPropertyBindingResult(body, OrderDto.class.getName());
+                    this.validator.validate(body, errors);
+
+                    if (errors == null || errors.getAllErrors().isEmpty()) {
+
+                        return processTrackers(request);
                     } else {
                         return onValidationErrors(errors);
                     }

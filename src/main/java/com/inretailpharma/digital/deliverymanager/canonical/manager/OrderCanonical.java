@@ -85,6 +85,7 @@ public class OrderCanonical {
     private BigDecimal totalCostNoDiscount;
 
     // Canonical local and company
+    private String localType;
     private String companyCode;
     private String localCode;
     private String local;

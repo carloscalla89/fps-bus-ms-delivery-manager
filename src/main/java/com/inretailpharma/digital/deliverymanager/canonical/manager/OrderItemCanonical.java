@@ -9,8 +9,9 @@ import java.math.BigDecimal;
 @Getter
 public class OrderItemCanonical {
 
-    private String productCode;
-    private String productName;
+    private String sku;
+    private String skuSap;
+    private String skuName;
     private String productEan;
     private String shortDescription;
     private String brand;
@@ -26,7 +27,7 @@ public class OrderItemCanonical {
     private Integer quantityUnitMinimium;
     private Integer quantityPresentation;
     private Integer valueUMV;
-    private String sap;
+
 
 
 }

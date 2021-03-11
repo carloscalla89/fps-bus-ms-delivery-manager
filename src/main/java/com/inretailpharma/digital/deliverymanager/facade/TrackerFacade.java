@@ -1,16 +1,15 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -44,16 +43,20 @@ public class TrackerFacade {
 	private OrderExternalService orderExternalOrderTracker;
 	private OrderExternalService orderExternalServiceAudit;
 	private OrderFacadeProxy orderFacadeProxy;
+	private AdapterInterface adapterInterface;
 
+	@Autowired
 	public TrackerFacade(OrderTransaction orderTransaction,
 						 ObjectToMapper objectToMapper,
 						 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
 						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
+						 @Qualifier("trackeradapter") AdapterInterface adapterInterface,
 						 OrderFacadeProxy orderFacadeProxy) {
 		this.orderTransaction = orderTransaction;
 		this.objectToMapper = objectToMapper;
 		this.orderExternalOrderTracker = orderExternalOrderTracker;
 		this.orderExternalServiceAudit = orderExternalServiceAudit;
+		this.adapterInterface = adapterInterface;
 		this.orderFacadeProxy = orderFacadeProxy;
 	}
 
@@ -326,6 +329,33 @@ public class TrackerFacade {
 		response.setStatusCode(result);
 		return response;
 
+	}
+
+	public Mono<OrderCanonical> getOrderByEcommerceId(Long ecommerceId) {
+
+		IOrderFulfillment iOrderFulfillmentLight = orderTransaction.getOrderLightByecommerceId(ecommerceId);
+
+		return Optional
+				.ofNullable(iOrderFulfillmentLight)
+				.map(order -> adapterInterface.getOrder(order))
+				.orElse(Mono.empty());
+
+	}
+
+	public Flux<OrderCanonical> getOrderByEcommerceIds(String ecommerceIds) {
+		log.info("getOrderByEcommerceIds:{}",ecommerceIds);
+
+		return Flux
+				.fromIterable(orderTransaction
+						.getOrderLightByecommercesIds(
+								Arrays.stream(ecommerceIds.split(",")).map(Long::parseLong).collect(Collectors.toSet())
+						))
+				.parallel()
+				.runOn(Schedulers.elastic())
+				.flatMap(orders -> {
+					log.info("in orders flux");
+					return adapterInterface.getOrder(orders).flux();
+				}).ordered((o1,o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
 
 	}
 }

@@ -100,8 +100,10 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
             "o.scheduled_time as scheduledTime," +
+            "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, " +
             "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
             "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
+            "s.cancellation_code as cancellationCode, " +
             "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as serviceChannel, " +
             "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
             "st.class_implement as classImplement, st.short_code as serviceTypeShortCode, " +
@@ -120,9 +122,11 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
             "o.scheduled_time as scheduledTime," +
+            "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, " +
             "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
             "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
-            "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as channel, " +
+            "s.cancellation_code as cancellationCode, " +
+            "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as serviceChannel, " +
             "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
             "st.class_implement as classImplement, st.short_code as serviceTypeShortCode, " +
             "c.first_name as firstName, c.phone " +

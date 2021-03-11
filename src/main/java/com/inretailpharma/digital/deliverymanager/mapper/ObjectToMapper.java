@@ -60,6 +60,52 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ObjectToMapper {
 
+
+    public OrderCanonical getOrderFromIOrdersProjects(IOrderFulfillment iOrderFulfillment,
+                                                      List<IOrderItemFulfillment> itemFulfillments) {
+
+        OrderCanonical orderCanonical = new OrderCanonical();
+        orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+        orderCanonical.setTotalAmount(iOrderFulfillment.getTotalCost());
+        orderCanonical.setSubTotalCost(iOrderFulfillment.getSubTotalCost());
+        orderCanonical.setDeliveryCost(iOrderFulfillment.getDeliveryCost());
+        orderCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
+        orderCanonical.setLocalType(
+                Constant.TrackerImplementation
+                        .getIdByClassImplement(iOrderFulfillment.getClassImplement())
+                        .getLocalType()
+        );
+
+        OrderStatusCanonical orderStatusDto = new OrderStatusCanonical();
+        orderStatusDto.setCode(iOrderFulfillment.getStatusCode());
+        orderStatusDto.setName(iOrderFulfillment.getStatusName());
+        orderStatusDto.setDetail(iOrderFulfillment.getStatusDetail());
+        orderStatusDto.setCancellationCode(iOrderFulfillment.getCancellationCode());
+        orderStatusDto.setCancellationDescription(iOrderFulfillment.getCancellationDescription());
+        orderStatusDto.setSuccessful(!Optional.ofNullable(iOrderFulfillment.getStatusDetail()).isPresent());
+        orderCanonical.setOrderStatus(orderStatusDto);
+
+        orderCanonical.setOrderItems(
+                itemFulfillments.stream().map(item -> {
+                    OrderItemCanonical orderItem = new OrderItemCanonical();
+                    orderItem.setSku(item.getProductCode());
+                    orderItem.setSkuSap(item.getProductSapCode());
+                    orderItem.setUnitPrice(item.getUnitPrice());
+                    orderItem.setTotalPrice(item.getTotalPrice());
+                    orderItem.setSkuName(item.getNameProduct());
+                    orderItem.setQuantity(item.getQuantity());
+                    orderItem.setQuantityUnits(item.getQuantityUnits());
+                    orderItem.setPresentationId(item.getPresentationId());
+                    orderItem.setPresentationDescription(item.getPresentationDescription());
+
+                    return orderItem;
+
+                }).collect(Collectors.toList()));
+
+        return orderCanonical;
+
+    }
+
     public AuditHistoryDto getAuditHistoryDtoFromObject(OrderCanonical orderCanonical) {
 
         AuditHistoryDto auditHistoryDto = new AuditHistoryDto();
@@ -232,24 +278,6 @@ public class ObjectToMapper {
         });
 
         return client;
-
-    }
-
-    public StoreCenterCanonical getStoreCenterFromOrderCanonical(OrderCanonical orderCanonical) {
-
-        StoreCenterCanonical storeCenterCanonical = new StoreCenterCanonical();
-        storeCenterCanonical.setLegacyId(orderCanonical.getLocalId());
-        storeCenterCanonical.setName(orderCanonical.getLocal());
-        storeCenterCanonical.setDescription(orderCanonical.getLocalDescription());
-        storeCenterCanonical.setAddress(orderCanonical.getLocalAddress());
-        storeCenterCanonical.setCompanyCode(orderCanonical.getCompanyCode());
-        storeCenterCanonical.setInkaVentaId(orderCanonical.getInkaVentaId());
-        storeCenterCanonical.setLatitude(orderCanonical.getLocalLatitude());
-        storeCenterCanonical.setLongitude(orderCanonical.getLocalLongitude());
-        storeCenterCanonical.setLocalCode(orderCanonical.getLocalCode());
-        storeCenterCanonical.setCompanyCode(orderCanonical.getCompanyCode());
-
-        return storeCenterCanonical;
 
     }
 
@@ -729,8 +757,8 @@ public class ObjectToMapper {
     	
     	OrderItemCanonical orderItemCanonical = new OrderItemCanonical();
     	Optional.ofNullable(iOrderItemFulfillment).ifPresent(o -> {
-    		orderItemCanonical.setProductCode(o.getProductCode());
-    		orderItemCanonical.setProductName(o.getNameProduct());
+    		orderItemCanonical.setSku(o.getProductCode());
+    		orderItemCanonical.setSkuName(o.getNameProduct());
     		orderItemCanonical.setShortDescription(o.getShortDescriptionProduct());
     		orderItemCanonical.setBrand(o.getBrandProduct());
     		orderItemCanonical.setQuantity(o.getQuantity());
@@ -867,9 +895,9 @@ public class ObjectToMapper {
         orderCanonical.setOrderItems(
                 orderDto.getOrderItem().stream().map(r -> {
                     OrderItemCanonical itemCanonical = new OrderItemCanonical();
-                    itemCanonical.setSap(r.getProductSapCode());
-                    itemCanonical.setProductCode(r.getProductCode());
-                    itemCanonical.setProductName(r.getProductName());
+                    itemCanonical.setSkuSap(r.getProductSapCode());
+                    itemCanonical.setSku(r.getProductCode());
+                    itemCanonical.setSkuName(r.getProductName());
                     itemCanonical.setShortDescription(r.getShortDescription());
                     itemCanonical.setBrand(r.getBrand());
                     itemCanonical.setQuantity(r.getQuantity());

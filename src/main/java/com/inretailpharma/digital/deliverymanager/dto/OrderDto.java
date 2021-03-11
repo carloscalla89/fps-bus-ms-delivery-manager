@@ -17,13 +17,13 @@ public class OrderDto {
 
     private String source;
 
-    @NotNull
     private String localCode;
     private String companyCode;
     private String serviceTypeCode;
 
     @NotNull
     private Long ecommercePurchaseId;
+    private String ecommerceIds;
     private Long trackerId;
     private Long externalPurchaseId;
     private Integer purchaseNumber;

@@ -215,6 +215,7 @@ public class OrderTransaction {
     }
 
     public List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommerceId) {
+        log.info("getTransaction:{}",ecommerceId);
         return orderRepositoryService.getOrderLightByecommercesIds(ecommerceId);
     }
 

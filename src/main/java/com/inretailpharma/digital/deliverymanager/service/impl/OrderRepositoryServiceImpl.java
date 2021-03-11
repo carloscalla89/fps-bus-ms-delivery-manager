@@ -113,6 +113,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 
     @Override
     public List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommercesIds) {
+        log.info("repository:{}",ecommercesIds);
         return orderRepository.getOrderLightByecommercesIds(ecommercesIds);
     }
 

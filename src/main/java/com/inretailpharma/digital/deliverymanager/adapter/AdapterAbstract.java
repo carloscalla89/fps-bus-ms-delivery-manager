@@ -2,7 +2,10 @@ package com.inretailpharma.digital.deliverymanager.adapter;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
@@ -11,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+
 @Data
 @Slf4j
 public class AdapterAbstract implements AdapterInterface{
@@ -56,6 +62,11 @@ public class AdapterAbstract implements AdapterInterface{
     public Mono<Boolean> sendNotification(String channel, String serviceTypeCode, String orderStatus, Long ecommerceId,
                                        String brand, String localCode, String localTypeCode, String phoneNumber,
                                        String clientName, String expiredDate, String confirmedDate, String address){
+        return null;
+    }
+
+    @Override
+    public Mono<OrderCanonical> getOrder(IOrderFulfillment iOrderFulfillment) {
         return null;
     }
 
