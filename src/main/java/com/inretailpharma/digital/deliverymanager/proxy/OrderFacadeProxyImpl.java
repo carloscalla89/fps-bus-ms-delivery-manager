@@ -76,7 +76,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     public Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplementTracker,
                                                    String statusDetail, String statusName, String orderCancelCode,
                                                    String orderCancelObservation, String companyCode, String localCode,
-                                                   boolean sendNewAudit) {
+                                                   String source, boolean sendNewAudit) {
 
         UtilClass utilClass = new UtilClass(classImplementTracker);
 
@@ -102,6 +102,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         orderCancelCode,
                                                         orderCancelObservation,
                                                         null,
+                                                        source,
                                                         sendNewAudit
                                                         )
                                                 )
@@ -192,6 +193,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                             actionDto.getOrderCancelObservation(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
+                                                            Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                             sendNewFlow
                                                             )
                                                     )
@@ -231,6 +233,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                     Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                     actionDto.getOrderCancelObservation(),
                                                     Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
+                                                    Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                     sendNewFlow
                                                 )
                         )
@@ -275,6 +278,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         null,
                         null,
                         null,
+                        Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                         sendNewFlow
                         )
                 )
@@ -293,11 +297,12 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     @Override
     public Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                                  String orderCancelCode, String orderCancelObservation,
-                                                 String orderCancelAppType, boolean sendNewAudit) {
+                                                 String orderCancelAppType, String source, boolean sendNewAudit) {
 
         LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
 
         orderCanonical.setEcommerceId(ecommerceId);
+        orderCanonical.setSource(source);
 
         orderTransaction.updateStatusCancelledOrder(
                 orderCanonical.getOrderStatus().getDetail(), orderCancelObservation,

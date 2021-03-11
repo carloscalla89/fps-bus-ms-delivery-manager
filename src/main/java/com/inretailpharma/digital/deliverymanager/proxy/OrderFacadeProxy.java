@@ -13,7 +13,7 @@ public interface OrderFacadeProxy {
     Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplement,
                                             String statusDetail, String statusName, String orderCancelCode,
                                             String orderCancelObservation, String companyCode, String localCode,
-                                            boolean sendNewAudit);
+                                            String source, boolean sendNewAudit);
 
     Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
                                            String serviceType, String serviceShortCode, String classImplementTracker,
@@ -23,7 +23,7 @@ public interface OrderFacadeProxy {
 
     Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                           String orderCancelCode, String orderCancelObservation, String orderCancelAppType,
-                                          boolean sendNewAudit);
+                                          String source, boolean sendNewAudit);
 
     void createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
 

@@ -100,6 +100,7 @@ public class DeliveryManagerFacade {
                                                 .orElse(null),
                                         order.getCompanyCode(),
                                         order.getLocalCode(),
+                                        order.getSource(),
                                         order.getOrderDetail().isServiceSendNewFlowEnabled()
                                 );
 
@@ -156,6 +157,7 @@ public class DeliveryManagerFacade {
                                     null,
                                     iOrderFulfillmentLight.getCompanyCode(),
                                     iOrderFulfillmentLight.getCenterCode(),
+                                    iOrderFulfillmentLight.getSource(),
                                     iOrderFulfillmentLight.getSendNewFlow()
                             );
 
@@ -215,6 +217,7 @@ public class DeliveryManagerFacade {
                                                                                                                         .orElse(null),
                                                                                                                 iOrderFulfillmentLight.getCompanyCode(),
                                                                                                                 iOrderFulfillmentLight.getCenterCode(),
+                                                                                                                iOrderFulfillmentLight.getSource(),
                                                                                                                 iOrderFulfillmentLight.getSendNewFlow()
 
                                                                                                         );
@@ -230,6 +233,7 @@ public class DeliveryManagerFacade {
                                                                                                         null,
                                                                                                         null,
                                                                                                         null,
+                                                                                                        iOrderFulfillmentLight.getSource(),
                                                                                                         iOrderFulfillmentLight.getSendNewFlow()
                                                                                                 );
 

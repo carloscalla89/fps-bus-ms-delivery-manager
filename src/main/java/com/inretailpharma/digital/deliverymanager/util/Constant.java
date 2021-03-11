@@ -559,6 +559,7 @@ public interface Constant {
     String ORIGIN_OMNI_DELIVERY = "OMNI_DELIVERY";
     String ORIGIN_DIGITAL = "DIGITAL";
     String ORIGIN_BBR = "BBR";
+    String ORIGIN_UNIFIED_POS = "UNIFIED_POS";
 
 
     enum DeliveryManagerStatus {
