@@ -88,11 +88,11 @@ public class ObjectToMapper {
         orderCanonical.setOrderItems(
                 itemFulfillments.stream().map(item -> {
                     OrderItemCanonical orderItem = new OrderItemCanonical();
-                    orderItem.setSku(item.getProductCode());
+                    orderItem.setProductCode(item.getProductCode());
                     orderItem.setSkuSap(item.getProductSapCode());
                     orderItem.setUnitPrice(item.getUnitPrice());
                     orderItem.setTotalPrice(item.getTotalPrice());
-                    orderItem.setSkuName(item.getNameProduct());
+                    orderItem.setProductName(item.getNameProduct());
                     orderItem.setQuantity(item.getQuantity());
                     orderItem.setQuantityUnits(item.getQuantityUnits());
                     orderItem.setPresentationId(item.getPresentationId());
@@ -757,8 +757,8 @@ public class ObjectToMapper {
     	
     	OrderItemCanonical orderItemCanonical = new OrderItemCanonical();
     	Optional.ofNullable(iOrderItemFulfillment).ifPresent(o -> {
-    		orderItemCanonical.setSku(o.getProductCode());
-    		orderItemCanonical.setSkuName(o.getNameProduct());
+    		orderItemCanonical.setProductCode(o.getProductCode());
+    		orderItemCanonical.setProductName(o.getNameProduct());
     		orderItemCanonical.setShortDescription(o.getShortDescriptionProduct());
     		orderItemCanonical.setBrand(o.getBrandProduct());
     		orderItemCanonical.setQuantity(o.getQuantity());
@@ -896,8 +896,8 @@ public class ObjectToMapper {
                 orderDto.getOrderItem().stream().map(r -> {
                     OrderItemCanonical itemCanonical = new OrderItemCanonical();
                     itemCanonical.setSkuSap(r.getProductSapCode());
-                    itemCanonical.setSku(r.getProductCode());
-                    itemCanonical.setSkuName(r.getProductName());
+                    itemCanonical.setProductCode(r.getProductCode());
+                    itemCanonical.setProductName(r.getProductName());
                     itemCanonical.setShortDescription(r.getShortDescription());
                     itemCanonical.setBrand(r.getBrand());
                     itemCanonical.setQuantity(r.getQuantity());
