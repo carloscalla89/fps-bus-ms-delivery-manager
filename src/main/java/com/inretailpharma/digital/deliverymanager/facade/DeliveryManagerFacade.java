@@ -234,6 +234,7 @@ public class DeliveryManagerFacade {
                                                                                                         null,
                                                                                                         null,
                                                                                                         iOrderFulfillmentLight.getSource(),
+                                                                                                        Constant.TARGET_INSINK,
                                                                                                         iOrderFulfillmentLight.getSendNewFlow()
                                                                                                 );
 

@@ -9,6 +9,7 @@ public class AuditHistoryDto {
 
     private Long ecommerceId;
     private String source;
+    private String target;
     private String timeFromUi;
     private String updatedBy;
     private BigDecimal latitude;

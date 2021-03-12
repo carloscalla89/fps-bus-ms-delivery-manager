@@ -23,7 +23,7 @@ public interface OrderFacadeProxy {
 
     Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                           String orderCancelCode, String orderCancelObservation, String orderCancelAppType,
-                                          String source, boolean sendNewAudit);
+                                          String source, String target, boolean sendNewAudit);
 
     void createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
 

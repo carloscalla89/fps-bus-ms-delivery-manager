@@ -103,6 +103,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         orderCancelObservation,
                                                         null,
                                                         source,
+                                                        utilClass.getOnlyTargetComponentTracker(),
                                                         sendNewAudit
                                                         )
                                                 )
@@ -194,6 +195,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             actionDto.getOrderCancelObservation(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                             Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                                                            utilClass.getOnlyTargetComponentTracker(),
                                                             sendNewFlow
                                                             )
                                                     )
@@ -207,35 +209,35 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
             } else {
                 return Flux
                         .fromIterable(utilClass.getClassesToSend())
-                        .flatMap(objectClass ->
-                                ((AdapterInterface)context
-                                        .getBean(objectClass))
-                                        .getResultfromExternalServices(
-                                                ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
-                                                ecommerceId,
-                                                actionDto,
-                                                companyCode,
-                                                serviceType,
-                                                orderId,
-                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                actionDto.getOrderCancelObservation(),
-                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
-                                                statusCode,
-                                                actionDto.getOrigin()
+                        .flatMap(objectClass -> ((AdapterInterface)context
+                                                        .getBean(objectClass))
+                                                        .getResultfromExternalServices(
+                                                                ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
+                                                                ecommerceId,
+                                                                actionDto,
+                                                                companyCode,
+                                                                serviceType,
+                                                                orderId,
+                                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                                                actionDto.getOrderCancelObservation(),
+                                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
+                                                                statusCode,
+                                                                actionDto.getOrigin()
 
-                                        )
-                        )
-                        .flatMap(responses -> getOrderResponse(
-                                                    responses,
-                                                    orderId,
-                                                    ecommerceId,
-                                                    externalId,
-                                                    Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                    actionDto.getOrderCancelObservation(),
-                                                    Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
-                                                    Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
-                                                    sendNewFlow
-                                                )
+                                                        )
+                                                        .flatMap(responses -> getOrderResponse(
+                                                                responses,
+                                                                orderId,
+                                                                ecommerceId,
+                                                                externalId,
+                                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                                                actionDto.getOrderCancelObservation(),
+                                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
+                                                                Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                                                                Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
+                                                                sendNewFlow
+                                                                )
+                                                        )
                         )
                         .buffer()
                         .filter(finalResponse ->
@@ -243,7 +245,6 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                         .stream()
                                         .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                         )
-                        //.flatMap(publisherNotification)
                         .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
                         .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)))
                         .single();
@@ -253,34 +254,34 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
         return Flux
                 .fromIterable(utilClass.getClassesToSend())
-                .flatMap(objectClass ->
-                        ((AdapterInterface)context
-                                .getBean(objectClass))
-                                .getResultfromExternalServices(
-                                        ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
-                                        ecommerceId,
-                                        actionDto,
-                                        companyCode,
-                                        serviceType,
-                                        orderId,
-                                        null,
-                                        null,
-                                        null,
-                                        statusCode,
-                                        actionDto.getOrigin()
-                                )
-                )
-                .flatMap(responses -> getOrderResponse(
-                        responses,
-                        orderId,
-                        ecommerceId,
-                        externalId,
-                        null,
-                        null,
-                        null,
-                        Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
-                        sendNewFlow
-                        )
+                .flatMap(objectClass -> ((AdapterInterface)context
+                                            .getBean(objectClass))
+                                            .getResultfromExternalServices(
+                                                    ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
+                                                    ecommerceId,
+                                                    actionDto,
+                                                    companyCode,
+                                                    serviceType,
+                                                    orderId,
+                                                    null,
+                                                    null,
+                                                    null,
+                                                    statusCode,
+                                                    actionDto.getOrigin()
+                                            )
+                                            .flatMap(responses -> getOrderResponse(
+                                                    responses,
+                                                    orderId,
+                                                    ecommerceId,
+                                                    externalId,
+                                                    null,
+                                                    null,
+                                                    null,
+                                                    Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                                                    Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
+                                                    sendNewFlow
+                                                    )
+                                            )
                 )
                 .buffer()
                 .filter(finalResponse ->
@@ -297,12 +298,13 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     @Override
     public Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                                  String orderCancelCode, String orderCancelObservation,
-                                                 String orderCancelAppType, String source, boolean sendNewAudit) {
-
+                                                 String orderCancelAppType, String source, String target, boolean sendNewAudit) {
+        log.info("Target to send:{}",target);
         LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
 
         orderCanonical.setEcommerceId(ecommerceId);
         orderCanonical.setSource(source);
+        orderCanonical.setTarget(target);
 
         orderTransaction.updateStatusCancelledOrder(
                 orderCanonical.getOrderStatus().getDetail(), orderCancelObservation,

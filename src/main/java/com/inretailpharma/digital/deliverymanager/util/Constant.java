@@ -9,6 +9,28 @@ import java.util.Optional;
 
 public interface Constant {
 
+    enum ClassesImplements {
+
+        OrderTrackerServiceImpl(TARGET_ORDER_TRACKER), InkatrackerLiteServiceImpl(TARGET_LITE),
+        InkatrackerServiceImpl(TARGET_TRACKER), NONE(null);
+
+        private String targetName;
+
+        ClassesImplements(String targetName) {
+            this.targetName = targetName;
+        }
+
+        public static ClassesImplements getByClass(Class<?> classType) {
+
+            return EnumUtils.getEnumList(ClassesImplements.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(classType.getSimpleName())).findFirst().orElse(NONE);
+        }
+
+        public String getTargetName() {
+            return targetName;
+        }
+    }
+
     enum CancellationStockDispatcher {
 
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el Delivery Center"),
@@ -91,18 +113,20 @@ public interface Constant {
     }
 
     enum TrackerImplementation {
-        inkatrackerlite(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE"),
-        inkatracker(3, InkatrackerServiceImpl.class,"DELIVERY_CENTER"),
-        NONE(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE");
+        inkatrackerlite(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE", TARGET_LITE),
+        inkatracker(3, InkatrackerServiceImpl.class,"DELIVERY_CENTER", TARGET_TRACKER),
+        NONE(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE", null);
 
         private Integer id;
         private Class trackerImplement;
         private String localType;
+        private String targetName;
 
-        TrackerImplementation(Integer id, Class trackerImplement, String localType) {
+        TrackerImplementation(Integer id, Class trackerImplement, String localType, String targetName) {
             this.id = id;
             this.trackerImplement = trackerImplement;
             this.localType = localType;
+            this.targetName = targetName;
         }
 
         public Integer getId() {
@@ -117,11 +141,16 @@ public interface Constant {
             return localType;
         }
 
+        public String getTargetName() {
+            return targetName;
+        }
+
         public static TrackerImplementation getIdByClassImplement(String classImplement) {
 
             return EnumUtils.getEnumList(TrackerImplementation.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(classImplement)).findFirst().orElse(NONE);
         }
+
 
     }
 
@@ -560,6 +589,10 @@ public interface Constant {
     String ORIGIN_DIGITAL = "DIGITAL";
     String ORIGIN_BBR = "BBR";
     String ORIGIN_UNIFIED_POS = "UNIFIED_POS";
+    String TARGET_TRACKER = "TRACKER";
+    String TARGET_LITE = "LITE";
+    String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
+    String TARGET_INSINK = "INSINK";
 
 
     enum DeliveryManagerStatus {

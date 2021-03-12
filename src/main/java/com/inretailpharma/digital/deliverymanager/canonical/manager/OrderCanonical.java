@@ -127,6 +127,7 @@ public class OrderCanonical {
     private Integer attemptTracker;
 
     private String source;
+    private String target;
 
     private String action;
     private Boolean partial;

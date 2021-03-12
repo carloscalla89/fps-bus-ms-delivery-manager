@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Slf4j
@@ -18,6 +19,7 @@ public class UtilClass {
     private String serviceType;
     private String actionName;
     private String origin;
+    private String target;
     private String orderStatus;
     private boolean sendNewFlow;
 
@@ -33,6 +35,12 @@ public class UtilClass {
         this.origin = origin;
         this.orderStatus = orderStatus;
         this.sendNewFlow = sendNewFlow;
+    }
+
+    public String getOnlyTargetComponentTracker() {
+
+        return Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getTargetName();
+
     }
 
     public Class<?> getClassImplementationToOrderExternalService(Class<?> classType) {
