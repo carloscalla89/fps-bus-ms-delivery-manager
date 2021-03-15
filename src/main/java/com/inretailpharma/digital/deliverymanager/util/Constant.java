@@ -594,7 +594,6 @@ public interface Constant {
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
     String TARGET_INSINK = "INSINK";
 
-
     enum DeliveryManagerStatus {
 
         ORDER_FAILED("ERROR_INSERT_DM"), NONE("ERROR_NOT_IDENTIFIED");
@@ -652,5 +651,25 @@ public interface Constant {
 
     interface ServiceTypeCodes {
         String PICKUP = "PICKUP";
+    }
+
+    enum StockType {
+        B("BACKUP"), M("MAIN"), NONE(null);
+
+        private String description;
+
+        StockType(String description) {
+            this.description = description;
+        }
+
+        public static StockType getByCode(String name) {
+
+            return EnumUtils.getEnumList(StockType.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(NONE);
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 }

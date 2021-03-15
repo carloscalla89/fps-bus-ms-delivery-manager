@@ -62,4 +62,11 @@ public class OrderDto {
     private Long zoneIdBilling;
 
     private PersonToPickupDto personToPickup;
+
+    /**
+     * Fecha: 15/03/2021
+     * autor: Carlos Calla
+     * para identificar si el stock sale del local original(M=main) o de un local backup(B=backup)
+     */
+    private String stockType;
 }

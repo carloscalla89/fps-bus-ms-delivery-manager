@@ -55,6 +55,7 @@ public interface IOrderFulfillment {
 
     Integer getAttempt();
     Integer getAttemptTracker();
+    String getStockType();
 
     String getServiceTypeShortCode();
     String getServiceTypeCode();

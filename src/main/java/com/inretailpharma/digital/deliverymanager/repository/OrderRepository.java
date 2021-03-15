@@ -61,7 +61,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, " +
             "o.discount_applied as discountApplied, o.total_cost_no_discount as totalCostNoDiscount, " +
             "o.created_order as createdOrder, o.scheduled_time as scheduledTime, o.source_company_name as sourceCompanyName, " +
-            "o.confirmed_order as confirmedOrder, o.cancelled_order as cancelledOrder, o.confirmed_insink_order as confirmedInsinkOrder," +
+            "o.confirmed_order as confirmedOrder, o.cancelled_order as cancelledOrder, " +
+            "o.confirmed_insink_order as confirmedInsinkOrder, o.stockType," +
             "c.first_name as firstName, c.last_name as lastName, c.email, c.document_number as documentNumber, " +
             "c.phone, c.birth_date as birthDate, c.anonimous, c.inkaclub as inkaClub, c.notification_token as notificationToken, " +
             "c.user_id as userId, c.new_user_id as newUserId," +

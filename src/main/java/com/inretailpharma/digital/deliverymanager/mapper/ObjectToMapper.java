@@ -253,7 +253,9 @@ public class ObjectToMapper {
 
         orderInkatrackerCanonical.setSourceCompanyName(iOrderFulfillment.getSourceCompanyName());
 
-
+        orderInkatrackerCanonical.setStockType(
+                Optional.ofNullable(iOrderFulfillment.getStockType())
+                        .orElse(Constant.StockType.M.name()));
 
         return orderInkatrackerCanonical;
     }
@@ -677,6 +679,8 @@ public class ObjectToMapper {
         receiptType.setReceiptNote(orderDto.getReceipt().getNote());
         orderFulfillment.setReceiptType(receiptType);
         orderFulfillment.setNotes(orderDto.getNotes());
+
+        orderFulfillment.setStockType(Constant.StockType.getByCode(orderDto.getStockType()).name());
 
         log.info("[END] map-convertOrderdtoToOrderEntity");
 

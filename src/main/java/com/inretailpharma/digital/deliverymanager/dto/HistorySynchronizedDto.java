@@ -7,4 +7,5 @@ public class HistorySynchronizedDto {
 
     private String action;
     private String actionDate;
+    private String orderCancelCode;
 }

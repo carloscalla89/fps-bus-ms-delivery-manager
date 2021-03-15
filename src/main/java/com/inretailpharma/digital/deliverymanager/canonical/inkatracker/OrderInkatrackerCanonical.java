@@ -63,6 +63,8 @@ public class OrderInkatrackerCanonical {
     private PersonToPickupDto personToPickup;
     private String sourceCompanyName;
 
+    private String stockType;
+
 
 
 

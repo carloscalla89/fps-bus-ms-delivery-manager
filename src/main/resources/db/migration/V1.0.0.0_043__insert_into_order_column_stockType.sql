@@ -1,0 +1,2 @@
+ALTER TABLE `order_fulfillment`
+ADD COLUMN `stockType` VARCHAR(1) NULL DEFAULT NULL;
