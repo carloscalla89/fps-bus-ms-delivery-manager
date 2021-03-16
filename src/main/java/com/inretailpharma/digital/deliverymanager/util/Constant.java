@@ -654,7 +654,7 @@ public interface Constant {
     }
 
     enum StockType {
-        B("BACKUP"), M("MAIN"), NONE(null);
+        B("BACKUP"), M("MAIN");
 
         private String description;
 
@@ -665,11 +665,8 @@ public interface Constant {
         public static StockType getByCode(String name) {
 
             return EnumUtils.getEnumList(StockType.class).stream()
-                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(NONE);
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(M);
         }
 
-        public String getDescription() {
-            return description;
-        }
     }
 }
