@@ -2,6 +2,8 @@ package com.inretailpharma.digital.deliverymanager.facade;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +54,13 @@ public class DeliveryManagerFacade {
 
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
 
-        log.info("[START] createOrder facade:{}", orderDto);
+        try {
+
+            log.info("[START] create-order:{}",
+                    new ObjectMapper().writeValueAsString(orderDto));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         return Mono
                 .defer(() -> orderFacadeProxy.getStoreByCompanyCodeAndLocalCode(orderDto.getCompanyCode(), orderDto.getLocalCode()))
