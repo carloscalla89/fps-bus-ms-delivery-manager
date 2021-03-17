@@ -235,6 +235,15 @@ public class AbstractOrderService implements OrderExternalService {
 
 	}
 
+	protected Mono<OrderCanonical> mapResponseFromTracker(Long id, Long ecommerceId,
+														  Long externalId, String statusName, String cancellationCode,
+														  String cancellationObservation) {
+
+		return Mono.just(getResponse(id, ecommerceId, externalId, statusName, cancellationCode,
+				cancellationObservation));
+
+	}
+
 	protected Mono<OrderCanonical> mapResponseFromUpdateTracker(ClientResponse clientResponse, Long ecommerceId,
 																Constant.OrderStatusTracker orderStatusInkatracker) {
 
