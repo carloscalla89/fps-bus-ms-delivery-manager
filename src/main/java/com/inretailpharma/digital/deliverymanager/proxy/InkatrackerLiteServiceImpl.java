@@ -75,16 +75,12 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             .build()
                             .post()
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
-                            .retrieve()
-                            .onStatus(HttpStatus::isError, clientResponse -> {
-                                log.error("Error while calling endpoint {} with status code {}",
-                                        externalServicesProperties.getInkatrackerLiteCreateOrderUri(), clientResponse.statusCode());
-                                throw new RuntimeException("Error while calling lite endpoint");
-                            })
-                            .bodyToMono(Void.class)
+                            .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
-                                    iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
-                                    externalId, statusName, orderCancelCode, orderCancelObservation))
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
+                                    externalId, statusName, orderCancelCode, orderCancelObservation)
+                            )
+                            .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite:{}",s))
                             .defaultIfEmpty(
                                     new OrderCanonical(
                                             iOrderFulfillment.getOrderId(),
@@ -103,8 +99,8 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                     iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getStatusCode(),
                                     orderCancelCode, orderCancelObservation)
                             );
-                })
-                .doOnSuccess((f) ->  log.info("[END] Create Order To Tracker lite- orderCanonical:{}",f));
+
+                }).doOnSuccess((f) ->  log.info("[END] Create Order To Tracker lite- orderCanonical:{}",f));
 
     }
 
