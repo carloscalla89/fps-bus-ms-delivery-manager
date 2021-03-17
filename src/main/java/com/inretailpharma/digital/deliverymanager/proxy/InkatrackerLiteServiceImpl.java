@@ -61,7 +61,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                         e.printStackTrace();
                     }
 
-                    log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerLiteCreateOrderUri());
+                    log.info("url inkatracker-lite:{}",externalServicesProperties.getInkatrackerLiteCreateOrderUri());
 
                     return WebClient
                             .builder()
@@ -82,7 +82,6 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                 throw new RuntimeException("Error while calling lite endpoint");
                             })
                             .bodyToMono(Void.class)
-                            .timeout(Duration.ofMillis(60000))
                             .flatMap(clientResponse -> mapResponseFromTracker(
                                     iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
                                     externalId, statusName, orderCancelCode, orderCancelObservation))
