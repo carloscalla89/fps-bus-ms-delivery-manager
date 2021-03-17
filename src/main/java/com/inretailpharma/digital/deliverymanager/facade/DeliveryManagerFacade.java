@@ -116,7 +116,20 @@ public class DeliveryManagerFacade {
                     log.info("[END] Preparation to send order:{}", order.getEcommerceId());
 
                     return Mono.just(order);
-                })
+                }).switchIfEmpty(Mono.defer(() -> {
+                    log.error("Error empty Creating the order:{} with companyCode:{}",
+                            orderDto.getEcommercePurchaseId(), orderDto.getCompanyCode());
+
+                    // Cuando la orden ha fallado al insertar al DM, se insertará con lo mínimo para registrarlo en la auditoría
+                    OrderCanonical orderStatusCanonical = new OrderCanonical(
+                            orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
+                            Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode()
+                    );
+
+                    orderFacadeProxy.createExternalAudit(true,orderStatusCanonical);
+
+                    return Mono.just(orderStatusCanonical);
+                }))
                 .onErrorResume(e -> {
                     e.printStackTrace();
                     log.error("Error Creating the order:{} with companyCode:{} in Delivery-manager{}",
