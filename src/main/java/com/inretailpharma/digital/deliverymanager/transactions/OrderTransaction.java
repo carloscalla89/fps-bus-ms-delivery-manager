@@ -144,36 +144,11 @@ public class OrderTransaction {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CONFIRMED.getCode());
 
-        } else if (
-                Optional
-                        .ofNullable(orderDto.getOrderStatusDto().getCode())
-                        .orElse("OK")
-                        .equalsIgnoreCase("0-1") && orderDto.getTrackerId() != null) {
-
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.SUCCESS_RESERVED_ORDER.getCode());
-
-        } else if (Optional
-                .ofNullable(orderDto.getOrderStatusDto().getCode())
-                .orElse("OK")
-                .equalsIgnoreCase("0-1")
-                && orderDto.getTrackerId() == null
-                && Optional.ofNullable(orderDto.getProgrammed()).orElse(false)) {
-
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
-
-        } else if (
-                !Optional
-                        .ofNullable(orderDto.getOrderStatusDto().getCode())
-                        .orElse("OK")
-                        .equalsIgnoreCase("0-1")
-                        && Optional.ofNullable(orderDto.getProgrammed()).orElse(false)
-                        && orderDto.getTrackerId() != null) {
-
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_RESERVED_ORDER.getCode());
-
         } else if (Optional
                     .ofNullable(orderDto.getOrderStatusDto().getCode())
-                    .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
+                    .orElse(Constant.SUCCESS_CODE)
+                    .equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
+
                     && Optional
                         .ofNullable(orderDto.getPayment().getType())
                         .orElse(PaymentMethod.PaymentType.CASH.name())
@@ -183,8 +158,8 @@ public class OrderTransaction {
             orderStatus.setType(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name());
 
         } else if (Optional
-                .ofNullable(orderDto.getOrderStatusDto().getCode())
-                .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
+                    .ofNullable(orderDto.getOrderStatusDto().getCode())
+                    .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.getCode());
             orderStatus.setType(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name());

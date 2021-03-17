@@ -84,10 +84,6 @@ external-service:
       uri: http://fulfillment-centerci02.backend.cindibyinkafarma.com/fulfillment/store/
       connect-timeout: 15000
       read-timeout: 30000
-    get-company-center:
-      uri: http://fulfillment-centerci02.backend.cindibyinkafarma.com/fulfillment/store/
-      connect-timeout: 15000
-      read-timeout: 60000
   seller-center:
     get-controversies:
       uri: http://uS-Seller-Center/sellercenter/orders/

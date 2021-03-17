@@ -197,7 +197,7 @@ public class DeliveryManagerFacade {
                                                                                                                 iOrderFulfillmentLight.getOrderId(),
                                                                                                                 ecommercePurchaseId,
                                                                                                                 orderResp.getExternalId(),
-                                                                                                                iOrderFulfillmentLight.getServiceTypeCode(),
+                                                                                                                iOrderFulfillmentLight.getClassImplement(),
 
                                                                                                                 Optional.ofNullable(orderResp.getOrderStatus())
                                                                                                                         .filter(d -> !StringUtils.isEmpty(d.getDetail()))

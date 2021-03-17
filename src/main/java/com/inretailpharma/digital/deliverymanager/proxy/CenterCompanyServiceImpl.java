@@ -26,6 +26,12 @@ public class CenterCompanyServiceImpl extends AbstractOrderService implements Or
 
 		return WebClient
 				.builder()
+				.clientConnector(
+						generateClientConnector(
+								Integer.parseInt(externalServicesProperties.getFulfillmentCenterGetCenterConnectTimeOut()),
+								Long.parseLong(externalServicesProperties.getFulfillmentCenterGetCenterReadTimeOut())
+						)
+				)
 				.baseUrl(externalServicesProperties.getFulfillmentCenterGetCenterUri())
 				.build()
 				.get()
@@ -36,7 +42,10 @@ public class CenterCompanyServiceImpl extends AbstractOrderService implements Or
 				)
 				.retrieve()
 				.bodyToMono(StoreCenterCanonical.class)
-				.defaultIfEmpty(new StoreCenterCanonical(localCode))
+				.switchIfEmpty(Mono.defer(()-> {
+					log.error("the response for uri:{} is empty",externalServicesProperties.getFulfillmentCenterGetCenterUri());
+					return Mono.just(new StoreCenterCanonical(localCode));
+				}))
 				.flatMap(r -> {
 					r.setCompanyCode(companyCode);
 					return Mono.just(r);

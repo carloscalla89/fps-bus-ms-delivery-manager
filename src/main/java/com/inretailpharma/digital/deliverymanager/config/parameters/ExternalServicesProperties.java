@@ -149,8 +149,11 @@ public class ExternalServicesProperties {
     @Value("${external-service.fulfillment-center.get-center.uri}")
     private String fulfillmentCenterGetCenterUri;
 
-    @Value("${external-service.fulfillment-center.get-company-center.uri}")
-    private String fulfillmentCenterGetCompanyCenterUri;
+    @Value("${external-service.fulfillment-center.get-center.connect-timeout}")
+    private String fulfillmentCenterGetCenterConnectTimeOut;
+
+    @Value("${external-service.fulfillment-center.get-center.read-timeout}")
+    private String fulfillmentCenterGetCenterReadTimeOut;
 
     // properties seller-center
     @Value("${external-service.seller-center.add-controversy.uri}")
