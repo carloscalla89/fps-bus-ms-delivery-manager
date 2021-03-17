@@ -76,7 +76,7 @@ public class UtilClass {
                 case Constant.PREPARE_ORDER:
                     classList.add(TrackerAdapterImpl.class);
 
-                    if (sendNewFlow) {
+                    if (sendNewFlow && !Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
                         classList.add(OrderTrackerAdapterImpl.class);
                     }
 
