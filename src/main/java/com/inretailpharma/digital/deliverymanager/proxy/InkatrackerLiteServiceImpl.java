@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
 
 @Slf4j
@@ -74,6 +75,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             .post()
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
+                            .timeout(Duration.ofMillis(60000))
                             .flatMap(clientResponse -> mapResponseFromTracker(
                                     clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
                                     externalId, statusName, orderCancelCode, orderCancelObservation)
