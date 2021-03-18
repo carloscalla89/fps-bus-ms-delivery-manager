@@ -95,29 +95,28 @@ public class UtilClass {
                 case Constant.CANCEL_ORDER:
                 case Constant.REJECT_ORDER:
 
-                    if (Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
+                    if (orderStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
+                            || orderStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED.name())
+                            || orderStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
+                            || Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
+
+                        // aquí entra cuando la orden se entrega o rechaza desde el omnidelivery
+                        // se cancela desde el pos unificado y la orden no se ha pickeado aún
 
                         classList.add(TrackerAdapterImpl.class);
 
-                    } else if (Constant.ORIGIN_DIGITAL.equalsIgnoreCase(origin)) {
-
+                    } else if (Constant.ORIGIN_FARMADASHBOARD.equalsIgnoreCase(origin)){
+                        // aqui entra cuando la orden es cancelada, rechazada o entregada desde el farmadashboard
                         classList.add(OrderTrackerAdapterImpl.class);
-
-                    } else if (Constant.ORIGIN_BBR.equalsIgnoreCase(origin)) {
-
-                        classList.add(TrackerAdapterImpl.class);
-                        classList.add(OrderTrackerAdapterImpl.class);
-
-                    } else if (orderStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
-                                || orderStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED.name())
-                                || orderStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())){
-
-                        classList.add(TrackerAdapterImpl.class);
-
                     } else {
+                        // casos:
+                        // cuando la orden se cancela desde la web o app
+                        // cuando se pone como entregada o cancelado desde el pos
+                        // cuando se rechaza desde el inkatracker web
+                        // cuando lo ejecuta el módulo de BBR
                         classList.add(TrackerAdapterImpl.class);
 
-                        if (sendNewFlow) {
+                        if (sendNewFlow || Constant.ORIGIN_BBR.equalsIgnoreCase(origin)) {
                             classList.add(OrderTrackerAdapterImpl.class);
                         }
                     }
