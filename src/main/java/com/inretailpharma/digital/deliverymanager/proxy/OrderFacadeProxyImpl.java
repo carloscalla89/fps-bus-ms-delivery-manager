@@ -126,7 +126,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         CancellationCodeReason codeReason;
 
         UtilClass utilClass = new UtilClass(classImplementTracker,serviceType, actionDto.getAction(), actionDto.getOrigin(),
-                                            statusCode, sendNewFlow);
+                Constant.OrderStatus.getByCode(statusCode).name(), sendNewFlow);
 
         Function<List<OrderCanonical>,Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(ecommerceId, actionDto, serviceShortCode,

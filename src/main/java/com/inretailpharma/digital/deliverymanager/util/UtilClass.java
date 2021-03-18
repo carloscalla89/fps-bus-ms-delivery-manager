@@ -20,20 +20,20 @@ public class UtilClass {
     private String actionName;
     private String origin;
     private String target;
-    private String orderStatus;
+    private String orderStatusName;
     private boolean sendNewFlow;
 
     public UtilClass(String classImplementTracker) {
         this.classImplementTracker = classImplementTracker;
     }
 
-    public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin, String orderStatus,
+    public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin, String orderStatusName,
                      boolean sendNewFlow) {
         this.classImplementTracker = classImplementTracker;
         this.serviceType = serviceType;
         this.actionName = actionName;
         this.origin = origin;
-        this.orderStatus = orderStatus;
+        this.orderStatusName = orderStatusName;
         this.sendNewFlow = sendNewFlow;
     }
 
@@ -95,9 +95,9 @@ public class UtilClass {
                 case Constant.CANCEL_ORDER:
                 case Constant.REJECT_ORDER:
 
-                    if (orderStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
-                            || orderStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED.name())
-                            || orderStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
+                    if (orderStatusName.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
+                            || orderStatusName.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED.name())
+                            || orderStatusName.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
                             || Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
 
                         // aquí entra cuando la orden se entrega o rechaza desde el omnidelivery
