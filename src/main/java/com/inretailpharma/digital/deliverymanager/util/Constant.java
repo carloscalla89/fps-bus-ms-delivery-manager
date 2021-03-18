@@ -581,6 +581,7 @@ public interface Constant {
     Integer COLLECTION_PRESENTATION_ID = 3;
     String PICKUP = "PICKUP";
     String DELIVERY = "DELIVERY";
+    String INVOICED_ORDER = "INVOICED_ORDER";
     String PICK_ORDER = "PICK_ORDER";
     String PREPARE_ORDER = "PREPARE_ORDER";
     String ASSIGN_ORDER = "ASSIGN_ORDER";

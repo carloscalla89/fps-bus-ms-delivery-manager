@@ -86,6 +86,7 @@ public class UtilClass {
                 case Constant.ASSIGN_ORDER:
                 case Constant.ON_ROUTE_ORDER:
                 case Constant.ARRIVAL_ORDER:
+                case Constant.INVOICED_ORDER:
 
                     classList.add(TrackerAdapterImpl.class);
 
