@@ -494,6 +494,8 @@ public interface Constant {
             return EnumUtils.getEnumList(OrderStatus.class).stream()
                     .anyMatch(item -> CANCELLED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
                             || CANCELLED_ORDER.code.equalsIgnoreCase(code)
+                            || CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.code.equalsIgnoreCase(code)
+                            || CANCELLED_ORDER_NOT_ENOUGH_STOCK.code.equalsIgnoreCase(code)
                             || DELIVERED_ORDER.code.equalsIgnoreCase(code)
                             || REJECTED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
                             || REJECTED_ORDER.code.equalsIgnoreCase(code));
