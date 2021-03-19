@@ -494,7 +494,9 @@ public interface Constant {
             return EnumUtils.getEnumList(OrderStatus.class).stream()
                     .anyMatch(item -> CANCELLED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
                             || CANCELLED_ORDER.code.equalsIgnoreCase(code)
-                            || DELIVERED_ORDER.code.equalsIgnoreCase(code));
+                            || DELIVERED_ORDER.code.equalsIgnoreCase(code)
+                            || REJECTED_ORDER_ONLINE_PAYMENT.code.equalsIgnoreCase(code)
+                            || REJECTED_ORDER.code.equalsIgnoreCase(code));
         }
 
         public static boolean isToCreateOrderToOrderTracker(String code, String origin) {

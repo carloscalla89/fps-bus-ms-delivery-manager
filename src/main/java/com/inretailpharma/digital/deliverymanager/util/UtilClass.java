@@ -105,11 +105,9 @@ public class UtilClass {
 
                         classList.add(TrackerAdapterImpl.class);
 
-                    } else if (Constant.ORIGIN_FARMADASHBOARD.equalsIgnoreCase(origin)){
-                        // aqui entra cuando la orden es cancelada, rechazada o entregada desde el farmadashboard
-                        classList.add(OrderTrackerAdapterImpl.class);
                     } else {
                         // casos:
+                        // cuando la orden es cancelada desde el farmadashboard
                         // cuando la orden se cancela desde la web o app
                         // cuando se pone como entregada o cancelado desde el pos
                         // cuando se rechaza desde el inkatracker web
