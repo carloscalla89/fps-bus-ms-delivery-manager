@@ -17,5 +17,6 @@ public class AuditHistoryDto {
     private String statusCode;
     private String statusName;
     private String statusDetail;
+    private String orderNote;
 
 }

@@ -116,7 +116,7 @@ public class ObjectToMapper {
         auditHistoryDto.setTarget(orderCanonical.getTarget());
         auditHistoryDto.setStatusDetail(orderCanonical.getOrderStatus().getDetail());
         auditHistoryDto.setTimeFromUi(DateUtils.getLocalDateTimeNow());
-
+        auditHistoryDto.setOrderNote(orderCanonical.getOrderStatus().getCancellationCode());
         return auditHistoryDto;
     }
 

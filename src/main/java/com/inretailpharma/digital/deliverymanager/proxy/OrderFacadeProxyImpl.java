@@ -183,7 +183,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             null,
                                                             Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                            Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation())  ,
+                                                            Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation()),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null)
                                                     )
                                                     .flatMap(responses -> getOrderResponse(
@@ -192,7 +192,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             ecommerceId,
                                                             externalId,
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                            actionDto.getOrderCancelObservation(),
+                                                            Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation()),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                             Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                             utilClass.getOnlyTargetComponentTracker(),
@@ -231,7 +231,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                                 ecommerceId,
                                                                 externalId,
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                                actionDto.getOrderCancelObservation(),
+                                                                Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation()),
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                                 Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                                 Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
@@ -315,6 +315,9 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
         orderCanonical.setExternalId(externalId);
         orderCanonical.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeWithFormat(localDateTime));
+
+        orderCanonical.getOrderStatus().setCancellationCode(orderCancelCode);
+        orderCanonical.getOrderStatus().setCancellationObservation(orderCancelObservation);
 
         if (!orderCanonical.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
             adapterAuditInterface.updateExternalAudit(sendNewAudit, orderCanonical).subscribe();
