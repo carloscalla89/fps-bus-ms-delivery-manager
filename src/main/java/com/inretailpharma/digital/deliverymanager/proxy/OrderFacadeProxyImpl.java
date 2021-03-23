@@ -183,7 +183,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             null,
                                                             Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                            actionDto.getOrderCancelObservation(),
+                                                            Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation())  ,
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null)
                                                     )
                                                     .flatMap(responses -> getOrderResponse(
@@ -219,7 +219,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                                 serviceType,
                                                                 orderId,
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                                actionDto.getOrderCancelObservation(),
+                                                                Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation()),
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                                 statusCode,
                                                                 actionDto.getOrigin()

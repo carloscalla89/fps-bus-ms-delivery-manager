@@ -51,10 +51,10 @@ public interface Constant {
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(NONE);
         }
 
-        public static String getDetailCancelStock(String name, String observation, String detail) {
+        public static String getDetailCancelStock(String name, String observation) {
 
             return EnumUtils.getEnumList(CancellationStockDispatcher.class).stream()
-                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().map(d -> detail)
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().map(CancellationStockDispatcher::getReason)
                     .orElse(observation);
         }
 

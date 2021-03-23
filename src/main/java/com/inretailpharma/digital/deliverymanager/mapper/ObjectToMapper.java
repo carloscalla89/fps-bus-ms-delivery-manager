@@ -413,11 +413,11 @@ public class ObjectToMapper {
             orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
 
             orderStatusInkatrackerCanonical.setCustomNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation, detail)
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation)
             );
 
             orderStatusInkatrackerCanonical.setCancelMessageNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation, detail)
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation)
             );
 
             orderInkatrackerCanonical.setCancelDate(
@@ -428,7 +428,7 @@ public class ObjectToMapper {
 
             orderInkatrackerCanonical.setCancelReasonCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
             orderInkatrackerCanonical.setCancelMessageNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation, detail)
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation)
             );
         }
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -86,6 +87,7 @@ public class OrderTransaction {
 
         serviceLocalOrder.setCancellationCode(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId());
         serviceLocalOrder.setCancellationObservation(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getReason());
+        serviceLocalOrder.setStatusDetail(Optional.ofNullable(orderDto.getOrderStatusDto()).map(OrderStatusDto::getDescription).orElse(null));
         serviceLocalOrder.setDateCreated(DateUtils.getLocalDateTimeObjectNow());
         serviceLocalOrder.setDateCancelled(
                 Optional.ofNullable(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId())
