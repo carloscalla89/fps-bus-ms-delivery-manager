@@ -62,4 +62,10 @@ public class OrderDto {
     private Long zoneIdBilling;
 
     private PersonToPickupDto personToPickup;
+
+    //3 precios
+    private Double subTotalWithNoSpecificPaymentMethod;
+    private Double totalWithNoSpecificPaymentMethod;
+    private Double totalWithPaymentMethod;
+    private String paymentMethodCardType;
 }

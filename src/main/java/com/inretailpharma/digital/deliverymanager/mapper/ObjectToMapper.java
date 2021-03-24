@@ -62,7 +62,7 @@ public class ObjectToMapper {
                                                                              List<IOrderItemFulfillment> itemFulfillments,
                                                                              StoreCenterCanonical storeCenterCanonical,
                                                                              Long externalId, String status, String detail,
-                                                                             String orderCancelCode, String orderCancelObservation) {
+                                                                             String orderCancelCode, String orderCancelObservation,OrderDto orderDto) {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
         orderInkatrackerCanonical.setOrderExternalId(iOrderFulfillment.getEcommerceId());
@@ -106,7 +106,7 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setDeliveryService(Constant.TrackerImplementation.getByCode(iOrderFulfillment.getServiceTypeCode()).getId());
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
 
-        orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
+        orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments,orderDto));
         // ====set Status to tracker
         orderInkatrackerCanonical.setOrderStatus(
                 getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical, detail));
@@ -187,6 +187,13 @@ public class ObjectToMapper {
 
         orderInkatrackerCanonical.setSourceCompanyName(iOrderFulfillment.getSourceCompanyName());
 
+        // 3 precios
+        if(orderDto!=null){
+            orderInkatrackerCanonical.setSubTotalWithNoSpecificPaymentMethod(orderDto.getSubTotalWithNoSpecificPaymentMethod());
+            orderInkatrackerCanonical.setTotalWithNoSpecificPaymentMethod(orderDto.getTotalWithNoSpecificPaymentMethod());
+            orderInkatrackerCanonical.setTotalWithPaymentMethod(orderDto.getTotalWithPaymentMethod());
+            orderInkatrackerCanonical.setPaymentMethodCardType(orderDto.getPaymentMethodCardType());
+        }
 
 
         return orderInkatrackerCanonical;
@@ -395,7 +402,7 @@ public class ObjectToMapper {
         return orderStatusInkatrackerCanonical;
     }
 
-    private List<OrderItemInkatrackerCanonical> createFirebaseOrderItemsFromOrderItemCanonical(List<IOrderItemFulfillment> itemCanonicals) {
+    private List<OrderItemInkatrackerCanonical> createFirebaseOrderItemsFromOrderItemCanonical(List<IOrderItemFulfillment> itemCanonicals, OrderDto orderDto) {
 
         List<OrderItemInkatrackerCanonical> itemCanonicalList = new ArrayList<>();
 
@@ -423,6 +430,27 @@ public class ObjectToMapper {
 
             itemCanonicalList.add(canonical);
         }
+
+        //3 precios
+        if(orderDto!=null){
+            for(int i=0;i<itemCanonicalList.size();i++){
+                for(int j=0;j<orderDto.getOrderItem().size();j++){
+                    if(itemCanonicalList.get(i).getSku().equalsIgnoreCase(orderDto.getOrderItem().get(j).getProductCode())){
+
+                        itemCanonicalList.get(i).setPriceList(orderDto.getOrderItem().get(j).getPriceList());
+                        itemCanonicalList.get(i).setTotalPriceList(orderDto.getOrderItem().get(j).getTotalPriceList());
+                        itemCanonicalList.get(i).setPriceAllPaymentMethod(orderDto.getOrderItem().get(j).getPriceAllPaymentMethod());
+                        itemCanonicalList.get(i).setTotalPriceAllPaymentMethod(orderDto.getOrderItem().get(j).getTotalPriceAllPaymentMethod());
+                        itemCanonicalList.get(i).setPriceWithpaymentMethod(orderDto.getOrderItem().get(j).getPriceWithpaymentMethod());
+                        itemCanonicalList.get(i).setTotalPriceWithpaymentMethod(orderDto.getOrderItem().get(j).getTotalPriceWithpaymentMethod());
+                        itemCanonicalList.get(i).setCrossOutPL(orderDto.getOrderItem().get(j).isCrossOutPL());
+                        itemCanonicalList.get(i).setPaymentMethodCardType(orderDto.getOrderItem().get(j).getPaymentMethodCardType());
+                    }
+                }
+            }
+
+        }
+
         return itemCanonicalList;
 
     }

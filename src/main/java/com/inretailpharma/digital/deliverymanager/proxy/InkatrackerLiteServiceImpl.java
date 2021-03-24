@@ -9,6 +9,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusC
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
@@ -39,17 +40,17 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
 
     @Override
-    public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
+    public Mono<OrderCanonical>  sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                                    List<IOrderItemFulfillment> itemFulfillments,
                                                    StoreCenterCanonical storeCenterCanonical,
                                                    Long externalId, String statusDetail, String statusName,
-                                                   String orderCancelCode, String orderCancelObservation) {
+                                                   String orderCancelCode, String orderCancelObservation, OrderDto orderDto) {
 
         String dayToPickup = getApplicationParameter(Constant.ApplicationsParameters.DAYS_PICKUP_MAX_RET);
 
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
-                        storeCenterCanonical, externalId, statusName, statusDetail, orderCancelCode, orderCancelObservation)
+                        storeCenterCanonical, externalId, statusName, statusDetail, orderCancelCode, orderCancelObservation,orderDto)
                 )
                 .flatMap(b -> {
 

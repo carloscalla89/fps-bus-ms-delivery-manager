@@ -27,7 +27,7 @@ public interface OrderExternalService {
     Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments,
                                             StoreCenterCanonical storeCenterCanonical, Long externalId, String statusDetail,
-                                            String statusName, String orderCancelCode, String orderCancelObservation);
+                                            String statusName, String orderCancelCode, String orderCancelObservation,com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical);
     Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments, String action,

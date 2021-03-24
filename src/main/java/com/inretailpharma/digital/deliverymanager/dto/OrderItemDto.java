@@ -36,4 +36,14 @@ public class OrderItemDto {
     private String familyType;
     private boolean edited;
     private boolean removed;
+
+    //3 precios
+    private Double priceList;
+    private Double totalPriceList;
+    private Double priceAllPaymentMethod;
+    private Double totalPriceAllPaymentMethod;
+    private Double priceWithpaymentMethod;
+    private Double totalPriceWithpaymentMethod;
+    private boolean crossOutPL;
+    private String paymentMethodCardType;
 }
