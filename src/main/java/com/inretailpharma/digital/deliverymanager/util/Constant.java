@@ -598,6 +598,7 @@ public interface Constant {
     String TARGET_LITE = "LITE";
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
     String TARGET_INSINK = "INSINK";
+    String UPDATED_BY_INIT = "INIT";
 
     enum DeliveryManagerStatus {
 

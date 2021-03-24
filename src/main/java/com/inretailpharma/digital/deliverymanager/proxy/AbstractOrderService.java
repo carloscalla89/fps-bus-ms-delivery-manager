@@ -215,14 +215,14 @@ public class AbstractOrderService implements OrderExternalService {
 
 	protected Mono<OrderCanonical> mapResponseFromTracker(ClientResponse clientResponse, Long id, Long ecommerceId,
 														  Long externalId, String statusName, String cancellationCode,
-														  String cancellationObservation) {
+														  String cancellationObservation, String statusDetail) {
 
 		if (clientResponse.statusCode().is2xxSuccessful()) {
 
             return clientResponse
                         .bodyToMono(Void.class)
                         .thenReturn((getResponse(id, ecommerceId, externalId, statusName, cancellationCode,
-								cancellationObservation)));
+								cancellationObservation, statusDetail)));
 
 		} else {
             log.error("Error in response from tracker, ecommerceId:{}, statusCode:{}",
@@ -235,14 +235,6 @@ public class AbstractOrderService implements OrderExternalService {
 
 	}
 
-	protected Mono<OrderCanonical> mapResponseFromTracker(Long id, Long ecommerceId,
-														  Long externalId, String statusName, String cancellationCode,
-														  String cancellationObservation) {
-
-		return Mono.just(getResponse(id, ecommerceId, externalId, statusName, cancellationCode,
-				cancellationObservation));
-
-	}
 
 	protected Mono<OrderCanonical> mapResponseFromUpdateTracker(ClientResponse clientResponse, Long ecommerceId,
 																Constant.OrderStatusTracker orderStatusInkatracker) {
@@ -284,7 +276,7 @@ public class AbstractOrderService implements OrderExternalService {
 
 	private OrderCanonical getResponse(Long id, Long ecommerceId,
                                        Long externalId, String statusName, String cancellationCode,
-									   String cancellationObservation) {
+									   String cancellationObservation, String statusDetail) {
         OrderCanonical orderCanonical = new OrderCanonical();
         orderCanonical.setId(id);
         orderCanonical.setEcommerceId(ecommerceId);
@@ -292,7 +284,7 @@ public class AbstractOrderService implements OrderExternalService {
 		orderCanonical.setTrackerId(externalId);
 
         orderCanonical.setOrderStatus(
-        		objectToMapper.getOrderStatus(statusName, null, cancellationCode, cancellationObservation)
+        		objectToMapper.getOrderStatus(statusName, statusDetail, cancellationCode, cancellationObservation)
 		);
 
         return orderCanonical;

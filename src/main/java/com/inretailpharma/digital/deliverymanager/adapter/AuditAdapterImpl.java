@@ -25,12 +25,12 @@ public class AuditAdapterImpl extends AdapterAbstract implements AdapterInterfac
     }
 
     @Override
-    public Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAudit) {
+    public Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAudit, String updateBy) {
 
         if (sendNewAudit) {
             log.info("Send to create to new audit history");
             orderExternalServiceAudit
-                    .updateOrderNewAudit(objectToMapper.getAuditHistoryDtoFromObject(orderAudit))
+                    .updateOrderNewAudit(objectToMapper.getAuditHistoryDtoFromObject(orderAudit, updateBy))
                     .subscribe();
 
         }
@@ -40,12 +40,12 @@ public class AuditAdapterImpl extends AdapterAbstract implements AdapterInterfac
     }
 
     @Override
-    public Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAudit) {
+    public Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAudit, String updateBy) {
 
         if (sendNewAudit) {
             log.info("Send to update to new audit history");
             orderExternalServiceAudit
-                    .updateOrderNewAudit(objectToMapper.getAuditHistoryDtoFromObject(orderAudit))
+                    .updateOrderNewAudit(objectToMapper.getAuditHistoryDtoFromObject(orderAudit, updateBy))
                     .subscribe();
 
         }

@@ -11,12 +11,13 @@ public class AuditHistoryDto {
     private String source;
     private String target;
     private String timeFromUi;
-    private String updatedBy;
     private BigDecimal latitude;
     private BigDecimal longitude;
     private String statusCode;
     private String statusName;
     private String statusDetail;
     private String orderNote;
+    private String customNote;
+    private String updatedBy;
 
 }

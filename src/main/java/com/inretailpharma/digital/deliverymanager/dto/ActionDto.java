@@ -11,12 +11,12 @@ public class ActionDto {
     private String companyCode;
     private OrderStatusDto orderStatusDto;
     private String externalBillingId;
-    private String trackerId;
     private String orderCancelCode;
     private String orderCancelReason;
     private String orderCancelClientReason;
     private String orderCancelAppType;
     private String orderCancelObservation;
+    private String updatedBy;
     private String origin;
     private List<InvoicedOrderDto> invoicedOrderList;
 }

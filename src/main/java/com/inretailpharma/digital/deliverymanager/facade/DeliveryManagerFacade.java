@@ -109,7 +109,8 @@ public class DeliveryManagerFacade {
                                         order.getCompanyCode(),
                                         order.getLocalCode(),
                                         order.getSource(),
-                                        order.getOrderDetail().isServiceSendNewFlowEnabled()
+                                        order.getOrderDetail().isServiceSendNewFlowEnabled(),
+                                        Constant.UPDATED_BY_INIT
                                 );
 
                     }
@@ -179,7 +180,8 @@ public class DeliveryManagerFacade {
                                     iOrderFulfillmentLight.getCompanyCode(),
                                     iOrderFulfillmentLight.getCenterCode(),
                                     iOrderFulfillmentLight.getSource(),
-                                    iOrderFulfillmentLight.getSendNewFlow()
+                                    iOrderFulfillmentLight.getSendNewFlow(),
+                                    actionDto.getUpdatedBy()
                             );
 
                 case 2:
@@ -239,7 +241,8 @@ public class DeliveryManagerFacade {
                                                                                                                 iOrderFulfillmentLight.getCompanyCode(),
                                                                                                                 iOrderFulfillmentLight.getCenterCode(),
                                                                                                                 iOrderFulfillmentLight.getSource(),
-                                                                                                                iOrderFulfillmentLight.getSendNewFlow()
+                                                                                                                iOrderFulfillmentLight.getSendNewFlow(),
+                                                                                                                actionDto.getUpdatedBy()
 
                                                                                                         );
 
@@ -256,7 +259,8 @@ public class DeliveryManagerFacade {
                                                                                                         null,
                                                                                                         iOrderFulfillmentLight.getSource(),
                                                                                                         Constant.TARGET_INSINK,
-                                                                                                        iOrderFulfillmentLight.getSendNewFlow()
+                                                                                                        iOrderFulfillmentLight.getSendNewFlow(),
+                                                                                                        actionDto.getUpdatedBy()
                                                                                                 );
 
                                                                                     }

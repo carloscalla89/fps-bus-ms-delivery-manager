@@ -24,8 +24,8 @@ public interface AdapterInterface {
                                                        String orderCancelObservation, String orderCancelAppType,
                                                        String statusCode, String origin);
 
-    Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
-    Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical);
+    Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical, String updateBy);
+    Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical, String updateBy);
     Mono<Boolean> sendNotification(String channel, String serviceShortCode, String orderStatus, Long ecommerceId,
                                    String brand, String localCode, String localTypeCode, String phoneNumber,
                                    String clientName, String expiredDate, String confirmedDate, String address);

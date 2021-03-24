@@ -139,7 +139,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
                                     clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
-                                    externalId, statusName, orderCancelCode, orderCancelObservation)
+                                    externalId, statusName, orderCancelCode, orderCancelObservation, statusDetail)
                             )
                             .doOnSuccess(s -> log.info("Response is Success in inkatracker:{}",s))
                             .defaultIfEmpty(

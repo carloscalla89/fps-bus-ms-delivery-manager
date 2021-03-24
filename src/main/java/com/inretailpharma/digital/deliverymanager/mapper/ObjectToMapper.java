@@ -106,7 +106,7 @@ public class ObjectToMapper {
 
     }
 
-    public AuditHistoryDto getAuditHistoryDtoFromObject(OrderCanonical orderCanonical) {
+    public AuditHistoryDto getAuditHistoryDtoFromObject(OrderCanonical orderCanonical, String updateBy) {
 
         AuditHistoryDto auditHistoryDto = new AuditHistoryDto();
         auditHistoryDto.setEcommerceId(orderCanonical.getEcommerceId());
@@ -117,6 +117,8 @@ public class ObjectToMapper {
         auditHistoryDto.setStatusDetail(orderCanonical.getOrderStatus().getDetail());
         auditHistoryDto.setTimeFromUi(DateUtils.getLocalDateTimeNow());
         auditHistoryDto.setOrderNote(orderCanonical.getOrderStatus().getCancellationCode());
+        auditHistoryDto.setCustomNote(orderCanonical.getOrderStatus().getCancellationObservation());
+        auditHistoryDto.setUpdatedBy(updateBy);
         return auditHistoryDto;
     }
 
@@ -337,7 +339,7 @@ public class ObjectToMapper {
     }
 
     public OrderStatusCanonical getOrderStatus(String name, String errorDetail, String cancellationCode,
-                                                          String cancellationObservation) {
+                                               String cancellationObservation) {
 
         Constant.OrderStatus status = Constant.OrderStatus.getByName(name);
 
