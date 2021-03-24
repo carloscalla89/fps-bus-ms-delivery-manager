@@ -184,7 +184,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             null,
                                                             Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                            Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation()),
+                                                            actionDto.getOrderCancelObservation(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null)
                                                     )
                                                     .flatMap(responses -> getOrderResponse(
@@ -193,7 +193,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             ecommerceId,
                                                             externalId,
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                            Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation()),
+                                                            actionDto.getOrderCancelObservation(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                             Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                             utilClass.getOnlyTargetComponentTracker(),
@@ -221,7 +221,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                                 serviceType,
                                                                 orderId,
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                                Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation()),
+                                                                actionDto.getOrderCancelObservation(),
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                                 statusCode,
                                                                 actionDto.getOrigin()
@@ -233,7 +233,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                                 ecommerceId,
                                                                 externalId,
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                                Optional.ofNullable(codeReason).map(cod -> codeReason.getReason()).orElse(actionDto.getOrderCancelObservation()),
+                                                                actionDto.getOrderCancelObservation(),
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                                 Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                                 Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
