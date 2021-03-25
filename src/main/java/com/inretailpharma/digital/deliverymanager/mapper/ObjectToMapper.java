@@ -286,19 +286,36 @@ public class ObjectToMapper {
 
     }
 
-    public ServiceLocalOrder getFromOrderDto(StoreCenterCanonical storeCenterCanonical, OrderDto orderDto) {
+
+    public StoreCenterCanonical getStoreCenterFromOrderCanonical(OrderCanonical orderCanonical) {
+
+        StoreCenterCanonical storeCenterCanonical = new StoreCenterCanonical();
+        storeCenterCanonical.setLegacyId(orderCanonical.getLocalId());
+        storeCenterCanonical.setName(orderCanonical.getLocal());
+        storeCenterCanonical.setDescription(orderCanonical.getLocalDescription());
+        storeCenterCanonical.setAddress(orderCanonical.getLocalAddress());
+        storeCenterCanonical.setCompanyCode(orderCanonical.getCompanyCode());
+        storeCenterCanonical.setInkaVentaId(orderCanonical.getInkaVentaId());
+        storeCenterCanonical.setLatitude(orderCanonical.getLocalLatitude());
+        storeCenterCanonical.setLongitude(orderCanonical.getLocalLongitude());
+        storeCenterCanonical.setLocalCode(orderCanonical.getLocalCode());
+        storeCenterCanonical.setCompanyCode(orderCanonical.getCompanyCode());
+
+        return storeCenterCanonical;
+
+    }
+
+    public ServiceLocalOrder getFromOrderDto(StoreCenterCanonical storeCenterCanonical, OrderDto orderDto,
+                                             ServiceType serviceType, String dayToPickup) {
         // Create and set object ServiceLocalOrder
         ServiceLocalOrder serviceLocalOrder = new ServiceLocalOrder();
 
         serviceLocalOrder.setCenterCode(storeCenterCanonical.getLocalCode());
         serviceLocalOrder.setCompanyCode(storeCenterCanonical.getCompanyCode());
 
-
-
         // Set attempt of attempt to insink and tracker
         serviceLocalOrder.setAttempt(Constant.ONE_ATTEMPT);
         serviceLocalOrder.setAttemptTracker(Constant.ONE_ATTEMPT);
-
 
         Optional
                 .ofNullable(orderDto.getOrderStatusDto())
@@ -306,23 +323,44 @@ public class ObjectToMapper {
 
         Optional.ofNullable(orderDto.getSchedules())
                 .ifPresent(s -> {
-                    serviceLocalOrder.setLeadTime(s.getLeadTime());
+
                     serviceLocalOrder
                             .setStartHour(
                                     Optional.ofNullable(s.getStartHour())
                                             .filter(sh -> DateUtils.getLocalTimeWithValidFormat(sh) != null)
                                             .map(DateUtils::getLocalTimeWithValidFormat)
-                                            .orElse(null));
+                                            .orElseGet(() -> storeCenterCanonical
+                                                    .getServices()
+                                                    .stream()
+                                                    .filter(serv -> serv.getCode().equalsIgnoreCase(serviceType.getShortCode()))
+                                                    .findFirst()
+                                                    .filter(serv -> DateUtils.getLocalTimeWithValidFormat(serv.getStartHour()) != null)
+                                                    .map(serv -> DateUtils.getLocalTimeWithValidFormat(serv.getStartHour()))
+                                                    .orElse(null)
+                                            )
+                            );
+
                     serviceLocalOrder
                             .setEndHour(
                                     Optional.ofNullable(s.getEndHour())
                                             .filter(sh -> DateUtils.getLocalTimeWithValidFormat(sh) != null)
                                             .map(DateUtils::getLocalTimeWithValidFormat)
-                                            .orElse(null)
+                                            .orElseGet(() -> storeCenterCanonical
+                                                    .getServices()
+                                                    .stream()
+                                                    .filter(serv -> serv.getCode().equalsIgnoreCase(serviceType.getShortCode()))
+                                                    .findFirst()
+                                                    .filter(serv -> DateUtils.getLocalTimeWithValidFormat(serv.getEndHour()) != null)
+                                                    .map(serv -> DateUtils.getLocalTimeWithValidFormat(serv.getEndHour()))
+                                                    .orElse(null)
+                                            )
                             );
-                    serviceLocalOrder.setDaysToPickup(s.getDaysToPickup());
+
+                    serviceLocalOrder.setDaysToPickup(Optional.ofNullable(dayToPickup).map(Integer::parseInt).orElse(0));
 
                 });
+
+
         serviceLocalOrder.setZoneIdBilling(orderDto.getZoneIdBilling());
         serviceLocalOrder.setDistrictCodeBilling(orderDto.getDistrictCodeBilling());
 
@@ -921,8 +959,8 @@ public class ObjectToMapper {
                     itemCanonical.setPresentationDescription(r.getPresentationDescription());
                     itemCanonical.setValueUMV(r.getValueUMV());
 
-
                     return itemCanonical;
+
                 }).collect(Collectors.toList())
         );
 
@@ -966,7 +1004,6 @@ public class ObjectToMapper {
 
         // -------------------------------------------------------------
 
-
         // set service of delivery or pickup on store
         orderCanonical.getOrderDetail().setServiceCode(orderWrapperResponse.getServiceCode());
         orderCanonical.getOrderDetail().setServiceShortCode(orderWrapperResponse.getServiceShortCode());
@@ -975,11 +1012,32 @@ public class ObjectToMapper {
         orderCanonical.getOrderDetail().setServiceSourceChannel(orderWrapperResponse.getServiceSourcechannel());
         orderCanonical.getOrderDetail().setServiceClassImplement(orderWrapperResponse.getServiceClassImplement());
 
-        orderCanonical.getOrderDetail().setServiceSendNewFlowEnabled(orderWrapperResponse.isServiceSendNewFlowEnabled());
-        orderCanonical.getOrderDetail().setServiceSendNotificationEnabled(orderWrapperResponse.isServiceSendNotificationEnabled());
+        orderCanonical.getOrderDetail().setServiceSendNewFlowEnabled(
+                orderWrapperResponse.isServiceSendNewFlowEnabled()
+        );
+
+        orderCanonical.getOrderDetail().setServiceSendNotificationEnabled(
+                orderWrapperResponse.isServiceSendNotificationEnabled()
+        );
+
         orderCanonical.getOrderDetail().setServiceEnabled(
                 Constant.Logical.getByValueString(orderWrapperResponse.getServiceEnabled()).value()
         );
+
+        orderCanonical.getOrderDetail().setStartHour(
+                Optional.ofNullable(orderWrapperResponse.getStartHour())
+                                .map(DateUtils::getLocalTimeWithFormat)
+                                .orElse(null)
+        );
+
+        orderCanonical.getOrderDetail().setEndHour(
+                Optional.ofNullable(orderWrapperResponse.getEndHour())
+                        .map(DateUtils::getLocalTimeWithFormat)
+                        .orElse(null)
+        );
+
+        orderCanonical.getOrderDetail().setDaysToPickup(orderWrapperResponse.getDaysToPickup());
+        orderCanonical.getOrderDetail().setLeadTime(orderWrapperResponse.getLeadTime());
 
         orderCanonical.getOrderDetail().setAttempt(orderWrapperResponse.getAttemptBilling());
         orderCanonical.getOrderDetail().setAttemptTracker(orderWrapperResponse.getAttemptTracker());

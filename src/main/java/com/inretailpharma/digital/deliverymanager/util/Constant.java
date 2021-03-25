@@ -173,6 +173,7 @@ public interface Constant {
         String ACTIVATED_DD_ = "ACTIVATED_DD_";
 
         String ACTIVATED_SEND_ = "ACTIVATED_SEND_";
+        String DEFAULT_INTERVAL_TIME_BY_SERVICE_ = "DEFAULT_INTERVAL_TIME_BY_SERVICE_";
     }
 
     interface InsinkErrorCode {

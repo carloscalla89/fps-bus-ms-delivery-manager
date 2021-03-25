@@ -1,5 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.InvoicedOrderCanonical;
 
@@ -120,7 +122,12 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                 ))
                 .flatMap(b -> {
 
-                    log.info("Order prepared to send inkatracker - orderInkatracker:{}",b);
+                    try {
+
+                        log.info("Order prepared to send inkatracker{}", new ObjectMapper().writeValueAsString(b));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
 
                     log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
 

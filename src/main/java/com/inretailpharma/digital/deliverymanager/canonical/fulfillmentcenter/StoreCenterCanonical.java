@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,6 +20,7 @@ public class StoreCenterCanonical {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private String localType;
+    private List<ServiceOffered> services;
 
     public StoreCenterCanonical() {
 

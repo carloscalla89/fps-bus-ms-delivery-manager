@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.entity;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 
 @Data
 public class OrderWrapperResponse {
@@ -26,7 +27,10 @@ public class OrderWrapperResponse {
 
     private String cancellationCode;
     private String cancellationDescription;
-
+    private LocalTime startHour;
+    private LocalTime endHour;
+    private int daysToPickup;
+    private int leadTime;
     private Integer attemptBilling;
     private Integer attemptTracker;
     private String localCode;

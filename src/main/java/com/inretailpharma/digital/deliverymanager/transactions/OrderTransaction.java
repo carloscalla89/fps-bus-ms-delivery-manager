@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
+import com.inretailpharma.digital.deliverymanager.entity.*;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
+
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
@@ -15,14 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
-import com.inretailpharma.digital.deliverymanager.entity.Client;
-import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
-import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
-import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
-import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
-import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrderIdentity;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 
@@ -42,15 +37,17 @@ public class OrderTransaction {
     private OrderRepositoryService orderRepositoryService;
     private OrderCancellationService orderCancellationService;
     private ObjectToMapper objectMapper;
-
+    private ApplicationParameterService applicationParameterService;
 
     public OrderTransaction(OrderRepositoryService orderRepositoryService,
                             OrderCancellationService orderCancellationService,
-                            ObjectToMapper objectToMapper
+                            ObjectToMapper objectToMapper,
+                            ApplicationParameterService applicationParameterService
                             ) {
         this.orderRepositoryService = orderRepositoryService;
         this.orderCancellationService = orderCancellationService;
         this.objectMapper = objectToMapper;
+        this.applicationParameterService = applicationParameterService;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -68,12 +65,11 @@ public class OrderTransaction {
         // Set Object ServiceLocalOrderIdentity
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
 
-        serviceLocalOrderIdentity.setServiceType(
-                Optional
-                        .ofNullable(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()))
-                        .orElse(orderRepositoryService.getServiceTypeByCode(Constant.NOT_DEFINED_SERVICE))
+        ServiceType serviceType = Optional
+                                    .ofNullable(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()))
+                                    .orElse(orderRepositoryService.getServiceTypeByCode(Constant.NOT_DEFINED_SERVICE));
 
-        );
+        serviceLocalOrderIdentity.setServiceType(serviceType);
         serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillmentResp);
 
         // Set status from delivery dispatcher
@@ -81,10 +77,25 @@ public class OrderTransaction {
         serviceLocalOrderIdentity.setOrderStatus(orderStatus);
         // ----------------------------------------------------
 
-        // set ServiceDetail from delivery dispatcher and set store canonical
-        ServiceLocalOrder serviceLocalOrder = objectMapper.getFromOrderDto(centerCompanyCanonical, orderDto);
-        serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
+        // get days to pickup from application table DB
+        String dayToPickup = getApplicationParameter(Constant.ApplicationsParameters.DAYS_PICKUP_MAX_RET);
+        //
 
+        // set ServiceDetail from delivery dispatcher and set store canonical
+        ServiceLocalOrder serviceLocalOrder = objectMapper
+                                                .getFromOrderDto(centerCompanyCanonical, orderDto, serviceType, dayToPickup);
+
+        serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
+        serviceLocalOrder.setLeadTime(
+                Optional.ofNullable(orderDto.getSchedules().getLeadTime())
+                        .orElseGet(() -> Optional
+                                            .ofNullable(getApplicationParameter(Constant.ApplicationsParameters.DEFAULT_INTERVAL_TIME_BY_SERVICE_
+                                                    + serviceType.getShortCode())
+                                            )
+                                            .map(Integer::parseInt)
+                                            .orElse(0)
+                        )
+        );
         serviceLocalOrder.setCancellationCode(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId());
         serviceLocalOrder.setCancellationObservation(null);
         serviceLocalOrder.setStatusDetail(Optional.ofNullable(orderDto.getOrderStatusDto()).map(OrderStatusDto::getDescription).orElse(null));
@@ -133,6 +144,11 @@ public class OrderTransaction {
         orderWrapperResponse.setLocalId(centerCompanyCanonical.getLegacyId());
         orderWrapperResponse.setLocalLatitude(centerCompanyCanonical.getLatitude());
         orderWrapperResponse.setLocalLongitude(centerCompanyCanonical.getLongitude());
+
+        orderWrapperResponse.setStartHour(serviceLocalOrderResponse.getStartHour());
+        orderWrapperResponse.setEndHour(serviceLocalOrderResponse.getEndHour());
+        orderWrapperResponse.setLeadTime(serviceLocalOrderResponse.getLeadTime());
+        orderWrapperResponse.setDaysToPickup(serviceLocalOrderResponse.getDaysToPickup());
 
         log.info("[END] createOrderReactive");
         return objectMapper.setsOrderWrapperResponseToOrderCanonical(orderWrapperResponse, orderDto);
@@ -251,5 +267,10 @@ public class OrderTransaction {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateOrderOnlinePaymentStatusByExternalId(Long orderId, String onlinePaymentStatus) {
         orderRepositoryService.updateOnlinePaymentStatusByOrderId(orderId, onlinePaymentStatus);
+    }
+
+    private String getApplicationParameter(String code) {
+        return applicationParameterService
+                .getApplicationParameterByCodeIs(code).getValue();
     }
 }

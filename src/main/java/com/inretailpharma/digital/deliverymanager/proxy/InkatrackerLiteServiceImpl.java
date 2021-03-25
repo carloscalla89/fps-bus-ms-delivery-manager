@@ -45,19 +45,14 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                                    String orderCancelCode, String orderCancelDescription,
                                                    String orderCancelObservation) {
 
-        String dayToPickup = getApplicationParameter(Constant.ApplicationsParameters.DAYS_PICKUP_MAX_RET);
-
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
                         storeCenterCanonical, externalId, statusName, statusDetail, orderCancelCode, orderCancelDescription)
                 )
                 .flatMap(b -> {
-
                     try {
-                        b.setDaysToPickUp(dayToPickup);
 
-                        log.info("Order prepared to send inkatracker lite:{}",
-                                new ObjectMapper().writeValueAsString(b));
+                        log.info("Order prepared to send inkatracker lite:{}", new ObjectMapper().writeValueAsString(b));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
