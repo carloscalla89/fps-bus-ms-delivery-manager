@@ -78,7 +78,7 @@ public class CancellationFacade {
 
                     return orderExternalService
                             .getResultfromExternalServices(r.getEcommerceId(), actionDto, cancellationDto.getCompanyCode(),
-                                    cancellationDto.getServiceType())
+                                    cancellationDto.getServiceType(), null)
                             .map(s -> {
                                 log.info("[START] Processing the updating of cancelled order, serviceTypeCode:{}, localCode:{}," +
                                                 "companyCode:{},statusCode:{}, statusName:{}, ecommerceId:{}",r.getServiceTypeCode(), r.getCenterCode(),
@@ -88,8 +88,7 @@ public class CancellationFacade {
 
                                 orderTransaction.updateStatusCancelledOrder(
                                         s.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
-                                        actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
-                                        s.getOrderStatus().getCode(), r.getOrderId(),
+                                        actionDto.getOrderCancelCode(), s.getOrderStatus().getCode(), r.getOrderId(),
                                         DateUtils.getLocalDateTimeObjectNow(), DateUtils.getLocalDateTimeObjectNow()
                                 );
                                 log.info("[END] Processing the updating of cancelled order");
