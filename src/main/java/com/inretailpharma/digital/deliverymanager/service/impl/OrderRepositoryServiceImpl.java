@@ -84,11 +84,6 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public List<IOrderFulfillment> getListOrdersByStatus(Set<String> status) {
-        return orderRepository.getListOrdersByStatus(status);
-    }
-
-    @Override
     public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode,
                                                          Integer maxDayPickup, String statustype) {
         return orderRepository.getListOrdersToCancel(serviceType, maxDayPickup,companyCode,
@@ -117,42 +112,6 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return orderRepository.getOrderLightByecommercesIds(ecommercesIds);
     }
 
-    @Override
-    public void updateRetryingOrderStatusProcess(Long orderFulfillmentId, Integer attemptTracker,
-                                          Integer attempt, String orderStatusCode, String statusDetail) {
-        serviceLocalOrderRepository.updateRetryingOrderStatusProcess(orderFulfillmentId, attemptTracker, attempt,
-                orderStatusCode, statusDetail);
-    }
-
-    @Override
-    public void updateReattemtpTracker(Long orderFulfillmentId, Integer attemptTracker,
-                                       String orderStatusCode, String statusDetail) {
-        serviceLocalOrderRepository.updateReattemtpTracker(orderFulfillmentId, attemptTracker,
-                orderStatusCode, statusDetail);
-    }
-
-
-    @Override
-    public void updateTrackerId(Long orderFulfillmentId, Long trackerId) {
-        orderRepository.updateTrackerId(orderFulfillmentId, trackerId);
-    }
-
-    @Override
-    public void updateExternalAndTrackerId(Long orderFulfillmentId, Long externalPurchaseId,
-                                                     Long ecommerceId) {
-        orderRepository.updateExternalAndTrackerId(orderFulfillmentId, externalPurchaseId, ecommerceId);
-    }
-
-    @Override
-    public void updateExternalIdToReservedOrder(Long orderFulfillmentId, Long externalPurchaseId) {
-        orderRepository.updateExternalIdToReservedOrder(orderFulfillmentId, externalPurchaseId);
-    }
-
-    @Override
-    public void updateStatusToReservedOrder(Long orderFulfillmentId, Integer attempt, String orderStatusCode,
-                                            String statusDetail) {
-        serviceLocalOrderRepository.updateStatusToReservedOrder(orderFulfillmentId, attempt, orderStatusCode, statusDetail);
-    }
 
     @Override
     public void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail) {
@@ -161,11 +120,11 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 
     @Override
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId,
-                                           LocalDateTime updateLast, LocalDateTime dateCancelled) {
+                                           String orderStatusCode, Long orderFulfillmentId, LocalDateTime updateLast,
+                                           LocalDateTime dateCancelled) {
 
         serviceLocalOrderRepository.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
-                cancellationAppType, orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
+                orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
     }
 
     @Override

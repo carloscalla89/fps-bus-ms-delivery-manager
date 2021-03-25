@@ -248,6 +248,8 @@ public class TrackerFacade {
 								actionDto.setAction(oh.getAction());
 								actionDto.setOrigin(orderSynchronizeDto.getOrigin());
 								actionDto.setOrderCancelCode(oh.getOrderCancelCode());
+								actionDto.setMotorizedId(oh.getMotorizedId());
+								actionDto.setUpdatedBy(oh.getUpdatedBy());
 
 								return orderFacadeProxy.sendToUpdateOrder(
 										order.getOrderId(),

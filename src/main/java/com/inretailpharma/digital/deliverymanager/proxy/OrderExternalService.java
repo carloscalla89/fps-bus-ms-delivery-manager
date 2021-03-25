@@ -23,14 +23,15 @@ public interface OrderExternalService {
 
     Mono<Void> updateOrderReactive(OrderCanonical orderCanonical);
     Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
-                                                       String serviceType);
+                                                       String serviceType, String cancelDescription);
 
 
 
     Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments,
                                             StoreCenterCanonical storeCenterCanonical, Long externalId, String statusDetail,
-                                            String statusName, String orderCancelCode, String orderCancelObservation);
+                                            String statusName, String orderCancelCode, String orderCancelDescription,
+                                            String orderCancelObservation);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical);
     Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments, String action,

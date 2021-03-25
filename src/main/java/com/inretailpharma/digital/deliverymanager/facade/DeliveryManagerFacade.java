@@ -103,6 +103,9 @@ public class DeliveryManagerFacade {
                                         Optional.ofNullable(order.getOrderStatus())
                                                 .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
                                                 .orElse(null),
+                                        Optional.ofNullable(order.getOrderStatus())
+                                                .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
+                                                .orElse(null),
                                         null,
                                         order.getCompanyCode(),
                                         order.getLocalCode(),
@@ -175,6 +178,7 @@ public class DeliveryManagerFacade {
                                     Constant.OrderStatus.CONFIRMED_TRACKER.name(),
                                     null,
                                     null,
+                                    null,
                                     iOrderFulfillmentLight.getCompanyCode(),
                                     iOrderFulfillmentLight.getCenterCode(),
                                     iOrderFulfillmentLight.getSource(),
@@ -233,6 +237,10 @@ public class DeliveryManagerFacade {
                                                                                                                 Optional.ofNullable(orderResp.getOrderStatus())
                                                                                                                         .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
                                                                                                                         .orElse(null),
+
+                                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                                        .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
+                                                                                                                        .orElse(null),
                                                                                                                 null,
                                                                                                                 iOrderFulfillmentLight.getCompanyCode(),
                                                                                                                 iOrderFulfillmentLight.getCenterCode(),
@@ -249,7 +257,6 @@ public class DeliveryManagerFacade {
                                                                                                         orderResp,
                                                                                                         iOrderFulfillmentLight.getOrderId(),
                                                                                                         iOrderFulfillmentLight.getEcommerceId(),
-                                                                                                        null,
                                                                                                         null,
                                                                                                         null,
                                                                                                         null,

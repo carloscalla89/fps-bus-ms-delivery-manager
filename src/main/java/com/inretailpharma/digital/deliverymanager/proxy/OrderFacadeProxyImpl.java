@@ -75,8 +75,9 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     @Override
     public Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplementTracker,
                                                    String statusDetail, String statusName, String orderCancelCode,
-                                                   String orderCancelObservation, String companyCode, String localCode,
-                                                   String source, boolean sendNewAudit, String updateBy) {
+                                                   String orderCancelDescription, String orderCancelObservation,
+                                                   String companyCode, String localCode, String source,
+                                                   boolean sendNewAudit, String updateBy) {
 
         UtilClass utilClass = new UtilClass(classImplementTracker);
 
@@ -92,8 +93,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         statusDetail,
                                                         statusName,
                                                         orderCancelCode,
-                                                        orderCancelObservation,
-                                                        null
+                                                        orderCancelDescription,
+                                                        orderCancelObservation
                                                 ).flatMap(responses -> getOrderResponse(
                                                         responses,
                                                         orderId,
@@ -101,7 +102,6 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         externalId,
                                                         orderCancelCode,
                                                         orderCancelObservation,
-                                                        null,
                                                         source,
                                                         utilClass.getOnlyTargetComponentTracker(),
                                                         sendNewAudit,
@@ -134,11 +134,6 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         classImplementTracker, source, companyCode, localCode, clientName, phone, serviceType,
                         sendNotificationByChannel, scheduledTime);
 
-        Function<OrderCanonical,Mono<? extends Boolean>> publisherNotificationSingle =
-                responses -> processSendNotification(ecommerceId, actionDto, serviceShortCode,
-                        classImplementTracker, source, companyCode, localCode, clientName, phone, serviceType,
-                        sendNotificationByChannel, scheduledTime);
-
         if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())
             || Constant.ActionOrder.REJECT_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
@@ -160,9 +155,9 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                     log.info("[END] add controversy");
             }
 
-            if (actionDto.getOrderCancelCode() != null && actionDto.getOrderCancelAppType() != null) {
+            if (actionDto.getOrderCancelCode() != null && actionDto.getOrigin() != null) {
                 codeReason = orderCancellationService
-                                .geByCodeAndAppType(actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType());
+                                .geByCodeAndAppType(actionDto.getOrderCancelCode(), actionDto.getOrigin());
             } else {
                 codeReason = orderCancellationService.geByCode(actionDto.getOrderCancelCode());
             }
@@ -184,8 +179,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             null,
                                                             Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                                            actionDto.getOrderCancelObservation(),
-                                                            Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null)
+                                                            Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
+                                                            actionDto.getOrderCancelObservation()
                                                     )
                                                     .flatMap(responses -> getOrderResponse(
                                                             responses,
@@ -194,7 +189,6 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             externalId,
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                             actionDto.getOrderCancelObservation(),
-                                                            Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                             Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                             utilClass.getOnlyTargetComponentTracker(),
                                                             sendNewFlow,
@@ -221,8 +215,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                                 serviceType,
                                                                 orderId,
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
                                                                 actionDto.getOrderCancelObservation(),
-                                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                                 statusCode,
                                                                 actionDto.getOrigin()
 
@@ -234,7 +228,6 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                                 externalId,
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                                 actionDto.getOrderCancelObservation(),
-                                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getAppType).orElse(null),
                                                                 Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                                 Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
                                                                 sendNewFlow,
@@ -279,7 +272,6 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                     externalId,
                                                     null,
                                                     null,
-                                                    null,
                                                     Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                     Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
                                                     sendNewFlow,
@@ -301,9 +293,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     @Override
     public Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
-                                                 String orderCancelCode, String orderCancelObservation,
-                                                 String orderCancelAppType, String source, String target,
-                                                 boolean sendNewAudit, String updateBy) {
+                                                 String orderCancelCode, String orderCancelObservation, String source,
+                                                 String target, boolean sendNewAudit, String updateBy) {
         log.info("Target to send:{}, updateBy:{}",target,updateBy);
         LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
 
@@ -312,10 +303,9 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         orderCanonical.setTarget(target);
 
         orderTransaction.updateStatusCancelledOrder(
-                orderCanonical.getOrderStatus().getDetail(), orderCancelObservation,
-                orderCancelCode, orderCancelAppType,
-                orderCanonical.getOrderStatus().getCode(), id,
-                localDateTime, Optional.ofNullable(orderCancelCode).map(oc -> localDateTime).orElse(null)
+                orderCanonical.getOrderStatus().getDetail(), orderCancelObservation, orderCancelCode,
+                orderCanonical.getOrderStatus().getCode(), id, localDateTime,
+                Optional.ofNullable(orderCancelCode).map(oc -> localDateTime).orElse(null)
         );
 
         orderCanonical.setExternalId(externalId);

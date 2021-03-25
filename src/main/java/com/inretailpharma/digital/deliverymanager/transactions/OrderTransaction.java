@@ -104,7 +104,8 @@ public class OrderTransaction {
         orderWrapperResponse.setOrderStatusCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getOrderStatus().getCode());
         orderWrapperResponse.setOrderStatusName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getOrderStatus().getType());
         orderWrapperResponse.setOrderStatusDetail(serviceLocalOrderResponse.getStatusDetail());
-
+        orderWrapperResponse.setCancellationCode(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId());
+        orderWrapperResponse.setCancellationDescription(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getReason());
         orderWrapperResponse.setServiceCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getCode());
         orderWrapperResponse.setServiceShortCode(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getShortCode());
         orderWrapperResponse.setServiceName(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getName());
@@ -220,14 +221,14 @@ public class OrderTransaction {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
-                                           String cancellationAppType, String orderStatusCode, Long orderFulfillmentId,
-                                           LocalDateTime updateLast, LocalDateTime dateCancelled) {
+                                           String orderStatusCode, Long orderFulfillmentId, LocalDateTime updateLast,
+                                           LocalDateTime dateCancelled) {
         log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
                  "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}, updateLast:{}, dateCancelled:{}"
                  ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
 
         orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
-                cancellationAppType, orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
+                orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
     }
 
     public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {

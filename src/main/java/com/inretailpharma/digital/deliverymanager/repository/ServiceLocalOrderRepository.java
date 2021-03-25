@@ -69,15 +69,13 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
     @Transactional
     @Query(value = "Update order_process_status " +
             " set status_detail = :statusDetail, cancellation_observation = :cancellationObservation, " +
-            " cancellation_code = :cancellationCode, cancellation_app_type = :cancellationAppType, " +
-            " order_status_code = :orderStatusCode, date_last_updated = :dateLastUpdated, " +
-            " date_cancelled = :dateCancelled " +
+            " cancellation_code = :cancellationCode, order_status_code = :orderStatusCode," +
+            " date_last_updated = :dateLastUpdated, date_cancelled = :dateCancelled" +
             " where order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true)
     void updateStatusCancelledOrder(@Param("statusDetail") String statusDetail,
                                     @Param("cancellationObservation") String cancellationObservation,
                                     @Param("cancellationCode") String cancellationCode,
-                                    @Param("cancellationAppType") String cancellationAppType,
                                     @Param("orderStatusCode") String orderStatusCode,
                                     @Param("orderFulfillmentId") Long orderFulfillmentId,
                                     @Param("dateLastUpdated") LocalDateTime dateLastUpdated,

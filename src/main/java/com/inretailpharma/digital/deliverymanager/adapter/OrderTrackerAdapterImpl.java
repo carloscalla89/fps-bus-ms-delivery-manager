@@ -21,8 +21,8 @@ public class OrderTrackerAdapterImpl extends AdapterAbstract implements AdapterI
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService, Long ecommerceId,
                                                               ActionDto actionDto, String company, String serviceType,
-                                                              Long id, String orderCancelCode, String orderCancelObservation,
-                                                              String orderCancelAppType, String statusCode, String origin) {
+                                                              Long id, String orderCancelCode, String orderCancelDescription,
+                                                              String orderCancelObservation, String statusCode, String origin) {
 
         if (actionDto.getAction().equalsIgnoreCase(Constant.ActionOrder.PREPARE_ORDER.name())) {
 

@@ -16,12 +16,12 @@ public interface AdapterInterface {
     Mono<OrderCanonical> sendOrderTracker(OrderExternalService orderExternalService, StoreCenterCanonical storeCenter,
                                           Long ecommercePurchaseId, Long externalId, String statusDetail,
                                           String statusName, String orderCancelCode,
-                                          String orderCancelObservation, String orderCancelAppType);
+                                          String orderCancelDescription, String orderCancelObservation);
 
     Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService, Long ecommerceId,
                                                        ActionDto actionDto, String company, String serviceType,
                                                        Long orderId, String orderCancelCode,
-                                                       String orderCancelObservation, String orderCancelAppType,
+                                                       String orderCancelDescription, String orderCancelObservation,
                                                        String statusCode, String origin);
 
     Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical, String updateBy);

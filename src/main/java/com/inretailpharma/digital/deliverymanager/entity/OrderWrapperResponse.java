@@ -12,6 +12,7 @@ public class OrderWrapperResponse {
     private String orderStatusCode;
     private String orderStatusName;
     private String orderStatusDetail;
+
     private String serviceCode;
     private String serviceShortCode;
     private String serviceType;
@@ -23,6 +24,8 @@ public class OrderWrapperResponse {
 
     private String serviceEnabled;
 
+    private String cancellationCode;
+    private String cancellationDescription;
 
     private Integer attemptBilling;
     private Integer attemptTracker;

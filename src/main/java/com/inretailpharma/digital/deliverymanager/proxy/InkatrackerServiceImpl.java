@@ -41,7 +41,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
 
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
-                                                              String serviceType) {
+                                                              String serviceType, String orderCancelDescription) {
         log.info("[START]  connect inkatracker   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
@@ -59,10 +59,9 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
             });
         }
         orderTrackerCanonical.setInvoicedList(invoicedList);
-        orderTrackerCanonical.setInkaDeliveryId(actionDto.getExternalBillingId());
+
         orderTrackerCanonical.setCancelCode(actionDto.getOrderCancelCode());
-        orderTrackerCanonical.setCancelClientReason(actionDto.getOrderCancelClientReason());
-        orderTrackerCanonical.setCancelReason(actionDto.getOrderCancelReason());
+        orderTrackerCanonical.setCancelReason(orderCancelDescription);
         orderTrackerCanonical.setCancelObservation(actionDto.getOrderCancelObservation());
 
         Constant.OrderStatusTracker orderStatusInkatracker = Constant.OrderStatusTracker.getByActionName(actionDto.getAction());
@@ -112,11 +111,12 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                                    List<IOrderItemFulfillment> itemFulfillments,
                                                    StoreCenterCanonical storeCenterCanonical,
                                                    Long externalId, String statusDetail, String statusName,
-                                                   String orderCancelCode, String orderCancelObservation) {
+                                                   String orderCancelCode, String orderCancelDescription,
+                                                   String orderCancelObservation) {
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(
                         iOrderFulfillment, itemFulfillments, storeCenterCanonical, externalId, statusName, statusDetail,
-                        orderCancelCode, orderCancelObservation
+                        orderCancelCode, orderCancelDescription
                 ))
                 .flatMap(b -> {
 

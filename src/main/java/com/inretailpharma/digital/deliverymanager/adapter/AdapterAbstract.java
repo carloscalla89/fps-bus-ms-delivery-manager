@@ -34,8 +34,8 @@ public class AdapterAbstract implements AdapterInterface{
     @Override
     public Mono<OrderCanonical> sendOrderTracker(OrderExternalService orderExternalService, StoreCenterCanonical storeCenter,
                                                  Long ecommercePurchaseId, Long externalId, String statusDetail, String statusName,
-                                                 String orderCancelCode, String orderCancelObservation,
-                                                 String orderCancelAppType) {
+                                                 String orderCancelCode, String orderCancelDescription,
+                                                 String orderCancelObservation) {
         return null;
     }
 

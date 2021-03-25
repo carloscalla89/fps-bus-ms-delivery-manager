@@ -53,7 +53,7 @@ public class AbstractOrderService implements OrderExternalService {
 
 	@Override
 	public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
-															  String serviceType) {
+															  String serviceType, String cancelDescription) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -72,7 +72,8 @@ public class AbstractOrderService implements OrderExternalService {
 												   List<IOrderItemFulfillment> itemFulfillments,
 												   StoreCenterCanonical storeCenterCanonical,
 												   Long externalId, String statusDetail,String statusName,
-												   String orderCancelCode, String orderCancelObservation) {
+												   String orderCancelCode, String orderCancelDescription,
+												   String orderCancelObservation) {
 		return null;
 	}
 

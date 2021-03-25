@@ -126,7 +126,7 @@ public class ObjectToMapper {
                                                                              List<IOrderItemFulfillment> itemFulfillments,
                                                                              StoreCenterCanonical storeCenterCanonical,
                                                                              Long externalId, String status, String detail,
-                                                                             String orderCancelCode, String orderCancelObservation) {
+                                                                             String orderCancelCode, String orderCancelDescription) {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
         orderInkatrackerCanonical.setOrderExternalId(iOrderFulfillment.getEcommerceId());
@@ -175,9 +175,9 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
         // ====set Status to tracker
         orderInkatrackerCanonical.setOrderStatus(
-                getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical, detail));
+                getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelDescription,orderInkatrackerCanonical, detail));
         orderInkatrackerCanonical.setStatus(
-                getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelObservation,orderInkatrackerCanonical, detail));
+                getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelDescription,orderInkatrackerCanonical, detail));
         // ====
 
         orderInkatrackerCanonical.setTotalCost(iOrderFulfillment.getTotalCost().doubleValue());
@@ -389,7 +389,7 @@ public class ObjectToMapper {
     }
 
     private OrderStatusInkatrackerCanonical getFromOrderCanonical(IOrderFulfillment iOrderFulfillment, String status,
-                                                                  String orderCancelCode, String orderCancelObservation,
+                                                                  String orderCancelCode, String orderCancelDescription,
                                                                   OrderInkatrackerCanonical orderInkatrackerCanonical,
                                                                   String detail) {
         OrderStatusInkatrackerCanonical orderStatusInkatrackerCanonical = new OrderStatusInkatrackerCanonical();
@@ -415,11 +415,11 @@ public class ObjectToMapper {
             orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
 
             orderStatusInkatrackerCanonical.setCustomNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation)
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
             );
 
             orderStatusInkatrackerCanonical.setCancelMessageNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation)
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
             );
 
             orderInkatrackerCanonical.setCancelDate(
@@ -430,7 +430,7 @@ public class ObjectToMapper {
 
             orderInkatrackerCanonical.setCancelReasonCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
             orderInkatrackerCanonical.setCancelMessageNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelObservation)
+                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
             );
         }
 
@@ -837,7 +837,8 @@ public class ObjectToMapper {
         orderStatus.setName(orderWrapperResponse.getOrderStatusName());
         orderStatus.setDetail(orderWrapperResponse.getOrderStatusDetail());
         orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
+        orderStatus.setCancellationCode(orderWrapperResponse.getCancellationCode());
+        orderStatus.setCancellationObservation(orderWrapperResponse.getCancellationDescription());
         orderCanonical.setOrderStatus(orderStatus);
 
         // source - example: CALL, WEB, APP
@@ -979,7 +980,6 @@ public class ObjectToMapper {
         orderCanonical.getOrderDetail().setServiceEnabled(
                 Constant.Logical.getByValueString(orderWrapperResponse.getServiceEnabled()).value()
         );
-
 
         orderCanonical.getOrderDetail().setAttempt(orderWrapperResponse.getAttemptBilling());
         orderCanonical.getOrderDetail().setAttemptTracker(orderWrapperResponse.getAttemptTracker());

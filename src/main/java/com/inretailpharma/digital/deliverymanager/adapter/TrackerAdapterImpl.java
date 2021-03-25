@@ -20,8 +20,8 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
     @Override
     public Mono<OrderCanonical> sendOrderTracker(OrderExternalService orderExternalService, StoreCenterCanonical storeCenter,
                                                  Long ecommercePurchaseId, Long externalId, String statusDetail,
-                                                 String statusName, String orderCancelCode, String orderCancelObservation,
-                                                 String orderCancelAppType) {
+                                                 String statusName, String orderCancelCode, String orderCancelDescription,
+                                                 String orderCancelObservation) {
 
         log.info("sendOrderTracker - ecommercePurchaseId:{}, ",ecommercePurchaseId);
         IOrderFulfillment iOrderFulfillmentCase4 = this.getOrderTransaction().getOrderByecommerceId(ecommercePurchaseId);
@@ -36,6 +36,7 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
                             statusDetail,
                             statusName,
                             orderCancelCode,
+                            orderCancelDescription,
                             orderCancelObservation
                     );
 
@@ -45,10 +46,10 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService, Long ecommerceId,
                                                               ActionDto actionDto, String company, String serviceType,
-                                                              Long id, String orderCancelCode, String orderCancelObservation,
-                                                              String orderCancelAppType, String statusCode, String origin) {
+                                                              Long id, String orderCancelCode, String orderCancelDescription,
+                                                              String orderCancelObservation, String statusCode, String origin) {
         return orderExternalService
-                .getResultfromExternalServices(ecommerceId, actionDto, company, serviceType);
+                .getResultfromExternalServices(ecommerceId, actionDto, company, serviceType, orderCancelDescription);
     }
 
     @Override

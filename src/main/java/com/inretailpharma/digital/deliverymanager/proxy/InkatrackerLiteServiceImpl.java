@@ -42,13 +42,14 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                                    List<IOrderItemFulfillment> itemFulfillments,
                                                    StoreCenterCanonical storeCenterCanonical,
                                                    Long externalId, String statusDetail, String statusName,
-                                                   String orderCancelCode, String orderCancelObservation) {
+                                                   String orderCancelCode, String orderCancelDescription,
+                                                   String orderCancelObservation) {
 
         String dayToPickup = getApplicationParameter(Constant.ApplicationsParameters.DAYS_PICKUP_MAX_RET);
 
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
-                        storeCenterCanonical, externalId, statusName, statusDetail, orderCancelCode, orderCancelObservation)
+                        storeCenterCanonical, externalId, statusName, statusDetail, orderCancelCode, orderCancelDescription)
                 )
                 .flatMap(b -> {
 
@@ -107,7 +108,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
-                                                              String serviceType) {
+                                                              String serviceType, String cancelDescription) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
@@ -131,8 +132,10 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                 .path("/{orderExternalId}")
                                 .queryParam("action",orderStatusInkatracker.getTrackerLiteStatus())
                                 .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
+                                .queryParam("cancelDescription",cancelDescription)
                                 .queryParam("origin",actionDto.getOrigin())
                                 .queryParam("observation",actionDto.getOrderCancelObservation())
+                                .queryParam("motorizedId",actionDto.getMotorizedId())
                                 .build(ecommerceId))
                 .exchange()
                 .flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, ecommerceId, orderStatusInkatracker))
