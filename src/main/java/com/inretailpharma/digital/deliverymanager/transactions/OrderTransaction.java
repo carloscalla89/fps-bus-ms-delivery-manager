@@ -86,7 +86,7 @@ public class OrderTransaction {
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
 
         serviceLocalOrder.setCancellationCode(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId());
-        serviceLocalOrder.setCancellationObservation(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getReason());
+        serviceLocalOrder.setCancellationObservation(null);
         serviceLocalOrder.setStatusDetail(Optional.ofNullable(orderDto.getOrderStatusDto()).map(OrderStatusDto::getDescription).orElse(null));
         serviceLocalOrder.setDateCreated(DateUtils.getLocalDateTimeObjectNow());
         serviceLocalOrder.setDateCancelled(

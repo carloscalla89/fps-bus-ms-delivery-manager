@@ -103,9 +103,7 @@ public class DeliveryManagerFacade {
                                         Optional.ofNullable(order.getOrderStatus())
                                                 .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
                                                 .orElse(null),
-                                        Optional.ofNullable(order.getOrderStatus())
-                                                .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
-                                                .orElse(null),
+                                        null,
                                         order.getCompanyCode(),
                                         order.getLocalCode(),
                                         order.getSource(),
@@ -235,9 +233,7 @@ public class DeliveryManagerFacade {
                                                                                                                 Optional.ofNullable(orderResp.getOrderStatus())
                                                                                                                         .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
                                                                                                                         .orElse(null),
-                                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
-                                                                                                                        .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
-                                                                                                                        .orElse(null),
+                                                                                                                null,
                                                                                                                 iOrderFulfillmentLight.getCompanyCode(),
                                                                                                                 iOrderFulfillmentLight.getCenterCode(),
                                                                                                                 iOrderFulfillmentLight.getSource(),
