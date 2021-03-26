@@ -88,11 +88,11 @@ public class OrderTransaction {
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
         serviceLocalOrder.setLeadTime(
                 Optional.ofNullable(orderDto.getSchedules().getLeadTime())
+                        .filter(val -> val > 0)
                         .orElseGet(() -> Optional
                                             .ofNullable(getApplicationParameter(Constant.ApplicationsParameters.DEFAULT_INTERVAL_TIME_BY_SERVICE_
                                                     + serviceType.getShortCode())
                                             )
-                                            .filter(val -> Integer.parseInt(val)>0)
                                             .map(Integer::parseInt)
                                             .orElse(0)
                         )
