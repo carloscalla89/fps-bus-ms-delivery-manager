@@ -92,6 +92,7 @@ public class OrderTransaction {
                                             .ofNullable(getApplicationParameter(Constant.ApplicationsParameters.DEFAULT_INTERVAL_TIME_BY_SERVICE_
                                                     + serviceType.getShortCode())
                                             )
+                                            .filter(val -> Integer.parseInt(val)>0)
                                             .map(Integer::parseInt)
                                             .orElse(0)
                         )
