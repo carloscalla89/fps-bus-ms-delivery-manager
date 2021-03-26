@@ -1,11 +1,15 @@
 package com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-public class ServiceOffered {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ServiceOffered{
 
 	private String code;
 	private String service;
