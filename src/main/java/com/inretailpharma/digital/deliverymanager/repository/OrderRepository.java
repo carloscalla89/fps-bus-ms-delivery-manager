@@ -41,7 +41,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.external_purchase_id as externalId, " +
             "ops.center_code as centerCode, ops.company_code as companyCode," +
             "st.code as serviceTypeCode, st.name as serviceTypeName, st.type as serviceType, " +
-            "o.scheduled_time as scheduledTime " +
+            "o.scheduled_time as scheduledTime , st.class_implement as classImplement " +
             "from order_fulfillment o " +
             "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
             "inner join order_status os on os.code = ops.order_status_code " +
