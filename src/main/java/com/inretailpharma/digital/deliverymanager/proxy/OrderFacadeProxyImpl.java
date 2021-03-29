@@ -201,8 +201,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                         .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
                         .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)));
 
-
             } else {
+
                 return Flux
                         .fromIterable(utilClass.getClassesToSend())
                         .flatMap(objectClass -> ((AdapterInterface)context

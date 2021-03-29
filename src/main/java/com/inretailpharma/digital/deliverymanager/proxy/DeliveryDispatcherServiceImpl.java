@@ -76,7 +76,7 @@ public class DeliveryDispatcherServiceImpl extends AbstractOrderService implemen
 
 
     public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
-        log.info("[START] getOrderFromEcommerce:{}",ecommerceId);
+        log.info("[START] getOrderFromEcommerce inka:{}",ecommerceId);
         return WebClient
                 .builder()
                 .clientConnector(
