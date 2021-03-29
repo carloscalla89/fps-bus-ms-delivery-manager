@@ -24,7 +24,8 @@ INSERT INTO `cancellation_code_reason` (`app_type`,`type`,`code`,`enabled`,`reas
 ,('FARMADASHBOARD','CANCELLED','C44',1,'Prueba de sistemas','Prueba de sistemas')
 ,('FARMADASHBOARD','CANCELLED','EXP',1,'Cancelación desde el POS Unificado','Cancelación desde el POS Unificado')
 ,('FARMADASHBOARD','CANCELLED','EXD',1,'Cancelación por expiración de una orden RET','Cancelación por expiración de una orden RET')
-,('FARMADASHBOARD','CANCELLED','DU',1,'Cancelación desde el el Delivery Unificado','Cancelación desde el Delivery Unificado');
+,('FARMADASHBOARD','CANCELLED','DU',1,'Cancelación desde el el Delivery Unificado','Cancelación desde el Delivery Unificado')
+,('DIGITAL','CANCELLED','ND',1,'Código de cancelación no definida','Código de cancelación no definida');
 
 insert into cancellation_code_reason values
 ('C38','UNIFIED_POS','CANCELLED','Fraude o mayorista','Fraude o mayorista',1),
