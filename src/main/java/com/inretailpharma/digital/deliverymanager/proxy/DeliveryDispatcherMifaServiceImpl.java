@@ -1,18 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.InsinkResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.ResponseDispatcherCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.StatusDispatcher;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.TrackerInsinkResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
-import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
-import com.inretailpharma.digital.deliverymanager.dto.generic.ActionWrapper;
 import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
-import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
@@ -20,20 +14,12 @@ import com.inretailpharma.digital.deliverymanager.mapper.EcommerceMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
-import io.netty.channel.ChannelOption;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.tcp.TcpClient;
 
 import java.util.List;
 import java.util.Optional;
@@ -74,109 +60,32 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
                     .builder()
                     .clientConnector(
                             generateClientConnector(
-                                    Integer.parseInt(externalServicesProperties.getDispatcherInsinkTrackerConnectTimeout()),
-                                    Long.parseLong(externalServicesProperties.getDispatcherInsinkTrackerReadTimeout())
+                                    Integer.parseInt(externalServicesProperties.getDispatcherLegacySystemConnectTimeout()),
+                                    Long.parseLong(externalServicesProperties.getDispatcherLegacySystemReadTimeout())
                             )
                     )
                     .baseUrl(dispatcherUri)
                     .build()
                     .post()
-                    .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments, storeCenterCanonical)), OrderDto.class)
+                    .body(Mono.just(ecommerceMapper.orderFulfillmentToOrderDto(iOrderFulfillment, itemFulfillments, storeCenterCanonical)),
+                            OrderDto.class)
                     .exchange()
                     //.bodyToMono(ResponseDispatcherCanonical.class)
-                    .flatMap(clientResponse -> {
-
-                        log.info("result dispatcher to reattempt insink and tracker response:{}", clientResponse);
-
-                        if (clientResponse.statusCode().is2xxSuccessful()) {
-
-                            return clientResponse
-                                    .bodyToMono(ResponseDispatcherCanonical.class)
-                                    .flatMap(cr -> {
-                                        InsinkResponseCanonical dispatcherResponse = cr.getBody();
-                                        StatusDispatcher statusDispatcher = cr.getStatus();
-
-                                        log.info("body:{}, status:{}",dispatcherResponse, statusDispatcher);
-
-                                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                        Constant.OrderStatus orderStatusUtil = Constant
-                                                .OrderStatus
-                                                .getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).getStatus());
-
-                                        orderStatus.setCode(orderStatusUtil.getCode());
-                                        orderStatus.setName(orderStatusUtil.name());
-                                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                                        Optional.of(statusDispatcher.isSuccessProcess())
-                                                .filter(r -> r)
-                                                .ifPresent(r -> {
-
-                                                    String stringBuffer = "code error:" +
-                                                            dispatcherResponse.getErrorCode() +
-                                                            ", description:" +
-                                                            statusDispatcher.getDescription() +
-                                                            ", detail:" +
-                                                            dispatcherResponse.getMessageDetail();
-
-                                                    orderStatus.setDetail(stringBuffer);
-                                                });
-
-                                        OrderCanonical resultCanonical = new OrderCanonical();
-                                        resultCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                                        resultCanonical.setExternalId(
-                                                Optional
-                                                        .ofNullable(dispatcherResponse.getInkaventaId())
-                                                        .map(Long::parseLong).orElse(null)
-                                        );
-                                        resultCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
-                                        resultCanonical.setOrderStatus(orderStatus);
-
-                                        return Mono.just(resultCanonical);
-
-
-                                    });
-
-                        } else {
-                            return clientResponse.body(BodyExtractors.toDataBuffers()).reduce(DataBuffer::write).map(dataBuffer -> {
-                                byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                                dataBuffer.read(bytes);
-                                DataBufferUtils.release(dataBuffer);
-                                return bytes;
-                            })
-                                    .defaultIfEmpty(new byte[0])
-                                    .flatMap(bodyBytes -> Mono.error(new CustomException(clientResponse.statusCode().value()
-                                            +":"+clientResponse.statusCode().getReasonPhrase()+":"+new String(bodyBytes),
-                                            clientResponse.statusCode().value()))
-                                    );
-                        }
-
-                    })
+                    .flatMap(clientResponse -> mapResponseFromDispatcher(clientResponse,
+                            iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getCompanyCode())
+                    )
+                    .doOnSuccess(s -> log.info("Response is Success from dispatcher IKF"))
                     .defaultIfEmpty(
                             new OrderCanonical(
                                     iOrderFulfillment.getEcommerceId(),
                                     Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.getCode(),
                                     Constant.OrderStatus.EMPTY_RESULT_DISPATCHER.name())
                     )
-                    .onErrorResume(e -> {
+                    .doOnError(e -> {
                         e.printStackTrace();
-                        String errorMessage = "Error to invoking'" + dispatcherUri +
-                                "':" + e.getMessage();
-                        log.error(errorMessage);
-
-                        OrderCanonical orderCanonical = new OrderCanonical();
-
-                        orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
-                        OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-
-                        orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-                        orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-                        orderStatus.setDetail(errorMessage);
-                        orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-                        orderCanonical.setOrderStatus(orderStatus);
-
-                        return Mono.just(orderCanonical);
-                    });
+                        log.error("Error from dispatcher:{}",e.getMessage());
+                    })
+                    .onErrorResume(e -> mapResponseErrorFromDispatcher(e, iOrderFulfillment.getEcommerceId()));
 
         } else {
             dispatcherUri = externalServicesProperties.getDispatcherInsinkTrackerUriMiFarma();
@@ -276,11 +185,45 @@ public class DeliveryDispatcherMifaServiceImpl extends AbstractOrderService impl
                     });
 
         }
-
-
     }
 
     public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
-        return null;
+        log.info("[START] getOrderFromEcommerce from mifa:{}",ecommerceId);
+
+        return WebClient
+                .builder()
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getDispatcherOrderEcommerceConnectTimeout()),
+                                Long.parseLong(externalServicesProperties.getDispatcherOrderEcommerceReadTimeout())
+                        )
+                )
+                .baseUrl(externalServicesProperties.getDispatcherOrderEcommerceUriMifarma())
+                .build()
+                .get()
+                .uri(builder ->
+                        builder
+                                .path("/{orderId}")
+                                .build(ecommerceId))
+                .exchange()
+                .flatMap(clientResponse -> {
+
+                    if (clientResponse.statusCode().is2xxSuccessful()) {
+                        return clientResponse
+                                .bodyToMono(com.inretailpharma.digital.deliverymanager.dto.OrderDto.class);
+                    }
+                    return Mono.error(new CustomException("Error to get order from ecommerce mifa",clientResponse.statusCode().value()));
+
+                })
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    String errorMessage = "Error to invoking Delivery-dispatcher from mifa'"
+                            + externalServicesProperties.getDispatcherOrderEcommerceUri() +
+                            "':" + e.getMessage();
+                    log.error(errorMessage);
+
+                    return Mono.empty();
+                });
     }
+
 }

@@ -10,6 +10,6 @@ import java.util.List;
 public interface CancellationCodeReasonRepository extends JpaRepository<CancellationCodeReason, String>{
 
     List<CancellationCodeReason> findAllByAppType(String appType);
-    CancellationCodeReason findByCode(String code);
+    List<CancellationCodeReason> findAllByCode(String code);
     CancellationCodeReason findByCodeAndAppType(String code, String appType);
 }

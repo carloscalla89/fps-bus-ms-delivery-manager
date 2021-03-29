@@ -75,6 +75,9 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.order-ecommerce.uri}")
     private String dispatcherOrderEcommerceUri;
 
+    @Value("${external-service.dispatcher.order-ecommerce.uri-mifarma}")
+    private String dispatcherOrderEcommerceUriMifarma;
+
     @Value("${external-service.dispatcher.order-ecommerce.connect-timeout}")
     private String dispatcherOrderEcommerceConnectTimeout;
 
