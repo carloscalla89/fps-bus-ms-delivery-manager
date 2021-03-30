@@ -13,6 +13,7 @@ import com.inretailpharma.digital.deliverymanager.service.OrderCancellationServi
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.validator.GenericValidator;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -106,7 +107,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         source,
                                                         utilClass.getOnlyTargetComponentTracker(),
                                                         sendNewAudit,
-                                                        updateBy
+                                                        updateBy,
+                                                        null
                                                         )
                                                 )
                     );
@@ -193,7 +195,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                             utilClass.getOnlyTargetComponentTracker(),
                                                             sendNewFlow,
-                                                            actionDto.getUpdatedBy()
+                                                            actionDto.getUpdatedBy(),
+                                                            actionDto.getActionDate()
                                                             )
                                                     )
                         )
@@ -232,7 +235,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                                 Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                                 Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
                                                                 sendNewFlow,
-                                                                actionDto.getUpdatedBy()
+                                                                actionDto.getUpdatedBy(),
+                                                                actionDto.getActionDate()
                                                                 )
                                                         )
                         )
@@ -276,7 +280,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                     Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                     Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
                                                     sendNewFlow,
-                                                    actionDto.getUpdatedBy()
+                                                    actionDto.getUpdatedBy(),
+                                                    actionDto.getActionDate()
                                                     )
                                             )
                 )
@@ -295,9 +300,13 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     @Override
     public Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                                  String orderCancelCode, String orderCancelObservation, String source,
-                                                 String target, boolean sendNewAudit, String updateBy) {
+                                                 String target, boolean sendNewAudit, String updateBy, String actionDate) {
         log.info("Target to send:{}, updateBy:{}",target,updateBy);
-        LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
+        LocalDateTime localDateTime = Optional
+                                        .ofNullable(actionDate)
+                                        .filter(DateUtils::validFormatDateTimeFormat)
+                                        .map(DateUtils::getLocalDateTimeFromStringWithFormat)
+                                        .orElseGet(DateUtils::getLocalDateTimeObjectNow);
 
         orderCanonical.setEcommerceId(ecommerceId);
         orderCanonical.setSource(source);

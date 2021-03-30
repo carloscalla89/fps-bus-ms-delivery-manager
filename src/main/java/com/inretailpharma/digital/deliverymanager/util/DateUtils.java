@@ -20,6 +20,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_TEMPLATE);
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATETIME_TEMPLATE);
 
+    public static boolean validFormatDateTimeFormat(String dateTime) {
+
+        return GenericValidator.isDate(dateTime, DATETIME_TEMPLATE, true);
+
+    }
+
     public static String getFormatDateTimeTemplate() {
         return DATETIME_TEMPLATE;
     }
