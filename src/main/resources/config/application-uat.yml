@@ -5,8 +5,8 @@ spring:
     password: Operaciones2020
 external-service:
   audit:
-    create-order: http://us-audit/audit/order
-    update-order-history-audit: http://us-audit/audit/order/history
+    create-order: http://audituat.backend.cindibyinkafarma.com/audit/order
+    update-order-history-audit: http://audituat.backend.cindibyinkafarma.com/audit/order/history
     connect-timeout: 10000
     read-timeout: 10000
   dispatcher:
@@ -32,15 +32,15 @@ external-service:
       read-timeout: 60000
   inkatracker-lite:
     create-order:
-      uri: http://us-inkatrackerlite/nvr/orders/create
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://us-inkatrackerlite/v2/unattended-orders
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/v2/unattended-orders
       connect-timeout: 30000
       read-timeout: 60000
     update-onlinepayment-status-order:
-      uri: http://us-inkatrackerlite/nvr/onlinepayment/orders
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker:
@@ -79,7 +79,7 @@ external-service:
       read-timeout: 120000
   fulfillment-center:
     get-center:
-      uri: http://us-fulfillment-center/fulfillment/store/
+      uri: http://fulfillment-centeruat.backend.cindibyinkafarma.com/fulfillment/store/
       connect-timeout: 15000
       read-timeout: 30000
   seller-center:
