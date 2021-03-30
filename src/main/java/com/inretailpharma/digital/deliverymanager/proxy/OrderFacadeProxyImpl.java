@@ -120,9 +120,9 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                   boolean sendNewFlow, boolean sendNotificationByChannel) {
 
         log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendNewFlow:{}, serviceType:{}, " +
-                 "serviceShortCode:{}, classImplementTracker:{}, source:{}, channel:{}, sendNotificationByChannel:{}", orderId,
-                ecommerceId, actionDto, sendNewFlow, serviceType, serviceShortCode, classImplementTracker, source,channel,
-                sendNotificationByChannel);
+                 "serviceShortCode:{}, classImplementTracker:{}, source:{}, channel:{}, sendNotificationByChannel:{}," +
+                 "statusCode:{}", orderId, ecommerceId, actionDto, sendNewFlow, serviceType, serviceShortCode,
+                classImplementTracker, source,channel, sendNotificationByChannel, statusCode);
 
         CancellationCodeReason codeReason;
 
