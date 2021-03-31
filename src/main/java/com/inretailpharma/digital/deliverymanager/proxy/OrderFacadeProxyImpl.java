@@ -72,6 +72,44 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         this.applicationParameterService = applicationParameterService;
         this.context = context;
     }
+    @Override
+    public Mono<OrderCanonical> createOrderToTracker(Long orderId, Long ecommerceId, Long externalId,
+                                                     String classImplementTracker, String statusDetail, String statusName,
+                                                     String orderCancelCode, String orderCancelDescription,
+                                                     String orderCancelObservation, StoreCenterCanonical store,
+                                                     String source, boolean sendNewAudit, String updateBy) {
+
+        log.info("Send to create the order in tracker when its created for the first time");
+
+        UtilClass utilClass = new UtilClass(classImplementTracker);
+
+        return adapterTrackerInterface
+                .sendOrderTracker(
+                        ((OrderExternalService)context.getBean(utilClass.getClassToTracker())),
+                        store,
+                        ecommerceId,
+                        externalId,
+                        statusDetail,
+                        statusName,
+                        orderCancelCode,
+                        orderCancelDescription,
+                        orderCancelObservation
+                ).flatMap(responses -> getOrderResponse(
+                        responses,
+                        orderId,
+                        ecommerceId,
+                        externalId,
+                        orderCancelCode,
+                        orderCancelObservation,
+                        source,
+                        utilClass.getOnlyTargetComponentTracker(),
+                        sendNewAudit,
+                        updateBy,
+                        null
+                        )
+                );
+
+    }
 
     @Override
     public Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplementTracker,
@@ -79,6 +117,8 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                    String orderCancelDescription, String orderCancelObservation,
                                                    String companyCode, String localCode, String source,
                                                    boolean sendNewAudit, String updateBy,com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto) {
+
+        log.info("Send to create the order in tracker when its sent by reattempt");
 
         UtilClass utilClass = new UtilClass(classImplementTracker);
 

@@ -10,6 +10,12 @@ import java.time.LocalDateTime;
 
 public interface OrderFacadeProxy {
 
+    Mono<OrderCanonical> createOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplement,
+                                              String statusDetail, String statusName, String orderCancelCode,
+                                              String orderCancelDescription, String orderCancelObservation,
+                                              StoreCenterCanonical store, String source, boolean sendNewAudit,
+                                              String updateBy);
+
     Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplement,
                                             String statusDetail, String statusName, String orderCancelCode,
                                             String orderCancelDescription, String orderCancelObservation,

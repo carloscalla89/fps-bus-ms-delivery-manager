@@ -131,8 +131,13 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
+	public Mono<Void> createOrderNewAudit(AuditHistoryDto auditHistoryDto) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public Mono<Void> updateOrderNewAudit(AuditHistoryDto orderCanonical) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -346,5 +351,7 @@ public class AbstractOrderService implements OrderExternalService {
 
 		return Mono.just(orderCanonical);
 	}
+
+
 
 }

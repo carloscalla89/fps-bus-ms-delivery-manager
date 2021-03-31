@@ -121,6 +121,19 @@ public class ObjectToMapper {
         auditHistoryDto.setOrderNote(orderCanonical.getOrderStatus().getCancellationCode());
         auditHistoryDto.setCustomNote(orderCanonical.getOrderStatus().getCancellationObservation());
         auditHistoryDto.setUpdatedBy(updateBy);
+        auditHistoryDto.setLocalCode(orderCanonical.getLocalCode());
+        auditHistoryDto.setEndScheduleDate(
+                Optional.ofNullable(orderCanonical.getOrderDetail())
+                        .filter(res -> res.getConfirmedSchedule() != null && DateUtils.validFormatDateTimeFormat(res.getConfirmedSchedule()))
+                        .map(res -> DateUtils
+                                        .getLocalDateTimeWithFormat(
+                                                DateUtils
+                                                    .getLocalDateTimeFromStringWithFormat(
+                                                            res.getConfirmedSchedule()
+                                                    ).plusMinutes(Optional.ofNullable(res.getLeadTime()).orElse(0))
+                                        )
+                        ).orElse(null)
+        );
         return auditHistoryDto;
     }
 

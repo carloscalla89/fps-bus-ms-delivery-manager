@@ -12,6 +12,9 @@ public class ExternalServicesProperties {
     @Value("${external-service.audit.create-order}")
     private String uriApiService;
 
+    @Value("${external-service.audit.create-order-history-audit}")
+    private String uriCreateHistoryAuditApiService;
+
     @Value("${external-service.audit.update-order-history-audit}")
     private String uriUpdateHistoryAuditApiService;
 

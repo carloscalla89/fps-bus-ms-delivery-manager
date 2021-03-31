@@ -67,11 +67,12 @@ public class DeliveryManagerFacade {
                 .zipWith(Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)), (storeCenter, orderFulfillment) -> {
 
                     OrderCanonical orderCanonicalResponse = orderTransaction
-                            .processOrderTransaction(
-                                    orderFulfillment,
-                                    orderDto,
-                                    storeCenter
-                            );
+                                                                .processOrderTransaction(
+                                                                        orderFulfillment,
+                                                                        orderDto,
+                                                                        storeCenter
+                                                                );
+                    orderCanonicalResponse.setStoreCenter(storeCenter);
 
                     orderFacadeProxy.createExternalAudit(
                             orderCanonicalResponse.getOrderDetail().isServiceSendNewFlowEnabled(),
@@ -90,7 +91,7 @@ public class DeliveryManagerFacade {
                             && checkIfOrderIsRoutable(order)) {
 
                         return orderFacadeProxy
-                                .sendOrderToTracker(
+                                .createOrderToTracker(
                                         order.getId(),
                                         order.getEcommerceId(),
                                         order.getExternalId(),
@@ -107,8 +108,7 @@ public class DeliveryManagerFacade {
                                                 .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
                                                 .orElse(null),
                                         null,
-                                        order.getCompanyCode(),
-                                        order.getLocalCode(),
+                                        order.getStoreCenter(),
                                         order.getSource(),
                                         order.getOrderDetail().isServiceSendNewFlowEnabled(),
                                         Constant.UPDATED_BY_INIT,

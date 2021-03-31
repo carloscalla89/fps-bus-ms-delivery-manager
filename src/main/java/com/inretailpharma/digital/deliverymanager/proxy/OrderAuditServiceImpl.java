@@ -65,9 +65,46 @@ public class OrderAuditServiceImpl extends AbstractOrderService  implements Orde
                 .then();
 
     }
+
+    @Override
+    public Mono<Void> createOrderNewAudit(AuditHistoryDto auditHistoryDto) {
+        log.info("[START] service create to call api history: uri:{}, dto:{}",
+                externalServicesProperties.getUriCreateHistoryAuditApiService(), auditHistoryDto);
+
+        return WebClient
+                .builder()
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getAuditConnectTimeout()),
+                                Long.parseLong(externalServicesProperties.getAuditReadTimeout())
+                        )
+                )
+                .baseUrl(externalServicesProperties.getUriCreateHistoryAuditApiService())
+                .build()
+                .post()
+                .body(Mono.just(auditHistoryDto), AuditHistoryDto.class)
+                .exchange()
+                .flatMap(clientResponse -> clientResponse.bodyToMono(Long.class))
+                .retry(3)
+                .subscribeOn(Schedulers.parallel())
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error("Call audit new history is empty - ecommerceId:{}",auditHistoryDto.getEcommerceId());
+                    return Mono.just(-1L);
+                }))
+                .doOnError(e -> {
+                    e.printStackTrace();
+                    log.error("Error to call audit new history with ecommerceId:{} and error:{}",
+                            auditHistoryDto.getEcommerceId(),e.getMessage());
+                })
+                .doOnSuccess((r) -> log.info("[END] service to call api audit history to update with ecommerceId:{},{}",
+                        auditHistoryDto.getEcommerceId(),r))
+                .then();
+    }
+
+
     @Override
     public Mono<Void> updateOrderNewAudit(AuditHistoryDto auditHistoryDto) {
-        log.info("[START] service to call api audit new history: uri{}, dto:{}",
+        log.info("[START] service update to call api history: uri:{}, dto:{}",
                 externalServicesProperties.getUriUpdateHistoryAuditApiService(), auditHistoryDto);
 
         return WebClient
@@ -80,19 +117,19 @@ public class OrderAuditServiceImpl extends AbstractOrderService  implements Orde
                 )
                 .baseUrl(externalServicesProperties.getUriUpdateHistoryAuditApiService())
                 .build()
-                .post()
+                .patch()
                 .uri(builder ->
                         builder
                                 .path("/{orderExternalId}")
                                 .build(auditHistoryDto.getEcommerceId()))
                 .body(Mono.just(auditHistoryDto), AuditHistoryDto.class)
                 .exchange()
-                .flatMap(clientResponse -> clientResponse.bodyToMono(Void.class))
+                .flatMap(clientResponse -> clientResponse.bodyToMono(Long.class))
                 .retry(3)
                 .subscribeOn(Schedulers.parallel())
                 .switchIfEmpty(Mono.defer(() -> {
                     log.error("Call audit new history is empty - ecommerceId:{}",auditHistoryDto.getEcommerceId());
-                    return Mono.when();
+                    return Mono.just(-1L);
                 }))
                 .doOnError(e -> {
                     e.printStackTrace();
