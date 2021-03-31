@@ -38,12 +38,12 @@ public class OrderItemDto {
     private boolean removed;
 
     //3 precios
-    private Double priceList;
-    private Double totalPriceList;
-    private Double priceAllPaymentMethod;
-    private Double totalPriceAllPaymentMethod;
-    private Double priceWithpaymentMethod;
-    private Double totalPriceWithpaymentMethod;
+    private BigDecimal priceList;
+    private BigDecimal totalPriceList;
+    private BigDecimal priceAllPaymentMethod;
+    private BigDecimal totalPriceAllPaymentMethod;
+    private BigDecimal priceWithpaymentMethod;
+    private BigDecimal totalPriceWithpaymentMethod;
     private boolean crossOutPL;
     private String paymentMethodCardType;
 }

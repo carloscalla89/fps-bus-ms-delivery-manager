@@ -64,8 +64,8 @@ public class OrderDto {
     private PersonToPickupDto personToPickup;
 
     //3 precios
-    private Double subTotalWithNoSpecificPaymentMethod;
-    private Double totalWithNoSpecificPaymentMethod;
-    private Double totalWithPaymentMethod;
+    private BigDecimal subTotalWithNoSpecificPaymentMethod;
+    private BigDecimal totalWithNoSpecificPaymentMethod;
+    private BigDecimal totalWithPaymentMethod;
     private String paymentMethodCardType;
 }
