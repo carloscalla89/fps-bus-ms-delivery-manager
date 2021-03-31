@@ -200,45 +200,45 @@ public interface Constant {
 
     enum ActionOrder {
 
-        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker"),
-        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker"),
+        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker",1),
+        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker",2),
 
-        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink"),
+        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink",1),
 
-        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada"),
-        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada"),
-        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada"),
-        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger"),
-        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada"),
+        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9),
+        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9),
+        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9),
+        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger",5),
+        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada",3),
 
         // ========== nuevas actions que enviarán TI - 29-10-2020
         // =========================
-        READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING"),
-        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO"),
-        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO"),
+        READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING",5),
+        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4),
+        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5),
         // =================================================================================
 
 
         // =========== nuevos actions que se enviarán desde el order-tracker
-        ASSIGN_ORDER(4, "Acción para asignar órdenes"),
-        UNASSIGN_ORDER(4, "Acción para asignar órdenes"),
-        ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE"),
-        ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED"),
+        ASSIGN_ORDER(4, "Acción para asignar órdenes",6),
+        UNASSIGN_ORDER(4, "Acción para asignar órdenes",6),
+        ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE",7),
+        ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8),
 
-        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago"),
+        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10),
 
-        FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden"),
+        FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0),
 
-        NONE(0, "Not found status");
-
-
+        NONE(0, "Not found status",0);
 
         private Integer code;
         private String description;
+        private int sequence;
 
-        ActionOrder(Integer code, String description) {
+        ActionOrder(Integer code, String description,int sequence) {
             this.code = code;
             this.description = description;
+            this.sequence = sequence;
         }
 
         public Integer getCode() {
@@ -249,11 +249,17 @@ public interface Constant {
             return description;
         }
 
+        public int getSequence() {
+            return sequence;
+        }
+
         public static ActionOrder getByName(String name) {
 
             return EnumUtils.getEnumList(ActionOrder.class).stream().filter(item -> item.name().equalsIgnoreCase(name))
                     .findFirst().orElse(NONE);
         }
+
+
     }
     enum OrderStatusTracker {
 

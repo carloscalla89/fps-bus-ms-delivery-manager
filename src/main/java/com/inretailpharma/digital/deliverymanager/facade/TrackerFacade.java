@@ -241,7 +241,7 @@ public class TrackerFacade {
 
 					return Flux
 							.fromIterable(orderSynchronizeDto.getHistory())
-							.sort(Comparator. comparing(obj -> DateUtils.getLocalDateTimeFromStringWithFormat(obj.getActionDate())))
+							.sort(Comparator. comparing(obj -> Constant.ActionOrder.getByName(obj.getAction()).getSequence()))
 							.flatMap(oh -> {
 
 								ActionDto actionDto = new ActionDto();
