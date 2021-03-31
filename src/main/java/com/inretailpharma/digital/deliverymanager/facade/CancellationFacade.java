@@ -1,7 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancelledCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ResponseCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ShoppingCartStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
 import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
@@ -12,9 +17,7 @@ import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -31,21 +34,19 @@ import java.util.Optional;
 @Component
 public class CancellationFacade {
 
-    private OrderExternalService orderExternalServiceAudit;
+    private AdapterInterface auditAdapter;
     private ApplicationParameterService applicationParameterService;
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
     private final ApplicationContext context;
-
     private ExternalServicesProperties externalServicesProperties;
 
-
-    public CancellationFacade(@Qualifier("audit") OrderExternalService orderExternalServiceAudit,
+    public CancellationFacade(@Qualifier("auditadapter") AdapterInterface auditAdapter,
                               ApplicationParameterService applicationParameterService,
                               OrderTransaction orderTransaction, ObjectToMapper objectToMapper,
                               ApplicationContext context,  ExternalServicesProperties externalServicesProperties) {
 
-        this.orderExternalServiceAudit = orderExternalServiceAudit;
+        this.auditAdapter = auditAdapter;
         this.applicationParameterService = applicationParameterService;
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
@@ -76,8 +77,8 @@ public class CancellationFacade {
                 .runOn(Schedulers.elastic())
                 .flatMap(r -> {
 
-                    log.info("order info- companyCode:{}, centerCode:{}, ecommerceId:{}, serviceTypeCode:{} ",
-                            r.getCompanyCode(), r.getCenterCode(), r.getEcommerceId(), r.getServiceTypeCode());
+                    log.info("order info- companyCode:{}, centerCode:{}, ecommerceId:{}, serviceTypeCode:{}, getSendNewFlow:{} ",
+                            r.getCompanyCode(), r.getCenterCode(), r.getEcommerceId(), r.getServiceTypeCode(), r.getSendNewFlow());
 
                     ActionDto actionDto = new ActionDto();
                     actionDto.setAction(Constant.ActionOrder.CANCEL_ORDER.name());
@@ -136,7 +137,7 @@ public class CancellationFacade {
                                 orderCancelledCanonical.setStatusName(s.getOrderStatus().getName());
                                 orderCancelledCanonical.setStatusDetail(s.getOrderStatus().getDetail());
 
-                                orderExternalServiceAudit.updateOrderReactive(s).subscribe();
+                                auditAdapter.updateExternalAudit(r.getSendNewFlow(), s, null).subscribe();                 
 
                                 return orderCancelledCanonical;
                             }).defaultIfEmpty(
