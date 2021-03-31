@@ -602,6 +602,7 @@ public interface Constant {
     String ORIGIN_FARMADASHBOARD = "FARMADASHBOARD";
     String ORIGIN_BBR = "BBR";
     String ORIGIN_UNIFIED_POS = "UNIFIED_POS";
+    String ORIGIN_TASK = "TASK";
     String TARGET_TRACKER = "TRACKER";
     String TARGET_LITE = "LITE";
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";

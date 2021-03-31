@@ -136,6 +136,10 @@ public class CancellationFacade {
                                 orderCancelledCanonical.setStatusCode(s.getOrderStatus().getCode());
                                 orderCancelledCanonical.setStatusName(s.getOrderStatus().getName());
                                 orderCancelledCanonical.setStatusDetail(s.getOrderStatus().getDetail());
+                                
+                                s.setSource(Constant.ORIGIN_TASK);
+                                s.setTarget(Constant.TARGET_LITE);
+                                s.getOrderStatus().setCancellationCode(cancellationDto.getCancellationCode());
 
                                 auditAdapter.updateExternalAudit(r.getSendNewFlow(), s, null).subscribe();                 
 
