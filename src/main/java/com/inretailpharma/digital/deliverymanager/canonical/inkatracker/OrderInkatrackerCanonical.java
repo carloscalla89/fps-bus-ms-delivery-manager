@@ -63,7 +63,10 @@ public class OrderInkatrackerCanonical {
     private PersonToPickupDto personToPickup;
     private String sourceCompanyName;
 
-
-
+    // 3 precios
+    private Double subTotalWithNoSpecificPaymentMethod;
+    private Double totalWithNoSpecificPaymentMethod;
+    private Double totalWithPaymentMethod;
+    private String paymentMethodCardType;
 
 }

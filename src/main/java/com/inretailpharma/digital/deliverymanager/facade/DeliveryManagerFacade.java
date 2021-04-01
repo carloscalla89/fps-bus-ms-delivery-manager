@@ -121,7 +121,7 @@ public class DeliveryManagerFacade {
                                         Optional.ofNullable(order.getOrderStatus())
                                                 .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
                                                 .orElse(null)
-                                )
+                                ,orderDto)
                                 .flatMap(s -> {
 
                                     orderTransaction.updateOrderRetryingTracker(
@@ -194,7 +194,7 @@ public class DeliveryManagerFacade {
                                                     storeCenterCanonical,
                                                     iOrderFulfillment.getExternalId(),
                                                     null,
-                                                    Constant.OrderStatus.CONFIRMED_TRACKER.name(), null, null)
+                                                    Constant.OrderStatus.CONFIRMED_TRACKER.name(), null, null,null)
                                             .flatMap(s -> {
                                                 OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
                                                 return Mono.just(orderCanonical);
@@ -268,7 +268,7 @@ public class DeliveryManagerFacade {
                                                             Optional.ofNullable(orderResp.getOrderStatus())
                                                                     .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
                                                                     .orElse(null)
-                                                    )
+                                                    ,null)
                                                     .flatMap(s -> Mono.just(processTransaction(iOrderFulfillment, s)));
 
                                         } else {
@@ -397,7 +397,7 @@ public class DeliveryManagerFacade {
                                                         null,
                                                         Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                         actionDto.getOrderCancelCode(),
-                                                        actionDto.getOrderCancelObservation()
+                                                        actionDto.getOrderCancelObservation(),null
                                                 )
                                                 .flatMap(s -> {
                                                     OrderCanonical orderCanonical = processTransaction(iOrderFulfillment, s);
