@@ -5,15 +5,15 @@ import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.St
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.HistorySynchronizedDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
-import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.validator.GenericValidator;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -112,25 +112,21 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     }
 
     @Override
-    public Mono<OrderCanonical> sendOrderToTracker(Long orderId, Long ecommerceId, Long externalId, String classImplementTracker,
-                                                   String statusDetail, String statusName, String orderCancelCode,
-                                                   String orderCancelDescription, String orderCancelObservation,
-                                                   String companyCode, String localCode, String source,
-                                                   boolean sendNewAudit, String updateBy,com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto) {
-
+    public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment, String statusDetail,
+                                                   String statusName, String orderCancelCode, String orderCancelDescription,
+                                                   String orderCancelObservation, String updateBy) {
         log.info("Send to create the order in tracker when its sent by reattempt");
 
-        UtilClass utilClass = new UtilClass(classImplementTracker);
-
+        UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement());
 
         return externalStoreService
-                    .getStoreByCompanyCodeAndLocalCode(companyCode, localCode)
+                    .getStoreByCompanyCodeAndLocalCode(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
                     .flatMap(resultStore -> adapterTrackerInterface
                                                 .sendOrderTracker(
                                                         ((OrderExternalService)context.getBean(utilClass.getClassToTracker())),
                                                         resultStore,
-                                                        ecommerceId,
-                                                        externalId,
+                                                        iOrderFulfillment.getEcommerceId(),
+                                                        iOrderFulfillment.getExternalId(),
                                                         statusDetail,
                                                         statusName,
                                                         orderCancelCode,
@@ -139,14 +135,14 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         orderDto
                                                 ).flatMap(responses -> getOrderResponse(
                                                         responses,
-                                                        orderId,
-                                                        ecommerceId,
-                                                        externalId,
+                                                        iOrderFulfillment.getOrderId(),
+                                                        iOrderFulfillment.getEcommerceId(),
+                                                        iOrderFulfillment.getExternalId(),
                                                         orderCancelCode,
                                                         orderCancelObservation,
-                                                        source,
+                                                        iOrderFulfillment.getSource(),
                                                         utilClass.getOnlyTargetComponentTracker(),
-                                                        sendNewAudit,
+                                                        iOrderFulfillment.getSendNewFlow(),
                                                         updateBy,
                                                         null
                                                         )
@@ -156,31 +152,28 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     }
 
     @Override
-    public Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
-                                                  String serviceType, String serviceShortCode, String classImplementTracker,
-                                                  String source, String channel, String companyCode, String localCode,
-                                                  String statusCode, String clientName, String phone, LocalDateTime scheduledTime,
-                                                  boolean sendNewFlow, boolean sendNotificationByChannel) {
+    public Mono<OrderCanonical> sendToUpdateOrder(IOrderFulfillment iOrderFulfillment, ActionDto actionDto) {
 
         log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendNewFlow:{}, serviceType:{}, " +
-                 "serviceShortCode:{}, classImplementTracker:{}, source:{}, channel:{}, sendNotificationByChannel:{}," +
-                 "statusCode:{}", orderId, ecommerceId, actionDto, sendNewFlow, serviceType, serviceShortCode,
-                classImplementTracker, source,channel, sendNotificationByChannel, statusCode);
+                 "serviceShortCode:{}, classImplementTracker:{}, source:{}, channel:{}, sendNotificationByChannel:{}",
+                iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), actionDto, iOrderFulfillment.getSendNewFlow(),
+                iOrderFulfillment.getServiceType(), iOrderFulfillment.getServiceTypeShortCode(),
+                iOrderFulfillment.getClassImplement(), iOrderFulfillment.getSource(), iOrderFulfillment.getServiceChannel(),
+                iOrderFulfillment.getSendNotificationByChannel());
 
         CancellationCodeReason codeReason;
 
-        UtilClass utilClass = new UtilClass(classImplementTracker,serviceType, actionDto.getAction(), actionDto.getOrigin(),
-                Constant.OrderStatus.getByCode(statusCode).name(), sendNewFlow);
+        UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
+                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),
+                iOrderFulfillment.getSendNewFlow());
 
         Function<List<OrderCanonical>,Publisher<? extends Boolean>> publisherNotification =
-                responses -> processSendNotification(ecommerceId, actionDto, serviceShortCode,
-                        classImplementTracker, source, companyCode, localCode, clientName, phone, serviceType,
-                        sendNotificationByChannel, scheduledTime);
+                responses -> processSendNotification(actionDto, iOrderFulfillment);
 
         if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())
             || Constant.ActionOrder.REJECT_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
-            if (source.equalsIgnoreCase(Constant.Source.SC.name())) {
+            if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.Source.SC.name())) {
 
                 OrderExternalService sellerCenterService = (OrderExternalService) context.getBean(
                             Constant.SellerCenter.BEAN_SERVICE_NAME
@@ -193,7 +186,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                 controversyRequestDto.setText(actionDto.getOrderCancelObservation() != null ? actionDto.getOrderCancelObservation() : "");
                 controversyRequestDto.setType(Constant.SellerCenter.ControversyTypes.CT.getType());
 
-                sellerCenterService.addControversy(controversyRequestDto, ecommerceId).subscribe();
+                sellerCenterService.addControversy(controversyRequestDto, iOrderFulfillment.getEcommerceId()).subscribe();
 
                     log.info("[END] add controversy");
             }
@@ -208,17 +201,17 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
             // Esta condición está para saber si una orden se manda a cancelar pero no está en el tracker porque de
             // seguro falló al momento de registrarse
 
-            if (Constant.OrderStatus.getByCode(statusCode).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
-                    || Constant.OrderStatus.getByCode(statusCode).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
+            if (Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
+                    || Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
 
                 return externalStoreService
-                        .getStoreByCompanyCodeAndLocalCode(companyCode, localCode)
+                        .getStoreByCompanyCodeAndLocalCode(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
                         .flatMap(resultStore -> adapterTrackerInterface
                                                     .sendOrderTracker(
                                                             ((OrderExternalService)context.getBean(utilClass.getClassToTracker())),
                                                             resultStore,
-                                                            ecommerceId,
-                                                            externalId,
+                                                            iOrderFulfillment.getEcommerceId(),
+                                                            iOrderFulfillment.getExternalId(),
                                                             null,
                                                             Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
@@ -227,23 +220,23 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                     )
                                                     .flatMap(responses -> getOrderResponse(
                                                             responses,
-                                                            orderId,
-                                                            ecommerceId,
-                                                            externalId,
+                                                            iOrderFulfillment.getOrderId(),
+                                                            iOrderFulfillment.getEcommerceId(),
+                                                            iOrderFulfillment.getExternalId(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                             actionDto.getOrderCancelObservation(),
                                                             Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                             utilClass.getOnlyTargetComponentTracker(),
-                                                            sendNewFlow,
+                                                            iOrderFulfillment.getSendNewFlow(),
                                                             actionDto.getUpdatedBy(),
                                                             actionDto.getActionDate()
                                                             )
                                                     )
                         )
                         .filter(response -> Constant.OrderStatus.getByName(response.getOrderStatus().getName()).isSuccess())
-                        //.flatMap(publisherNotificationSingle)
-                        .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
-                        .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)));
+                        .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),
+                                actionDto.getAction(), null))
+                        .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS)));
 
             } else {
 
@@ -253,28 +246,28 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         .getBean(objectClass))
                                                         .getResultfromExternalServices(
                                                                 ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
-                                                                ecommerceId,
+                                                                iOrderFulfillment.getEcommerceId(),
                                                                 actionDto,
-                                                                companyCode,
-                                                                serviceType,
-                                                                orderId,
+                                                                iOrderFulfillment.getCompanyCode(),
+                                                                iOrderFulfillment.getServiceType(),
+                                                                iOrderFulfillment.getOrderId(),
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
                                                                 actionDto.getOrderCancelObservation(),
-                                                                statusCode,
+                                                                iOrderFulfillment.getStatusCode(),
                                                                 actionDto.getOrigin()
 
                                                         )
                                                         .flatMap(responses -> getOrderResponse(
                                                                 responses,
-                                                                orderId,
-                                                                ecommerceId,
-                                                                externalId,
+                                                                iOrderFulfillment.getOrderId(),
+                                                                iOrderFulfillment.getEcommerceId(),
+                                                                iOrderFulfillment.getExternalId(),
                                                                 Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                                 actionDto.getOrderCancelObservation(),
                                                                 Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                                 Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
-                                                                sendNewFlow,
+                                                                iOrderFulfillment.getSendNewFlow(),
                                                                 actionDto.getUpdatedBy(),
                                                                 actionDto.getActionDate()
                                                                 )
@@ -286,8 +279,16 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                         .stream()
                                         .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                         )
-                        .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
-                        .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)))
+                        .flatMap(resp ->
+                                UtilFunctions
+                                        .getSuccessResponseFunction
+                                        .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null)
+                        )
+                        .switchIfEmpty(
+                                Mono.defer(() -> UtilFunctions
+                                                    .getErrorResponseFunction
+                                                    .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS))
+                        )
                         .single();
             }
 
@@ -299,27 +300,27 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                             .getBean(objectClass))
                                             .getResultfromExternalServices(
                                                     ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
-                                                    ecommerceId,
+                                                    iOrderFulfillment.getEcommerceId(),
                                                     actionDto,
-                                                    companyCode,
-                                                    serviceType,
-                                                    orderId,
+                                                    iOrderFulfillment.getCompanyCode(),
+                                                    iOrderFulfillment.getServiceType(),
+                                                    iOrderFulfillment.getOrderId(),
                                                     null,
                                                     null,
                                                     null,
-                                                    statusCode,
+                                                    iOrderFulfillment.getStatusCode(),
                                                     actionDto.getOrigin()
                                             )
                                             .flatMap(responses -> getOrderResponse(
                                                     responses,
-                                                    orderId,
-                                                    ecommerceId,
-                                                    externalId,
+                                                    iOrderFulfillment.getOrderId(),
+                                                    iOrderFulfillment.getEcommerceId(),
+                                                    iOrderFulfillment.getExternalId(),
                                                     null,
                                                     null,
                                                     Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                     Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
-                                                    sendNewFlow,
+                                                    iOrderFulfillment.getSendNewFlow(),
                                                     actionDto.getUpdatedBy(),
                                                     actionDto.getActionDate()
                                                     )
@@ -332,21 +333,197 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                 .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                 )
                 .flatMap(publisherNotification)
-                .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(ecommerceId,actionDto.getAction(), null))
-                .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(ecommerceId, actionDto.getAction(), Constant.ERROR_PROCESS)))
+                .flatMap(resp ->
+                        UtilFunctions
+                                .getSuccessResponseFunction
+                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null)
+                )
+                .switchIfEmpty(Mono.defer(() ->
+                        UtilFunctions
+                                .getErrorResponseFunction
+                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS))
+                )
                 .single();
+    }
+
+    @Override
+    public Mono<OrderCanonical> sendOnlyLastStatusOrderFromSync(IOrderFulfillment iOrdersFulfillment, ActionDto actionDto) {
+
+
+        log.info("sendOnlyLastStatusOrderFromSync, ecommerceId:{}", iOrdersFulfillment.getEcommerceId());
+
+        Function<List<OrderCanonical>,Publisher<? extends Boolean>> publisherNotification =
+                responses -> processSendNotification(actionDto, iOrdersFulfillment);
+
+        UtilClass utilClass = new UtilClass(iOrdersFulfillment.getClassImplement(),iOrdersFulfillment.getServiceType(),
+                actionDto.getAction(), actionDto.getOrigin(),
+                Constant.OrderStatus.getByCode(iOrdersFulfillment.getStatusCode()).name(),
+                iOrdersFulfillment.getSendNewFlow());
+
+        CancellationCodeReason codeReason;
+
+        if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())
+                || Constant.ActionOrder.REJECT_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
+
+            if (actionDto.getOrderCancelCode() != null && actionDto.getOrigin() != null) {
+                codeReason = orderCancellationService
+                        .geByCodeAndAppType(actionDto.getOrderCancelCode(), actionDto.getOrigin());
+            } else {
+                codeReason = orderCancellationService.geByCode(actionDto.getOrderCancelCode());
+            }
+
+            return Flux
+                    .fromIterable(utilClass.getClassesToSend())
+                    .flatMap(objectClass -> ((AdapterInterface)context
+                            .getBean(objectClass))
+                            .getResultfromExternalServices(
+                                    ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
+                                    iOrdersFulfillment.getEcommerceId(),
+                                    actionDto,
+                                    iOrdersFulfillment.getCompanyCode(),
+                                    iOrdersFulfillment.getServiceType(),
+                                    iOrdersFulfillment.getOrderId(),
+                                    Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                    Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
+                                    actionDto.getOrderCancelObservation(),
+                                    iOrdersFulfillment.getStatusCode(),
+                                    actionDto.getOrigin()
+
+                            ).flatMap(responses -> updateTheLastOrderStatusFromHistory(
+                                                        responses,
+                                                        iOrdersFulfillment.getOrderId(),
+                                                        iOrdersFulfillment.getEcommerceId(),
+                                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                                        actionDto.getOrderCancelObservation(),
+                                                        Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                                                        Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
+                                                        actionDto.getUpdatedBy(),
+                                                        actionDto.getActionDate()
+                                                    )
+                            )
+                    )
+                    .buffer()
+                    .filter(finalResponse ->
+                            finalResponse
+                                    .stream()
+                                    .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
+                    )
+                    .flatMap(resp ->
+                            UtilFunctions
+                                    .getSuccessResponseFunction
+                                    .getMapOrderCanonical(iOrdersFulfillment.getEcommerceId(),actionDto.getAction(), null)
+                    )
+                    .switchIfEmpty(
+                            Mono.defer(() -> UtilFunctions
+                                                .getErrorResponseFunction
+                                                .getMapOrderCanonical(
+                                                        iOrdersFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS)
+                            )
+                    )
+                    .single();
+        } else {
+
+            return Flux
+                    .fromIterable(utilClass.getClassesToSend())
+                    .flatMap(objectClass -> ((AdapterInterface)context
+                            .getBean(objectClass))
+                            .getResultfromExternalServices(
+                                    ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
+                                    iOrdersFulfillment.getEcommerceId(),
+                                    actionDto,
+                                    iOrdersFulfillment.getCompanyCode(),
+                                    iOrdersFulfillment.getServiceType(),
+                                    iOrdersFulfillment.getOrderId(),
+                                    null,
+                                    null,
+                                    null,
+                                    iOrdersFulfillment.getStatusCode(),
+                                    actionDto.getOrigin()
+                            )
+                            .flatMap(responses -> updateTheLastOrderStatusFromHistory(
+                                                    responses,
+                                                    iOrdersFulfillment.getOrderId(),
+                                                    iOrdersFulfillment.getEcommerceId(),
+                                                    null,
+                                                    null,
+                                                    Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                                                    Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
+                                                    actionDto.getUpdatedBy(),
+                                                    actionDto.getActionDate()
+                                                  )
+                            )
+                    )
+                    .buffer()
+                    .filter(finalResponse ->
+                            finalResponse
+                                    .stream()
+                                    .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
+                    )
+                    .flatMap(publisherNotification)
+                    .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(iOrdersFulfillment.getEcommerceId(),actionDto.getAction(), null))
+                    .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(iOrdersFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS)))
+                    .single();
+
+        }
+
+    }
+
+    @Override
+    public Mono<OrderCanonical> updateOrderStatusListAudit(IOrderFulfillment iOrdersFulfillment, OrderCanonical orderSend,
+                                                           HistorySynchronizedDto historySynchronized, String origin) {
+        log.info("Sending to audit the list of status, ecommerceId:{}, action:{}",
+                iOrdersFulfillment.getEcommerceId(),historySynchronized.getAction());
+
+        OrderCanonical orderCanonical;
+        LocalDateTime localDateTime = DateUtils.getLocalDateTimeByInputString(historySynchronized.getActionDate());
+
+        Constant.OrderStatus orderStatus =  Constant
+                                                .OrderStatusTracker
+                                                .getByActionName(historySynchronized.getAction())
+                                                .getOrderStatus();
+
+        UtilClass utilClass = new UtilClass(
+                                    iOrdersFulfillment.getClassImplement(),iOrdersFulfillment.getServiceType(),
+                                    historySynchronized.getAction(), origin, orderStatus.name(),
+                                    iOrdersFulfillment.getSendNewFlow());
+
+        if (orderSend.getAction().equalsIgnoreCase(historySynchronized.getAction())) {
+            orderCanonical = orderSend;
+        } else {
+
+            OrderStatusCanonical orderStatusCanonical = new OrderStatusCanonical();
+            orderStatusCanonical.setCode(orderStatus.getCode());
+            orderStatusCanonical.setName(orderStatus.name());
+
+            orderCanonical = new OrderCanonical();
+            orderCanonical.setOrderStatus(orderStatusCanonical);
+
+        }
+
+        orderCanonical.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeWithFormat(localDateTime));
+        orderCanonical.getOrderStatus().setCancellationCode(historySynchronized.getOrderCancelCode());
+        orderCanonical.getOrderStatus().setCancellationObservation(historySynchronized.getOrderCancelObservation());
+
+        orderCanonical.setEcommerceId(iOrdersFulfillment.getEcommerceId());
+        orderCanonical.setSource(iOrdersFulfillment.getSource());
+        orderCanonical.setTarget(utilClass.getTarget());
+        orderCanonical.setAction(historySynchronized.getAction());
+
+        adapterAuditInterface.updateExternalAudit(iOrdersFulfillment.getSendNewFlow(),
+                orderCanonical, historySynchronized.getUpdatedBy()
+        ).subscribe();
+
+        return Mono.just(orderCanonical);
+
     }
 
     @Override
     public Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
                                                  String orderCancelCode, String orderCancelObservation, String source,
                                                  String target, boolean sendNewAudit, String updateBy, String actionDate) {
+
         log.info("Target to send:{}, updateBy:{}",target,updateBy);
-        LocalDateTime localDateTime = Optional
-                                        .ofNullable(actionDate)
-                                        .filter(DateUtils::validFormatDateTimeFormat)
-                                        .map(DateUtils::getLocalDateTimeFromStringWithFormat)
-                                        .orElseGet(DateUtils::getLocalDateTimeObjectNow);
+        LocalDateTime localDateTime = DateUtils.getLocalDateTimeByInputString(actionDate);
 
         orderCanonical.setEcommerceId(ecommerceId);
         orderCanonical.setSource(source);
@@ -409,22 +586,42 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
     }
 
-    private Mono<Boolean> processSendNotification(Long ecommerceId, ActionDto actionDto, String serviceShortCode,
-                                                  String classImplementTracker, String source, String companyCode,
-                                                  String localCode, String clientName, String phone, String serviceType,
-                                                  boolean sendNotificationByChannel, LocalDateTime scheduledDate) {
 
-        if (sendNotificationByChannel) {
+    private Mono<OrderCanonical> updateTheLastOrderStatusFromHistory(OrderCanonical orderCanonical, Long id,
+                                                                     Long ecommerceId, String orderCancelCode,
+                                                                     String orderCancelObservation, String source,
+                                                                     String target, String updateBy, String actionDate) {
+        log.info("Target to send:{}, updateBy:{}",target,updateBy);
+
+        LocalDateTime localDateTime = DateUtils.getLocalDateTimeByInputString(actionDate);
+
+        orderCanonical.setEcommerceId(ecommerceId);
+        orderCanonical.setSource(source);
+        orderCanonical.setTarget(target);
+
+        orderTransaction.updateStatusCancelledOrder(
+                orderCanonical.getOrderStatus().getDetail(), orderCancelObservation, orderCancelCode,
+                orderCanonical.getOrderStatus().getCode(), id, localDateTime,
+                Optional.ofNullable(orderCancelCode).map(oc -> localDateTime).orElse(null)
+        );
+
+        return Mono.just(orderCanonical);
+    }
+
+    @Override
+    public Mono<Boolean> processSendNotification(ActionDto actionDto, IOrderFulfillment iOrderFulfillment) {
+
+        if (iOrderFulfillment.getSendNotificationByChannel()) {
 
             String statusToSend = Constant
                                     .OrderStatusTracker
-                                    .getByActionNameAndServiceTypeCoce(actionDto.getAction(), classImplementTracker);
+                                    .getByActionNameAndServiceTypeCoce(actionDto.getAction(), iOrderFulfillment.getClassImplement());
 
-            String localType = Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getLocalType();
+            String localType = Constant.TrackerImplementation.getIdByClassImplement(iOrderFulfillment.getClassImplement()).getLocalType();
 
             String expiredDate = null;
 
-            if (Constant.PICKUP.equalsIgnoreCase(serviceType)
+            if (Constant.PICKUP.equalsIgnoreCase(iOrderFulfillment.getServiceType())
                     && Constant.ActionOrder.READY_PICKUP_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
 
@@ -435,14 +632,16 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         .getValue()
                                         );
 
-                expiredDate = DateUtils.getLocalDateWithFormat(scheduledDate.plusDays(daysToExpiredRet));
+                expiredDate = DateUtils.getLocalDateWithFormat(iOrderFulfillment.getScheduledTime().plusDays(daysToExpiredRet));
 
                 log.info("Get expired date:{}",expiredDate);
             }
 
             return adapterNotificationInterface
-                        .sendNotification(source, serviceShortCode, statusToSend, ecommerceId, companyCode, localCode,
-                                localType, phone, clientName, expiredDate, null, null
+                        .sendNotification(iOrderFulfillment.getSource(), iOrderFulfillment.getServiceTypeShortCode(),
+                                statusToSend, iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getCompanyCode(),
+                                iOrderFulfillment.getCenterCode(), localType, iOrderFulfillment.getPhone(),
+                                iOrderFulfillment.getFirstName(), expiredDate, null, null
                         );
         }
 
