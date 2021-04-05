@@ -185,5 +185,6 @@ public class ExternalServicesProperties {
     @Value("${external-service.notification-lambda.send-message.read-timeout}")
     private String notificationLambdaReadTimeOut;
 
-
+    @Value("${api.insink.stock}")
+    private String uriApiRestoreStock;
 }
