@@ -505,7 +505,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
         orderCanonical.getOrderStatus().setCancellationObservation(historySynchronized.getOrderCancelObservation());
 
         orderCanonical.setEcommerceId(iOrdersFulfillment.getEcommerceId());
-        orderCanonical.setSource(iOrdersFulfillment.getSource());
+        orderCanonical.setSource(origin);
 
         utilClass
                 .getClassesToSend()
