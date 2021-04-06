@@ -295,10 +295,12 @@ public class TrackerFacade {
 
 
                                         })
+										.defaultIfEmpty(true)
 										.buffer()
 										.flatMap(resultListStatus -> {
 											OrderTrackerResponseCanonical orderTrackerResponseCanonical = new OrderTrackerResponseCanonical();
 											orderTrackerResponseCanonical.setEcommerceId(iorder.getEcommerceId());
+											orderTrackerResponseCanonical.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
 
 											return Flux.just(orderTrackerResponseCanonical);
 										}).single();
