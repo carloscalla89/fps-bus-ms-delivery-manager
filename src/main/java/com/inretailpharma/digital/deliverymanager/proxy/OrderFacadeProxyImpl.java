@@ -506,7 +506,19 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
 
         orderCanonical.setEcommerceId(iOrdersFulfillment.getEcommerceId());
         orderCanonical.setSource(iOrdersFulfillment.getSource());
-        orderCanonical.setTarget(utilClass.getTarget());
+
+        utilClass
+                .getClassesToSend()
+                .stream()
+                .findFirst()
+                .ifPresent(result ->
+                        orderCanonical.setTarget(
+                                Constant.ClassesImplements
+                                        .getByClass(utilClass.getClassImplementationToOrderExternalService(result))
+                                        .getTargetName())
+                );
+
+
         orderCanonical.setAction(historySynchronized.getAction());
 
         adapterAuditInterface.updateExternalAudit(iOrdersFulfillment.getSendNewFlow(),
