@@ -357,6 +357,7 @@ public class DeliveryManagerFacade {
                             .creditCardId(orderResponseFulfillment.getCreditCardId())
                             .paymentMethodId(orderResponseFulfillment.getPaymentMethodId())
                             .confirmedOrder(orderResponseFulfillment.getConfirmedOrder())
+                            .currency(orderResponseFulfillment.getCurrency())
                             .build();
                     log.info("END FACADE getOrderByOrderNumber:" + orderNumber);
                     return Mono.just(orderResponseCanonical);

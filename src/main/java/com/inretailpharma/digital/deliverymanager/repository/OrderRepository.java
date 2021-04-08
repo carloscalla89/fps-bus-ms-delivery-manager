@@ -187,6 +187,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.confirmed_order as confirmedOrder, card.card_providerid as creditCardId, " +
             "paymet.payment_method_id as paymentMethodId, " +
             "pay.card_provider,pay.payment_type, " +
+            "(case when pay.payment_type = 'CASH_DOLAR' then 'dolar' else 'sol' end) as currency,"+
             "pay.payment_transaction_id as  transactionId " +
             "from order_fulfillment o inner join " +
             "payment_method pay on o.id=pay.order_fulfillment_id " +
