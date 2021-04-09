@@ -68,5 +68,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static LocalDate getLocalDateFromStringDate(String localDate) {
         return LocalDate.parse(localDate, DateTimeFormatter.ofPattern(DATE_TEMPLATE));
     }
+    
+    public static Long getCurrentDateMillis() {
+    	return System.currentTimeMillis();
+    }
 
 }

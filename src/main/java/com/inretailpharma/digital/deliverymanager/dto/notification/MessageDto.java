@@ -13,5 +13,6 @@ public class MessageDto {
     private String localType;
     private String phoneNumber;
     private PayloadDto payload;
+    private Long statusDate;
 
 }

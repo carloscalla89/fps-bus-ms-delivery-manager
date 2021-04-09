@@ -4,6 +4,8 @@ import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.PayloadDto;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +36,7 @@ public class NotificationAdapterImpl extends AdapterAbstract implements AdapterI
         messageDto.setLocalType(localTypeCode);
         messageDto.setOrderStatus(orderStatus);
         messageDto.setPhoneNumber(phoneNumber);
+        messageDto.setStatusDate(DateUtils.getCurrentDateMillis());
 
         PayloadDto payloadDto = new PayloadDto();
         payloadDto.setClientName(clientName);
