@@ -1,8 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancelledCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
 import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
@@ -13,12 +12,19 @@ import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -31,16 +37,20 @@ public class CancellationFacade {
     private ObjectToMapper objectToMapper;
     private final ApplicationContext context;
 
+    private ExternalServicesProperties externalServicesProperties;
+
+
     public CancellationFacade(@Qualifier("audit") OrderExternalService orderExternalServiceAudit,
                               ApplicationParameterService applicationParameterService,
                               OrderTransaction orderTransaction, ObjectToMapper objectToMapper,
-                              ApplicationContext context) {
+                              ApplicationContext context,  ExternalServicesProperties externalServicesProperties) {
 
         this.orderExternalServiceAudit = orderExternalServiceAudit;
         this.applicationParameterService = applicationParameterService;
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
         this.context = context;
+        this.externalServicesProperties = externalServicesProperties;
     }
 
     public Flux<CancellationCanonical> getOrderCancellationList(String appType) {
@@ -74,12 +84,11 @@ public class CancellationFacade {
                     actionDto.setOrderCancelCode(cancellationDto.getCancellationCode());
                     actionDto.setOrderCancelObservation(cancellationDto.getObservation());
 
-                    OrderExternalService orderExternalService = (OrderExternalService)context.getBean(
-                            Constant.TrackerImplementation.getByCode(r.getServiceTypeCode()).getName()
-                    );
+                    OrderExternalService orderExternalService = (OrderExternalService)context.getBean(r.getClassImplement());
 
                     return orderExternalService
-                            .getResultfromExternalServices(r.getEcommerceId(), actionDto, cancellationDto.getCompanyCode())
+                            .getResultfromExternalServices(r.getEcommerceId(), actionDto, cancellationDto.getCompanyCode(),
+                                    cancellationDto.getServiceType(), null)
                             .map(s -> {
                                 log.info("[START] Processing the updating of cancelled order, serviceTypeCode:{}, localCode:{}," +
                                                 "companyCode:{},statusCode:{}, statusName:{}, ecommerceId:{}",r.getServiceTypeCode(), r.getCenterCode(),
@@ -89,16 +98,16 @@ public class CancellationFacade {
 
                                 orderTransaction.updateStatusCancelledOrder(
                                         s.getOrderStatus().getDetail(), actionDto.getOrderCancelObservation(),
-                                        actionDto.getOrderCancelCode(), actionDto.getOrderCancelAppType(),
-                                        s.getOrderStatus().getCode(), r.getOrderId()
+                                        actionDto.getOrderCancelCode(), s.getOrderStatus().getCode(), r.getOrderId(),
+                                        DateUtils.getLocalDateTimeObjectNow(), DateUtils.getLocalDateTimeObjectNow()
                                 );
                                 log.info("[END] Processing the updating of cancelled order");
                                 return s;
                             }).defaultIfEmpty(
                                     new OrderCanonical(
                                             r.getEcommerceId(),
-                                            Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.getCode(),
-                                            Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name()
+                                            Constant.OrderStatus.ERROR_CANCELLED.getCode(),
+                                            Constant.OrderStatus.ERROR_CANCELLED.name()
                                     )
                             )
                             .filter(s -> s.getOrderStatus() != null)
@@ -140,6 +149,23 @@ public class CancellationFacade {
                 })
                 .ordered((o1,o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue())
                 .doOnComplete(() -> log.info("[END] cancelOrderProcess"));
+    }
+
+    public ResponseCanonical updateShoppingCartStatusAndNotes(ShoppingCartStatusCanonical shoppingCartStatusCanonical) {
+        ResponseCanonical responseCanonical = new ResponseCanonical();
+        try{
+            RestTemplate restTemplate = new RestTemplate();
+            String restoreStockUrl = externalServicesProperties.getUriApiRestoreStock();
+            log.info("calling Insink service: {}", restoreStockUrl);
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("orderId", shoppingCartStatusCanonical.getId());
+            restTemplate.exchange(restoreStockUrl, HttpMethod.PUT, HttpEntity.EMPTY, String.class, parameters);
+            responseCanonical.setCode("200");
+        }catch (Exception e) {
+            e.getStackTrace();
+            responseCanonical.setCode("500");
+        }
+        return responseCanonical;
     }
 
 }

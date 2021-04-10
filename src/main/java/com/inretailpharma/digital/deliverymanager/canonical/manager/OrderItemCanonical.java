@@ -11,6 +11,7 @@ public class OrderItemCanonical {
 
     private String productCode;
     private String productName;
+    private String skuSap;
     private String productEan;
     private String shortDescription;
     private String brand;
@@ -26,7 +27,7 @@ public class OrderItemCanonical {
     private Integer quantityUnitMinimium;
     private Integer quantityPresentation;
     private Integer valueUMV;
-    private String sap;
+
 
 
 }

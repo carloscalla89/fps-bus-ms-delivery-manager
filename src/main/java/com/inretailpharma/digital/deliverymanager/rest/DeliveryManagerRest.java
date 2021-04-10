@@ -38,7 +38,7 @@ public class DeliveryManagerRest {
             @PathVariable(value = "ecommerceId") String ecommerceId,
             @RequestBody ActionDto action) {
 
-        log.info("[START] endpoint updateStatus /order/{ecommerceId} - ecommerceId {} - action {}"
+        log.info("[START] endpoint updateStatus /order/{} - ecommerceId - action {}"
                 ,ecommerceId,action);
 
         return deliveryManagerFacade
@@ -46,7 +46,7 @@ public class DeliveryManagerRest {
                 .map(r -> ResponseEntity
                             .status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON)
                             .body(r))
-                .doOnSuccess(r -> log.info("[END] endpoint updateStatus /order/{ecommerceId}"))
+                .doOnSuccess(r -> log.info("[END] endpoint updateStatus /order/{}",ecommerceId))
                 .subscribeOn(Schedulers.parallel());
 
     }

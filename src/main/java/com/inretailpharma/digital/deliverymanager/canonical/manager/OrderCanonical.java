@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -7,7 +8,9 @@ import java.util.List;
 
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
+
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderCanonical {
 
     public OrderCanonical() {
@@ -82,6 +85,7 @@ public class OrderCanonical {
     private BigDecimal totalCostNoDiscount;
 
     // Canonical local and company
+    private String localType;
     private String companyCode;
     private String localCode;
     private String local;
@@ -123,6 +127,7 @@ public class OrderCanonical {
     private Integer attemptTracker;
 
     private String source;
+    private String target;
 
     private String action;
     private Boolean partial;

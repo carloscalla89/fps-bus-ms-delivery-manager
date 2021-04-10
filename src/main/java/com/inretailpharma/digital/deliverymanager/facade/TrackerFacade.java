@@ -1,11 +1,15 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
+import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -38,16 +42,22 @@ public class TrackerFacade {
 	private ObjectToMapper objectToMapper;
 	private OrderExternalService orderExternalOrderTracker;
 	private OrderExternalService orderExternalServiceAudit;
+	private OrderFacadeProxy orderFacadeProxy;
+	private AdapterInterface adapterInterface;
 
-
+	@Autowired
 	public TrackerFacade(OrderTransaction orderTransaction,
 						 ObjectToMapper objectToMapper,
 						 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
-						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit) {
+						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
+						 @Qualifier("trackeradapter") AdapterInterface adapterInterface,
+						 OrderFacadeProxy orderFacadeProxy) {
 		this.orderTransaction = orderTransaction;
 		this.objectToMapper = objectToMapper;
 		this.orderExternalOrderTracker = orderExternalOrderTracker;
 		this.orderExternalServiceAudit = orderExternalServiceAudit;
+		this.adapterInterface = adapterInterface;
+		this.orderFacadeProxy = orderFacadeProxy;
 	}
 
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {   
@@ -169,7 +179,6 @@ public class TrackerFacade {
 
 		return Mono
 				.justOrEmpty(orderTransaction.getOrderLightByecommerceId(ecommerceId))
-				.filter(order -> !order.getServiceType().equalsIgnoreCase(Constant.ServiceTypeCodes.PICKUP))
 				.flatMap(filtredOrder -> {
 
 					if (!filtredOrder.getServiceType().equalsIgnoreCase(Constant.ServiceTypeCodes.PICKUP)) {
@@ -205,6 +214,81 @@ public class TrackerFacade {
 					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
 					response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
 					return Mono.just(response);
+				});
+
+	}
+
+	public Flux<OrderTrackerResponseCanonical>  synchronizeOrderStatus(List<OrderSynchronizeDto> ordersList) {
+		log.info("[START] synchronizeOrderStatus list:{}",ordersList);
+
+		List<IOrderFulfillment> iOrdersFulfillment = orderTransaction
+														.getOrderLightByecommercesIds(
+																ordersList
+																		.stream()
+																		.map(OrderSynchronizeDto::getEcommerceId)
+																		.collect(Collectors.toSet())
+														);
+
+
+		return Flux
+				.fromIterable(iOrdersFulfillment)
+				.flatMap(order -> {
+					OrderSynchronizeDto orderSynchronizeDto = ordersList
+																.stream()
+																.filter(o -> o.getEcommerceId().equals(order.getEcommerceId()))
+																.findFirst()
+																.get();
+
+					return Flux
+							.fromIterable(orderSynchronizeDto.getHistory())
+							.sort(Comparator. comparing(obj -> DateUtils.getLocalDateTimeFromStringWithFormat(obj.getActionDate())))
+							.flatMap(oh -> {
+
+								ActionDto actionDto = new ActionDto();
+								actionDto.setAction(oh.getAction());
+								actionDto.setOrigin(orderSynchronizeDto.getOrigin());
+								actionDto.setOrderCancelCode(oh.getOrderCancelCode());
+								actionDto.setOrderCancelObservation(oh.getOrderCancelObservation());
+								actionDto.setMotorizedId(oh.getMotorizedId());
+								actionDto.setUpdatedBy(oh.getUpdatedBy());
+
+								return orderFacadeProxy.sendToUpdateOrder(
+										order.getOrderId(),
+										order.getEcommerceId(),
+										order.getExternalId(),
+										actionDto,
+										order.getServiceType(),
+										order.getServiceTypeShortCode(),
+										order.getClassImplement(),
+										order.getSource(),
+										order.getServiceChannel(),
+										order.getCompanyCode(),
+										order.getCenterCode(),
+										order.getStatusCode(),
+										order.getFirstName(),
+										order.getPhone(),
+										order.getScheduledTime(),
+										order.getSendNewFlow(),
+										order.getSendNotificationByChannel()
+								);
+
+							})
+							.flatMap(response -> {
+								OrderTrackerResponseCanonical orderTrackerResponseCanonical = new OrderTrackerResponseCanonical();
+								orderTrackerResponseCanonical.setEcommerceId(response.getEcommerceId());
+								orderTrackerResponseCanonical.setStatusCode(response.getOrderStatus().getCode());
+								orderTrackerResponseCanonical.setStatusDescription(response.getOrderStatus().getName());
+								orderTrackerResponseCanonical.setStatusDetail(response.getOrderStatus().getDetail());
+
+								return Flux.just(orderTrackerResponseCanonical);
+							});
+
+
+
+
+
+
+
 				});
 
 	}
@@ -250,6 +334,33 @@ public class TrackerFacade {
 		response.setStatusCode(result);
 		return response;
 
+	}
+
+	public Mono<OrderCanonical> getOrderByEcommerceId(Long ecommerceId) {
+
+		IOrderFulfillment iOrderFulfillmentLight = orderTransaction.getOrderLightByecommerceId(ecommerceId);
+
+		return Optional
+				.ofNullable(iOrderFulfillmentLight)
+				.map(order -> adapterInterface.getOrder(order))
+				.orElse(Mono.empty());
+
+	}
+
+	public Flux<OrderCanonical> getOrderByEcommerceIds(String ecommerceIds) {
+		log.info("getOrderByEcommerceIds:{}",ecommerceIds);
+
+		return Flux
+				.fromIterable(orderTransaction
+						.getOrderLightByecommercesIds(
+								Arrays.stream(ecommerceIds.split(",")).map(Long::parseLong).collect(Collectors.toSet())
+						))
+				.parallel()
+				.runOn(Schedulers.elastic())
+				.flatMap(orders -> {
+					log.info("in orders flux");
+					return adapterInterface.getOrder(orders).flux();
+				}).ordered((o1,o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
 
 	}
 }

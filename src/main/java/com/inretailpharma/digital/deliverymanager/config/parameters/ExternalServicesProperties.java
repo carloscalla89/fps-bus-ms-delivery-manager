@@ -8,12 +8,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "external-service")
 public class ExternalServicesProperties {
 
-
+    // properties audit
     @Value("${external-service.audit.create-order}")
     private String uriApiService;
 
-    @Value("${external-service.audit.time-out}")
-    private Integer timeout;
+    @Value("${external-service.audit.update-order-history-audit}")
+    private String uriUpdateHistoryAuditApiService;
+
+    @Value("${external-service.dispatcher.tracker.connect-timeout}")
+    private String auditConnectTimeout;
+
+    @Value("${external-service.dispatcher.tracker.read-timeout}")
+    private String auditReadTimeout;
+
+
 
     // properties insink-tracker to DD endpoint
     @Value("${external-service.dispatcher.insink-tracker.uri}")
@@ -43,6 +51,8 @@ public class ExternalServicesProperties {
     @Value("${external-service.dispatcher.tracker.read-timeout}")
     private String dispatcherTrackerReadTimeout;
 
+
+
     // ------------------------------------------------------
 
 
@@ -64,6 +74,9 @@ public class ExternalServicesProperties {
     // properties order/ecommerce/{orderId} to DD endpoint
     @Value("${external-service.dispatcher.order-ecommerce.uri}")
     private String dispatcherOrderEcommerceUri;
+
+    @Value("${external-service.dispatcher.order-ecommerce.uri-mifarma}")
+    private String dispatcherOrderEcommerceUriMifarma;
 
     @Value("${external-service.dispatcher.order-ecommerce.connect-timeout}")
     private String dispatcherOrderEcommerceConnectTimeout;
@@ -121,22 +134,6 @@ public class ExternalServicesProperties {
     private String inkatrackerUpdateOrderReadTimeOut;
     // ------------------------------------------------------
 
-    // ********* properties to inkatracker temporary
-
-    @Value("${external-service.temporary.create-order.uri}")
-    private String temporaryCreateOrderUri;
-
-    @Value("${external-service.temporary.update-order.uri}")
-    private String temporaryUpdateOrderUri;
-
-    @Value("${external-service.temporary.create-order.connect-timeout}")
-    private String temporaryCreateOrderConnectTimeOut;
-
-    @Value("${external-service.temporary.create-order.read-timeout}")
-    private String temporaryCreateOrderReadTimeOut;
-    // ------------------------------------------------------
-
-
     // properties to order tracker
     @Value("${external-service.order-tracker.create-order.uri}")
     private String orderTrackerCreateOrderUri; 
@@ -155,16 +152,39 @@ public class ExternalServicesProperties {
     @Value("${external-service.fulfillment-center.get-center.uri}")
     private String fulfillmentCenterGetCenterUri;
 
-    //product properties
-    @Value("${external-service.product.details}")
-    private String productDetailsUri;
-    @Value("${external-service.product.timeout}")
-    private Integer productTimeout;
+    @Value("${external-service.fulfillment-center.get-center.connect-timeout}")
+    private String fulfillmentCenterGetCenterConnectTimeOut;
 
-    @Value("${external-service.fulfillment-center.get-company-center.uri}")
-    private String fulfillmentCenterGetCompanyCenterUri;
+    @Value("${external-service.fulfillment-center.get-center.read-timeout}")
+    private String fulfillmentCenterGetCenterReadTimeOut;
 
     // properties seller-center
     @Value("${external-service.seller-center.add-controversy.uri}")
     private String addControversyUri;
+    //online payment
+    @Value("${external-service.online-payment.liquidated.uri}")
+    private String onlinePaymentLiquidatedUri;
+
+    @Value("${external-service.online-payment.liquidated.uri-mifa}")
+    private String onlinePaymentLiquidatedUriMifa;
+
+    @Value("${external-service.online-payment.liquidated.connect-timeout}")
+    private String onlinePaymentLiquidatedConnectTimeOut;
+
+    @Value("${external-service.online-payment.liquidated.read-timeout}")
+    private String onlinePaymentLiquidatedReadTimeOut;
+
+
+    // properties lambda notification
+    @Value("${external-service.notification-lambda.send-message.uri}")
+    private String notificationLambdaUri;
+
+    @Value("${external-service.notification-lambda.send-message.connect-timeout}")
+    private String notificationLambdaConnectTimeOut;
+
+    @Value("${external-service.notification-lambda.send-message.read-timeout}")
+    private String notificationLambdaReadTimeOut;
+
+    @Value("${api.insink.stock}")
+    private String uriApiRestoreStock;
 }

@@ -102,4 +102,6 @@ public class OrderFulfillment extends OrderEntity<Long> {
 
     @Column(name="pos_code")
     private String posCode;
+
+    private String stockType;
 }

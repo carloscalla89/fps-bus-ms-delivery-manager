@@ -17,13 +17,13 @@ public class OrderDto {
 
     private String source;
 
-    @NotNull
     private String localCode;
     private String companyCode;
     private String serviceTypeCode;
 
     @NotNull
     private Long ecommercePurchaseId;
+    private String ecommerceIds;
     private Long trackerId;
     private Long externalPurchaseId;
     private Integer purchaseNumber;
@@ -64,4 +64,11 @@ public class OrderDto {
     private PersonToPickupDto personToPickup;
 
     private String externalChannelId;
+
+    /**
+     * Fecha: 15/03/2021
+     * autor: Carlos Calla
+     * para identificar si el stock sale del local original(M=main) o de un local backup(B=backup)
+     */
+    private String stockType;
 }

@@ -64,6 +64,8 @@ public class OrderInkatrackerCanonical {
     private String sourceCompanyName;
     private String externalChannelId;
 
+    private String stockType;
+
 
 
 
