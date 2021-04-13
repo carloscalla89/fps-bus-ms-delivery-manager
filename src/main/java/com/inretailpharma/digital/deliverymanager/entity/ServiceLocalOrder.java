@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -75,6 +76,15 @@ public class ServiceLocalOrder {
 
     @Column(name="pickup_phone")
     private String pickupPhone;
+
+    @Column(name="date_created")
+    private LocalDateTime dateCreated;
+
+    @Column(name="date_last_updated")
+    private LocalDateTime dateLastUpdated;
+
+    @Column(name="date_cancelled")
+    private LocalDateTime dateCancelled;
 
 
 }

@@ -17,9 +17,6 @@ public class CustomRequestEntityValidator implements Validator {
     public void validate(Object o, Errors errors) {
 
         ValidationUtils.rejectIfEmptyOrWhitespace(
-                errors, "localCode", "field.required",
-                "The localCode should not be null");
-        ValidationUtils.rejectIfEmptyOrWhitespace(
                 errors, "ecommercePurchaseId", "field.required",
                 "The ecommercePurchaseId should not be null");
 

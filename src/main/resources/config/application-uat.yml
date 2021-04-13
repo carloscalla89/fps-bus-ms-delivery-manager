@@ -5,8 +5,10 @@ spring:
     password: Operaciones2020
 external-service:
   audit:
-    create-order: http://us-audit/audit/order
-    time-out: 20000
+    create-order: http://audituat.backend.cindibyinkafarma.com/audit/order
+    update-order-history-audit: http://audituat.backend.cindibyinkafarma.com/audit/order/history
+    connect-timeout: 10000
+    read-timeout: 10000
   dispatcher:
     insink-tracker:
       uri: http://us-dd/order/insink-tracker
@@ -20,20 +22,25 @@ external-service:
       read-timeout: 60000
     legacy-system:
       uri: http://us-dd/order/legacy-system
-      uri-mifarma: http://ddmfuat.backend.cindyinkafarma.com/order/legacy-system
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/legacy-system
       connect-timeout: 30000
       read-timeout: 60000
     order-ecommerce:
       uri: http://us-dd/order/ecommerce
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/ecommerce
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker-lite:
     create-order:
-      uri: http://us-inkatrackerlite/nvr/orders/create
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://us-inkatrackerlite/v2/unattended-orders
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/v2/unattended-orders
+      connect-timeout: 30000
+      read-timeout: 60000
+    update-onlinepayment-status-order:
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker:
@@ -49,13 +56,8 @@ external-service:
       uri: http://us-inkatracker/nvr/orders
       connect-timeout: 30000
       read-timeout: 60000
-  temporary:
-    create-order:
-      uri: http://us-temporary/nvr/orders/create
-      connect-timeout: 30000
-      read-timeout: 60000
-    update-order:
-      uri: http://us-temporary/nvr/orders/update
+    update-onlinepayment-status-order:
+      uri: http://us-inkatracker/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   order-tracker:
@@ -77,13 +79,9 @@ external-service:
       read-timeout: 120000
   fulfillment-center:
     get-center:
-      uri: http://us-fulfillment-center/fulfillment/store/
+      uri: http://fulfillment-centeruat.backend.cindibyinkafarma.com/fulfillment/store/
       connect-timeout: 15000
       read-timeout: 30000
-    get-company-center:
-      uri: http://us-fulfillment-center/fulfillment/store/
-      connect-timeout: 15000
-      read-timeout: 60000
   seller-center:
     get-controversies:
       uri: http://uS-Seller-Center/sellercenter/orders/
@@ -92,5 +90,23 @@ external-service:
     add-controversy:
       uri: http://uS-Seller-Center/sellercenter/orders/
       connect-timeout: 10000
+      read-timeout: 120000l
+  online-payment:
+    liquidated:
+      uri: https://visauat.cindibyinkafarma.com/visa/confirmation
+      uri-mifa: https://visamfuat.cindibyinkafarma.com/visa/confirmation
+      connect-timeout: 10000
+      read-timeout: 120000
+    rejected:
+      uri: https://visauat.cindibyinkafarma.com/visa/rejected
+      connect-timeout: 10000
+      read-timeout: 120000
+  notification-lambda:
+    send-message:
+      uri: https://h66xgj99rd.execute-api.us-east-1.amazonaws.com/UAT/messaging
+      connect-timeout: 10000
       read-timeout: 120000
 
+api:
+  insink:
+    stock: http://insink-aws-prueba.backend.inkafarma.pe/comanda-stock/{orderId}

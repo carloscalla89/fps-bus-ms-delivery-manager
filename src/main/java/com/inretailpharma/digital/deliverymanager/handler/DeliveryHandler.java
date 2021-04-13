@@ -46,5 +46,15 @@ public class DeliveryHandler extends AbstractValidationHandler<OrderDto, CustomR
                 });
     }
 
+    @Override
+    protected Mono<ServerResponse> processTracker(ServerRequest originalRequest) {
+        return null;
+    }
+
+    @Override
+    protected Mono<ServerResponse> processTrackers(ServerRequest originalRequest) {
+        return null;
+    }
+
 
 }

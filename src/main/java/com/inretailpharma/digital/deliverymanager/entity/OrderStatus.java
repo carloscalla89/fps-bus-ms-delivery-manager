@@ -15,5 +15,7 @@ public class OrderStatus implements Serializable {
     private String code;
     private String type;
     private String description;
+    @Column(name = "send_notification_enabled")
+    private boolean sendNotificationEnabled;
 
 }

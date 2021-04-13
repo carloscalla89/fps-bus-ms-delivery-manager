@@ -11,6 +11,7 @@ public interface IOrderFulfillment {
     Long getTrackerId();
     Long getExternalId();
     Integer getPurchaseId();
+    String getExternalChannelId();
 
 
     BigDecimal getTotalCost();
@@ -50,16 +51,22 @@ public interface IOrderFulfillment {
     String getStatusCode();
     String getStatusName();
     String getStatusDetail();
+    String getCancellationCode();
+    String getCancellationDescription();
 
     Integer getAttempt();
     Integer getAttemptTracker();
+    String getStockType();
 
     String getServiceTypeShortCode();
     String getServiceTypeCode();
     String getServiceTypeName();
     String getServiceType();
     String getServiceEnabled();
-    boolean getNewCodeServiceEnabled();
+    String getServiceChannel();
+    String getClassImplement();
+    boolean getSendNewFlow();
+    boolean getSendNotificationByChannel();
 
     String getPaymentType();
     Integer getCardProviderId();
