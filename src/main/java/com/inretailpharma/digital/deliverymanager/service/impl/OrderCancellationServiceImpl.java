@@ -27,7 +27,7 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
 
     @Override
     public CancellationCodeReason geByCode(String code) {
-        return cancellationCodeReasonRepository.findByCode(code);
+        return cancellationCodeReasonRepository.findAllByCode(code).stream().findFirst().orElse(null);
     }
 
     @Override

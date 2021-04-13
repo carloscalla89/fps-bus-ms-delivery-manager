@@ -11,8 +11,10 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Assigne
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
@@ -30,6 +32,7 @@ import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.ClientResponse;
+
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -44,37 +47,33 @@ public class AbstractOrderService implements OrderExternalService {
 	private ObjectToMapper objectToMapper;
 
 	@Override
-	public Mono<Void> sendOrderReactive(OrderCanonical orderCanonical) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Mono<Void> updateOrderReactive(OrderCanonical orderCanonical) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
+	public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
+															  String serviceType, String cancelDescription) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical) {
+	public Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical) {
 		return null;
 	}
 
 	@Override
-	public Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto) {
+	public Mono<Void> sendNotification(MessageDto messageDto) {
 		throw new UnsupportedOperationException();
 	}
-
 
 	@Override
 	public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
 												   List<IOrderItemFulfillment> itemFulfillments,
 												   StoreCenterCanonical storeCenterCanonical,
 												   Long externalId, String statusDetail,String statusName,
-												   String orderCancelCode, String orderCancelObservation) {
+												   String orderCancelCode, String orderCancelDescription,
+												   String orderCancelObservation) {
 		return null;
 	}
 
@@ -106,12 +105,38 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
+	public Mono<OrderCanonical> updateOrderStatus(Long ecommerceId,  ActionDto actionDto) {
+		return null;
+	}
+
+	public Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source,
+																		   String serviceTypeShortCode,
+																		   String companyCode, ActionDto actionDto) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
 		return null;
 	}
 	
 	@Override
 	public Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long EcommerceId) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Mono<Void> updateOrderNewAudit(AuditHistoryDto orderCanonical) {
+		return null;
+	}
+
+	@Override
+	public Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -190,18 +215,19 @@ public class AbstractOrderService implements OrderExternalService {
 
 
 	protected Mono<OrderCanonical> mapResponseFromTracker(ClientResponse clientResponse, Long id, Long ecommerceId,
-														  Long externalId, String statusName) {
-
+														  Long externalId, String statusName, String cancellationCode,
+														  String cancellationObservation, String statusDetail) {
 
 		if (clientResponse.statusCode().is2xxSuccessful()) {
 
-
             return clientResponse
                         .bodyToMono(Void.class)
-                        .thenReturn((getResponse(id, ecommerceId, externalId, statusName)));
+                        .thenReturn((getResponse(id, ecommerceId, externalId, statusName, cancellationCode,
+								cancellationObservation, statusDetail)));
 
 		} else {
-            log.error("Error in response from tracker, ecommerceId:{}, statusCode:{}",ecommerceId,clientResponse.statusCode());
+            log.error("Error in response from tracker, ecommerceId:{}, statusCode:{}",
+					ecommerceId,clientResponse.statusCode());
 			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
 
 			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
@@ -209,6 +235,7 @@ public class AbstractOrderService implements OrderExternalService {
 		}
 
 	}
+
 
 	protected Mono<OrderCanonical> mapResponseFromUpdateTracker(ClientResponse clientResponse, Long ecommerceId,
 																Constant.OrderStatusTracker orderStatusInkatracker) {
@@ -223,13 +250,16 @@ public class AbstractOrderService implements OrderExternalService {
 		} else {
 			log.error("Error in response from Updatetracker, ecommerceId:{}, statusCode:{}"
 					,ecommerceId,clientResponse.statusCode());
+
 			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
 
 			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
 
+
 		}
 
 	}
+
 
 	private OrderCanonical getResponse(Constant.OrderStatusTracker orderStatusInkatracker) {
 		OrderCanonical orderCanonical = new OrderCanonical();
@@ -246,48 +276,54 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	private OrderCanonical getResponse(Long id, Long ecommerceId,
-                                       Long externalId, String statusName) {
+                                       Long externalId, String statusName, String cancellationCode,
+									   String cancellationObservation, String statusDetail) {
         OrderCanonical orderCanonical = new OrderCanonical();
         orderCanonical.setId(id);
         orderCanonical.setEcommerceId(ecommerceId);
         orderCanonical.setExternalId(externalId);
+		orderCanonical.setTrackerId(externalId);
 
-        OrderStatusCanonical orderStatus;
-        orderCanonical.setTrackerId(ecommerceId);
-
-        if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
-                || statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())
-                || statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
-                || statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name())) {
-
-            orderStatus = objectToMapper.getOrderStatusInkatracker(statusName, null);
-        } else {
-            orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.CONFIRMED_TRACKER.name(), null);
-        }
-
-        orderCanonical.setOrderStatus(orderStatus);
+        orderCanonical.setOrderStatus(
+        		objectToMapper.getOrderStatus(statusName, statusDetail, cancellationCode, cancellationObservation)
+		);
 
         return orderCanonical;
     }
 
-	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusName) {
+	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusName,
+															   String cancellationCode, String cancellationObservation) {
 
 		OrderCanonical orderCanonical = new OrderCanonical();
 		orderCanonical.setId(id);
 		orderCanonical.setEcommerceId(ecommerceId);
 
-		OrderStatusCanonical orderStatus;
+		OrderStatusCanonical orderStatus = objectToMapper
+												.getOrderStatus(statusName, e.getMessage(), cancellationCode, cancellationObservation);
 
-		if (statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER.name())
-				|| statusName.equalsIgnoreCase(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT.name())) {
+		orderCanonical.setOrderStatus(orderStatus);
 
-			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_TO_CANCEL_ORDER.name(), e.getMessage());
+		return Mono.just(orderCanonical);
+	}
 
+	protected Mono<OrderCanonical> mapResponseErrorWhenTheOrderIsCreated(Throwable e, Long id, Long ecommerceId,
+																		 String statusName, String cancellationCode,
+																		 String cancellationObservation) {
+
+		OrderCanonical orderCanonical = new OrderCanonical();
+		orderCanonical.setId(id);
+		orderCanonical.setEcommerceId(ecommerceId);
+
+		String status;
+
+		if (cancellationCode != null) {
+			status = Constant.OrderStatus.ERROR_CANCELLED.name();
 		} else {
-
-			orderStatus = objectToMapper.getOrderStatusInkatracker(Constant.OrderStatus.ERROR_INSERT_TRACKER.name(), e.getMessage());
-
+			status = Constant.OrderStatus.ERROR_INSERT_TRACKER.name();
 		}
+
+		OrderStatusCanonical orderStatus = objectToMapper
+				.getOrderStatus(status, e.getMessage(), cancellationCode, cancellationObservation);
 
 		orderCanonical.setOrderStatus(orderStatus);
 
@@ -310,6 +346,5 @@ public class AbstractOrderService implements OrderExternalService {
 
 		return Mono.just(orderCanonical);
 	}
-
 
 }

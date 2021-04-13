@@ -62,6 +62,9 @@ public class OrderInkatrackerCanonical {
     private String drugstoreAddress;
     private PersonToPickupDto personToPickup;
     private String sourceCompanyName;
+    private String externalChannelId;
+
+    private String stockType;
 
 
 

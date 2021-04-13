@@ -57,9 +57,6 @@
         <artifactId>spring-boot-starter-webflux</artifactId>
       </dependency>
 
-
-
-
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
@@ -142,6 +139,13 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+      <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-test</artifactId>
+        <version>3.3.7.RELEASE</version>
+        <scope>test</scope>
+      </dependency>
 
   </dependencies>
 

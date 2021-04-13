@@ -1,8 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.rest;
 
-import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancelledCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
 import com.inretailpharma.digital.deliverymanager.facade.CancellationFacade;
 import lombok.extern.slf4j.Slf4j;
@@ -48,5 +46,20 @@ public class CancellationRest {
 
         return cancellationFacade.cancelOrderProcess(cancellationDto)
                 .doOnComplete(() -> log.info("[END] endpoint cancelOrderProcess /cancellation/orders"));
+    }
+
+    @ResponseBody
+    @PostMapping("/restore/stock")
+    public ResponseCanonical addCartInformation(@RequestBody ShoppingCartStatusCanonical shoppingCartStatusCanonical) {
+        try {
+            log.info("************** START [ /shoppingcart/setstatus ] **************");
+            log.info("#cancel- proccess");
+            log.info("ShoppingCartStatusCanonical: {}", shoppingCartStatusCanonical);
+            ResponseCanonical responseCanonical = cancellationFacade.updateShoppingCartStatusAndNotes(shoppingCartStatusCanonical);
+            log.info("ShoppingCartStatusCanonical: {}", responseCanonical);
+            return responseCanonical;
+        } finally {
+            log.info("************** END [ /shoppingcart/setstatus ] **************");
+        }
     }
 }

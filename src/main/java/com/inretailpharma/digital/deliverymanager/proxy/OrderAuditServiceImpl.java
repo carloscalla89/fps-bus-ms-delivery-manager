@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
@@ -17,75 +18,90 @@ import reactor.core.scheduler.Schedulers;
 public class OrderAuditServiceImpl extends AbstractOrderService  implements OrderExternalService {
 
     private final ExternalServicesProperties externalServicesProperties;
-    private ApplicationParameterService applicationParameterService;
 
-    public OrderAuditServiceImpl(ExternalServicesProperties externalServicesProperties,
-                                 ApplicationParameterService applicationParameterService) {
+    public OrderAuditServiceImpl(ExternalServicesProperties externalServicesProperties) {
         this.externalServicesProperties = externalServicesProperties;
-        this.applicationParameterService = applicationParameterService;
     }
 
 
     @Override
     public Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to createOrder - uri:{}",
-                externalServicesProperties.getUriApiService());
+        log.info("[START] service to call api audit to create - uri:{}, ecommerceId:{}, statusCode:{}, statusName:{}," +
+                        "statusDetail:{}", externalServicesProperties.getUriApiService(), orderAuditCanonical.getEcommerceId(),
+                orderAuditCanonical.getOrderStatus().getCode(), orderAuditCanonical.getOrderStatus().getName(),
+                orderAuditCanonical.getOrderStatus().getDetail());
 
-        return Mono
-                .justOrEmpty(
-                        applicationParameterService
-                                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT)
-                )
-                .filter(r -> {
-                    log.info("Parameter to call uS-Audit:{}",r.getValue());
+        return WebClient
+                .create(externalServicesProperties.getUriApiService())
+                .post()
+                .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                .retrieve()
+                .bodyToMono(String.class)
+                .retry(3)
+                .subscribeOn(Schedulers.parallel())
+                .doOnSuccess((r) -> log.info("[END] service to call api audit to createOrder:{}",r))
+                .then();
 
-                    return r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
-                }).map(r -> WebClient
-                                .create(externalServicesProperties.getUriApiService())
-                                .post()
-                                .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
-                                .retrieve()
-                                .bodyToMono(String.class)
-                                .retry(3)
-                                .subscribeOn(Schedulers.parallel())
-                                .subscribe(s -> log.info("[END] service to call api audit to createOrder - s:{}",s))
-                ).then();
 
     }
 
 
     @Override
     public Mono<Void> updateOrderReactive(OrderCanonical orderAuditCanonical) {
-        log.info("[START] service to call api audit to update - uri:{}",
-                externalServicesProperties.getUriApiService());
+        log.info("[START] service to call api audit to update - uri:{}, ecommerceId:{}, statusCode:{}, statusName:{}," +
+                  "statusDetail:{}", externalServicesProperties.getUriApiService(), orderAuditCanonical.getEcommerceId(),
+                orderAuditCanonical.getOrderStatus().getCode(), orderAuditCanonical.getOrderStatus().getName(),
+                orderAuditCanonical.getOrderStatus().getDetail());
 
-        return Mono
-                .justOrEmpty(
-                        applicationParameterService
-                                .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ACTIVATED_AUDIT)
-                )
-                .filter(r -> {
-                    log.info("Parameter to call uS-Audit:{}",r.getValue());
-
-                    return r.getValue().equalsIgnoreCase(Constant.ApplicationsParameters.ACTIVATED_AUDIT_VALUE);
-                })
-                .map(r -> WebClient
-                            .create(externalServicesProperties.getUriApiService())
-                            .patch()
-                            .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .retry(3)
-                            .subscribeOn(Schedulers.parallel())
-                            .subscribe(s -> log.info("[END] service to call api audit to update - s:{}",s))
-                ).then();
-
+        return WebClient
+                .create(externalServicesProperties.getUriApiService())
+                .patch()
+                .body(Mono.just(orderAuditCanonical), OrderCanonical.class)
+                .retrieve()
+                .bodyToMono(String.class)
+                .retry(3)
+                .subscribeOn(Schedulers.parallel())
+                .doOnSuccess((r) -> log.info("[END] service to call api audit to update:{}",r))
+                .then();
 
     }
-
     @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
-        return null;
+    public Mono<Void> updateOrderNewAudit(AuditHistoryDto auditHistoryDto) {
+        log.info("[START] service to call api audit new history: uri{}, dto:{}",
+                externalServicesProperties.getUriUpdateHistoryAuditApiService(), auditHistoryDto);
+
+        return WebClient
+                .builder()
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getAuditConnectTimeout()),
+                                Long.parseLong(externalServicesProperties.getAuditReadTimeout())
+                        )
+                )
+                .baseUrl(externalServicesProperties.getUriUpdateHistoryAuditApiService())
+                .build()
+                .post()
+                .uri(builder ->
+                        builder
+                                .path("/{orderExternalId}")
+                                .build(auditHistoryDto.getEcommerceId()))
+                .body(Mono.just(auditHistoryDto), AuditHistoryDto.class)
+                .exchange()
+                .flatMap(clientResponse -> clientResponse.bodyToMono(Void.class))
+                .retry(3)
+                .subscribeOn(Schedulers.parallel())
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error("Call audit new history is empty - ecommerceId:{}",auditHistoryDto.getEcommerceId());
+                    return Mono.when();
+                }))
+                .doOnError(e -> {
+                    e.printStackTrace();
+                    log.error("Error to call audit new history with ecommerceId:{} and error:{}",
+                            auditHistoryDto.getEcommerceId(),e.getMessage());
+                })
+                .doOnSuccess((r) -> log.info("[END] service to call api audit history to update with ecommerceId:{},{}",
+                        auditHistoryDto.getEcommerceId(),r))
+                .then();
     }
 
 }
