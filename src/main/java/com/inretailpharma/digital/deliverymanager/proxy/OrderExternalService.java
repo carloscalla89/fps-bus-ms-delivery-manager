@@ -8,8 +8,10 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Assigne
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import reactor.core.publisher.Mono;
@@ -19,15 +21,17 @@ import java.util.List;
 
 public interface OrderExternalService {
 
-    Mono<Void> sendOrderReactive(OrderCanonical orderCanonical);
     Mono<Void> updateOrderReactive(OrderCanonical orderCanonical);
-    Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company);
-    Mono<OrderCanonical> getResultfromSellerExternalServices(OrderInfoCanonical orderInfoCanonical);
-    Mono<OrderCanonical> retrySellerCenterOrder(OrderDto orderDto);
+    Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
+                                                       String serviceType, String cancelDescription);
+
+
+
     Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments,
                                             StoreCenterCanonical storeCenterCanonical, Long externalId, String statusDetail,
-                                            String statusName, String orderCancelCode, String orderCancelObservation,com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto);
+                                            String statusName, String orderCancelCode, String orderCancelDescription,
+                                            String orderCancelObservation, com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical);
     Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
                                             List<IOrderItemFulfillment> itemFulfillments, String action,
@@ -35,6 +39,17 @@ public interface OrderExternalService {
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
     Mono<String> updateOrderStatus(Long ecommerceId, String status);
+    Mono<OrderCanonical> updateOrderStatus(Long ecommerceId, ActionDto actionDto);
+    Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source,
+                                                                    String serviceTypeShortCode, String companyCode,
+                                                                    ActionDto actionDto);
     Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId);
     Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long ecommerceId);
+    Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto);
+    Mono<Void> updateOrderNewAudit(AuditHistoryDto orderCanonical);
+    Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode);
+
+    Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical);
+
+    Mono<Void> sendNotification(MessageDto messageDto);
 }

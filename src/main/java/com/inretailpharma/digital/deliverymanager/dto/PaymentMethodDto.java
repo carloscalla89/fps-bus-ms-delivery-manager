@@ -17,5 +17,8 @@ public class PaymentMethodDto {
     private BigDecimal changeAmount;
     private String bin;
     private String coupon;
+    private String providerCardCommercialCode;
     private String paymentTransactionId;
+    private String numPanVisaNet;
+    private String transactionDateVisaNet;
 }

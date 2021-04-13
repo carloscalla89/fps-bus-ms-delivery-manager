@@ -1,5 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.InvoicedOrderCanonical;
 
@@ -12,18 +14,14 @@ import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -35,6 +33,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
     private ExternalServicesProperties externalServicesProperties;
     private ObjectToMapper objectToMapper;
 
+
+
     public InkatrackerServiceImpl(ExternalServicesProperties externalServicesProperties,
                                   ObjectToMapper objectToMapper) {
 
@@ -43,7 +43,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
     }
 
     @Override
-    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company) {
+    public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
+                                                              String serviceType, String orderCancelDescription) {
         log.info("[START]  connect inkatracker   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
 
@@ -61,10 +62,9 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
             });
         }
         orderTrackerCanonical.setInvoicedList(invoicedList);
-        orderTrackerCanonical.setInkaDeliveryId(actionDto.getExternalBillingId());
+
         orderTrackerCanonical.setCancelCode(actionDto.getOrderCancelCode());
-        orderTrackerCanonical.setCancelClientReason(actionDto.getOrderCancelClientReason());
-        orderTrackerCanonical.setCancelReason(actionDto.getOrderCancelReason());
+        orderTrackerCanonical.setCancelReason(orderCancelDescription);
         orderTrackerCanonical.setCancelObservation(actionDto.getOrderCancelObservation());
 
         Constant.OrderStatusTracker orderStatusInkatracker = Constant.OrderStatusTracker.getByActionName(actionDto.getAction());
@@ -103,7 +103,8 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                         log.error("Error in inkatracker when its sent to update:{}",e.getMessage());
                                     })
                                     .onErrorResume(e -> mapResponseErrorFromTracker(e, ecommerceId,
-                                            ecommerceId, orderStatusInkatracker.getOrderStatusError().name())
+                                            ecommerceId, orderStatusInkatracker.getOrderStatusError().name(),
+                                            actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation())
                                     );
 
     }
@@ -113,15 +114,21 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                                                    List<IOrderItemFulfillment> itemFulfillments,
                                                    StoreCenterCanonical storeCenterCanonical,
                                                    Long externalId, String statusDetail, String statusName,
-                                                   String orderCancelCode, String orderCancelObservation, OrderDto orderDto) {
+                                                   String orderCancelCode, String orderCancelDescription,
+                                                   String orderCancelObservation, OrderDto orderDto) {
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(
                         iOrderFulfillment, itemFulfillments, storeCenterCanonical, externalId, statusName, statusDetail,
-                        orderCancelCode, orderCancelObservation, orderDto
+                        orderCancelCode, orderCancelDescription, orderDto
                 ))
                 .flatMap(b -> {
 
-                    log.info("Order prepared to send inkatracker - orderInkatracker:{}",b);
+                    try {
+
+                        log.info("Order prepared to send inkatracker{}", new ObjectMapper().writeValueAsString(b));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
 
                     log.info("url inkatracker:{}",externalServicesProperties.getInkatrackerCreateOrderUri());
 
@@ -139,23 +146,28 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
                             .body(Mono.just(b), OrderInkatrackerCanonical.class)
                             .exchange()
                             .flatMap(clientResponse -> mapResponseFromTracker(
-                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), externalId, statusName)
+                                    clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
+                                    externalId, statusName, orderCancelCode, orderCancelObservation, statusDetail)
                             )
                             .doOnSuccess(s -> log.info("Response is Success in inkatracker:{}",s))
                             .defaultIfEmpty(
                                     new OrderCanonical(
                                             iOrderFulfillment.getOrderId(),
                                             iOrderFulfillment.getEcommerceId(),
-                                            objectToMapper.getOrderStatusInkatracker(
-                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name(), "Result inkatracker is empty")
+                                            objectToMapper.getOrderStatus(
+                                                    Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.name(),
+                                                    "Result inkatracker is empty",
+                                                    orderCancelCode,
+                                                    orderCancelObservation
+                                            )
                                     )
                             )
                             .doOnError(e -> {
                                 e.printStackTrace();
                                 log.error("Error in inkatracker:{}",e.getMessage());
                             })
-                            .onErrorResume(e -> mapResponseErrorFromTracker(e, iOrderFulfillment.getOrderId(),
-                                    iOrderFulfillment.getEcommerceId(), statusName)
+                            .onErrorResume(e -> mapResponseErrorWhenTheOrderIsCreated(e, iOrderFulfillment.getOrderId(),
+                                    iOrderFulfillment.getEcommerceId(), statusName, orderCancelCode, orderCancelObservation)
                             );
 
                 });
