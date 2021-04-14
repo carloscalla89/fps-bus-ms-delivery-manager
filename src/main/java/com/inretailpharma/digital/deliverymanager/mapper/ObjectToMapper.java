@@ -262,10 +262,10 @@ public class ObjectToMapper {
 
         // 3 precios
         if(orderDto!=null){
-            orderInkatrackerCanonical.setSubTotalWithNoSpecificPaymentMethod(orderDto.getSubTotalWithNoSpecificPaymentMethod().doubleValue());
-            orderInkatrackerCanonical.setTotalWithNoSpecificPaymentMethod(orderDto.getTotalWithNoSpecificPaymentMethod().doubleValue());
-            orderInkatrackerCanonical.setTotalWithPaymentMethod(orderDto.getTotalWithPaymentMethod().doubleValue());
-            orderInkatrackerCanonical.setPaymentMethodCardType(orderDto.getPaymentMethodCardType());
+            orderInkatrackerCanonical.setSubTotalWithNoSpecificPaymentMethod(orderDto.getSubTotalWithNoSpecificPaymentMethod()==null ? 0.0 : orderDto.getSubTotalWithNoSpecificPaymentMethod().doubleValue());
+            orderInkatrackerCanonical.setTotalWithNoSpecificPaymentMethod(orderDto.getTotalWithNoSpecificPaymentMethod()==null ? 0.0 : orderDto.getTotalWithNoSpecificPaymentMethod().doubleValue());
+            orderInkatrackerCanonical.setTotalWithPaymentMethod(orderDto.getTotalWithPaymentMethod()==null ? 0.0 : orderDto.getTotalWithPaymentMethod().doubleValue());
+            orderInkatrackerCanonical.setPaymentMethodCardType(orderDto.getPaymentMethodCardType()==null ? "0" : orderDto.getPaymentMethodCardType());
         }
 
         return orderInkatrackerCanonical;
@@ -514,22 +514,26 @@ public class ObjectToMapper {
         }
 
         //3 precios
-        if(orderDto!=null){
-            for(int i=0;i<itemCanonicalList.size();i++){
-                for(int j=0;j<orderDto.getOrderItem().size();j++){
-                    if(itemCanonicalList.get(i).getSku().equalsIgnoreCase(orderDto.getOrderItem().get(j).getProductCode())){
+        try{
+            if(orderDto!=null){
+                for(int i=0;i<itemCanonicalList.size();i++){
+                    for(int j=0;j<orderDto.getOrderItem().size();j++){
+                        if(itemCanonicalList.get(i).getSku().equalsIgnoreCase(orderDto.getOrderItem().get(j).getProductCode())){
 
-                        itemCanonicalList.get(i).setPriceList(orderDto.getOrderItem().get(j).getPriceList().doubleValue());
-                        itemCanonicalList.get(i).setTotalPriceList(orderDto.getOrderItem().get(j).getTotalPriceList().doubleValue());
-                        itemCanonicalList.get(i).setPriceAllPaymentMethod(orderDto.getOrderItem().get(j).getPriceAllPaymentMethod().doubleValue());
-                        itemCanonicalList.get(i).setTotalPriceAllPaymentMethod(orderDto.getOrderItem().get(j).getTotalPriceAllPaymentMethod().doubleValue());
-                        itemCanonicalList.get(i).setPriceWithpaymentMethod(orderDto.getOrderItem().get(j).getPriceWithpaymentMethod().doubleValue());
-                        itemCanonicalList.get(i).setTotalPriceWithpaymentMethod(orderDto.getOrderItem().get(j).getTotalPriceWithpaymentMethod().doubleValue());
-                        itemCanonicalList.get(i).setCrossOutPL(orderDto.getOrderItem().get(j).isCrossOutPL());
-                        itemCanonicalList.get(i).setPaymentMethodCardType(orderDto.getOrderItem().get(j).getPaymentMethodCardType());
+                            itemCanonicalList.get(i).setPriceList(orderDto.getOrderItem().get(j).getPriceList()==null ? 0.0 : orderDto.getOrderItem().get(j).getPriceList().doubleValue());
+                            itemCanonicalList.get(i).setTotalPriceList(orderDto.getOrderItem().get(j).getTotalPriceList()==null ? 0.0 : orderDto.getOrderItem().get(j).getTotalPriceList().doubleValue());
+                            itemCanonicalList.get(i).setPriceAllPaymentMethod(orderDto.getOrderItem().get(j).getPriceAllPaymentMethod()==null ? 0.0 : orderDto.getOrderItem().get(j).getPriceAllPaymentMethod().doubleValue());
+                            itemCanonicalList.get(i).setTotalPriceAllPaymentMethod(orderDto.getOrderItem().get(j).getTotalPriceAllPaymentMethod()==null ? 0.0 : orderDto.getOrderItem().get(j).getTotalPriceAllPaymentMethod().doubleValue());
+                            itemCanonicalList.get(i).setPriceWithpaymentMethod(orderDto.getOrderItem().get(j).getPriceWithpaymentMethod()==null ? 0.0 : orderDto.getOrderItem().get(j).getPriceWithpaymentMethod().doubleValue());
+                            itemCanonicalList.get(i).setTotalPriceWithpaymentMethod(orderDto.getOrderItem().get(j).getTotalPriceWithpaymentMethod()==null ? 0.0 : orderDto.getOrderItem().get(j).getTotalPriceWithpaymentMethod().doubleValue());
+                            itemCanonicalList.get(i).setCrossOutPL(orderDto.getOrderItem().get(j).isCrossOutPL());
+                            itemCanonicalList.get(i).setPaymentMethodCardType(orderDto.getOrderItem().get(j).getPaymentMethodCardType()==null ? "0" : orderDto.getOrderItem().get(j).getPaymentMethodCardType());
+                        }
                     }
                 }
             }
+        }catch(Exception e){
+
         }
 
         return itemCanonicalList;
