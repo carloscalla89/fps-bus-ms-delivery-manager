@@ -73,7 +73,7 @@ public class AbstractOrderService implements OrderExternalService {
 												   StoreCenterCanonical storeCenterCanonical,
 												   Long externalId, String statusDetail,String statusName,
 												   String orderCancelCode, String orderCancelDescription,
-												   String orderCancelObservation, com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto) {
+												   String orderCancelObservation) {
 		return null;
 	}
 

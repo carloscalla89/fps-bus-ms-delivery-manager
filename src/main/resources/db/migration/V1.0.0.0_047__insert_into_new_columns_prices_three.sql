@@ -8,7 +8,7 @@ ALTER TABLE `order_fulfillment`
 ADD COLUMN `totalWithPaymentMethod` DECIMAL(10,2) DEFAULT 0.0;
 
 ALTER TABLE `order_fulfillment`
-ADD COLUMN `totalWithPaymentMethod` VARCHAR(16) DEFAULT NULL;
+ADD COLUMN `paymentMethodCardType` VARCHAR(16) DEFAULT NULL;
 
 
 
