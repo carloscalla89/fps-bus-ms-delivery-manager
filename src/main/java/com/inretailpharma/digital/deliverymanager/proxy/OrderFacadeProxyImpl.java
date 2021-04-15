@@ -131,8 +131,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         statusName,
                                                         orderCancelCode,
                                                         orderCancelDescription,
-                                                        orderCancelObservation,
-                                                        orderDto
+                                                        orderCancelObservation
                                                 ).flatMap(responses -> getOrderResponse(
                                                         responses,
                                                         iOrderFulfillment.getOrderId(),
@@ -216,7 +215,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
-                                                            actionDto.getOrderCancelObservation(),null
+                                                            actionDto.getOrderCancelObservation()
                                                     )
                                                     .flatMap(responses -> getOrderResponse(
                                                             responses,

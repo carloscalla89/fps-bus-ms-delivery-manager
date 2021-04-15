@@ -111,8 +111,7 @@ public class DeliveryManagerFacade {
                                         order.getStoreCenter(),
                                         order.getSource(),
                                         order.getOrderDetail().isServiceSendNewFlowEnabled(),
-                                        Constant.UPDATED_BY_INIT,
-                                        orderDto
+                                        Constant.UPDATED_BY_INIT
                                 );
 
                     }

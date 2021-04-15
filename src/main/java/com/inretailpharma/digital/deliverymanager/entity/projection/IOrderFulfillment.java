@@ -116,4 +116,15 @@ public interface IOrderFulfillment {
 
     Boolean getPartial();
     String getPaymentTransactionId();
+
+    /**
+     * Fecha: 15/04/2021
+     * autor: Equipo Growth
+     * Campos referentes a 3 precios
+     */
+    BigDecimal getSubTotalWithNoSpecificPaymentMethod();
+    BigDecimal getTotalWithNoSpecificPaymentMethod();
+    BigDecimal getTotalWithPaymentMethod();
+    String getPaymentMethodCardType();
+    /** ********************* **/
 }

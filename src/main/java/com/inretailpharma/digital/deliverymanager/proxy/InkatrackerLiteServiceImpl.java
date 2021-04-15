@@ -44,11 +44,11 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                                    StoreCenterCanonical storeCenterCanonical,
                                                    Long externalId, String statusDetail, String statusName,
                                                    String orderCancelCode, String orderCancelDescription,
-                                                   String orderCancelObservation, OrderDto orderDto) {
+                                                   String orderCancelObservation) {
 
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
-                        storeCenterCanonical, externalId, statusName, statusDetail, orderCancelCode, orderCancelDescription,orderDto)
+                        storeCenterCanonical, externalId, statusName, statusDetail, orderCancelCode, orderCancelDescription)
                 )
                 .flatMap(b -> {
                     try {

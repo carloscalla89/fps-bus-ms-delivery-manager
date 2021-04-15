@@ -26,4 +26,19 @@ public interface IOrderItemFulfillment {
     String getFamilyType();
     Integer getValueUmv();
 
+    /**
+     * Fecha: 15/04/2021
+     * autor: Equipo Growth
+     * Campos referentes a 3 precios
+     */
+    BigDecimal getPriceList();
+    BigDecimal getTotalPriceList();
+    BigDecimal getPriceAllPaymentMethod();
+    BigDecimal getTotalPriceAllPaymentMethod();
+    BigDecimal getPriceWithpaymentMethod();
+    BigDecimal getTotalPriceWithpaymentMethod();
+    boolean getCrossOutPL();
+    String getPaymentMethodCardType();
+
+
 }
