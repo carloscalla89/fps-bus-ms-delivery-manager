@@ -77,7 +77,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                    String statusDetail, String statusName, String orderCancelCode,
                                                    String orderCancelDescription, String orderCancelObservation,
                                                    String companyCode, String localCode, String source,
-                                                   boolean sendNewAudit, String updateBy,com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto) {
+                                                   boolean sendNewAudit, String updateBy) {
 
         UtilClass utilClass = new UtilClass(classImplementTracker);
 
@@ -94,8 +94,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                         statusName,
                                                         orderCancelCode,
                                                         orderCancelDescription,
-                                                        orderCancelObservation,
-                                                        orderDto
+                                                        orderCancelObservation
                                                 ).flatMap(responses -> getOrderResponse(
                                                         responses,
                                                         orderId,
@@ -181,7 +180,7 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
                                                             Constant.OrderStatus.CANCELLED_ORDER.name(),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
                                                             Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
-                                                            actionDto.getOrderCancelObservation(),null
+                                                            actionDto.getOrderCancelObservation()
                                                     )
                                                     .flatMap(responses -> getOrderResponse(
                                                             responses,

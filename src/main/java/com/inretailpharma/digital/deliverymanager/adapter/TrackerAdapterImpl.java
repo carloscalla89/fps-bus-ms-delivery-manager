@@ -21,7 +21,7 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
     public Mono<OrderCanonical> sendOrderTracker(OrderExternalService orderExternalService, StoreCenterCanonical storeCenter,
                                                  Long ecommercePurchaseId, Long externalId, String statusDetail,
                                                  String statusName, String orderCancelCode, String orderCancelDescription,
-                                                 String orderCancelObservation,com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto) {
+                                                 String orderCancelObservation) {
 
         log.info("sendOrderTracker - ecommercePurchaseId:{}, ",ecommercePurchaseId);
         IOrderFulfillment iOrderFulfillmentCase4 = this.getOrderTransaction().getOrderByecommerceId(ecommercePurchaseId);
@@ -37,8 +37,7 @@ public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterf
                             statusName,
                             orderCancelCode,
                             orderCancelDescription,
-                            orderCancelObservation,
-                            orderDto
+                            orderCancelObservation
                     );
 
 

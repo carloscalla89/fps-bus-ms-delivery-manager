@@ -14,7 +14,7 @@ public interface OrderFacadeProxy {
                                             String statusDetail, String statusName, String orderCancelCode,
                                             String orderCancelDescription, String orderCancelObservation,
                                             String companyCode, String localCode, String source, boolean sendNewAudit,
-                                            String updateBy, com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto);
+                                            String updateBy);
 
     Mono<OrderCanonical> sendToUpdateOrder(Long orderId, Long ecommerceId, Long externalId, ActionDto actionDto,
                                            String serviceType, String serviceShortCode, String classImplementTracker,

@@ -126,7 +126,7 @@ public class ObjectToMapper {
                                                                              List<IOrderItemFulfillment> itemFulfillments,
                                                                              StoreCenterCanonical storeCenterCanonical,
                                                                              Long externalId, String status, String detail,
-                                                                             String orderCancelCode, String orderCancelDescription,OrderDto orderDto) {
+                                                                             String orderCancelCode, String orderCancelDescription) {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
         orderInkatrackerCanonical.setOrderExternalId(iOrderFulfillment.getEcommerceId());
@@ -173,7 +173,7 @@ public class ObjectToMapper {
         );
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
 
-        orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments,orderDto));
+        orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
         // ====set Status to tracker
         orderInkatrackerCanonical.setOrderStatus(
                 getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelDescription,orderInkatrackerCanonical, detail));
@@ -260,13 +260,32 @@ public class ObjectToMapper {
                 Optional.ofNullable(iOrderFulfillment.getStockType())
                         .orElse(Constant.StockType.M.name()));
 
-        // 3 precios
-        if(orderDto!=null){
-            orderInkatrackerCanonical.setSubTotalWithNoSpecificPaymentMethod(orderDto.getSubTotalWithNoSpecificPaymentMethod()==null ? 0.0 : orderDto.getSubTotalWithNoSpecificPaymentMethod().doubleValue());
-            orderInkatrackerCanonical.setTotalWithNoSpecificPaymentMethod(orderDto.getTotalWithNoSpecificPaymentMethod()==null ? 0.0 : orderDto.getTotalWithNoSpecificPaymentMethod().doubleValue());
-            orderInkatrackerCanonical.setTotalWithPaymentMethod(orderDto.getTotalWithPaymentMethod()==null ? 0.0 : orderDto.getTotalWithPaymentMethod().doubleValue());
-            orderInkatrackerCanonical.setPaymentMethodCardType(orderDto.getPaymentMethodCardType()==null ? "0" : orderDto.getPaymentMethodCardType());
-        }
+        /**
+         * Fecha: 15/04/2021
+         * autor: Equipo Growth
+         * Campos referentes a 3 precios
+         */
+
+        orderInkatrackerCanonical.setSubTotalWithNoSpecificPaymentMethod(
+                Optional.ofNullable(iOrderFulfillment.getSubTotalWithNoSpecificPaymentMethod()).map(BigDecimal::doubleValue)
+                        .orElse(Constant.VALUE_ZERO_DOUBLE)
+        );
+
+        orderInkatrackerCanonical.setTotalWithNoSpecificPaymentMethod(
+                Optional.ofNullable(iOrderFulfillment.getTotalWithNoSpecificPaymentMethod()).map(BigDecimal::doubleValue)
+                        .orElse(Constant.VALUE_ZERO_DOUBLE)
+        );
+
+        orderInkatrackerCanonical.setTotalWithPaymentMethod(
+                Optional.ofNullable(iOrderFulfillment.getTotalWithPaymentMethod()).map(BigDecimal::doubleValue)
+                        .orElse(Constant.VALUE_ZERO_DOUBLE)
+        );
+
+        orderInkatrackerCanonical.setPaymentMethodCardType(
+                Optional.ofNullable(iOrderFulfillment.getPaymentMethodCardType())
+                        .orElse(Constant.VALUE_ZERO_STRING)
+        );
+        /** ********************* **/
 
         return orderInkatrackerCanonical;
     }
@@ -484,7 +503,7 @@ public class ObjectToMapper {
         return orderStatusInkatrackerCanonical;
     }
 
-    private List<OrderItemInkatrackerCanonical> createFirebaseOrderItemsFromOrderItemCanonical(List<IOrderItemFulfillment> itemCanonicals, OrderDto orderDto) {
+    private List<OrderItemInkatrackerCanonical> createFirebaseOrderItemsFromOrderItemCanonical(List<IOrderItemFulfillment> itemCanonicals) {
 
         List<OrderItemInkatrackerCanonical> itemCanonicalList = new ArrayList<>();
 
@@ -509,33 +528,22 @@ public class ObjectToMapper {
             canonical.setQuantityUnitMinimium(itemCanonical.getQuantityUnitMinimium());
             canonical.setValueUMV(itemCanonical.getValueUmv());
             canonical.setSap(itemCanonical.getProductSapCode());
-
+            /**
+             * Fecha: 15/04/2021
+             * autor: Equipo Growth
+             * Campos referentes a 3 precios
+             */
+            canonical.setPriceList(Optional.ofNullable(itemCanonical.getPriceList()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setTotalPriceList(Optional.ofNullable(itemCanonical.getTotalPriceList()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setPriceAllPaymentMethod(Optional.ofNullable(itemCanonical.getPriceAllPaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setTotalPriceAllPaymentMethod(Optional.ofNullable(itemCanonical.getTotalPriceAllPaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setPriceWithpaymentMethod(Optional.ofNullable(itemCanonical.getPriceWithpaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setTotalPriceWithpaymentMethod(Optional.ofNullable(itemCanonical.getTotalPriceWithpaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setCrossOutPL(itemCanonical.getCrossOutPL());
+            canonical.setPaymentMethodCardType(Optional.ofNullable(itemCanonical.getPaymentMethodCardType()).orElse(Constant.VALUE_ZERO_STRING));
+            /** ** **/
             itemCanonicalList.add(canonical);
         }
-
-        //3 precios
-        try{
-            if(orderDto!=null){
-                for(int i=0;i<itemCanonicalList.size();i++){
-                    for(int j=0;j<orderDto.getOrderItem().size();j++){
-                        if(itemCanonicalList.get(i).getSku().equalsIgnoreCase(orderDto.getOrderItem().get(j).getProductCode())){
-
-                            itemCanonicalList.get(i).setPriceList(orderDto.getOrderItem().get(j).getPriceList()==null ? 0.0 : orderDto.getOrderItem().get(j).getPriceList().doubleValue());
-                            itemCanonicalList.get(i).setTotalPriceList(orderDto.getOrderItem().get(j).getTotalPriceList()==null ? 0.0 : orderDto.getOrderItem().get(j).getTotalPriceList().doubleValue());
-                            itemCanonicalList.get(i).setPriceAllPaymentMethod(orderDto.getOrderItem().get(j).getPriceAllPaymentMethod()==null ? 0.0 : orderDto.getOrderItem().get(j).getPriceAllPaymentMethod().doubleValue());
-                            itemCanonicalList.get(i).setTotalPriceAllPaymentMethod(orderDto.getOrderItem().get(j).getTotalPriceAllPaymentMethod()==null ? 0.0 : orderDto.getOrderItem().get(j).getTotalPriceAllPaymentMethod().doubleValue());
-                            itemCanonicalList.get(i).setPriceWithpaymentMethod(orderDto.getOrderItem().get(j).getPriceWithpaymentMethod()==null ? 0.0 : orderDto.getOrderItem().get(j).getPriceWithpaymentMethod().doubleValue());
-                            itemCanonicalList.get(i).setTotalPriceWithpaymentMethod(orderDto.getOrderItem().get(j).getTotalPriceWithpaymentMethod()==null ? 0.0 : orderDto.getOrderItem().get(j).getTotalPriceWithpaymentMethod().doubleValue());
-                            itemCanonicalList.get(i).setCrossOutPL(orderDto.getOrderItem().get(j).isCrossOutPL());
-                            itemCanonicalList.get(i).setPaymentMethodCardType(orderDto.getOrderItem().get(j).getPaymentMethodCardType()==null ? "0" : orderDto.getOrderItem().get(j).getPaymentMethodCardType());
-                        }
-                    }
-                }
-            }
-        }catch(Exception e){
-
-        }
-
         return itemCanonicalList;
 
     }
@@ -692,6 +700,22 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setQuantityPresentation(r.getQuantityPresentation());
                     orderFulfillmentItem.setFamilyType(r.getFamilyType());
                     orderFulfillmentItem.setValueUMV(r.getValueUMV());
+
+                    /**
+                     * Fecha: 15/04/2021
+                     * autor: Equipo Growth
+                     * Campos referentes a 3 precios
+                     */
+                    orderFulfillmentItem.setPriceList(r.getPriceList());
+                    orderFulfillmentItem.setTotalPriceList(r.getTotalPriceList());
+                    orderFulfillmentItem.setPriceAllPaymentMethod(r.getPriceAllPaymentMethod());
+                    orderFulfillmentItem.setTotalPriceAllPaymentMethod(r.getTotalPriceAllPaymentMethod());
+                    orderFulfillmentItem.setPriceWithpaymentMethod(r.getPriceWithpaymentMethod());
+                    orderFulfillmentItem.setTotalPriceWithpaymentMethod(r.getTotalPriceWithpaymentMethod());
+                    orderFulfillmentItem.setCrossOutPL(r.isCrossOutPL());
+                    orderFulfillmentItem.setPaymentMethodCardType(r.getPaymentMethodCardType());
+
+                    /** ************ **/
                     return orderFulfillmentItem;
                 }).collect(Collectors.toList())
         );
@@ -755,6 +779,19 @@ public class ObjectToMapper {
         orderFulfillment.setNotes(orderDto.getNotes());
 
         orderFulfillment.setStockType(Constant.StockType.getByCode(orderDto.getStockType()).name());
+
+        /**
+         * Fecha: 15/04/2021
+         * autor: Equipo Growth
+         * Campos referentes a 3 precios
+         */
+
+        orderFulfillment.setSubTotalWithNoSpecificPaymentMethod(orderDto.getSubTotalWithNoSpecificPaymentMethod());
+        orderFulfillment.setTotalWithNoSpecificPaymentMethod(orderDto.getTotalWithNoSpecificPaymentMethod());
+        orderFulfillment.setTotalWithPaymentMethod(orderDto.getTotalWithPaymentMethod());
+        orderFulfillment.setPaymentMethodCardType(orderDto.getPaymentMethodCardType());
+
+        /** ************ **/
 
         log.info("[END] map-convertOrderdtoToOrderEntity");
 

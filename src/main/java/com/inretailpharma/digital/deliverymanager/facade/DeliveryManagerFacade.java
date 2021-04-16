@@ -111,8 +111,7 @@ public class DeliveryManagerFacade {
                                         order.getLocalCode(),
                                         order.getSource(),
                                         order.getOrderDetail().isServiceSendNewFlowEnabled(),
-                                        Constant.UPDATED_BY_INIT,
-                                        orderDto
+                                        Constant.UPDATED_BY_INIT
                                 );
 
                     }
@@ -184,8 +183,7 @@ public class DeliveryManagerFacade {
                                     iOrderFulfillmentLight.getCenterCode(),
                                     iOrderFulfillmentLight.getSource(),
                                     iOrderFulfillmentLight.getSendNewFlow(),
-                                    actionDto.getUpdatedBy(),
-                                    null
+                                    actionDto.getUpdatedBy()
                             );
 
                 case 2:
@@ -248,8 +246,7 @@ public class DeliveryManagerFacade {
                                                             iOrderFulfillmentLight.getCenterCode(),
                                                             iOrderFulfillmentLight.getSource(),
                                                             iOrderFulfillmentLight.getSendNewFlow(),
-                                                            actionDto.getUpdatedBy(),
-                                                            null
+                                                            actionDto.getUpdatedBy()
 
                                                     );
 

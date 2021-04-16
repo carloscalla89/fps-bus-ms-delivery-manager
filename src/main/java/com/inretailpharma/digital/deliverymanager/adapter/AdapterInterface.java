@@ -16,7 +16,7 @@ public interface AdapterInterface {
     Mono<OrderCanonical> sendOrderTracker(OrderExternalService orderExternalService, StoreCenterCanonical storeCenter,
                                           Long ecommercePurchaseId, Long externalId, String statusDetail,
                                           String statusName, String orderCancelCode,
-                                          String orderCancelDescription, String orderCancelObservation, com.inretailpharma.digital.deliverymanager.dto.OrderDto orderDto);
+                                          String orderCancelDescription, String orderCancelObservation);
 
     Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService, Long ecommerceId,
                                                        ActionDto actionDto, String company, String serviceType,

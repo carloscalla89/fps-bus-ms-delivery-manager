@@ -37,7 +37,11 @@ public class OrderItemDto {
     private boolean edited;
     private boolean removed;
 
-    //3 precios
+    /**
+     * Fecha: 15/04/2021
+     * autor: Equipo Growth
+     * Campos referentes a 3 precios
+     */
     private BigDecimal priceList;
     private BigDecimal totalPriceList;
     private BigDecimal priceAllPaymentMethod;
