@@ -602,6 +602,9 @@ public interface Constant {
     String TARGET_INSINK = "INSINK";
     String UPDATED_BY_INIT = "INIT";
 
+    double VALUE_ZERO_DOUBLE = 0.0;
+    String VALUE_ZERO_STRING = "0";
+
     enum DeliveryManagerStatus {
 
         ORDER_FAILED("ERROR_INSERT_DM"), NONE("ERROR_NOT_IDENTIFIED");
