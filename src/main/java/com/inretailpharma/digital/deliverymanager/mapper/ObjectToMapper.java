@@ -485,6 +485,8 @@ public class ObjectToMapper {
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name()))) {
 
+
+            /** inkatracker **/
             orderStatusInkatrackerCanonical.setCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
 
             orderStatusInkatrackerCanonical.setCancelDate(
@@ -493,16 +495,19 @@ public class ObjectToMapper {
                             .orElse(Timestamp.valueOf(LocalDateTime.now()).getTime())
             );
 
+
             orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
 
             orderStatusInkatrackerCanonical.setCustomNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
+                    Constant.CancellationStockDispatcher.getDetailCancelOrderForStock(status, orderCancelDescription,detail)
             );
 
             orderStatusInkatrackerCanonical.setCancelMessageNote(
                     Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
             );
+            /* *************** */
 
+            /** inkatracker-lite **/
             orderInkatrackerCanonical.setCancelDate(
                     Optional.ofNullable(iOrderFulfillment.getCancelledOrder())
                             .map(c -> Timestamp.valueOf(c).getTime())
@@ -511,8 +516,11 @@ public class ObjectToMapper {
 
             orderInkatrackerCanonical.setCancelReasonCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
             orderInkatrackerCanonical.setCancelMessageNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
+                    Constant.CancellationStockDispatcher.getDetailCancelOrderForStock(
+                            status, orderCancelDescription, detail)
             );
+
+            //
         }
 
         return orderStatusInkatrackerCanonical;

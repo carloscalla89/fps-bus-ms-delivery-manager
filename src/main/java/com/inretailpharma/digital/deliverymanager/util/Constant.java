@@ -58,6 +58,13 @@ public interface Constant {
                     .orElse(orderCancelDescription);
         }
 
+        public static String getDetailCancelOrderForStock(String name, String orderCancelDescription, String detail) {
+
+            return EnumUtils.getEnumList(CancellationStockDispatcher.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().map(res -> detail)
+                    .orElse(orderCancelDescription);
+        }
+
         public String getId() {
             return id;
         }
