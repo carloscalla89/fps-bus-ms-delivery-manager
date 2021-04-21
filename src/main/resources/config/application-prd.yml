@@ -113,4 +113,4 @@ external-service:
       
 api:
   insink:
-    stock: http://insink-aws.backend.inkafarma.pe/comanda-stock/{orderId}      
+    stock: http://10.86.1.57:8484/comanda-stock/{orderId}
