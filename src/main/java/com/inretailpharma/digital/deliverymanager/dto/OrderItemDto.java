@@ -36,4 +36,18 @@ public class OrderItemDto {
     private String familyType;
     private boolean edited;
     private boolean removed;
+
+    /**
+     * Fecha: 15/04/2021
+     * autor: Equipo Growth
+     * Campos referentes a 3 precios
+     */
+    private BigDecimal priceList;
+    private BigDecimal totalPriceList;
+    private BigDecimal priceAllPaymentMethod;
+    private BigDecimal totalPriceAllPaymentMethod;
+    private BigDecimal priceWithpaymentMethod;
+    private BigDecimal totalPriceWithpaymentMethod;
+    private boolean crossOutPL;
+    private String paymentMethodCardType;
 }

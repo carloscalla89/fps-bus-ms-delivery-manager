@@ -146,7 +146,7 @@ public class EcommerceMapper {
             if (Constant.Source.SC.name().equals(orderFulfillment.getSource())) {
                 orderDto.setDeliveryType(Constant.DEFAULT_DS);
             } else {
-                orderDto.setDeliveryType(orderFulfillment.getServiceTypeCode());
+                orderDto.setDeliveryType(orderFulfillment.getServiceTypeShortCode());
             }
 
             orderDto.setMarketplaceName(orderFulfillment.getSourceCompanyName());

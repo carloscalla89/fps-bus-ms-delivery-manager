@@ -66,7 +66,10 @@ public class OrderInkatrackerCanonical {
 
     private String stockType;
 
-
-
+    // 3 precios
+    private Double subTotalWithNoSpecificPaymentMethod;
+    private Double totalWithNoSpecificPaymentMethod;
+    private Double totalWithPaymentMethod;
+    private String paymentMethodCardType;
 
 }

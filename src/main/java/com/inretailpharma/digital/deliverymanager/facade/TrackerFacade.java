@@ -9,6 +9,8 @@ import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+import com.inretailpharma.digital.deliverymanager.util.UtilClass;
+import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -229,66 +231,80 @@ public class TrackerFacade {
 																		.collect(Collectors.toSet())
 														);
 
-
 		return Flux
 				.fromIterable(iOrdersFulfillment)
-				.flatMap(order -> {
+				.flatMap(iorder -> {
 					OrderSynchronizeDto orderSynchronizeDto = ordersList
 																.stream()
-																.filter(o -> o.getEcommerceId().equals(order.getEcommerceId()))
+																.filter(o -> o.getEcommerceId().equals(iorder.getEcommerceId()))
 																.findFirst()
 																.get();
 
 					return Flux
 							.fromIterable(orderSynchronizeDto.getHistory())
-							.sort(Comparator. comparing(obj -> DateUtils.getLocalDateTimeFromStringWithFormat(obj.getActionDate())))
-							.flatMap(oh -> {
+							.reduce((previous,current) ->  {
 
-								ActionDto actionDto = new ActionDto();
-								actionDto.setAction(oh.getAction());
-								actionDto.setOrigin(orderSynchronizeDto.getOrigin());
-								actionDto.setOrderCancelCode(oh.getOrderCancelCode());
-								actionDto.setOrderCancelObservation(oh.getOrderCancelObservation());
-								actionDto.setMotorizedId(oh.getMotorizedId());
-								actionDto.setUpdatedBy(oh.getUpdatedBy());
+								if (Constant.ActionOrder.getByName(current.getAction()).getSequence()
+									> Constant.ActionOrder.getByName(previous.getAction()).getSequence()) {
 
-								return orderFacadeProxy.sendToUpdateOrder(
-										order.getOrderId(),
-										order.getEcommerceId(),
-										order.getExternalId(),
-										actionDto,
-										order.getServiceType(),
-										order.getServiceTypeShortCode(),
-										order.getClassImplement(),
-										order.getSource(),
-										order.getServiceChannel(),
-										order.getCompanyCode(),
-										order.getCenterCode(),
-										order.getStatusCode(),
-										order.getFirstName(),
-										order.getPhone(),
-										order.getScheduledTime(),
-										order.getSendNewFlow(),
-										order.getSendNotificationByChannel()
-								);
+									return current;
+								}
+
+								return previous;
 
 							})
-							.flatMap(response -> {
-								OrderTrackerResponseCanonical orderTrackerResponseCanonical = new OrderTrackerResponseCanonical();
-								orderTrackerResponseCanonical.setEcommerceId(response.getEcommerceId());
-								orderTrackerResponseCanonical.setStatusCode(response.getOrderStatus().getCode());
-								orderTrackerResponseCanonical.setStatusDescription(response.getOrderStatus().getName());
-								orderTrackerResponseCanonical.setStatusDetail(response.getOrderStatus().getDetail());
+                            .flatMap(statusLast -> {
 
-								return Flux.just(orderTrackerResponseCanonical);
+                                // Se envía el último estado para que se registre en la DB fulfillment y su tracker
+
+								ActionDto actionDto = new ActionDto();
+								actionDto.setAction(statusLast.getAction());
+								actionDto.setOrigin(orderSynchronizeDto.getOrigin());
+								actionDto.setOrderCancelCode(statusLast.getOrderCancelCode());
+								actionDto.setOrderCancelObservation(statusLast.getOrderCancelObservation());
+								actionDto.setMotorizedId(statusLast.getMotorizedId());
+								actionDto.setUpdatedBy(statusLast.getUpdatedBy());
+								actionDto.setActionDate(statusLast.getActionDate());
+
+
+								return orderFacadeProxy
+										.sendOnlyLastStatusOrderFromSync(iorder, actionDto)
+										.flatMap(orderCanonical -> {
+											orderCanonical.setAction(statusLast.getAction());
+
+											return Mono.just(orderCanonical);
+										});
+							})
+							.flatMap(orderStatusLast -> {
+
+                                return Flux
+                                        .fromIterable(orderSynchronizeDto.getHistory())
+                                        .sort(Comparator. comparing(obj -> Constant.ActionOrder.getByName(obj.getAction()).getSequence()))
+                                        .flatMap(orderHistory -> orderFacadeProxy.updateOrderStatusListAudit(iorder, orderStatusLast, orderHistory, orderSynchronizeDto.getOrigin()))
+                                        .filter(order ->  !order.getAction().equalsIgnoreCase(orderStatusLast.getAction()))
+                                        .flatMap(order -> {
+
+                                        	log.info("Sending status order to notification:{}",order.getEcommerceId());
+
+                                            ActionDto actionDto = new ActionDto();
+                                            actionDto.setAction(order.getAction());
+                                            actionDto.setOrigin(orderSynchronizeDto.getOrigin());
+
+                                            return orderFacadeProxy
+                                                        .processSendNotification(actionDto, iorder);
+
+
+                                        })
+										.defaultIfEmpty(true)
+										.buffer()
+										.flatMap(resultListStatus -> {
+											OrderTrackerResponseCanonical orderTrackerResponseCanonical = new OrderTrackerResponseCanonical();
+											orderTrackerResponseCanonical.setEcommerceId(iorder.getEcommerceId());
+											orderTrackerResponseCanonical.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
+
+											return Flux.just(orderTrackerResponseCanonical);
+										}).single();
 							});
-
-
-
-
-
-
-
 				});
 
 	}

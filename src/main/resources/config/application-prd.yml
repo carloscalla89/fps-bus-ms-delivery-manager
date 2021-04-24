@@ -9,6 +9,7 @@ spring:
 external-service:
   audit:
     create-order: http://us-audit/audit/order
+    create-order-history-audit: http://us-audit/audit/order/history
     update-order-history-audit: http://us-audit/audit/order/history
     connect-timeout: 10000
     read-timeout: 10000
@@ -112,4 +113,4 @@ external-service:
       
 api:
   insink:
-    stock: http://insink-aws.backend.inkafarma.pe/comanda-stock/{orderId}      
+    stock: http://10.86.1.57:8484/comanda-stock/{orderId}

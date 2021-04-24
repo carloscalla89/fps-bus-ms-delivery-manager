@@ -41,7 +41,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.external_purchase_id as externalId, " +
             "ops.center_code as centerCode, ops.company_code as companyCode," +
             "st.code as serviceTypeCode, st.name as serviceTypeName, st.type as serviceType, " +
-            "o.scheduled_time as scheduledTime " +
+            "o.scheduled_time as scheduledTime , st.class_implement as classImplement, " +
+            "st.send_new_flow_enabled as sendNewFlow " +
             "from order_fulfillment o " +
             "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
             "inner join order_status os on os.code = ops.order_status_code " +
@@ -84,7 +85,9 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "rt.name as receiptType, rt.document_number as documentNumberReceipt, rt.ruc as ruc, " +
             "rt.company_name as companyNameReceipt, rt.company_address as companyAddressReceipt, rt.receipt_note as noteReceipt," +
             "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, " +
-            "af.department, af.notes, af.latitude, af.longitude, o.partial " +
+            "af.department, af.notes, af.latitude, af.longitude, o.partial, " +
+            "o.subTotalWithNoSpecificPaymentMethod, o.totalWithNoSpecificPaymentMethod, o.totalWithPaymentMethod, " + // referentes a 3 precios
+            "o.paymentMethodCardType " + // referentes a 3 precios
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -147,7 +150,9 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "oi.unit_price as unitPrice, oi.total_price as totalPrice, oi.fractionated, oi.value_UMV as valueUmv, " +
             "oi.ean_code as eanCode, oi.presentation_id as presentationId, oi.presentation_description as presentationDescription, " +
             "oi.quantity_units as quantityUnits, oi.quantity_presentation as quantityPresentation, oi.quantity_unit_minimium as quantityUnitMinimium," +
-            "oi.family_type as familyType, oi.fractionated_price as fractionatedPrice, oi.fractional_discount as fractionalDiscount " +
+            "oi.family_type as familyType, oi.fractionated_price as fractionatedPrice, oi.fractional_discount as fractionalDiscount," +
+            "oi.priceList, oi.totalPriceList, oi.priceAllPaymentMethod, oi.totalPriceAllPaymentMethod, oi.priceWithpaymentMethod," +
+            "oi.totalPriceWithpaymentMethod, oi.crossOutPL, oi.paymentMethodCardType " +
             "from order_fulfillment_item oi " +
             "where oi.order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true
@@ -186,6 +191,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.confirmed_order as confirmedOrder, card.card_providerid as creditCardId, " +
             "paymet.payment_method_id as paymentMethodId, " +
             "pay.card_provider,pay.payment_type, " +
+            "(case when pay.payment_type = 'CASH_DOLAR' then 'dolar' else 'sol' end) as currency,"+
             "pay.payment_transaction_id as  transactionId " +
             "from order_fulfillment o inner join " +
             "payment_method pay on o.id=pay.order_fulfillment_id " +

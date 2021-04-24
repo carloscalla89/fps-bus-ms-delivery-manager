@@ -52,4 +52,6 @@ public interface OrderExternalService {
     Mono<Void> sendOrderReactive(OrderCanonical orderAuditCanonical);
 
     Mono<Void> sendNotification(MessageDto messageDto);
+
+    Mono<Void> createOrderNewAudit(AuditHistoryDto auditHistoryDto);
 }
