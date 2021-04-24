@@ -104,4 +104,9 @@ public class OrderFulfillment extends OrderEntity<Long> {
     private String posCode;
 
     private String stockType;
+
+    private BigDecimal subTotalWithNoSpecificPaymentMethod;
+    private BigDecimal totalWithNoSpecificPaymentMethod;
+    private BigDecimal totalWithPaymentMethod;
+    private String paymentMethodCardType;
 }

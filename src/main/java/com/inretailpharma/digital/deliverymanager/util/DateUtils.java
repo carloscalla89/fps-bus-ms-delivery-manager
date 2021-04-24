@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 
 public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
@@ -19,6 +20,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     private static final String DATETIME_TEMPLATE = "yyyy-MM-dd HH:mm:ss";
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_TEMPLATE);
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATETIME_TEMPLATE);
+
+    public static boolean validFormatDateTimeFormat(String dateTime) {
+
+        return GenericValidator.isDate(dateTime, DATETIME_TEMPLATE, true);
+
+    }
 
     public static String getFormatDateTimeTemplate() {
         return DATETIME_TEMPLATE;
@@ -36,6 +43,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return localDateTime.format(DateTimeFormatter.ofPattern(DATE_TEMPLATE));
     }
 
+    public static LocalDateTime getLocalDateTimeByInputString(String actionDate) {
+        return Optional
+                .ofNullable(actionDate)
+                .filter(DateUtils::validFormatDateTimeFormat)
+                .map(DateUtils::getLocalDateTimeFromStringWithFormat)
+                .orElseGet(DateUtils::getLocalDateTimeObjectNow);
+    }
 
     public static LocalTime getLocalTimeWithValidFormat(String localtime) {
 

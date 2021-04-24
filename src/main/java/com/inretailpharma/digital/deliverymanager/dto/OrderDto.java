@@ -71,4 +71,18 @@ public class OrderDto {
      * para identificar si el stock sale del local original(M=main) o de un local backup(B=backup)
      */
     private String stockType;
+
+    /**
+     * Fecha: 15/04/2021
+     * autor: Equipo Growth
+     * Campos referentes a 3 precios
+     */
+    private BigDecimal subTotalWithNoSpecificPaymentMethod;
+    private BigDecimal totalWithNoSpecificPaymentMethod;
+    private BigDecimal totalWithPaymentMethod;
+    private String paymentMethodCardType;
+
+
+
+
 }

@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -96,6 +97,8 @@ public class OrderCanonical {
     private BigDecimal localLatitude;
     private String inkaVentaId;
     private Long localId;
+
+    private StoreCenterCanonical storeCenter;
 
     // canonical client
     private ClientCanonical client;

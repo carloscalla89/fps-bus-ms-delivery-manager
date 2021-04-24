@@ -115,10 +115,25 @@ public class ObjectToMapper {
         auditHistoryDto.setSource(orderCanonical.getSource());
         auditHistoryDto.setTarget(orderCanonical.getTarget());
         auditHistoryDto.setStatusDetail(orderCanonical.getOrderStatus().getDetail());
-        auditHistoryDto.setTimeFromUi(DateUtils.getLocalDateTimeNow());
+        auditHistoryDto.setTimeFromUi(orderCanonical.getOrderStatus().getStatusDate() != null 
+        		? orderCanonical.getOrderStatus().getStatusDate() 
+        		: DateUtils.getLocalDateTimeNow());
         auditHistoryDto.setOrderNote(orderCanonical.getOrderStatus().getCancellationCode());
         auditHistoryDto.setCustomNote(orderCanonical.getOrderStatus().getCancellationObservation());
         auditHistoryDto.setUpdatedBy(updateBy);
+        auditHistoryDto.setLocalCode(orderCanonical.getLocalCode());
+        auditHistoryDto.setEndScheduleDate(
+                Optional.ofNullable(orderCanonical.getOrderDetail())
+                        .filter(res -> res.getConfirmedSchedule() != null && DateUtils.validFormatDateTimeFormat(res.getConfirmedSchedule()))
+                        .map(res -> DateUtils
+                                        .getLocalDateTimeWithFormat(
+                                                DateUtils
+                                                    .getLocalDateTimeFromStringWithFormat(
+                                                            res.getConfirmedSchedule()
+                                                    ).plusMinutes(Optional.ofNullable(res.getLeadTime()).orElse(0))
+                                        )
+                        ).orElse(null)
+        );
         return auditHistoryDto;
     }
 
@@ -259,6 +274,33 @@ public class ObjectToMapper {
         orderInkatrackerCanonical.setStockType(
                 Optional.ofNullable(iOrderFulfillment.getStockType())
                         .orElse(Constant.StockType.M.name()));
+
+        /**
+         * Fecha: 15/04/2021
+         * autor: Equipo Growth
+         * Campos referentes a 3 precios
+         */
+
+        orderInkatrackerCanonical.setSubTotalWithNoSpecificPaymentMethod(
+                Optional.ofNullable(iOrderFulfillment.getSubTotalWithNoSpecificPaymentMethod()).map(BigDecimal::doubleValue)
+                        .orElse(Constant.VALUE_ZERO_DOUBLE)
+        );
+
+        orderInkatrackerCanonical.setTotalWithNoSpecificPaymentMethod(
+                Optional.ofNullable(iOrderFulfillment.getTotalWithNoSpecificPaymentMethod()).map(BigDecimal::doubleValue)
+                        .orElse(Constant.VALUE_ZERO_DOUBLE)
+        );
+
+        orderInkatrackerCanonical.setTotalWithPaymentMethod(
+                Optional.ofNullable(iOrderFulfillment.getTotalWithPaymentMethod()).map(BigDecimal::doubleValue)
+                        .orElse(Constant.VALUE_ZERO_DOUBLE)
+        );
+
+        orderInkatrackerCanonical.setPaymentMethodCardType(
+                Optional.ofNullable(iOrderFulfillment.getPaymentMethodCardType())
+                        .orElse(Constant.VALUE_ZERO_STRING)
+        );
+        /** ********************* **/
 
         return orderInkatrackerCanonical;
     }
@@ -443,6 +485,8 @@ public class ObjectToMapper {
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name()))) {
 
+
+            /** inkatracker **/
             orderStatusInkatrackerCanonical.setCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
 
             orderStatusInkatrackerCanonical.setCancelDate(
@@ -451,16 +495,19 @@ public class ObjectToMapper {
                             .orElse(Timestamp.valueOf(LocalDateTime.now()).getTime())
             );
 
+
             orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
 
             orderStatusInkatrackerCanonical.setCustomNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
+                    Constant.CancellationStockDispatcher.getDetailCancelOrderForStock(status, orderCancelDescription,detail)
             );
 
             orderStatusInkatrackerCanonical.setCancelMessageNote(
                     Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
             );
+            /* *************** */
 
+            /** inkatracker-lite **/
             orderInkatrackerCanonical.setCancelDate(
                     Optional.ofNullable(iOrderFulfillment.getCancelledOrder())
                             .map(c -> Timestamp.valueOf(c).getTime())
@@ -469,8 +516,11 @@ public class ObjectToMapper {
 
             orderInkatrackerCanonical.setCancelReasonCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
             orderInkatrackerCanonical.setCancelMessageNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
+                    Constant.CancellationStockDispatcher.getDetailCancelOrderForStock(
+                            status, orderCancelDescription, detail)
             );
+
+            //
         }
 
         return orderStatusInkatrackerCanonical;
@@ -501,7 +551,20 @@ public class ObjectToMapper {
             canonical.setQuantityUnitMinimium(itemCanonical.getQuantityUnitMinimium());
             canonical.setValueUMV(itemCanonical.getValueUmv());
             canonical.setSap(itemCanonical.getProductSapCode());
-
+            /**
+             * Fecha: 15/04/2021
+             * autor: Equipo Growth
+             * Campos referentes a 3 precios
+             */
+            canonical.setPriceList(Optional.ofNullable(itemCanonical.getPriceList()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setTotalPriceList(Optional.ofNullable(itemCanonical.getTotalPriceList()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setPriceAllPaymentMethod(Optional.ofNullable(itemCanonical.getPriceAllPaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setTotalPriceAllPaymentMethod(Optional.ofNullable(itemCanonical.getTotalPriceAllPaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setPriceWithpaymentMethod(Optional.ofNullable(itemCanonical.getPriceWithpaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setTotalPriceWithpaymentMethod(Optional.ofNullable(itemCanonical.getTotalPriceWithpaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
+            canonical.setCrossOutPL(itemCanonical.getCrossOutPL());
+            canonical.setPaymentMethodCardType(Optional.ofNullable(itemCanonical.getPaymentMethodCardType()).orElse(Constant.VALUE_ZERO_STRING));
+            /** ** **/
             itemCanonicalList.add(canonical);
         }
         return itemCanonicalList;
@@ -660,6 +723,22 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setQuantityPresentation(r.getQuantityPresentation());
                     orderFulfillmentItem.setFamilyType(r.getFamilyType());
                     orderFulfillmentItem.setValueUMV(r.getValueUMV());
+
+                    /**
+                     * Fecha: 15/04/2021
+                     * autor: Equipo Growth
+                     * Campos referentes a 3 precios
+                     */
+                    orderFulfillmentItem.setPriceList(r.getPriceList());
+                    orderFulfillmentItem.setTotalPriceList(r.getTotalPriceList());
+                    orderFulfillmentItem.setPriceAllPaymentMethod(r.getPriceAllPaymentMethod());
+                    orderFulfillmentItem.setTotalPriceAllPaymentMethod(r.getTotalPriceAllPaymentMethod());
+                    orderFulfillmentItem.setPriceWithpaymentMethod(r.getPriceWithpaymentMethod());
+                    orderFulfillmentItem.setTotalPriceWithpaymentMethod(r.getTotalPriceWithpaymentMethod());
+                    orderFulfillmentItem.setCrossOutPL(r.isCrossOutPL());
+                    orderFulfillmentItem.setPaymentMethodCardType(r.getPaymentMethodCardType());
+
+                    /** ************ **/
                     return orderFulfillmentItem;
                 }).collect(Collectors.toList())
         );
@@ -723,6 +802,19 @@ public class ObjectToMapper {
         orderFulfillment.setNotes(orderDto.getNotes());
 
         orderFulfillment.setStockType(Constant.StockType.getByCode(orderDto.getStockType()).name());
+
+        /**
+         * Fecha: 15/04/2021
+         * autor: Equipo Growth
+         * Campos referentes a 3 precios
+         */
+
+        orderFulfillment.setSubTotalWithNoSpecificPaymentMethod(orderDto.getSubTotalWithNoSpecificPaymentMethod());
+        orderFulfillment.setTotalWithNoSpecificPaymentMethod(orderDto.getTotalWithNoSpecificPaymentMethod());
+        orderFulfillment.setTotalWithPaymentMethod(orderDto.getTotalWithPaymentMethod());
+        orderFulfillment.setPaymentMethodCardType(orderDto.getPaymentMethodCardType());
+
+        /** ************ **/
 
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
