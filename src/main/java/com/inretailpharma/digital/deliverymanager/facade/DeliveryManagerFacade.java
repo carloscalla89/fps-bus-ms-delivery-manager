@@ -199,7 +199,10 @@ public class DeliveryManagerFacade {
                                                                                         storeCenterCanonical
                                                                                 )
                                                                                 .flatMap(orderResp -> {
-                                                                                    log.info("Response status from dispatcher:{}", orderResp.getOrderStatus());
+
+                                                                                    log.info("Response status:{}, ecommerceId:{}, externalId:{} from dispatcher",
+                                                                                            orderResp.getOrderStatus(), orderResp.getEcommerceId(), orderResp.getExternalId());
+
                                                                                     if ((Constant
                                                                                             .OrderStatus
                                                                                             .getByCode(Optional
@@ -209,8 +212,9 @@ public class DeliveryManagerFacade {
                                                                                             ).isSuccess())) {
 
                                                                                         return orderFacadeProxy
-                                                                                                        .sendOrderToTracker(
+                                                                                                        .sendOrderToTrackerFromRetryDD(
                                                                                                                 iOrderFulfillmentLight,
+                                                                                                                orderResp.getExternalId(),
                                                                                                                 Optional.ofNullable(orderResp.getOrderStatus())
                                                                                                                         .filter(d -> !StringUtils.isEmpty(d.getDetail()))
                                                                                                                         .map(OrderStatusCanonical::getDetail)

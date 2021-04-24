@@ -151,6 +151,45 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     }
 
     @Override
+    public Mono<OrderCanonical> sendOrderToTrackerFromRetryDD(IOrderFulfillment iOrderFulfillment, Long externalId,
+                                                              String statusDetail, String statusName,
+                                                              String orderCancelCode, String orderCancelDescription,
+                                                              String orderCancelObservation, String updateBy) {
+        log.info("Send to create the order in tracker when its retried");
+
+        UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement());
+
+        return externalStoreService
+                .getStoreByCompanyCodeAndLocalCode(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
+                .flatMap(resultStore -> adapterTrackerInterface
+                        .sendOrderTracker(
+                                ((OrderExternalService)context.getBean(utilClass.getClassToTracker())),
+                                resultStore,
+                                iOrderFulfillment.getEcommerceId(),
+                                externalId,
+                                statusDetail,
+                                statusName,
+                                orderCancelCode,
+                                orderCancelDescription,
+                                orderCancelObservation
+                        ).flatMap(responses -> getOrderResponse(
+                                responses,
+                                iOrderFulfillment.getOrderId(),
+                                iOrderFulfillment.getEcommerceId(),
+                                iOrderFulfillment.getExternalId(),
+                                orderCancelCode,
+                                orderCancelObservation,
+                                iOrderFulfillment.getSource(),
+                                utilClass.getOnlyTargetComponentTracker(),
+                                iOrderFulfillment.getSendNewFlow(),
+                                updateBy,
+                                null
+                                )
+                        )
+                );
+    }
+
+    @Override
     public Mono<OrderCanonical> sendToUpdateOrder(IOrderFulfillment iOrderFulfillment, ActionDto actionDto) {
 
         log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, sendNewFlow:{}, serviceType:{}, " +
