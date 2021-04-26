@@ -22,6 +22,11 @@ public interface OrderFacadeProxy {
                                             String orderCancelDescription, String orderCancelObservation,
                                             String updateBy);
 
+    Mono<OrderCanonical> sendOrderToTrackerFromRetryDD(IOrderFulfillment iOrderFulfillment, Long externalId,
+                                                       String statusDetail, String statusName, String orderCancelCode,
+                                                       String orderCancelDescription, String orderCancelObservation,
+                                                       String updateBy);
+
     Mono<OrderCanonical> sendToUpdateOrder(IOrderFulfillment iOrderFulfillment, ActionDto actionDto);
 
     Mono<OrderCanonical> getOrderResponse(OrderCanonical orderCanonical, Long id, Long ecommerceId, Long externalId,
