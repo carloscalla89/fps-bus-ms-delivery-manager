@@ -131,8 +131,13 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
+	public Mono<Void> createOrderNewAudit(AuditHistoryDto auditHistoryDto) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public Mono<Void> updateOrderNewAudit(AuditHistoryDto orderCanonical) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -178,17 +183,7 @@ public class AbstractOrderService implements OrderExternalService {
 						orderStatus.setCode(orderStatusUtil.getCode());
 						orderStatus.setName(orderStatusUtil.name());
 						orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-						if (!statusDispatcher.isSuccessProcess()) {
-							String stringBuffer = "code error:" +
-									dispatcherResponse.getErrorCode() +
-									", description:" +
-									statusDispatcher.getDescription() +
-									", detail:" +
-									dispatcherResponse.getMessageDetail();
-
-							orderStatus.setDetail(stringBuffer);
-						}
+						orderStatus.setDetail(dispatcherResponse.getMessageDetail());
 
 						OrderCanonical resultCanonical = new OrderCanonical();
 						resultCanonical.setEcommerceId(ecommerceId);
@@ -201,7 +196,6 @@ public class AbstractOrderService implements OrderExternalService {
 						resultCanonical.setOrderStatus(orderStatus);
 
 						return Mono.just(resultCanonical);
-
 
 					});
 
@@ -346,5 +340,7 @@ public class AbstractOrderService implements OrderExternalService {
 
 		return Mono.just(orderCanonical);
 	}
+
+
 
 }

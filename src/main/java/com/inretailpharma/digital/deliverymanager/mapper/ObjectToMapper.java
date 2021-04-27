@@ -115,10 +115,25 @@ public class ObjectToMapper {
         auditHistoryDto.setSource(orderCanonical.getSource());
         auditHistoryDto.setTarget(orderCanonical.getTarget());
         auditHistoryDto.setStatusDetail(orderCanonical.getOrderStatus().getDetail());
-        auditHistoryDto.setTimeFromUi(DateUtils.getLocalDateTimeNow());
+        auditHistoryDto.setTimeFromUi(orderCanonical.getOrderStatus().getStatusDate() != null 
+        		? orderCanonical.getOrderStatus().getStatusDate() 
+        		: DateUtils.getLocalDateTimeNow());
         auditHistoryDto.setOrderNote(orderCanonical.getOrderStatus().getCancellationCode());
         auditHistoryDto.setCustomNote(orderCanonical.getOrderStatus().getCancellationObservation());
         auditHistoryDto.setUpdatedBy(updateBy);
+        auditHistoryDto.setLocalCode(orderCanonical.getLocalCode());
+        auditHistoryDto.setEndScheduleDate(
+                Optional.ofNullable(orderCanonical.getOrderDetail())
+                        .filter(res -> res.getConfirmedSchedule() != null && DateUtils.validFormatDateTimeFormat(res.getConfirmedSchedule()))
+                        .map(res -> DateUtils
+                                        .getLocalDateTimeWithFormat(
+                                                DateUtils
+                                                    .getLocalDateTimeFromStringWithFormat(
+                                                            res.getConfirmedSchedule()
+                                                    ).plusMinutes(Optional.ofNullable(res.getLeadTime()).orElse(0))
+                                        )
+                        ).orElse(null)
+        );
         return auditHistoryDto;
     }
 
@@ -470,6 +485,8 @@ public class ObjectToMapper {
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name()))) {
 
+
+            /** inkatracker **/
             orderStatusInkatrackerCanonical.setCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
 
             orderStatusInkatrackerCanonical.setCancelDate(
@@ -478,16 +495,19 @@ public class ObjectToMapper {
                             .orElse(Timestamp.valueOf(LocalDateTime.now()).getTime())
             );
 
+
             orderStatusInkatrackerCanonical.setCancelReasonCode(orderCancelCode);
 
             orderStatusInkatrackerCanonical.setCustomNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
+                    Constant.CancellationStockDispatcher.getDetailCancelOrderForStock(status, orderCancelDescription,detail)
             );
 
             orderStatusInkatrackerCanonical.setCancelMessageNote(
                     Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
             );
+            /* *************** */
 
+            /** inkatracker-lite **/
             orderInkatrackerCanonical.setCancelDate(
                     Optional.ofNullable(iOrderFulfillment.getCancelledOrder())
                             .map(c -> Timestamp.valueOf(c).getTime())
@@ -496,8 +516,11 @@ public class ObjectToMapper {
 
             orderInkatrackerCanonical.setCancelReasonCode(Optional.ofNullable(orderCancelCode).orElse("EXP"));
             orderInkatrackerCanonical.setCancelMessageNote(
-                    Constant.CancellationStockDispatcher.getDetailCancelStock(status, orderCancelDescription)
+                    Constant.CancellationStockDispatcher.getDetailCancelOrderForStock(
+                            status, orderCancelDescription, detail)
             );
+
+            //
         }
 
         return orderStatusInkatrackerCanonical;

@@ -41,7 +41,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.external_purchase_id as externalId, " +
             "ops.center_code as centerCode, ops.company_code as companyCode," +
             "st.code as serviceTypeCode, st.name as serviceTypeName, st.type as serviceType, " +
-            "o.scheduled_time as scheduledTime " +
+            "o.scheduled_time as scheduledTime , st.class_implement as classImplement, " +
+            "st.send_new_flow_enabled as sendNewFlow " +
             "from order_fulfillment o " +
             "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
             "inner join order_status os on os.code = ops.order_status_code " +
@@ -190,6 +191,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select o.confirmed_order as confirmedOrder, card.card_providerid as creditCardId, " +
             "paymet.payment_method_id as paymentMethodId, " +
             "pay.card_provider,pay.payment_type, " +
+            "(case when pay.payment_type = 'CASH_DOLAR' then 'dolar' else 'sol' end) as currency,"+
             "pay.payment_transaction_id as  transactionId " +
             "from order_fulfillment o inner join " +
             "payment_method pay on o.id=pay.order_fulfillment_id " +

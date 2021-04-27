@@ -15,5 +15,6 @@ public class ActionDto {
     private String motorizedId;
     private String updatedBy;
     private String origin;
+    private String actionDate;
     private List<InvoicedOrderDto> invoicedOrderList;
 }

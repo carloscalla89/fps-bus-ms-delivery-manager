@@ -67,11 +67,12 @@ public class DeliveryManagerFacade {
                 .zipWith(Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)), (storeCenter, orderFulfillment) -> {
 
                     OrderCanonical orderCanonicalResponse = orderTransaction
-                            .processOrderTransaction(
-                                    orderFulfillment,
-                                    orderDto,
-                                    storeCenter
-                            );
+                                                                .processOrderTransaction(
+                                                                        orderFulfillment,
+                                                                        orderDto,
+                                                                        storeCenter
+                                                                );
+                    orderCanonicalResponse.setStoreCenter(storeCenter);
 
                     orderFacadeProxy.createExternalAudit(
                             orderCanonicalResponse.getOrderDetail().isServiceSendNewFlowEnabled(),
@@ -90,7 +91,7 @@ public class DeliveryManagerFacade {
                             && checkIfOrderIsRoutable(order)) {
 
                         return orderFacadeProxy
-                                .sendOrderToTracker(
+                                .createOrderToTracker(
                                         order.getId(),
                                         order.getEcommerceId(),
                                         order.getExternalId(),
@@ -107,8 +108,7 @@ public class DeliveryManagerFacade {
                                                 .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
                                                 .orElse(null),
                                         null,
-                                        order.getCompanyCode(),
-                                        order.getLocalCode(),
+                                        order.getStoreCenter(),
                                         order.getSource(),
                                         order.getOrderDetail().isServiceSendNewFlowEnabled(),
                                         Constant.UPDATED_BY_INIT
@@ -170,19 +170,12 @@ public class DeliveryManagerFacade {
 
                     return orderFacadeProxy
                             .sendOrderToTracker(
-                                    iOrderFulfillmentLight.getOrderId(),
-                                    ecommercePurchaseId,
-                                    iOrderFulfillmentLight.getExternalId(),
-                                    iOrderFulfillmentLight.getClassImplement(),
+                                    iOrderFulfillmentLight,
                                     null,
                                     Constant.OrderStatus.CONFIRMED_TRACKER.name(),
                                     null,
                                     null,
                                     null,
-                                    iOrderFulfillmentLight.getCompanyCode(),
-                                    iOrderFulfillmentLight.getCenterCode(),
-                                    iOrderFulfillmentLight.getSource(),
-                                    iOrderFulfillmentLight.getSendNewFlow(),
                                     actionDto.getUpdatedBy()
                             );
 
@@ -199,110 +192,83 @@ public class DeliveryManagerFacade {
                                     iOrderFulfillmentCase2.getCompanyCode(), iOrderFulfillmentCase2.getCenterCode()
                             )
                             .flatMap(storeCenterCanonical -> orderExternalServiceDispatcher
-                                    .sendOrderEcommerce(
-                                            iOrderFulfillmentCase2,
-                                            orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillmentCase2.getOrderId()),
-                                            action.name(),
-                                            storeCenterCanonical
-                                    )
-                                    .flatMap(orderResp -> {
-                                        log.info("Response status from dispatcher:{}", orderResp.getOrderStatus());
-                                        if ((Constant
-                                                .OrderStatus
-                                                .getByCode(Optional
-                                                        .ofNullable(orderResp.getOrderStatus())
-                                                        .map(OrderStatusCanonical::getCode)
-                                                        .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
-                                                ).isSuccess())) {
+                                                                                .sendOrderEcommerce(
+                                                                                        iOrderFulfillmentCase2,
+                                                                                        orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillmentCase2.getOrderId()),
+                                                                                        action.name(),
+                                                                                        storeCenterCanonical
+                                                                                )
+                                                                                .flatMap(orderResp -> {
 
+                                                                                    log.info("Response status:{}, ecommerceId:{}, externalId:{} from dispatcher",
+                                                                                            orderResp.getOrderStatus(), orderResp.getEcommerceId(), orderResp.getExternalId());
 
+                                                                                    if ((Constant
+                                                                                            .OrderStatus
+                                                                                            .getByCode(Optional
+                                                                                                    .ofNullable(orderResp.getOrderStatus())
+                                                                                                    .map(OrderStatusCanonical::getCode)
+                                                                                                    .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
+                                                                                            ).isSuccess())) {
 
-                                            return orderFacadeProxy
-                                                    .sendOrderToTracker(
-                                                            iOrderFulfillmentLight.getOrderId(),
-                                                            ecommercePurchaseId,
-                                                            orderResp.getExternalId(),
-                                                            iOrderFulfillmentLight.getClassImplement(),
+                                                                                        return orderFacadeProxy
+                                                                                                        .sendOrderToTrackerFromRetryDD(
+                                                                                                                iOrderFulfillmentLight,
+                                                                                                                orderResp.getExternalId(),
+                                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                                        .filter(d -> !StringUtils.isEmpty(d.getDetail()))
+                                                                                                                        .map(OrderStatusCanonical::getDetail)
+                                                                                                                        .orElse(null),
 
-                                                            Optional.ofNullable(orderResp.getOrderStatus())
-                                                                    .filter(d -> !StringUtils.isEmpty(d.getDetail()))
-                                                                    .map(OrderStatusCanonical::getDetail)
-                                                                    .orElse(null),
+                                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                                        .filter(r -> r.getName().equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
+                                                                                                                        .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
+                                                                                                                        .orElse(Optional.ofNullable(orderResp.getOrderStatus()).map(OrderStatusCanonical::getName).orElse(null)),
 
-                                                            Optional.ofNullable(orderResp.getOrderStatus())
-                                                                    .filter(r -> r.getName().equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
-                                                                    .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
-                                                                    .orElse(Optional.ofNullable(orderResp.getOrderStatus()).map(OrderStatusCanonical::getName).orElse(null)),
+                                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                                        .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
+                                                                                                                        .orElse(null),
 
-                                                            Optional.ofNullable(orderResp.getOrderStatus())
-                                                                    .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
-                                                                    .orElse(null),
+                                                                                                                Optional.ofNullable(orderResp.getOrderStatus())
+                                                                                                                        .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
+                                                                                                                        .orElse(null),
+                                                                                                                null,
+                                                                                                                actionDto.getUpdatedBy()
+                                                                                                        );
 
-                                                            Optional.ofNullable(orderResp.getOrderStatus())
-                                                                    .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
-                                                                    .orElse(null),
-                                                            null,
-                                                            iOrderFulfillmentLight.getCompanyCode(),
-                                                            iOrderFulfillmentLight.getCenterCode(),
-                                                            iOrderFulfillmentLight.getSource(),
-                                                            iOrderFulfillmentLight.getSendNewFlow(),
-                                                            actionDto.getUpdatedBy()
+                                                                                    } else {
 
-                                                    );
+                                                                                        return orderFacadeProxy
+                                                                                                .getOrderResponse(
+                                                                                                        orderResp,
+                                                                                                        iOrderFulfillmentLight.getOrderId(),
+                                                                                                        iOrderFulfillmentLight.getEcommerceId(),
+                                                                                                        null,
+                                                                                                        null,
+                                                                                                        null,
+                                                                                                        iOrderFulfillmentLight.getSource(),
+                                                                                                        Constant.TARGET_INSINK,
+                                                                                                        iOrderFulfillmentLight.getSendNewFlow(),
+                                                                                                        actionDto.getUpdatedBy(),
+                                                                                                        null
+                                                                                                );
 
-                                        } else {
+                                                                                    }
 
-                                            return orderFacadeProxy
-                                                    .getOrderResponse(
-                                                            orderResp,
-                                                            iOrderFulfillmentLight.getOrderId(),
-                                                            iOrderFulfillmentLight.getEcommerceId(),
-                                                            null,
-                                                            null,
-                                                            null,
-                                                            iOrderFulfillmentLight.getSource(),
-                                                            Constant.TARGET_INSINK,
-                                                            iOrderFulfillmentLight.getSendNewFlow(),
-                                                            actionDto.getUpdatedBy()
-                                                    );
-
-                                        }
-
-                                    })
+                                                                                })
                             );
 
                 case 4:
 
-                    return orderFacadeProxy
-                            .sendToUpdateOrder(
-                                    iOrderFulfillmentLight.getOrderId(),
-                                    iOrderFulfillmentLight.getEcommerceId(),
-                                    iOrderFulfillmentLight.getExternalId(),
-                                    actionDto,
-                                    iOrderFulfillmentLight.getServiceType(),
-                                    iOrderFulfillmentLight.getServiceTypeShortCode(),
-                                    iOrderFulfillmentLight.getClassImplement(),
-                                    iOrderFulfillmentLight.getSource(),
-                                    iOrderFulfillmentLight.getServiceChannel(),
-                                    iOrderFulfillmentLight.getCompanyCode(),
-                                    iOrderFulfillmentLight.getCenterCode(),
-                                    iOrderFulfillmentLight.getStatusCode(),
-                                    iOrderFulfillmentLight.getFirstName(),
-                                    iOrderFulfillmentLight.getPhone(),
-                                    iOrderFulfillmentLight.getScheduledTime(),
-                                    iOrderFulfillmentLight.getSendNewFlow(),
-                                    iOrderFulfillmentLight.getSendNotificationByChannel()
-                            );
+                    return orderFacadeProxy.sendToUpdateOrder(iOrderFulfillmentLight, actionDto);
 
                 case 5:
                     // action to fill order from ecommerce
                     log.info("Action to fill order {} from ecommerce:", ecommercePurchaseId);
 
-                    OrderExternalService orderExternalDispatcher = (OrderExternalService) context.getBean(
-                            Constant.DispatcherImplementation.getByCompanyCode(actionDto.getCompanyCode()).getName()
-                    );
-
-                    return orderExternalDispatcher
+                    return ((OrderExternalService)context
+                                                    .getBean(Constant.DispatcherImplementation.getByCompanyCode(actionDto.getCompanyCode()).getName())
+                            )
                             .getOrderFromEcommerce(ecommercePurchaseId)
                             .flatMap(this::createOrder)
                             .defaultIfEmpty(
@@ -394,6 +360,7 @@ public class DeliveryManagerFacade {
                             .creditCardId(orderResponseFulfillment.getCreditCardId())
                             .paymentMethodId(orderResponseFulfillment.getPaymentMethodId())
                             .confirmedOrder(orderResponseFulfillment.getConfirmedOrder())
+                            .currency(orderResponseFulfillment.getCurrency())
                             .build();
                     log.info("END FACADE getOrderByOrderNumber:" + orderNumber);
                     return Mono.just(orderResponseCanonical);

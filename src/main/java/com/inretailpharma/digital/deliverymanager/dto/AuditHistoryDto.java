@@ -18,6 +18,8 @@ public class AuditHistoryDto {
     private String statusDetail;
     private String orderNote;
     private String customNote;
+    private String localCode;
+    private String endScheduleDate;
     private String updatedBy;
 
 }

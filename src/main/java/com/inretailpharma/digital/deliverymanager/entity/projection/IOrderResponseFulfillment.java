@@ -7,6 +7,7 @@ public interface IOrderResponseFulfillment {
     String getTransactionOrderDate();
     String getPurchaseNumber();
     String getPosCode();
+    String getCurrency();
     Long getPaymentMethodId();
     Long getCreditCardId();
     String getConfirmedOrder();
