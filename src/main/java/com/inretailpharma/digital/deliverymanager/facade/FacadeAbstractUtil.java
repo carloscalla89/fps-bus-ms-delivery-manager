@@ -1,6 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -8,13 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 public abstract class FacadeAbstractUtil {
 
     @Autowired
     private OrderTransaction orderTransaction;
+
+    @Autowired
+    private ObjectToMapper objectToMapper;
 
     protected Mono<OrderCanonical> updateOrderInfulfillment(OrderCanonical orderCanonical, Long id, Long ecommerceId,
                                                             Long externalId, String orderCancelCode,
@@ -67,5 +74,25 @@ public abstract class FacadeAbstractUtil {
 
         return Mono.just(orderCanonical);
 
+    }
+
+    protected OrderCanonical getOrderFromIOrdersProjects(Long ecommerceId) {
+
+        return getOrderFromIOrdersProjects(orderTransaction.getOrderByecommerceId(ecommerceId));
+
+    }
+
+    protected OrderCanonical getOrderFromIOrdersProjects(IOrderFulfillment iOrderFulfillment) {
+
+        return objectToMapper
+                .getOrderFromIOrdersProjects(
+                        iOrderFulfillment,
+                        orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId())
+                );
+
+    }
+
+    protected List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommerceIds) {
+        return orderTransaction.getOrderLightByecommercesIds(ecommerceIds);
     }
 }

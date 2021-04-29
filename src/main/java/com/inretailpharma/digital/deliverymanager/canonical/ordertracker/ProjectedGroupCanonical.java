@@ -11,6 +11,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProjectedGroupCanonical implements Serializable {
 
+    private String updateBy;
     private String groupName;
     private String motorizedId;
     private Integer projectedEtaReturn;

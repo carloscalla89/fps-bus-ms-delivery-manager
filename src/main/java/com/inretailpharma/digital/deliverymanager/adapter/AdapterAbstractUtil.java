@@ -66,9 +66,6 @@ public abstract class AdapterAbstractUtil {
 
     }
 
-    protected OrderCanonical getOrderByEcommerceId(IOrderFulfillment iOrderFulfillment) {
-        return objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
-    }
     protected IOrderFulfillment getOrderByEcommerceId(Long ecommercePurchaseId) {
         return orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
     }

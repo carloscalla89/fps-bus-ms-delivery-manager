@@ -24,9 +24,4 @@ public interface AdapterInterface {
                                    String brand, String localCode, String localTypeCode, String phoneNumber,
                                    String clientName, String expiredDate, String confirmedDate, String address);
 
-    Mono<OrderCanonical> getOrder(IOrderFulfillment iOrderFulfillment);
-
-
-
-
 }

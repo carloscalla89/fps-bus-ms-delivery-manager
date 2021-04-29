@@ -3,7 +3,6 @@ package com.inretailpharma.digital.deliverymanager.facade;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
@@ -15,7 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+
 
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.GroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
@@ -23,9 +22,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTr
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
@@ -38,31 +34,16 @@ import reactor.core.scheduler.Schedulers;
 @Component
 public class TrackerFacade extends FacadeAbstractUtil{
 
-	private OrderTransaction orderTransaction;
-	private ObjectToMapper objectToMapper;
-	private OrderExternalService orderExternalOrderTracker;
-	private OrderExternalService orderExternalServiceAudit;
 	private OrderFacadeProxy orderFacadeProxy;
-	private AdapterInterface adapterInterface;
 	private OrderCancellationService orderCancellationService;
 
 	private ITrackerAdapter iOrderTrackerAdapter;
 	private IAuditAdapter iAuditAdapter;
 
 	@Autowired
-	public TrackerFacade(OrderTransaction orderTransaction,
-						 ObjectToMapper objectToMapper,
-						 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
-						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
-						 @Qualifier("trackeradapter") AdapterInterface adapterInterface,
-						 @Qualifier("orderTrackerAdapter") ITrackerAdapter iOrderTrackerAdapter,
+	public TrackerFacade(@Qualifier("orderTrackerAdapter") ITrackerAdapter iOrderTrackerAdapter,
 						 @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
 						 OrderFacadeProxy orderFacadeProxy, OrderCancellationService orderCancellationService) {
-		this.orderTransaction = orderTransaction;
-		this.objectToMapper = objectToMapper;
-		this.orderExternalOrderTracker = orderExternalOrderTracker;
-		this.orderExternalServiceAudit = orderExternalServiceAudit;
-		this.adapterInterface = adapterInterface;
 		this.orderFacadeProxy = orderFacadeProxy;
 		this.iOrderTrackerAdapter = iOrderTrackerAdapter;
 		this.iAuditAdapter = iAuditAdapter;
@@ -72,96 +53,92 @@ public class TrackerFacade extends FacadeAbstractUtil{
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {   
     	
     	log.info("[START] assign orders to external tracker");
-    	
-    	List<Long> notMappedOrders = new ArrayList<>();
-    	
-    	return Flux.fromIterable(projectedGroupCanonical.getGroup())
-    		.parallel()
-            .runOn(Schedulers.elastic())
-	    	.map(group -> {
-  		
-		    		OrderCanonical orderCanonical = getOrder(group.getOrderId());
-	                
-	                Optional.ofNullable(group.getPickUpDetails()).ifPresent(pickUpDetails -> {
-	                	orderCanonical.setShelfList(pickUpDetails.getShelfList());
-	                	orderCanonical.setPayBackEnvelope(pickUpDetails.getPayBackEnvelope());
-	                }); 
-	                
-	                group.setOrder(orderCanonical);
 
-	                return group;
-	    	})
-	    	.sequential()
-	    	.onErrorContinue((ex, group) -> {
-	    		if (group instanceof GroupCanonical) {
-	    			Long orderId = ((GroupCanonical)group).getOrderId();
-	    			notMappedOrders.add(orderId);
-	    			log.error("[ERROR] assign orders to external tracker {} - " , orderId, ex);
-	    		} else {
-	    			log.error("[ERROR] assign orders to external tracker {} - " , group, ex);
-	    		}
-	    	})
-	    	.collectList()
-	    	.flatMap(allGroups -> {
-	    		log.info("[START] assign orders from group {} to external tracker", projectedGroupCanonical.getGroupName());
-	    		log.info("assign orders - mapped orders {}", allGroups.stream().map(GroupCanonical::getOrderId).collect(Collectors.toList()));
-	    		log.info("assign orders - not mapped orders {}", notMappedOrders);
-	    		
-	    		OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
+    	return getOrderByEcommerceIds(
+    				projectedGroupCanonical
+							.getGroup()
+							.stream()
+							.map(GroupCanonical::getOrderId)
+							.collect(Collectors.toSet())
+				)
+				.flatMap(order -> {
 
-	    		ProjectedGroupCanonical newProjectedGroupCanonical = new ProjectedGroupCanonical();
-	    		newProjectedGroupCanonical.setGroup(allGroups);
-	    		newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
-	    		newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
-	    		newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
-	    		
-	    		return orderExternalOrderTracker
-							.assignOrders(newProjectedGroupCanonical)
+					GroupCanonical group =  projectedGroupCanonical
+												.getGroup()
+												.stream()
+												.filter(r -> r.getOrderId().equals(order.getEcommerceId()))
+												.findFirst()
+												.get();
 
+					Optional.ofNullable(group.getPickUpDetails()).ifPresent(pickUpDetails -> {
+						order.setShelfList(pickUpDetails.getShelfList());
+						order.setPayBackEnvelope(pickUpDetails.getPayBackEnvelope());
+					});
 
+					group.setOrder(order);
 
-							.map(r -> {
-								log.info("#assign orders from group {} to external tracker - response: {}"
-										, projectedGroupCanonical.getGroupName(), r);
-
-								if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(r.getAssigmentSuccessful())) {
-
-									List<Long> allFailedOrders = new ArrayList<>();
-									r.getCreatedOrders().forEach(orderId -> auditOrder(orderId, Constant.OrderStatus.ASSIGNED));
-									r.getFailedOrders().forEach(order -> {
-										auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, order.getReason());
-										allFailedOrders.add(order.getOrderId());
-									});
-									notMappedOrders.forEach(orderId -> {
-										auditOrder(orderId, Constant.OrderStatus.ERROR_ASSIGNED);
-										allFailedOrders.add(orderId);
-									});
-
-									response.setStatusCode(
-											allFailedOrders.isEmpty() ? Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE
-													: Constant.OrderTrackerResponseCode.ASSIGN_PARTIAL_CODE
-									);
-									response.setFailedOrders(allFailedOrders);
-
-								} else {
-									allGroups.stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED));
-
-									response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
-									response.setFailedOrders(allGroups.stream().map(GroupCanonical::getOrderId).collect(Collectors.toList())
-									);
-								}
-								return response;
-							});
+					return Flux.just(group);
 
 				})
-				.onErrorResume(ex -> {
-					log.error("[ERROR] assign orders to external tracker", ex);
-					projectedGroupCanonical.getGroup().stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, ex.getMessage()));
+				.buffer()
+				.flatMap(allGroups -> {
+
+					ProjectedGroupCanonical newProjectedGroupCanonical = new ProjectedGroupCanonical();
+					newProjectedGroupCanonical.setGroup(allGroups);
+					newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
+					newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
+					newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
+
+					return ((OrderTrackerAdapter)iOrderTrackerAdapter)
+								.assignOrders(newProjectedGroupCanonical, allGroups);
+
+
+				})
+				.flatMap(result ->
+						updateOrderInfulfillment(
+								result, result.getEcommerceId(), Constant.ORIGIN_TRACKER, Constant.TARGET_ORDER_TRACKER,
+								projectedGroupCanonical.getUpdateBy(), null)
+				)
+				.flatMap(result -> iAuditAdapter.updateAudit(result, projectedGroupCanonical.getUpdateBy()))
+				.buffer()
+				.flatMap(resultFinal -> {
+					log.info("The processs of assigned is success:{}",resultFinal);
+
 					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
-					response.setFailedOrders(projectedGroupCanonical.getGroup().stream().map(GroupCanonical::getOrderId).collect(Collectors.toList()));
-					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
+					response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
+
 					return Mono.just(response);
-				});
+				})
+				.switchIfEmpty(Flux.defer(() -> {
+					log.error("The process of assigned is empty");
+
+					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+					response.setDetail("The process of assigned is empty");
+					response.setFailedOrders(
+							projectedGroupCanonical
+									.getGroup().stream().map(GroupCanonical::getOrderId)
+									.collect(Collectors.toList())
+					);
+					return Mono.just(response);
+
+				}))
+				.onErrorResume(e -> {
+					e.printStackTrace();
+					log.error("The process of assigned is failed");
+
+					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+					response.setDetail("The process of assigned has failed - detail:"+e.getMessage());
+					response.setFailedOrders(
+							projectedGroupCanonical
+									.getGroup().stream().map(GroupCanonical::getOrderId)
+									.collect(Collectors.toList())
+					);
+
+					return Mono.just(response);
+				})
+				.single();
 	}
 
 	public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
@@ -209,13 +186,11 @@ public class TrackerFacade extends FacadeAbstractUtil{
 	public Flux<OrderTrackerResponseCanonical>  synchronizeOrderStatus(List<OrderSynchronizeDto> ordersList) {
 		log.info("[START] synchronizeOrderStatus list:{}",ordersList);
 
-		List<IOrderFulfillment> iOrdersFulfillment = orderTransaction
-														.getOrderLightByecommercesIds(
-																ordersList
-																		.stream()
-																		.map(OrderSynchronizeDto::getEcommerceId)
-																		.collect(Collectors.toSet())
-														);
+		List<IOrderFulfillment> iOrdersFulfillment = getOrderLightByecommercesIds(
+															ordersList
+																	.stream()
+																	.map(OrderSynchronizeDto::getEcommerceId)
+																	.collect(Collectors.toSet()));
 
 		return Flux
 				.fromIterable(iOrdersFulfillment)
@@ -281,7 +256,6 @@ public class TrackerFacade extends FacadeAbstractUtil{
                                             return orderFacadeProxy
                                                         .processSendNotification(actionDto, iorder);
 
-
                                         })
 										.defaultIfEmpty(true)
 										.buffer()
@@ -297,56 +271,21 @@ public class TrackerFacade extends FacadeAbstractUtil{
 
 	}
 
-	private OrderCanonical getOrder(Long orderId) {
-		IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(orderId);
-		OrderCanonical orderCanonical = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderDto);
-
-		List<IOrderItemFulfillment> orderItemDtoList = orderTransaction.getOrderItemByOrderFulfillmentId(orderDto.getOrderId());
-		List<OrderItemCanonical> orderItemCanonicalList = orderItemDtoList.stream()
-				.map(o -> objectToMapper.convertIOrderItemDtoToOrderItemFulfillmentCanonical(o, orderDto.getPartial()))
-				.collect(Collectors.toList());		
-		
-		orderCanonical.setOrderItems(orderItemCanonicalList);
-		
-		return orderCanonical;
-    }
-    
-    private void auditOrder(Long ecommerceId, Constant.OrderStatus status) {
-    	orderExternalServiceAudit.updateOrderReactive(
-        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), null)).subscribe();
-    }
-    
-    private void auditOrder(Long ecommerceId, Constant.OrderStatus status, String detail) {
-    	orderExternalServiceAudit.updateOrderReactive(
-        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), detail)).subscribe();
-    }
-
-
 	public Mono<OrderCanonical> getOrderByEcommerceId(Long ecommerceId) {
 
-		IOrderFulfillment iOrderFulfillmentLight = orderTransaction.getOrderLightByecommerceId(ecommerceId);
-
-		return Optional
-				.ofNullable(iOrderFulfillmentLight)
-				.map(order -> adapterInterface.getOrder(order))
-				.orElse(Mono.empty());
+		return Optional.ofNullable(getOrderFromIOrdersProjects(ecommerceId)).map(Mono::just) .orElse(Mono.empty());
 
 	}
 
-	public Flux<OrderCanonical> getOrderByEcommerceIds(String ecommerceIds) {
+	public Flux<OrderCanonical> getOrderByEcommerceIds(Set<Long> ecommerceIds) {
 		log.info("getOrderByEcommerceIds:{}",ecommerceIds);
 
 		return Flux
-				.fromIterable(orderTransaction
-						.getOrderLightByecommercesIds(
-								Arrays.stream(ecommerceIds.split(",")).map(Long::parseLong).collect(Collectors.toSet())
-						))
+				.fromIterable(getOrderLightByecommercesIds(ecommerceIds))
 				.parallel()
 				.runOn(Schedulers.elastic())
-				.flatMap(orders -> {
-					log.info("in orders flux");
-					return adapterInterface.getOrder(orders).flux();
-				}).ordered((o1,o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
+				.flatMap(orders -> Flux.just(getOrderFromIOrdersProjects(orders)))
+				.ordered((o1, o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
 
 	}
 }

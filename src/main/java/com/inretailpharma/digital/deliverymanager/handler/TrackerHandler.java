@@ -14,6 +14,9 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Component
 public class TrackerHandler extends AbstractValidationHandler<OrderDto, CustomRequestEntityValidator> {
@@ -66,7 +69,10 @@ public class TrackerHandler extends AbstractValidationHandler<OrderDto, CustomRe
         return ServerResponse
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(trackerFacade.getOrderByEcommerceIds(ecommerceIds), OrderCanonical.class)
+                .body(trackerFacade
+                        .getOrderByEcommerceIds(
+                                Arrays.stream(ecommerceIds.split(","))
+                                .map(Long::parseLong).collect(Collectors.toSet())), OrderCanonical.class)
                 .onErrorResume(e -> {
 
                     e.printStackTrace();

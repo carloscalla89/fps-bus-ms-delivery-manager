@@ -51,11 +51,4 @@ public class AdapterAbstract implements AdapterInterface{
                                        String clientName, String expiredDate, String confirmedDate, String address){
         return null;
     }
-
-    @Override
-    public Mono<OrderCanonical> getOrder(IOrderFulfillment iOrderFulfillment) {
-        return null;
-    }
-
-
 }
