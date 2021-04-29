@@ -32,14 +32,6 @@ public class AdapterAbstract implements AdapterInterface{
     protected OrderExternalService orderExternalServiceAudit;
 
     @Override
-    public Mono<OrderCanonical> sendOrderTracker(OrderExternalService orderExternalService, StoreCenterCanonical storeCenter,
-                                                 Long ecommercePurchaseId, Long externalId, String statusDetail, String statusName,
-                                                 String orderCancelCode, String orderCancelDescription,
-                                                 String orderCancelObservation) {
-        return null;
-    }
-
-    @Override
     public Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService,
                                                               Long ecommerceId, ActionDto actionDto, String company,
                                                               String serviceType, Long orderId, String orderCancelCode,

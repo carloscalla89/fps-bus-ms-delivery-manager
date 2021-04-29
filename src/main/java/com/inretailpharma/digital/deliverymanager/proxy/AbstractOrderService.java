@@ -82,12 +82,6 @@ public class AbstractOrderService implements OrderExternalService {
 		return null;
 	}
 
-	@Override
-	public Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
-												   List<IOrderItemFulfillment> itemFulfillments, String action,
-												   StoreCenterCanonical storeCenterCanonical){
-		throw new UnsupportedOperationException();
-	}
 
 	@Override
 	public Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
@@ -115,11 +109,7 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
-		return null;
-	}
-	
+
 	@Override
 	public Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long EcommerceId) {
 		throw new UnsupportedOperationException();
@@ -144,6 +134,7 @@ public class AbstractOrderService implements OrderExternalService {
 	public Mono<StoreCenterCanonical> getStoreByCompanyCodeAndLocalCode(String companyCode, String localcode) {
 		throw new UnsupportedOperationException();
 	}
+
 
 	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, long readTimeOut) {
 		log.info("generateClientConnector, connectionTimeOut:{}, readTimeOut:{}",connectionTimeOut,readTimeOut);

@@ -59,22 +59,6 @@ public class TrackerRest {
 
     }
 
-    @PatchMapping(value = "/order/{ecommerceId}/status/{status}")
-    public ResponseEntity<Mono<OrderTrackerResponseCanonical>> updateOrderStatus(
-            @PathVariable(name = "ecommerceId") Long ecommerceId,
-            @PathVariable(name = "status") String status) {
-
-        log.info("[START] endpoint /order/{ecommerceId}/status/{status} " +
-                "- ecommerceId {} - status:{}", ecommerceId, status);
-
-        return new ResponseEntity<>(
-                trackerFacade.updateOrderStatus(ecommerceId, status)
-                        .subscribeOn(Schedulers.parallel()),
-                HttpStatus.OK
-        );
-
-    }
-
     @PostMapping(value = "/order")
     public ResponseEntity<Mono<OrderTrackerResponseCanonical>> sendOrder(
             @RequestBody OrderToAssignCanonical orderToAssignCanonical) {

@@ -33,9 +33,7 @@ public interface OrderExternalService {
                                             String statusName, String orderCancelCode, String orderCancelDescription,
                                             String orderCancelObservation);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical);
-    Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
-                                            List<IOrderItemFulfillment> itemFulfillments, String action,
-                                            StoreCenterCanonical storeCenterCanonical);
+
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
     Mono<String> updateOrderStatus(Long ecommerceId, String status);
@@ -43,7 +41,6 @@ public interface OrderExternalService {
     Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source,
                                                                     String serviceTypeShortCode, String companyCode,
                                                                     ActionDto actionDto);
-    Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId);
     Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long ecommerceId);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto);
     Mono<Void> updateOrderNewAudit(AuditHistoryDto orderCanonical);

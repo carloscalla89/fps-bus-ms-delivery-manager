@@ -1,6 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.util;
 
+import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapterImpl;
+import com.inretailpharma.digital.deliverymanager.adapter.TrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.TrackerAdapterImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderTrackerServiceImpl;
 import lombok.Data;
@@ -39,7 +41,7 @@ public class UtilClass {
 
     public String getOnlyTargetComponentTracker() {
 
-        return Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getTargetName();
+        return Constant.TrackerImplementation.getClassImplement(classImplementTracker).getTargetName();
 
     }
 
@@ -47,8 +49,10 @@ public class UtilClass {
 
         log.info("class implementation:{}", classType.getSimpleName());
 
-        if (classType.getSimpleName().equalsIgnoreCase("TrackerAdapterImpl")) {
-            return Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getTrackerImplement();
+        if (classType.getSimpleName().equalsIgnoreCase("trackerAdapter")) {
+
+            return Constant.TrackerImplementation.getClassImplement(classImplementTracker).getTrackerImplement();
+
         } else {
             return OrderTrackerServiceImpl.class;
         }
@@ -57,14 +61,16 @@ public class UtilClass {
 
     public Class<?> getClassToTracker() {
 
-        return Constant.TrackerImplementation.getIdByClassImplement(classImplementTracker).getTrackerImplement();
+        return Constant.TrackerImplementation.getClassImplement(classImplementTracker).getTrackerImplement();
 
     }
 
     public List<Class<?>> getClassesToSend() {
 
+
+
         if (serviceType.equalsIgnoreCase(Constant.PICKUP)) {
-            return Collections.singletonList(TrackerAdapterImpl.class);
+            return Collections.singletonList(TrackerAdapter.class);
 
         } else {
 
@@ -74,10 +80,10 @@ public class UtilClass {
             switch (actionName) {
 
                 case Constant.PREPARE_ORDER:
-                    classList.add(TrackerAdapterImpl.class);
+                    classList.add(TrackerAdapter.class);
 
                     if (sendNewFlow && !Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
-                        classList.add(OrderTrackerAdapterImpl.class);
+                        classList.add(OrderTrackerAdapter.class);
                     }
 
                     break;
@@ -88,7 +94,7 @@ public class UtilClass {
                 case Constant.ARRIVAL_ORDER:
                 case Constant.INVOICED_ORDER:
 
-                    classList.add(TrackerAdapterImpl.class);
+                    classList.add(TrackerAdapter.class);
 
                     break;
 
@@ -104,7 +110,7 @@ public class UtilClass {
                         // aquí entra cuando la orden se entrega o rechaza desde el omnidelivery
                         // se cancela desde el pos unificado y la orden no se ha pickeado aún
 
-                        classList.add(TrackerAdapterImpl.class);
+                        classList.add(TrackerAdapter.class);
 
                     } else {
                         // casos:
@@ -113,10 +119,10 @@ public class UtilClass {
                         // cuando se pone como entregada o cancelado desde el pos
                         // cuando se rechaza desde el inkatracker web
                         // cuando lo ejecuta el módulo de BBR
-                        classList.add(TrackerAdapterImpl.class);
+                        classList.add(TrackerAdapter.class);
 
                         if (sendNewFlow || Constant.ORIGIN_BBR.equalsIgnoreCase(origin)) {
-                            classList.add(OrderTrackerAdapterImpl.class);
+                            classList.add(OrderTrackerAdapter.class);
                         }
                     }
 

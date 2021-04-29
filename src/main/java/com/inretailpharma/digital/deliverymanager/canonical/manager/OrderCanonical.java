@@ -135,4 +135,6 @@ public class OrderCanonical {
     private String action;
     private Boolean partial;
 
+    private String updateBy;
+
 }

@@ -152,7 +152,7 @@ public interface Constant {
             return targetName;
         }
 
-        public static TrackerImplementation getIdByClassImplement(String classImplement) {
+        public static TrackerImplementation getClassImplement(String classImplement) {
 
             return EnumUtils.getEnumList(TrackerImplementation.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(classImplement)).findFirst().orElse(NONE);
@@ -208,45 +208,47 @@ public interface Constant {
 
     enum ActionOrder {
 
-        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker",1),
-        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker",2),
+        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker",1,METHOD_CREATE),
+        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker",2, METHOD_UPDATE),
 
-        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink",1),
+        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink",1, METHOD_CREATE),
 
-        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9),
-        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9),
-        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9),
-        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger",5),
-        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada",3),
+        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9, METHOD_UPDATE),
+        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9, METHOD_UPDATE),
+        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9, METHOD_UPDATE),
+        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger",5, METHOD_UPDATE),
+        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada",3, METHOD_UPDATE),
 
         // ========== nuevas actions que enviarán TI - 29-10-2020
         // =========================
-        READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING",5),
-        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4),
-        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5),
+        READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING",5, METHOD_UPDATE),
+        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4, METHOD_UPDATE),
+        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5, METHOD_UPDATE),
         // =================================================================================
 
 
         // =========== nuevos actions que se enviarán desde el order-tracker
-        ASSIGN_ORDER(4, "Acción para asignar órdenes",6),
-        UNASSIGN_ORDER(4, "Acción para asignar órdenes",6),
-        ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE",7),
-        ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8),
+        ASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE),
+        UNASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE),
+        ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE",7, METHOD_UPDATE),
+        ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8, METHOD_UPDATE),
 
-        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10),
+        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10, METHOD_UPDATE),
 
-        FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0),
+        FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0, METHOD_CREATE),
 
-        NONE(0, "Not found status",0);
+        NONE(0, "Not found status",0,METHOD_NONE);
 
         private Integer code;
         private String description;
         private int sequence;
+        private String method;
 
-        ActionOrder(Integer code, String description,int sequence) {
+        ActionOrder(Integer code, String description,int sequence, String method) {
             this.code = code;
             this.description = description;
             this.sequence = sequence;
+            this.method = method;
         }
 
         public Integer getCode() {
@@ -259,6 +261,10 @@ public interface Constant {
 
         public int getSequence() {
             return sequence;
+        }
+
+        public String getMethod() {
+            return method;
         }
 
         public static ActionOrder getByName(String name) {
@@ -617,6 +623,9 @@ public interface Constant {
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
     String TARGET_INSINK = "INSINK";
     String UPDATED_BY_INIT = "INIT";
+    String METHOD_UPDATE = "UPDATE";
+    String METHOD_CREATE = "CREATE";
+    String METHOD_NONE = "NONE";
 
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";

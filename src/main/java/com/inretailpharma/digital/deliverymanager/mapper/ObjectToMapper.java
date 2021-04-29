@@ -3,17 +3,17 @@ package com.inretailpharma.digital.deliverymanager.mapper;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.*;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.springframework.stereotype.Component;
 
@@ -72,7 +72,7 @@ public class ObjectToMapper {
         orderCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
         orderCanonical.setLocalType(
                 Constant.TrackerImplementation
-                        .getIdByClassImplement(iOrderFulfillment.getClassImplement())
+                        .getClassImplement(iOrderFulfillment.getClassImplement())
                         .getLocalType()
         );
 
@@ -89,14 +89,42 @@ public class ObjectToMapper {
                 itemFulfillments.stream().map(item -> {
                     OrderItemCanonical orderItem = new OrderItemCanonical();
                     orderItem.setProductCode(item.getProductCode());
+                    orderItem.setProductName(item.getNameProduct());
                     orderItem.setSkuSap(item.getProductSapCode());
+                    orderItem.setShortDescription(item.getShortDescriptionProduct());
+                    orderItem.setBrand(item.getBrandProduct());
+                    orderItem.setQuantity(item.getQuantity());
                     orderItem.setUnitPrice(item.getUnitPrice());
                     orderItem.setTotalPrice(item.getTotalPrice());
-                    orderItem.setProductName(item.getNameProduct());
-                    orderItem.setQuantity(item.getQuantity());
+                    orderItem.setFractionated(Constant.Logical.Y.name().equals(item.getFractionated()));
                     orderItem.setQuantityUnits(item.getQuantityUnits());
                     orderItem.setPresentationId(item.getPresentationId());
                     orderItem.setPresentationDescription(item.getPresentationDescription());
+
+                    if (Constant.COLLECTION_PRESENTATION_ID.equals(item.getPresentationId())) {
+
+                        if (Boolean.TRUE.equals(iOrderFulfillment.getPartial())) {
+
+                            if (Constant.Logical.Y.name().equalsIgnoreCase(item.getFractionated())) {
+
+                                if (item.getQuantityUnits() > 0) {
+                                    orderItem.setQuantity(item.getQuantity()/item.getQuantityUnits());
+                                } else {
+                                    log.error("[ERROR] convertIOrderItemDtoToOrderItemFulfillmentCanonical orderItem {} invalid QuantityUnits ({}) "
+                                            , item.getOrderFulfillmentId(), item.getQuantityUnits());
+                                    orderItem.setQuantity(item.getQuantity());
+                                }
+
+                            } else {
+                                orderItem.setQuantity(item.getQuantity());
+                            }
+
+                        } else {
+                            orderItem.setQuantity(item.getQuantityPresentation());
+                        }
+                    } else {
+                        orderItem.setQuantity(item.getQuantity());
+                    }
 
                     return orderItem;
 
@@ -184,7 +212,7 @@ public class ObjectToMapper {
                         .orElse(null));
 
         orderInkatrackerCanonical.setDeliveryService(
-                Constant.TrackerImplementation.getIdByClassImplement(iOrderFulfillment.getClassImplement()).getId()
+                Constant.TrackerImplementation.getClassImplement(iOrderFulfillment.getClassImplement()).getId()
         );
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
 
@@ -245,7 +273,7 @@ public class ObjectToMapper {
 
 
         orderInkatrackerCanonical.setDeliveryServiceId(
-                (long) Constant.TrackerImplementation.getIdByClassImplement(iOrderFulfillment.getClassImplement()).getId()
+                (long) Constant.TrackerImplementation.getClassImplement(iOrderFulfillment.getClassImplement()).getId()
         );
         orderInkatrackerCanonical.setDrugstoreAddress(storeCenterCanonical.getAddress());
         orderInkatrackerCanonical.setDaysToPickUp(
@@ -337,22 +365,154 @@ public class ObjectToMapper {
     }
 
 
-    public StoreCenterCanonical getStoreCenterFromOrderCanonical(OrderCanonical orderCanonical) {
+    public com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto orderFulfillmentToOrderDto(IOrderFulfillment orderFulfillment,
+                                                                                                        List<IOrderItemFulfillment> itemsFulfillment,
+                                                                                                        StoreCenterCanonical storeCenterCanonical) {
+        com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto orderDto = new com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto();
 
-        StoreCenterCanonical storeCenterCanonical = new StoreCenterCanonical();
-        storeCenterCanonical.setLegacyId(orderCanonical.getLocalId());
-        storeCenterCanonical.setName(orderCanonical.getLocal());
-        storeCenterCanonical.setDescription(orderCanonical.getLocalDescription());
-        storeCenterCanonical.setAddress(orderCanonical.getLocalAddress());
-        storeCenterCanonical.setCompanyCode(orderCanonical.getCompanyCode());
-        storeCenterCanonical.setInkaVentaId(orderCanonical.getInkaVentaId());
-        storeCenterCanonical.setLatitude(orderCanonical.getLocalLatitude());
-        storeCenterCanonical.setLongitude(orderCanonical.getLocalLongitude());
-        storeCenterCanonical.setLocalCode(orderCanonical.getLocalCode());
-        storeCenterCanonical.setCompanyCode(orderCanonical.getCompanyCode());
+        if (Objects.nonNull(orderFulfillment)) {
 
-        return storeCenterCanonical;
+            orderDto.setDeliveryServiceName(orderFulfillment.getServiceTypeCode());
+            orderDto.setId(String.valueOf(orderFulfillment.getEcommerceId()));
+            orderDto.setSource(orderFulfillment.getSource());
+            orderDto.setDateCreated(Date.from(orderFulfillment.getCreatedOrder().atZone(ZoneId.systemDefault()).toInstant()));
+            orderDto.setOrderDate(Date.from(orderFulfillment.getScheduledTime().atZone(ZoneId.systemDefault()).toInstant()));
+            orderDto.setDiscountApplied(
+                    Optional.ofNullable(orderFulfillment.getDiscountApplied())
+                            .orElse(BigDecimal.ZERO)
+            );
 
+            AddressDto address = new AddressDto();
+            address.setReceiverName(orderFulfillment.getAddressName());
+            address.setDistrict(orderFulfillment.getDistrict());
+            address.setLatitude(orderFulfillment.getLatitude().doubleValue());
+            address.setLongitude(orderFulfillment.getLongitude().doubleValue());
+            address.setNotes(orderFulfillment.getNotes());
+            address.setApartment(orderFulfillment.getApartment());
+            address.setStreet(orderFulfillment.getStreet());
+            address.setCity(orderFulfillment.getCity());
+            address.setCountry(orderFulfillment.getCountry());
+            address.setDistrict(orderFulfillment.getDistrict());
+            address.setNumber(orderFulfillment.getNumber());
+            address.setReceiverName(orderFulfillment.getAddressReceiver());
+            orderDto.setDeliveryAddress(address);
+
+            UserDto userDto = new UserDto();
+
+            userDto.setDni(orderFulfillment.getDocumentNumber());
+            userDto.setName(orderFulfillment.getFirstName());
+            userDto.setLastName(orderFulfillment.getLastName());
+            userDto.setEmail(orderFulfillment.getEmail());
+            userDto.setPhone(orderFulfillment.getPhone());
+            userDto.setIsInkaClub(Constant.Logical.N.name());
+
+            if (Constant.Source.SC.name().equals(orderFulfillment.getSource())) {
+                userDto.setIsAnonymous(Constant.Logical.Y.name());
+            } else {
+                userDto.setIsAnonymous(Optional.ofNullable(orderFulfillment.getAnonimous())
+                        .orElse("0").equals("0") ?"N":"Y");
+            }
+
+            orderDto.setUser(userDto);
+
+            PaymentDto paymentDto = new PaymentDto();
+            paymentDto.setDeliveryCost(orderFulfillment.getDeliveryCost());
+            paymentDto.setDiscountApplied(Optional.ofNullable(orderFulfillment.getDiscountApplied()).orElse(BigDecimal.ZERO));
+            paymentDto.setGrossPrice(orderFulfillment.getSubTotalCost());
+            paymentDto.setProductsTotalCost(orderFulfillment.getTotalCost());
+            paymentDto.setProductsTotalCostNoDiscount(orderFulfillment.getTotalCost());
+            paymentDto.setCoupon(orderFulfillment.getCoupon());
+            paymentDto.setAmount(orderFulfillment.getPaidAmount());
+            orderDto.setPaymentAmountDto(paymentDto);
+
+            PaymentMethodDto paymentMethodDto = new PaymentMethodDto();
+            if (Constant.Source.SC.name().equals(orderFulfillment.getSource())) {
+                paymentMethodDto.setId(Constant.DEFAULT_SC_PAYMENT_METHOD_ID);
+                paymentMethodDto.setName(Constant.DEFAULT_SC_PAYMENT_METHOD_VALUE);
+            } else {
+                paymentMethodDto.setId(
+                        PaymentMethod.PaymentType.getPaymentTypeByNameType(orderFulfillment.getPaymentType()).getId()
+                );
+                paymentMethodDto.setName(
+                        PaymentMethod.PaymentType.getPaymentTypeByNameType(orderFulfillment.getPaymentType()).getDescription()
+                );
+                paymentMethodDto.setBin(orderFulfillment.getBin());
+                paymentMethodDto.setCardProvider(orderFulfillment.getCardProvider());
+                paymentMethodDto.setCardProviderId(orderFulfillment.getCardProviderId());
+                paymentMethodDto.setCardProviderCode(orderFulfillment.getCardProviderCode());
+                paymentMethodDto.setBin(orderFulfillment.getBin());
+                paymentMethodDto.setPaymentTransactionId(orderFulfillment.getPaymentTransactionId());
+            }
+
+            orderDto.setPaymentMethod(paymentMethodDto);
+
+            ReceiptDto receipt = new ReceiptDto();
+
+            ReceiptTypeDto receiptTypeDto = new ReceiptTypeDto();
+            receiptTypeDto.setName(orderFulfillment.getReceiptType());
+
+            receipt.setReceiptType(receiptTypeDto);
+            receipt.setCompanyAddress(orderFulfillment.getCompanyAddressReceipt());
+            receipt.setRuc(orderFulfillment.getRuc());
+            receipt.setCompanyName(orderFulfillment.getCompanyNameReceipt());
+
+            orderDto.setReceipt(receipt);
+            orderDto.setCompanyCode(orderFulfillment.getCompanyCode());
+
+
+            List<ItemDto> orderItems = new ArrayList<>();
+            for (IOrderItemFulfillment product : itemsFulfillment) {
+                ItemDto itemDto = new ItemDto();
+                itemDto.setBrand(product.getBrandProduct());
+                itemDto.setFractionated(product.getFractionated());
+                itemDto.setName(product.getNameProduct());
+                itemDto.setQuantity(product.getQuantity());
+                itemDto.setShortDescription(product.getShortDescriptionProduct());
+                itemDto.setProductId(product.getProductCode());
+                itemDto.setProductSapCode(product.getProductSapCode());
+                itemDto.setEanCode(product.getEanCode());
+                itemDto.setTotalPrice(product.getTotalPrice());
+                itemDto.setUnitPrice(product.getUnitPrice());
+                itemDto.setPresentationType(product.getPresentationId());
+                itemDto.setPresentation(product.getPresentationDescription());
+                itemDto.setQuantityUnits(product.getQuantityUnits());
+                itemDto.setFamilyType(product.getFamilyType());
+                itemDto.setFractionatedPrice(
+                        Optional.ofNullable(product.getFractionatedPrice())
+                                .map(BigDecimal::doubleValue)
+                                .orElse(NumberUtils.DOUBLE_ZERO)
+                );
+                itemDto.setFractionalDiscount(product.getFractionalDiscount());
+                orderItems.add(itemDto);
+            }
+
+            orderDto.setItems(orderItems);
+            orderDto.setAmount(Optional.ofNullable(orderFulfillment.getPaidAmount()).orElse(BigDecimal.ZERO));
+            orderDto.setCreditCardProviderId(Constant.DEFAULT_SC_CARD_PROVIDER_ID);
+
+            if (Constant.Source.SC.name().equals(orderFulfillment.getSource())) {
+                orderDto.setDeliveryType(Constant.DEFAULT_DS);
+            } else {
+                orderDto.setDeliveryType(orderFulfillment.getServiceTypeShortCode());
+            }
+
+            orderDto.setMarketplaceName(orderFulfillment.getSourceCompanyName());
+
+            DrugstoreDto drugstoreDto = new DrugstoreDto();
+            drugstoreDto.setId(storeCenterCanonical.getLegacyId());
+            drugstoreDto.setInkaVentaId(storeCenterCanonical.getInkaVentaId());
+
+            orderDto.setDrugstore(drugstoreDto);
+
+            orderDto.setZoneId(orderFulfillment.getZoneId());
+            orderDto.setDistrictCode(orderFulfillment.getDistrictCode());
+            orderDto.setDeliveryTime(orderFulfillment.getLeadTime());
+            orderDto.setCompanyCode(orderFulfillment.getCompanyCode());
+        }
+
+        log.info("mapper dto to DD:{}",orderDto);
+
+        return orderDto;
     }
 
     public ServiceLocalOrder getFromOrderDto(StoreCenterCanonical storeCenterCanonical, OrderDto orderDto,

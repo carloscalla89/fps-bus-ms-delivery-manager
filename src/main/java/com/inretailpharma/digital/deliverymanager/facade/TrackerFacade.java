@@ -6,11 +6,7 @@ import java.util.stream.Collectors;
 import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
-import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
-import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
-import com.inretailpharma.digital.deliverymanager.util.UtilClass;
-import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
+import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -46,6 +42,7 @@ public class TrackerFacade {
 	private OrderExternalService orderExternalServiceAudit;
 	private OrderFacadeProxy orderFacadeProxy;
 	private AdapterInterface adapterInterface;
+	private OrderCancellationService orderCancellationService;
 
 	@Autowired
 	public TrackerFacade(OrderTransaction orderTransaction,
@@ -53,13 +50,14 @@ public class TrackerFacade {
 						 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
 						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
 						 @Qualifier("trackeradapter") AdapterInterface adapterInterface,
-						 OrderFacadeProxy orderFacadeProxy) {
+						 OrderFacadeProxy orderFacadeProxy, OrderCancellationService orderCancellationService) {
 		this.orderTransaction = orderTransaction;
 		this.objectToMapper = objectToMapper;
 		this.orderExternalOrderTracker = orderExternalOrderTracker;
 		this.orderExternalServiceAudit = orderExternalServiceAudit;
 		this.adapterInterface = adapterInterface;
 		this.orderFacadeProxy = orderFacadeProxy;
+		this.orderCancellationService = orderCancellationService;
 	}
 
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {   
@@ -268,7 +266,9 @@ public class TrackerFacade {
 
 
 								return orderFacadeProxy
-										.sendOnlyLastStatusOrderFromSync(iorder, actionDto)
+										.sendOnlyLastStatusOrderFromSync(iorder, actionDto,
+												orderCancellationService.evaluateGetCancel(actionDto)
+										)
 										.flatMap(orderCanonical -> {
 											orderCanonical.setAction(statusLast.getAction());
 

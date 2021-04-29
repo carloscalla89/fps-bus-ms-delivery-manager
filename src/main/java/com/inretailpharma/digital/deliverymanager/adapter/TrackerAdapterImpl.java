@@ -18,32 +18,6 @@ import java.util.List;
 public class TrackerAdapterImpl extends AdapterAbstract implements AdapterInterface {
 
     @Override
-    public Mono<OrderCanonical> sendOrderTracker(OrderExternalService orderExternalService, StoreCenterCanonical storeCenter,
-                                                 Long ecommercePurchaseId, Long externalId, String statusDetail,
-                                                 String statusName, String orderCancelCode, String orderCancelDescription,
-                                                 String orderCancelObservation) {
-
-        log.info("sendOrderTracker - ecommercePurchaseId:{}, ",ecommercePurchaseId);
-        IOrderFulfillment iOrderFulfillmentCase4 = this.getOrderTransaction().getOrderByecommerceId(ecommercePurchaseId);
-
-
-        return orderExternalService
-                    .sendOrderToTracker(
-                            iOrderFulfillmentCase4,
-                            orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillmentCase4.getOrderId()),
-                            storeCenter,
-                            externalId,
-                            statusDetail,
-                            statusName,
-                            orderCancelCode,
-                            orderCancelDescription,
-                            orderCancelObservation
-                    );
-
-
-    }
-
-    @Override
     public Mono<OrderCanonical> getResultfromExternalServices(OrderExternalService orderExternalService, Long ecommerceId,
                                                               ActionDto actionDto, String company, String serviceType,
                                                               Long id, String orderCancelCode, String orderCancelDescription,
