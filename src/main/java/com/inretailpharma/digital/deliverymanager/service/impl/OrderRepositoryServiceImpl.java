@@ -114,17 +114,17 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 
 
     @Override
-    public void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail) {
-        serviceLocalOrderRepository.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
-    }
-
-    @Override
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
                                            String orderStatusCode, Long orderFulfillmentId, LocalDateTime updateLast,
                                            LocalDateTime dateCancelled) {
 
         serviceLocalOrderRepository.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
                 orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
+    }
+
+    @Override
+    public void updateStatusOrder(String statusDetail, String orderStatusCode, Long ecommerceId, LocalDateTime updateLast) {
+        serviceLocalOrderRepository.updateStatusOrder(statusDetail, orderStatusCode, ecommerceId, updateLast);
     }
 
     @Override

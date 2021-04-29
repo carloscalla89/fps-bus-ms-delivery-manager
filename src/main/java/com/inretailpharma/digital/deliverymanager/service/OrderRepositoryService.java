@@ -31,11 +31,12 @@ public interface OrderRepositoryService {
     IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId);
     List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommercesIds);
 
-    void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
 
     void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
                                     String orderStatusCode, Long orderFulfillmentId, LocalDateTime updateLast,
                                     LocalDateTime dateCancelled);
+
+    void updateStatusOrder(String statusDetail, String orderStatusCode, Long ecommerceId, LocalDateTime updateLast);
 
     Client saveClient(Client client);
 

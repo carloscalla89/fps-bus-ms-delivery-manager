@@ -2,28 +2,30 @@ package com.inretailpharma.digital.deliverymanager.adapter;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.proxy.OrderTrackerServiceImpl;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class OrderTrackerAdapter extends AdapterAbstractUtil implements ITrackerAdapter {
-    private ApplicationContext context;
+
+    private OrderExternalService orderTrackerExternalService;
 
     @Autowired
-    public OrderTrackerAdapter(ApplicationContext context) {
-        this.context = context;
+    public OrderTrackerAdapter(@Qualifier("orderTracker") OrderExternalService orderTrackerExternalService) {
+
+        this.orderTrackerExternalService = orderTrackerExternalService;
     }
 
     @Override
@@ -33,9 +35,7 @@ public class OrderTrackerAdapter extends AdapterAbstractUtil implements ITracker
                                                      String orderCancelObservation, String statusDetail,
                                                      ActionDto actionDto) {
 
-        OrderExternalService orderExternalService = ((OrderExternalService)context.getBean(classImplement));
-
-        return orderExternalService
+        return orderTrackerExternalService
                 .sendOrderToOrderTracker(getOrderFromIOrdersProjects(ecommerceId), actionDto);
     }
 
@@ -43,8 +43,57 @@ public class OrderTrackerAdapter extends AdapterAbstractUtil implements ITracker
     public Mono<OrderCanonical> updateOrderToTracker(Class<?> classImplement, ActionDto actionDto, Long ecommerceId,
                                                      String company, String serviceType, String orderCancelDescription) {
 
-        OrderExternalService orderExternalService = ((OrderExternalService)context.getBean(classImplement));
+        return orderTrackerExternalService.updateOrderStatus(ecommerceId, actionDto);
+    }
 
-        return orderExternalService.updateOrderStatus(ecommerceId, actionDto);
+    public Flux<OrderCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
+
+        return orderTrackerExternalService
+                    .unassignOrders(unassignedCanonical)
+                    .filter(Constant.OrderTrackerResponseCode.SUCCESS_CODE::equals)
+                    .flux()
+                    .flatMap(statusCode -> {
+                        log.info("#unassing orders from group {} - external tracker - statusCode success: {}"
+                                , unassignedCanonical.getGroupName(), statusCode);
+
+                        return Flux
+                                .fromIterable(unassignedCanonical.getOrders())
+                                .flatMap(ecommerceId -> {
+
+                                    OrderCanonical orderCanonical = new OrderCanonical();
+                                    orderCanonical.setEcommerceId(ecommerceId);
+
+                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                    orderStatus.setCode(Constant.OrderStatus.PREPARED_ORDER.getCode());
+                                    orderStatus.setName(Constant.OrderStatus.PREPARED_ORDER.name());
+
+                                    orderCanonical.setOrderStatus(orderStatus);
+
+                                    return Flux.just(orderCanonical);
+
+                                }).switchIfEmpty(Flux.defer(() -> {
+                                    log.error("#unassing orders from group {} - external tracker - statusCode ERROR: {}"
+                                            , unassignedCanonical.getGroupName(), statusCode);
+
+                                    return Flux
+                                            .fromIterable(unassignedCanonical.getOrders())
+                                            .flatMap(ecommerceId -> {
+
+                                                OrderCanonical orderCanonical = new OrderCanonical();
+                                                orderCanonical.setEcommerceId(ecommerceId);
+
+                                                OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                                                orderStatus.setCode(Constant.OrderStatus.ERROR_PREPARED.getCode());
+                                                orderStatus.setName(Constant.OrderStatus.ERROR_PREPARED.name());
+                                                orderStatus.setDetail("Error when the orders have been unassigned");
+                                                orderCanonical.setOrderStatus(orderStatus);
+
+                                                return Flux.just(orderCanonical);
+
+                                            });
+                                }));
+
+                    });
+
     }
 }

@@ -42,11 +42,28 @@ public abstract class FacadeAbstractUtil {
         orderCanonical.getOrderStatus().setCancellationCode(orderCancelCode);
         orderCanonical.getOrderStatus().setCancellationObservation(orderCancelObservation);
 
-        /*
-        if (!orderCanonical.getOrderStatus().getCode().equalsIgnoreCase(Constant.OrderStatus.END_STATUS_RESULT.getCode())) {
-            adapterAuditInterface.updateExternalAudit(sendNewAudit, orderCanonical, updateBy).subscribe();
-        }
-         */
+        return Mono.just(orderCanonical);
+
+    }
+
+    protected Mono<OrderCanonical> updateOrderInfulfillment(OrderCanonical orderCanonical,Long ecommerceId,
+                                                            String source, String target, String updateBy, String actionDate) {
+
+        log.info("Target to send:{}, updateBy:{}",target,updateBy);
+
+        LocalDateTime localDateTime = DateUtils.getLocalDateTimeByInputString(actionDate);
+
+        orderCanonical.setEcommerceId(ecommerceId);
+        orderCanonical.setSource(source);
+        orderCanonical.setTarget(target);
+        orderCanonical.setUpdateBy(updateBy);
+
+        orderTransaction.updateStatusOrder(
+                ecommerceId, orderCanonical.getOrderStatus().getCode(), orderCanonical.getOrderStatus().getDetail(),
+                localDateTime
+        );
+
+        orderCanonical.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeWithFormat(localDateTime));
 
         return Mono.just(orderCanonical);
 

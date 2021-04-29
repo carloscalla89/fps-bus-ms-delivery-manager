@@ -225,11 +225,11 @@ public class OrderTransaction {
 
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
-    public void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail) {
-        log.info("[START] updateOrderStatus - orderFulfillmentId:{} - orderStatusCode:{}, statusDetail:{}",
-                orderFulfillmentId, orderStatusCode, statusDetail);
+    public void updateStatusOrder(Long ecommerceId, String orderStatusCode, String statusDetail, LocalDateTime updateLast) {
+        log.info("[START] updateOrderStatus - ecommerceId:{} - orderStatusCode:{}, statusDetail:{}, updateLast:{}",
+                ecommerceId, orderStatusCode, statusDetail, updateLast);
 
-        orderRepositoryService.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
+        orderRepositoryService.updateStatusOrder(statusDetail, orderStatusCode, ecommerceId, updateLast);
     }
 
     public List<CancellationCodeReason> getListCancelReason(String appType) {

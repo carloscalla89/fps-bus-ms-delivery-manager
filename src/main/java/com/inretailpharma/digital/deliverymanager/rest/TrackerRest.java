@@ -1,7 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.rest;
 
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderToAssignCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
@@ -53,21 +52,6 @@ public class TrackerRest {
 
         return new ResponseEntity<>(
                 trackerFacade.unassignOrders(unassignedCanonical)
-                        .subscribeOn(Schedulers.parallel()),
-                HttpStatus.OK
-        );
-
-    }
-
-    @PostMapping(value = "/order")
-    public ResponseEntity<Mono<OrderTrackerResponseCanonical>> sendOrder(
-            @RequestBody OrderToAssignCanonical orderToAssignCanonical) {
-
-        log.info("[START] endpoint /fulfillment/tracker/order " +
-                "- orderToAssignCanonical:{}", orderToAssignCanonical);
-
-        return new ResponseEntity<>(
-                trackerFacade.sendOrder(orderToAssignCanonical)
                         .subscribeOn(Schedulers.parallel()),
                 HttpStatus.OK
         );

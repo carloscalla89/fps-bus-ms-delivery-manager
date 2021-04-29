@@ -41,11 +41,6 @@ public class AdapterAbstract implements AdapterInterface{
     }
 
     @Override
-    public Mono<Void> createExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical, String updateBy) {
-        return null;
-    }
-
-    @Override
     public Mono<Void> updateExternalAudit(boolean sendNewAudit, OrderCanonical orderAuditCanonical, String updateBy) {
         return null;
     }

@@ -16,6 +16,8 @@ public interface ITrackerAdapter {
     Mono<OrderCanonical> updateOrderToTracker(Class<?> classImplement, ActionDto actionDto, Long ecommerceId,
                                               String company, String serviceType, String orderCancelDescription);
 
+
+
     default Mono<OrderCanonical> evaluateTracker(Class<?> classImplement, ActionDto actionDto, StoreCenterCanonical store,
                                                  String companyCode, String serviceType, Long ecommerceId,
                                                  Long externalId, String statusName, String orderCancelCode,

@@ -4,6 +4,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
+import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
@@ -16,7 +19,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCan
 
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.GroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderToAssignCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
@@ -34,7 +36,7 @@ import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Component
-public class TrackerFacade {
+public class TrackerFacade extends FacadeAbstractUtil{
 
 	private OrderTransaction orderTransaction;
 	private ObjectToMapper objectToMapper;
@@ -44,12 +46,17 @@ public class TrackerFacade {
 	private AdapterInterface adapterInterface;
 	private OrderCancellationService orderCancellationService;
 
+	private ITrackerAdapter iOrderTrackerAdapter;
+	private IAuditAdapter iAuditAdapter;
+
 	@Autowired
 	public TrackerFacade(OrderTransaction orderTransaction,
 						 ObjectToMapper objectToMapper,
 						 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
 						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
 						 @Qualifier("trackeradapter") AdapterInterface adapterInterface,
+						 @Qualifier("orderTrackerAdapter") ITrackerAdapter iOrderTrackerAdapter,
+						 @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
 						 OrderFacadeProxy orderFacadeProxy, OrderCancellationService orderCancellationService) {
 		this.orderTransaction = orderTransaction;
 		this.objectToMapper = objectToMapper;
@@ -57,6 +64,8 @@ public class TrackerFacade {
 		this.orderExternalServiceAudit = orderExternalServiceAudit;
 		this.adapterInterface = adapterInterface;
 		this.orderFacadeProxy = orderFacadeProxy;
+		this.iOrderTrackerAdapter = iOrderTrackerAdapter;
+		this.iAuditAdapter = iAuditAdapter;
 		this.orderCancellationService = orderCancellationService;
 	}
 
@@ -108,6 +117,9 @@ public class TrackerFacade {
 	    		
 	    		return orderExternalOrderTracker
 							.assignOrders(newProjectedGroupCanonical)
+
+
+
 							.map(r -> {
 								log.info("#assign orders from group {} to external tracker - response: {}"
 										, projectedGroupCanonical.getGroupName(), r);
@@ -154,68 +166,44 @@ public class TrackerFacade {
 
 	public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
 		log.info("[START] unassing orders from group {} - external tracker", unassignedCanonical.getGroupName());
-		return orderExternalOrderTracker
-				.unassignOrders(unassignedCanonical)
-				.flatMap(statusCode -> {
-					log.info("#unassing orders from group {} - external tracker - statusCode: {}"
-							, unassignedCanonical.getGroupName(), statusCode);
-					unassignedCanonical.getOrders().forEach(orderId -> {
 
-						if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-							auditOrder(orderId, Constant.OrderStatus.PREPARED_ORDER);
-						} else {
-							auditOrder(orderId, Constant.OrderStatus.ERROR_PREPARED);
-						}
-					});
+		return ((OrderTrackerAdapter)iOrderTrackerAdapter)
+					.unassignOrders(unassignedCanonical)
+					.flatMap(result ->
+							updateOrderInfulfillment(
+									result, result.getEcommerceId(), "", Constant.TARGET_TRACKER,
+									unassignedCanonical.getUpdateBy(), null)
+					)
+					.flatMap(result -> iAuditAdapter.updateAudit(result, unassignedCanonical.getUpdateBy()))
+					.buffer()
+					.flatMap(resultFinal -> {
+						log.info("The processs of unassigned is success:{}",resultFinal);
 
-					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-					response.setStatusCode(statusCode);
-					return Mono.just(response);
-				});
-	}
+						OrderTrackerResponseCanonical orderTracker = new OrderTrackerResponseCanonical();
+						orderTracker.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
 
-	public Mono<OrderTrackerResponseCanonical> updateOrderStatus(Long ecommerceId, String status) {
-		log.info("[START] update order: {} status: {} - external tracker", ecommerceId, status);
+						return Mono.just(orderTracker);
+					})
+					.switchIfEmpty(Flux.defer(() -> {
+						log.error("The processs of unassigned is empty");
 
-		return Mono
-				.justOrEmpty(orderTransaction.getOrderLightByecommerceId(ecommerceId))
-				.flatMap(filtredOrder -> {
+						OrderTrackerResponseCanonical orderTracker = new OrderTrackerResponseCanonical();
+						orderTracker.setStatusCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+						orderTracker.setStatusDetail("The processs is empty");
+						return Mono.just(orderTracker);
 
-					if (!filtredOrder.getServiceType().equalsIgnoreCase(Constant.ServiceTypeCodes.PICKUP)) {
-						return orderExternalOrderTracker
-								.updateOrderStatus(filtredOrder.getEcommerceId(), status)
-								.filter(resultCode -> resultCode.equalsIgnoreCase(Constant.OrderTrackerResponseCode.SUCCESS_CODE))
-								.flatMap(resultCode -> Mono.just(getOrderTrackerResponse(
-										resultCode, filtredOrder.getOrderId(), filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType()))
-								).switchIfEmpty(Mono.defer(() -> Mono.just(getOrderTrackerResponse(
-										Constant.OrderTrackerResponseCode.ERROR_CODE, filtredOrder.getOrderId(),
-										filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType())))
-								);
-					}
+					}))
+					.onErrorResume(e -> {
+						e.printStackTrace();
+						log.error("The processs of unassigned is error");
 
-					return Mono.just(getOrderTrackerResponse(
-							Constant.OrderTrackerResponseCode.SUCCESS_CODE, filtredOrder.getOrderId(), filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType())
-					);
+						OrderTrackerResponseCanonical orderTracker = new OrderTrackerResponseCanonical();
+						orderTracker.setStatusCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+						orderTracker.setStatusDetail(e.getMessage());
 
-
-				}).switchIfEmpty(Mono.defer(Mono::empty) );
-
-	}
-
-	public Mono<OrderTrackerResponseCanonical> sendOrder(OrderToAssignCanonical orderToAssignCanonical) {
-		log.info("[START] sendOrder - external tracker");
-
-		OrderCanonical orderCanonical = this.getOrder(orderToAssignCanonical.getOrderId());
-		orderCanonical.setOrderStatus(null);
-
-		return orderExternalOrderTracker
-				.sendOrderToOrderTracker(orderCanonical)
-				.flatMap(resp -> {
-					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-					response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
-					return Mono.just(response);
-				});
-
+						return Mono.just(orderTracker);
+					})
+					.single();
 	}
 
 	public Flux<OrderTrackerResponseCanonical>  synchronizeOrderStatus(List<OrderSynchronizeDto> ordersList) {
@@ -333,24 +321,6 @@ public class TrackerFacade {
         		new OrderCanonical(ecommerceId, status.getCode(), status.name(), detail)).subscribe();
     }
 
-    private OrderTrackerResponseCanonical getOrderTrackerResponse(String result,Long orderId, Long ecommerceId, String trackerStatus,
-																  String paymentType) {
-
-		log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, trackerStatus, result);
-
-		Constant.OrderStatus orderStatus = Constant.OrderStatusTracker.getOrderStatusByTrackerStatus(trackerStatus, paymentType);
-
-		// Para actualizar los últimos status en el fulfillment
-		orderTransaction.updateStatusOrder(orderId, orderStatus.getCode(), null);
-
-		// enviar a la auditoría el cambio del status
-		auditOrder(ecommerceId, orderStatus);
-
-		OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-		response.setStatusCode(result);
-		return response;
-
-	}
 
 	public Mono<OrderCanonical> getOrderByEcommerceId(Long ecommerceId) {
 
