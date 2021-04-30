@@ -1,9 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
-import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.IStoreAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.*;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -36,15 +33,7 @@ import static com.inretailpharma.digital.deliverymanager.util.Constant.OrderStat
 @Component("proxy")
 public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFacadeProxy{
 
-    private OrderTransaction orderTransaction;
-
-    private AdapterInterface adapterAuditInterface;
-
-    private AdapterInterface adapterNotificationInterface;
-
     private OrderExternalService externalOnlinePaymentService;
-
-    private ApplicationParameterService applicationParameterService;
 
     private ITrackerAdapter iTrackerAdapter;
 
@@ -55,21 +44,13 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
     private final ApplicationContext context;
 
     @Autowired
-    public OrderFacadeProxyImpl(OrderTransaction orderTransaction,
-                                @Qualifier("auditadapter") AdapterInterface adapterAuditInterface,
-                                @Qualifier("notificationadapter") AdapterInterface adapterNotificationInterface,
-                                @Qualifier("onlinePayment") OrderExternalService externalOnlinePaymentService,
-                                ApplicationParameterService applicationParameterService,
+    public OrderFacadeProxyImpl(@Qualifier("onlinePayment") OrderExternalService externalOnlinePaymentService,
                                 @Qualifier("trackerAdapter") ITrackerAdapter iTrackerAdapter,
                                 @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                                 @Qualifier("storeAdapter") IStoreAdapter iStoreAdapter,
                                 ApplicationContext context) {
 
-        this.orderTransaction = orderTransaction;
-        this.adapterAuditInterface = adapterAuditInterface;
-        this.adapterNotificationInterface = adapterNotificationInterface;
         this.externalOnlinePaymentService = externalOnlinePaymentService;
-        this.applicationParameterService = applicationParameterService;
         this.iTrackerAdapter = iTrackerAdapter;
         this.iAuditAdapter = iAuditAdapter;
         this.iStoreAdapter = iStoreAdapter;
@@ -93,6 +74,8 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
 
         Function<List<OrderCanonical>,Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(actionDto, iOrderFulfillment);
+
+
 
         if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())
             || Constant.ActionOrder.REJECT_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
@@ -180,26 +163,27 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
                                         iOrderFulfillment.getEcommerceId(),
                                         iOrderFulfillment.getExternalId(),
                                         iOrderFulfillment.getStatusName(),
-                                        null,
-                                        null,
-                                        null,
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
+                                        actionDto.getOrderCancelObservation(),
                                         null
 
                                 )
                                 .flatMap(response ->
-                                updateOrderInfulfillment(
-                                        response,
-                                        iOrderFulfillment.getOrderId(),
-                                        iOrderFulfillment.getEcommerceId(),
-                                        iOrderFulfillment.getExternalId(),
-                                        null,
-                                        null,
-                                        Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
-                                        Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
-                                        actionDto.getUpdatedBy(),
-                                        actionDto.getActionDate()
+                                    updateOrderInfulfillment(
+                                            response,
+                                            iOrderFulfillment.getOrderId(),
+                                            iOrderFulfillment.getEcommerceId(),
+                                            iOrderFulfillment.getExternalId(),
+                                            Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                            actionDto.getOrderCancelObservation(),
+                                            Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                                            Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
+                                            actionDto.getUpdatedBy(),
+                                            actionDto.getActionDate()
+                                    )
                                 )
-                                ).flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()))
+                                .flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()))
 
                 )
                 .buffer()
@@ -223,50 +207,52 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
     }
 
     @Override
-    public Mono<OrderCanonical> sendOnlyLastStatusOrderFromSync(IOrderFulfillment iOrdersFulfillment,
+    public Mono<OrderCanonical> sendOnlyLastStatusOrderFromSync(IOrderFulfillment iOrderFulfillment,
                                                                 ActionDto actionDto, CancellationCodeReason codeReason) {
 
-
-        log.info("sendOnlyLastStatusOrderFromSync, ecommerceId:{}", iOrdersFulfillment.getEcommerceId());
+        log.info("sendOnlyLastStatusOrderFromSync, ecommerceId:{}", iOrderFulfillment.getEcommerceId());
 
         Function<List<OrderCanonical>,Publisher<? extends Boolean>> publisherNotification =
-                responses -> processSendNotification(actionDto, iOrdersFulfillment);
+                responses -> processSendNotification(actionDto, iOrderFulfillment);
 
-        UtilClass utilClass = new UtilClass(iOrdersFulfillment.getClassImplement(),iOrdersFulfillment.getServiceType(),
+        UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
                 actionDto.getAction(), actionDto.getOrigin(),
-                Constant.OrderStatus.getByCode(iOrdersFulfillment.getStatusCode()).name(),
-                iOrdersFulfillment.getSendNewFlow());
+                Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),
+                iOrderFulfillment.getSendNewFlow());
 
 
         return Flux
                 .fromIterable(utilClass.getClassesToSend())
-                .flatMap(objectClass -> ((AdapterInterface)context
-                        .getBean(objectClass))
-                        .getResultfromExternalServices(
-                                ((OrderExternalService)context.getBean(utilClass.getClassImplementationToOrderExternalService(objectClass))),
-                                iOrdersFulfillment.getEcommerceId(),
-                                actionDto,
-                                iOrdersFulfillment.getCompanyCode(),
-                                iOrdersFulfillment.getServiceType(),
-                                iOrdersFulfillment.getOrderId(),
-                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
-                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
-                                actionDto.getOrderCancelObservation(),
-                                iOrdersFulfillment.getStatusCode(),
-                                actionDto.getOrigin()
-                        )
-                        .flatMap(responses -> updateTheLastOrderStatusFromHistory(
-                                responses,
-                                iOrdersFulfillment.getOrderId(),
-                                iOrdersFulfillment.getEcommerceId(),
-                                null,
-                                null,
-                                Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
-                                Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
-                                actionDto.getUpdatedBy(),
-                                actionDto.getActionDate()
+                .flatMap(objectClass ->
+                        ((ITrackerAdapter)context
+                                .getBean(objectClass))
+                                .evaluateTracker(
+                                        utilClass.getClassImplementationToOrderExternalService(objectClass),
+                                        actionDto,
+                                        null,
+                                        iOrderFulfillment.getCompanyCode(),
+                                        iOrderFulfillment.getServiceType(),
+                                        iOrderFulfillment.getEcommerceId(),
+                                        iOrderFulfillment.getExternalId(),
+                                        iOrderFulfillment.getStatusName(),
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
+                                        actionDto.getOrderCancelObservation(),
+                                        null
                                 )
-                        )
+                                .flatMap(responses -> updateOrderInfulfillment(
+                                        responses,
+                                        iOrderFulfillment.getOrderId(),
+                                        iOrderFulfillment.getEcommerceId(),
+                                        iOrderFulfillment.getExternalId(),
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                        actionDto.getOrderCancelObservation(),
+                                        Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                                        Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
+                                        actionDto.getUpdatedBy(),
+                                        actionDto.getActionDate()
+                                        )
+                                )
                 )
                 .buffer()
                 .filter(finalResponse ->
@@ -275,8 +261,8 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
                                 .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                 )
                 .flatMap(publisherNotification)
-                .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(iOrdersFulfillment.getEcommerceId(),actionDto.getAction(), null))
-                .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(iOrdersFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS)))
+                .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null))
+                .switchIfEmpty(Mono.defer(() -> UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS)))
                 .single();
     }
 
@@ -333,11 +319,7 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
 
         orderCanonical.setAction(historySynchronized.getAction());
 
-        adapterAuditInterface.updateExternalAudit(iOrdersFulfillment.getSendNewFlow(),
-                orderCanonical, historySynchronized.getUpdatedBy()
-        ).subscribe();
-
-        return Mono.just(orderCanonical);
+        return iAuditAdapter.updateAudit(orderCanonical, historySynchronized.getUpdatedBy()).flatMap(Mono::just);
 
     }
 
@@ -359,7 +341,7 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
                         r.setOrderStatus(paymentRsp);
                         String onlinePaymentStatus = Constant.OnlinePayment.LIQUIDETED;
                         log.info("[PROCESS] to update online payment order::{}, status::{}", orderId, onlinePaymentStatus);
-                        orderTransaction.updateOrderOnlinePaymentStatusByExternalId(orderId,onlinePaymentStatus);
+                        updateOrderOnlinePaymentStatusByExternalId(orderId,onlinePaymentStatus);
                     }
                     log.info("[END] to update order");
                     return r;
@@ -368,65 +350,11 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
     }
 
 
-    private Mono<OrderCanonical> updateTheLastOrderStatusFromHistory(OrderCanonical orderCanonical, Long id,
-                                                                     Long ecommerceId, String orderCancelCode,
-                                                                     String orderCancelObservation, String source,
-                                                                     String target, String updateBy, String actionDate) {
-        log.info("Target to send:{}, updateBy:{}",target,updateBy);
+    private Mono<Boolean> processSendNotification(ActionDto actionDto, IOrderFulfillment iOrderFulfillment) {
 
-        LocalDateTime localDateTime = DateUtils.getLocalDateTimeByInputString(actionDate);
+        INotificationAdapter iNotificationAdapter = (actionDtoParam,iOrderFulfillmentParam) -> Mono.just(Boolean.TRUE);
 
-        orderCanonical.setEcommerceId(ecommerceId);
-        orderCanonical.setSource(source);
-        orderCanonical.setTarget(target);
-
-        orderTransaction.updateStatusCancelledOrder(
-                orderCanonical.getOrderStatus().getDetail(), orderCancelObservation, orderCancelCode,
-                orderCanonical.getOrderStatus().getCode(), id, localDateTime,
-                Optional.ofNullable(orderCancelCode).map(oc -> localDateTime).orElse(null)
-        );
-
-        return Mono.just(orderCanonical);
-    }
-
-    @Override
-    public Mono<Boolean> processSendNotification(ActionDto actionDto, IOrderFulfillment iOrderFulfillment) {
-
-        if (iOrderFulfillment.getSendNotificationByChannel()) {
-
-            String statusToSend = Constant
-                                    .OrderStatusTracker
-                                    .getByActionNameAndServiceTypeCoce(actionDto.getAction(), iOrderFulfillment.getClassImplement());
-
-            String localType = Constant.TrackerImplementation.getClassImplement(iOrderFulfillment.getClassImplement()).getLocalType();
-
-            String expiredDate = null;
-
-            if (Constant.PICKUP.equalsIgnoreCase(iOrderFulfillment.getServiceType())
-                    && Constant.ActionOrder.READY_PICKUP_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
-
-
-                int daysToExpiredRet = Integer
-                                        .parseInt(
-                                                applicationParameterService
-                                                        .getApplicationParameterByCodeIs(Constant.ApplicationsParameters.DAYS_PICKUP_MAX_RET)
-                                                        .getValue()
-                                        );
-
-                expiredDate = DateUtils.getLocalDateWithFormat(iOrderFulfillment.getScheduledTime().plusDays(daysToExpiredRet));
-
-                log.info("Get expired date:{}",expiredDate);
-            }
-
-            return adapterNotificationInterface
-                        .sendNotification(iOrderFulfillment.getSource(), iOrderFulfillment.getServiceTypeShortCode(),
-                                statusToSend, iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getCompanyCode(),
-                                iOrderFulfillment.getCenterCode(), localType, iOrderFulfillment.getPhone(),
-                                iOrderFulfillment.getFirstName(), expiredDate, null, null
-                        );
-        }
-
-        return Mono.just(true);
+        return iNotificationAdapter.sendNotification(actionDto,iOrderFulfillment);
 
     }
 

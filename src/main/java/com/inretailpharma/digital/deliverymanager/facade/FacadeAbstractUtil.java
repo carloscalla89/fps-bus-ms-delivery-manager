@@ -95,4 +95,8 @@ public abstract class FacadeAbstractUtil {
     protected List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommerceIds) {
         return orderTransaction.getOrderLightByecommercesIds(ecommerceIds);
     }
+
+    protected void updateOrderOnlinePaymentStatusByExternalId(Long orderId, String onlinePaymentStatus) {
+        orderTransaction.updateOrderOnlinePaymentStatusByExternalId(orderId,onlinePaymentStatus);
+    }
 }

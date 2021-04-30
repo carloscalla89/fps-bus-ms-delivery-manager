@@ -23,6 +23,4 @@ public interface OrderFacadeProxy {
                                                               String serviceTypeShortCode, String companyCode,
                                                               ActionDto actionDto);
 
-    Mono<Boolean> processSendNotification(ActionDto actionDto, IOrderFulfillment iOrderFulfillment);
-
 }

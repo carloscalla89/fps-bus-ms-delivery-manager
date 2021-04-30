@@ -1,9 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.util;
 
 import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapterImpl;
 import com.inretailpharma.digital.deliverymanager.adapter.TrackerAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.TrackerAdapterImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderTrackerServiceImpl;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Data
 @Slf4j

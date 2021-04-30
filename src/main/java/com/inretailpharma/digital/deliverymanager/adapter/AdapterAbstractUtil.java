@@ -9,10 +9,14 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusC
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
+import com.inretailpharma.digital.deliverymanager.dto.notification.PayloadDto;
+import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ResponseErrorGeneric;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
@@ -42,6 +46,41 @@ public abstract class AdapterAbstractUtil {
 
     @Autowired
     private ExternalServicesProperties externalServicesProperties;
+
+    @Autowired
+    private ApplicationParameterService applicationParameterService;
+
+    protected String getValueOfParameter(String parameter) {
+        return applicationParameterService
+                .getApplicationParameterByCodeIs(parameter)
+                .getValue();
+    }
+
+    protected MessageDto getDtoToNotification(IOrderFulfillment iOrderFulfillment, String statusToSend, String expiredDate,
+                                              String localType) {
+
+        MessageDto messageDto = new MessageDto();
+        messageDto.setOrderId(iOrderFulfillment.getEcommerceId());
+        messageDto.setBrand(iOrderFulfillment.getCompanyCode());
+        messageDto.setChannel(iOrderFulfillment.getSource());
+        messageDto.setDeliveryTypeCode(iOrderFulfillment.getServiceTypeShortCode());
+        messageDto.setLocalType(localType);
+        messageDto.setOrderStatus(statusToSend);
+        messageDto.setPhoneNumber(iOrderFulfillment.getPhone());
+        messageDto.setStatusDate(DateUtils.getCurrentDateMillis());
+
+        PayloadDto payloadDto = new PayloadDto();
+        payloadDto.setClientName(iOrderFulfillment.getFirstName());
+        payloadDto.setExpirationDate(expiredDate);
+        payloadDto.setLocalCode(iOrderFulfillment.getCenterCode());
+
+        messageDto.setPayload(payloadDto);
+
+        log.info("messageDto to notification:{}",messageDto);
+
+        return messageDto;
+
+    }
 
     protected OrderDto getMappOrder(Long ecommercePurchaseId, StoreCenterCanonical storeCenterCanonical) {
 

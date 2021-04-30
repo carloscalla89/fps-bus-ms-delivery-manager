@@ -1,13 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancelledCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ShoppingCartStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
-
-import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
 
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
@@ -19,13 +18,13 @@ import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
@@ -36,19 +35,19 @@ import java.util.Optional;
 @Component
 public class CancellationFacade {
 
-    private AdapterInterface auditAdapter;
     private ApplicationParameterService applicationParameterService;
     private OrderTransaction orderTransaction;
     private ObjectToMapper objectToMapper;
     private final ApplicationContext context;
     private ExternalServicesProperties externalServicesProperties;
+    private IAuditAdapter iAuditAdapter;
 
-    public CancellationFacade(@Qualifier("auditadapter") AdapterInterface auditAdapter,
+    public CancellationFacade(IAuditAdapter iAuditAdapter,
                               ApplicationParameterService applicationParameterService,
                               OrderTransaction orderTransaction, ObjectToMapper objectToMapper,
                               ApplicationContext context,  ExternalServicesProperties externalServicesProperties) {
 
-        this.auditAdapter = auditAdapter;
+        this.iAuditAdapter = iAuditAdapter;
         this.applicationParameterService = applicationParameterService;
         this.orderTransaction = orderTransaction;
         this.objectToMapper = objectToMapper;
@@ -114,7 +113,7 @@ public class CancellationFacade {
                                     )
                             )
                             .filter(s -> s.getOrderStatus() != null)
-                            .map(s -> {
+                            .flatMap(s -> {
                                 s.setEcommerceId(r.getEcommerceId());
                                 s.setExternalId(r.getExternalId());
                                 s.setTrackerId(r.getTrackerId());
@@ -143,9 +142,9 @@ public class CancellationFacade {
                                 s.setTarget(Constant.TARGET_LITE);
                                 s.getOrderStatus().setCancellationCode(cancellationDto.getCancellationCode());
 
-                                auditAdapter.updateExternalAudit(r.getSendNewFlow(), s, null).subscribe();                 
-
-                                return orderCancelledCanonical;
+                                return iAuditAdapter
+                                        .updateAudit(s, "expiration_cancelled")
+                                        .flatMap(order -> Mono.just(orderCancelledCanonical));
                             }).defaultIfEmpty(
                                     new OrderCancelledCanonical(
                                             r.getEcommerceId(),

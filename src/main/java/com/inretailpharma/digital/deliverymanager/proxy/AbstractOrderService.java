@@ -77,10 +77,6 @@ public class AbstractOrderService implements OrderExternalService {
 		return null;
 	}
 
-	@Override
-	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical) {
-		return null;
-	}
 
 
 	@Override
@@ -93,10 +89,6 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public Mono<String> updateOrderStatus(Long ecommerceId, String status) {
-		throw new UnsupportedOperationException();
-	}
 
 	@Override
 	public Mono<OrderCanonical> updateOrderStatus(Long ecommerceId,  ActionDto actionDto) {
