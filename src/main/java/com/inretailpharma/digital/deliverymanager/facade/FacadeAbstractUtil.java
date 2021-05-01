@@ -1,8 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+import com.inretailpharma.digital.deliverymanager.adapter.INotificationAdapter;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +26,22 @@ public abstract class FacadeAbstractUtil {
 
     @Autowired
     private ObjectToMapper objectToMapper;
+
+    @Autowired
+    private ApplicationParameterService applicationParameterService;
+
+    protected List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup,
+                                                            String statustype) {
+        return orderTransaction.getListOrdersToCancel(serviceType, companyCode, maxDayPickup, statustype);
+    }
+
+    protected String getValueOfParameter(String parameter) {
+        return applicationParameterService.getApplicationParameterByCodeIs(parameter).getValue();
+    }
+
+    protected List<CancellationCanonical> getCancellationsCodeByAppType(String appType) {
+        return objectToMapper.convertEntityOrderCancellationToCanonical(orderTransaction.getListCancelReason(appType));
+    }
 
     protected Mono<OrderCanonical> updateOrderInfulfillment(OrderCanonical orderCanonical, Long id, Long ecommerceId,
                                                             Long externalId, String orderCancelCode,
@@ -98,5 +118,13 @@ public abstract class FacadeAbstractUtil {
 
     protected void updateOrderOnlinePaymentStatusByExternalId(Long orderId, String onlinePaymentStatus) {
         orderTransaction.updateOrderOnlinePaymentStatusByExternalId(orderId,onlinePaymentStatus);
+    }
+
+    protected Mono<Boolean> processSendNotification(ActionDto actionDto, IOrderFulfillment iOrderFulfillment) {
+
+        INotificationAdapter iNotificationAdapter = (actionDtoParam, iOrderFulfillmentParam) -> Mono.just(Boolean.TRUE);
+
+        return iNotificationAdapter.sendNotification(actionDto,iOrderFulfillment);
+
     }
 }

@@ -76,41 +76,7 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
                     return Mono.just(Constant.OrderTrackerResponseCode.ERROR_CODE);
                 });
 	}
-	
-	@Override
-	public Mono<String> updateOrderStatus(Long ecommerceId, String status) {
-		log.info("[START] call to OrderTracker - updateOrderStatus - uri:{} - ecommerceId:{} - status:{}",
-                externalServicesProperties.getOrderTrackerUpdateOrderStatusUri(), ecommerceId, status);
-		
-		return WebClient
-				.builder()
-                .baseUrl(externalServicesProperties.getOrderTrackerUpdateOrderStatusUri())
-                .build()
-                .patch()
-                .uri(builder ->
-                		builder
-                				.path("/{ecommerceId}/status/{status}")
-                                .build(ecommerceId, status))
-                .exchange()
-	        	.flatMap(r -> {
-	        		if (r.statusCode().is2xxSuccessful()) {
 
-	        			log.info("[END] call to OrderTracker - updateOrderStatus - status {}", r.statusCode());
-
-	        			return r.bodyToMono(Void.class).thenReturn(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
-
-	        		} else {
-	        			log.error("[ERROR] call to OrderTracker - updateOrderStatus - status {}", r.statusCode());
-
-	        			return r.bodyToMono(Void.class).thenReturn(Constant.OrderTrackerResponseCode.ERROR_CODE);
-	        		}
-	        	})
-	        	.defaultIfEmpty(Constant.OrderTrackerResponseCode.EMPTY_CODE)
-	        	.onErrorResume(ex -> {
-                    log.error("[ERROR] call to OrderTracker - updateOrderStatus - ",ex);
-                    return Mono.just(Constant.OrderTrackerResponseCode.ERROR_CODE);
-                });
-	}
 
 
 	@Override
@@ -153,29 +119,6 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 				);
 	}
 
-	@Override
-	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical) {
-		log.info("[START] call to OrderTracker - sendOrderToTracker - uri:{} - body:{}",
-				externalServicesProperties.getOrderTrackerCreateOrderUri(), orderCanonical);
-
-		return WebClient
-				.create(externalServicesProperties.getOrderTrackerCreateOrderUri())
-				.post()
-				.bodyValue(orderCanonical)
-				.retrieve()
-				.bodyToMono(String.class)
-				.map(body -> {
-					log.info("[END] call to OrderTracker - sendOrderToTracker - s:{}", body);
-					return orderCanonical;
-				})
-				.defaultIfEmpty(
-						new OrderCanonical()
-				)
-				.onErrorResume(ex -> {
-					log.error("[ERROR] call to OrderTracker - sendOrderToTracker", ex);
-					return Mono.just(new OrderCanonical());
-				});
-	}
 	@Override
 	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto) {
 

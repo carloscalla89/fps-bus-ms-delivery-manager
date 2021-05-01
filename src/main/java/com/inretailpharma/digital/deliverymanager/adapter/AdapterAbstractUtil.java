@@ -11,7 +11,6 @@ import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.PayloadDto;
-import com.inretailpharma.digital.deliverymanager.entity.ApplicationParameter;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ResponseErrorGeneric;
@@ -30,7 +29,6 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -151,10 +149,6 @@ public abstract class AdapterAbstractUtil {
 
         return objectToMapper.getAuditHistoryDtoFromObject(orderAudit, updateBy);
 
-    }
-
-    protected List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(Long orderId) {
-        return orderTransaction.getOrderItemByOrderFulfillmentId(orderId);
     }
 
     protected ClientHttpConnector generateClientConnector(int connectionTimeOut, long readTimeOut) {

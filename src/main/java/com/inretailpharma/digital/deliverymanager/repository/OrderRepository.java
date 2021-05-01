@@ -21,28 +21,11 @@ import java.time.LocalDateTime;
 @Repository
 public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
-    @Query(value = "select o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, o.external_purchase_id as externalId, " +
-            "o.created_order as createdOrder, o.scheduled_time as scheduledTime, " +
-            "cf.document_number as documentNumber, o.total_cost as totalAmount, p.payment_type as paymentMethod, " +
-            "ccf.center_code as localCode, ccf.center_name as local, ccf.company_name as company, " +
-            "os.code as statusCode, ops.status_detail as statusDetail, os.type as statusType " +
-            "from order_fulfillment o " +
-            "inner join payment_method p on o.id = p.order_fulfillment_id " +
-            "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
-            "inner join order_status os on os.code = ops.order_status_code " +
-            "inner join client_fulfillment cf on cf.id = o.client_id " +
-            "inner join center_company_fulfillment ccf on ccf.center_code = ops.center_code and ccf.company_code = ops.company_code " +
-            "where os.code in :status",
-            nativeQuery = true
-    )
-    List<IOrderFulfillment> getListOrdersByStatus(@Param("status") Set<String> status);
-
-
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.external_purchase_id as externalId, " +
             "ops.center_code as centerCode, ops.company_code as companyCode," +
             "st.code as serviceTypeCode, st.name as serviceTypeName, st.type as serviceType, " +
             "o.scheduled_time as scheduledTime , st.class_implement as classImplement, " +
-            "st.send_new_flow_enabled as sendNewFlow " +
+            "st.send_new_flow_enabled as sendNewFlow, st.class_implement as classImplement " +
             "from order_fulfillment o " +
             "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
             "inner join order_status os on os.code = ops.order_status_code " +
@@ -159,34 +142,6 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderItemFulfillment> getOrderItemByOrderFulfillmentId(@Param("orderFulfillmentId") Long orderFulfillmentId);
 
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_fulfillment " +
-            " set tracker_id = :trackerId " +
-            " where id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateTrackerId(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                  @Param("trackerId") Long trackerId
-    );
-
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_fulfillment " +
-            " set tracker_id = :trackerId, external_purchase_id = :externalPurchaseId " +
-            " where id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateExternalAndTrackerId(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                                   @Param("externalPurchaseId") Long externalPurchaseId,
-                                                   @Param("trackerId") Long trackerId);
-
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_fulfillment " +
-            " set external_purchase_id = :externalPurchaseId " +
-            " where id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateExternalIdToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                         @Param("externalPurchaseId") Long externalPurchaseId);
 
     @Query(value = "select o.confirmed_order as confirmedOrder, card.card_providerid as creditCardId, " +
             "paymet.payment_method_id as paymentMethodId, " +

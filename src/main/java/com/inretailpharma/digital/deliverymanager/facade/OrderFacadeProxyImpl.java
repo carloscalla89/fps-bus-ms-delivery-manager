@@ -348,14 +348,4 @@ public class OrderFacadeProxyImpl extends FacadeAbstractUtil implements OrderFac
                 });
 
     }
-
-
-    private Mono<Boolean> processSendNotification(ActionDto actionDto, IOrderFulfillment iOrderFulfillment) {
-
-        INotificationAdapter iNotificationAdapter = (actionDtoParam,iOrderFulfillmentParam) -> Mono.just(Boolean.TRUE);
-
-        return iNotificationAdapter.sendNotification(actionDto,iOrderFulfillment);
-
-    }
-
 }

@@ -64,8 +64,6 @@ public class UtilClass {
 
     public List<Class<?>> getClassesToSend() {
 
-
-
         if (serviceType.equalsIgnoreCase(Constant.PICKUP)) {
             return Collections.singletonList(TrackerAdapter.class);
 

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.INotificationAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -22,7 +23,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTr
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
@@ -253,8 +253,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                                             actionDto.setAction(order.getAction());
                                             actionDto.setOrigin(orderSynchronizeDto.getOrigin());
 
-                                            return orderFacadeProxy
-                                                        .processSendNotification(actionDto, iorder);
+                                            return processSendNotification(actionDto, iorder);
 
                                         })
 										.defaultIfEmpty(true)
@@ -288,4 +287,5 @@ public class TrackerFacade extends FacadeAbstractUtil{
 				.ordered((o1, o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
 
 	}
+
 }

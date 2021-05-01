@@ -146,50 +146,6 @@ public class AbstractOrderService implements OrderExternalService {
 
 	}
 
-	protected Mono<OrderCanonical> mapResponseFromDispatcher(ClientResponse clientResponse, Long ecommerceId, String companyCode) {
-
-		if (clientResponse.statusCode().is2xxSuccessful()) {
-
-			return clientResponse
-					.bodyToMono(ResponseDispatcherCanonical.class)
-					.flatMap(cr -> {
-						InsinkResponseCanonical dispatcherResponse = cr.getBody();
-						StatusDispatcher statusDispatcher = cr.getStatus();
-
-						log.info("result dispatcher to reattempt - body:{}, status:{}",dispatcherResponse, statusDispatcher);
-
-						OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-						Constant.OrderStatus orderStatusUtil = Constant
-								.OrderStatus
-								.getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).getStatus());
-
-						orderStatus.setCode(orderStatusUtil.getCode());
-						orderStatus.setName(orderStatusUtil.name());
-						orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-						orderStatus.setDetail(dispatcherResponse.getMessageDetail());
-
-						OrderCanonical resultCanonical = new OrderCanonical();
-						resultCanonical.setEcommerceId(ecommerceId);
-						resultCanonical.setExternalId(
-								Optional
-										.ofNullable(dispatcherResponse.getInkaventaId())
-										.map(Long::parseLong).orElse(null)
-						);
-						resultCanonical.setCompanyCode(companyCode);
-						resultCanonical.setOrderStatus(orderStatus);
-
-						return Mono.just(resultCanonical);
-
-					});
-
-		} else {
-			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
-
-			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
-		}
-
-	}
-
 
 	protected Mono<OrderCanonical> mapResponseFromTracker(ClientResponse clientResponse, Long id, Long ecommerceId,
 														  Long externalId, String statusName, String cancellationCode,
@@ -306,24 +262,4 @@ public class AbstractOrderService implements OrderExternalService {
 
 		return Mono.just(orderCanonical);
 	}
-
-	protected Mono<OrderCanonical> mapResponseErrorFromDispatcher(Throwable e, Long ecommerceId) {
-
-		OrderCanonical orderCanonical = new OrderCanonical();
-
-		orderCanonical.setEcommerceId(ecommerceId);
-		OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-
-		orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-		orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-		orderStatus.setDetail(e.getMessage());
-		orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-		orderCanonical.setOrderStatus(orderStatus);
-
-		return Mono.just(orderCanonical);
-	}
-
-
-
 }

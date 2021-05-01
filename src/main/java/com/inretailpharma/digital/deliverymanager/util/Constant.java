@@ -619,6 +619,7 @@ public interface Constant {
     String ORIGIN_BBR = "BBR";
     String ORIGIN_UNIFIED_POS = "UNIFIED_POS";
     String ORIGIN_TASK = "TASK";
+    String ORIGIN_TASK_EXPIRATION = "TASK_EXPIRATION";
     String TARGET_TRACKER = "TRACKER";
     String TARGET_LITE = "LITE";
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
@@ -627,6 +628,7 @@ public interface Constant {
     String METHOD_UPDATE = "UPDATE";
     String METHOD_CREATE = "CREATE";
     String METHOD_NONE = "NONE";
+    String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
 
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";
