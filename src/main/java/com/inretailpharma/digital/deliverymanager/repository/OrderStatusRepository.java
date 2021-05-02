@@ -8,6 +8,4 @@ import java.util.List;
 
 public interface OrderStatusRepository extends JpaRepository<OrderStatus, String> {
 
-    List<OrderStatus> getOrderStatusByTypeIs(String statusName);
-
 }

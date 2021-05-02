@@ -1,6 +1,5 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.onlinepayment.OnlinePaymentOrder;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
