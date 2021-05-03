@@ -63,12 +63,14 @@ public class CancellationFacade extends FacadeAbstractUtil{
                     log.info("order info- companyCode:{}, centerCode:{}, ecommerceId:{}, serviceTypeCode:{}, getSendNewFlow:{} ",
                             r.getCompanyCode(), r.getCenterCode(), r.getEcommerceId(), r.getServiceTypeCode(), r.getSendNewFlow());
 
-                    ActionDto actionDto = new ActionDto();
-                    actionDto.setAction(Constant.ActionOrder.CANCEL_ORDER.name());
-                    actionDto.setOrderCancelCode(cancellationDto.getCancellationCode());
-                    actionDto.setOrderCancelObservation(cancellationDto.getObservation());
-                    actionDto.setOrigin(Constant.ORIGIN_TASK_EXPIRATION);
-                    actionDto.setUpdatedBy(Constant.TASK_LAMBDA_UPDATED_BY);
+                    ActionDto actionDto = ActionDto
+                                                .builder()
+                                                .action(Constant.ActionOrder.CANCEL_ORDER.name())
+                                                .orderCancelCode(cancellationDto.getCancellationCode())
+                                                .orderCancelObservation(cancellationDto.getObservation())
+                                                .origin(Constant.ORIGIN_TASK_EXPIRATION)
+                                                .updatedBy(Constant.TASK_LAMBDA_UPDATED_BY)
+                                                .build();
 
                     return updateTracker
                             .evaluate(actionDto,r.getEcommerceId().toString())

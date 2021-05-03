@@ -220,14 +220,17 @@ public class TrackerFacade extends FacadeAbstractUtil{
 
                                 // Se envía el último estado para que se registre en la DB fulfillment y su tracker
 
-								ActionDto actionDto = new ActionDto();
-								actionDto.setAction(statusLast.getAction());
-								actionDto.setOrigin(orderSynchronizeDto.getOrigin());
-								actionDto.setOrderCancelCode(statusLast.getOrderCancelCode());
-								actionDto.setOrderCancelObservation(statusLast.getOrderCancelObservation());
-								actionDto.setMotorizedId(statusLast.getMotorizedId());
-								actionDto.setUpdatedBy(statusLast.getUpdatedBy());
-								actionDto.setActionDate(statusLast.getActionDate());
+
+								ActionDto actionDto = ActionDto
+														.builder()
+														.action(statusLast.getAction())
+														.origin(orderSynchronizeDto.getOrigin())
+														.orderCancelCode(statusLast.getOrderCancelCode())
+														.orderCancelObservation(statusLast.getOrderCancelObservation())
+														.motorizedId(statusLast.getMotorizedId())
+														.updatedBy(statusLast.getUpdatedBy())
+														.actionDate(statusLast.getActionDate())
+														.build();
 
 
 								return updateTracker
@@ -251,9 +254,11 @@ public class TrackerFacade extends FacadeAbstractUtil{
 
                                         	log.info("Sending status order to notification:{}",order.getEcommerceId());
 
-                                            ActionDto actionDto = new ActionDto();
-                                            actionDto.setAction(order.getAction());
-                                            actionDto.setOrigin(orderSynchronizeDto.getOrigin());
+											ActionDto actionDto = ActionDto
+																		.builder()
+																		.action(order.getAction())
+																		.origin(orderSynchronizeDto.getOrigin())
+																		.build();
 
                                             return processSendNotification(actionDto, iorder);
 
