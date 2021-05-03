@@ -33,6 +33,9 @@ public interface OrderExternalService {
                                             String statusName, String orderCancelCode, String orderCancelDescription,
                                             String orderCancelObservation);
 
+    Mono<OrderCanonical> createOrderToLiquidation(OrderCanonical orderCanonical);
+    Mono<OrderCanonical> updateOrderToLiquidation(String status,Long ecommerceId);
+
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
     Mono<OrderCanonical> updateOrderStatus(Long ecommerceId, ActionDto actionDto);

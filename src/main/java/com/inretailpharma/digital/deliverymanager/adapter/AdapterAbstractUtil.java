@@ -54,6 +54,15 @@ public abstract class AdapterAbstractUtil {
                 .getValue();
     }
 
+    protected boolean getValueBoolenOfParameter(String parameter) {
+
+        return Optional
+                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(parameter))
+                    .map(val -> Constant.Logical.getByValueString(val.getValue()).value())
+                    .orElse(false);
+    }
+
+
     protected MessageDto getDtoToNotification(IOrderFulfillment iOrderFulfillment, String statusToSend, String expiredDate,
                                               String localType) {
 

@@ -45,4 +45,45 @@ public class UtilFunctions {
 
             };
 
+
+
+    public static LiquidationStatus processLiquidationStatus =
+            (digitalStatus) -> {
+
+                String liquidationStatus;
+
+                switch (digitalStatus) {
+
+                    case Constant.CONFIRMED_STATUS:
+                        liquidationStatus = Constant.LIQUIDATION_STATUS_1;
+                        break;
+
+                    case Constant.ERROR_INSERT_INKAVENTA_STATUS:
+                    case Constant.ERROR_INSERT_TRACKER_STATUS:
+                    case Constant.ORDER_FAILED_STATUS:
+                        liquidationStatus = Constant.LIQUIDATION_STATUS_2;
+                        break;
+
+                    case Constant.CANCELLED_ORDER_STATUS:
+                    case Constant.REJECTED_ORDER_STATUS:
+                    case Constant.CANCELLED_ORDER_ONLINE_PAYMENT_STATUS:
+                    case Constant.REJECTED_ORDER_ONLINE_PAYMENT_STATUS:
+                    case Constant.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK_STATUS:
+                    case Constant.CANCELLED_ORDER_NOT_ENOUGH_STOCK_STATUS:
+
+                        liquidationStatus = Constant.LIQUIDATION_STATUS_3;
+
+                        break;
+
+                    case Constant.DELIVERED_ORDER_STATUS:
+                        liquidationStatus = Constant.LIQUIDATION_STATUS_4;
+                        break;
+
+                    default:
+                        liquidationStatus = Constant.LIQUIDATION_STATUS_ERROR;
+                }
+
+                return liquidationStatus;
+
+            };
 }

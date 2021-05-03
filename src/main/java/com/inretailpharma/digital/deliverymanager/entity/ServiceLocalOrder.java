@@ -86,5 +86,7 @@ public class ServiceLocalOrder {
     @Column(name="date_cancelled")
     private LocalDateTime dateCancelled;
 
+    private String liquidationStatus;
+
 
 }

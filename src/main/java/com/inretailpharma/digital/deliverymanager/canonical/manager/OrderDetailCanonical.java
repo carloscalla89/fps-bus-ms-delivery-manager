@@ -39,4 +39,8 @@ public class OrderDetailCanonical {
     // boolean if the order is programmed or not
     private boolean programmed;
 
+    // liquidation status and detail
+    private String liquidationStatus;
+    private String liquidationStatusDetail;
+
 }

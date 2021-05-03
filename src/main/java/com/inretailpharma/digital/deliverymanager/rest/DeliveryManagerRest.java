@@ -53,7 +53,7 @@ public class DeliveryManagerRest {
 
     @PostMapping("/order/partial/")
     public Mono<OrderCanonical> updatePartialOrder(@RequestBody OrderDto partialOrderDto) {
-        log.info("[START] endpoint updatePartialOrder /order/partial/{} - partialOrderDto: {}",
+        log.info("[START] endpoint updatePartialOrder /order/partial/ - partialOrderDto: {}",
                 partialOrderDto);
 
         return deliveryManagerFacade.getUpdatePartialOrder(partialOrderDto);

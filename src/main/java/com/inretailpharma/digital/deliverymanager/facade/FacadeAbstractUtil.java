@@ -8,6 +8,7 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,10 @@ public abstract class FacadeAbstractUtil {
 
     protected String getValueOfParameter(String parameter) {
         return applicationParameterService.getApplicationParameterByCodeIs(parameter).getValue();
+    }
+
+    protected IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId) {
+        return orderTransaction.getOrderLightByecommerceId(ecommerceId);
     }
 
     protected List<CancellationCanonical> getCancellationsCodeByAppType(String appType) {
@@ -126,5 +131,13 @@ public abstract class FacadeAbstractUtil {
 
         return iNotificationAdapter.sendNotification(actionDto,iOrderFulfillment);
 
+    }
+
+    protected boolean getValueBoolenOfParameter(String parameter) {
+
+        return Optional
+                .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(parameter))
+                .map(val -> Constant.Logical.getByValueString(val.getValue()).value())
+                .orElse(false);
     }
 }

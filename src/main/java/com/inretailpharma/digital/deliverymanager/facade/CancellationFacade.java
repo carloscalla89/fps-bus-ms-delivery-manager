@@ -9,11 +9,12 @@ import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServ
 
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
-import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
-import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
+import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -30,15 +31,14 @@ import java.util.Optional;
 public class CancellationFacade extends FacadeAbstractUtil{
 
     private ExternalServicesProperties externalServicesProperties;
-    private OrderFacadeProxy orderFacadeProxy;
-    private OrderCancellationService orderCancellationService;
+    private UpdateTracker updateTracker;
 
-    public CancellationFacade(ExternalServicesProperties externalServicesProperties, OrderFacadeProxy orderFacadeProxy,
-                              OrderCancellationService orderCancellationService) {
+    @Autowired
+    public CancellationFacade(ExternalServicesProperties externalServicesProperties,
+                              @Qualifier("updateTracker") UpdateTracker updateTracker) {
 
         this.externalServicesProperties = externalServicesProperties;
-        this.orderFacadeProxy = orderFacadeProxy;
-        this.orderCancellationService = orderCancellationService;
+        this.updateTracker = updateTracker;
     }
 
     public Flux<CancellationCanonical> getOrderCancellationList(String appType) {
@@ -70,8 +70,8 @@ public class CancellationFacade extends FacadeAbstractUtil{
                     actionDto.setOrigin(Constant.ORIGIN_TASK_EXPIRATION);
                     actionDto.setUpdatedBy(Constant.TASK_LAMBDA_UPDATED_BY);
 
-                    return orderFacadeProxy
-                            .sendToUpdateOrder(r, actionDto, orderCancellationService.evaluateGetCancel(actionDto))
+                    return updateTracker
+                            .evaluate(actionDto,r.getEcommerceId().toString())
                             .defaultIfEmpty(
                                     new OrderCanonical(
                                             r.getEcommerceId(),

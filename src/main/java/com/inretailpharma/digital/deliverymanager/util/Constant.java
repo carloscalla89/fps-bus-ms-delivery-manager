@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.util;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
+import com.inretailpharma.digital.deliverymanager.strategy.*;
 import org.apache.commons.lang3.EnumUtils;
 
 import java.util.Optional;
@@ -98,27 +99,6 @@ public interface Constant {
         }
     }
 
-    enum DispatcherImplementation {
-        IKF("deliveryDispatcherInka"), MF("deliveryDispatcherMifa");
-
-        private String name;
-
-        DispatcherImplementation(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public static DispatcherImplementation getByCompanyCode(String companyCode) {
-
-            return EnumUtils.getEnumList(DispatcherImplementation.class).stream()
-                    .filter(item -> item.name().equalsIgnoreCase(companyCode)).findFirst().orElse(IKF);
-        }
-
-    }
-
     enum TrackerImplementation {
         inkatrackerlite(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE", TARGET_LITE),
         inkatracker(3, InkatrackerServiceImpl.class,"DELIVERY_CENTER", TARGET_TRACKER),
@@ -181,6 +161,8 @@ public interface Constant {
 
         String ACTIVATED_SEND_ = "ACTIVATED_SEND_";
         String DEFAULT_INTERVAL_TIME_BY_SERVICE_ = "DEFAULT_INTERVAL_TIME_BY_SERVICE_";
+
+        String ENABLED_SEND_TO_LIQUIDATION = "ENABLED_SEND_TO_LIQUIDATION";
     }
 
     interface InsinkErrorCode {
@@ -208,48 +190,78 @@ public interface Constant {
 
     enum ActionOrder {
 
-        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker",1,METHOD_CREATE),
-        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker",2, METHOD_UPDATE),
+        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker",1,
+                METHOD_CREATE, new RetryTracker()),
 
-        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink",1, METHOD_CREATE),
 
-        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9, METHOD_UPDATE),
-        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9, METHOD_UPDATE),
-        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9, METHOD_UPDATE),
-        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger",5, METHOD_UPDATE),
-        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada",3, METHOD_UPDATE),
+        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink",1,
+                METHOD_CREATE, new RetryDeliveryDispatcher()),
+
+        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9,
+                METHOD_UPDATE, new UpdateTracker()),
+
+        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9,
+                METHOD_UPDATE, new UpdateTracker()),
+
+        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9,
+                METHOD_UPDATE, new UpdateTracker()),
+
+        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger",5,
+                METHOD_UPDATE, new UpdateTracker()),
+
+        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada",3,
+                METHOD_UPDATE, new UpdateTracker()),
 
         // ========== nuevas actions que enviarán TI - 29-10-2020
         // =========================
-        READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING",5, METHOD_UPDATE),
-        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4, METHOD_UPDATE),
-        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5, METHOD_UPDATE),
+        READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING",5,
+                METHOD_UPDATE, new UpdateTracker()),
+        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4,
+                METHOD_UPDATE, new UpdateTracker()),
+
+        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5,
+                METHOD_UPDATE, new UpdateTracker()),
         // =================================================================================
 
+        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker",2,
+                METHOD_UPDATE, new UpdateTracker()),
 
         // =========== nuevos actions que se enviarán desde el order-tracker
-        ASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE),
-        UNASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE),
-        ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE",7, METHOD_UPDATE),
-        ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8, METHOD_UPDATE),
+        ASSIGN_ORDER(4, "Acción para asignar órdenes",6,
+                METHOD_UPDATE, new UpdateTracker()),
 
-        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10, METHOD_UPDATE),
+        UNASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE,
+                new UpdateTracker()),
 
-        FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0, METHOD_CREATE),
+        ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE",7,
+                METHOD_UPDATE, new UpdateTracker()),
 
-        NONE(0, "Not found status",0,METHOD_NONE);
+        ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8,
+                METHOD_UPDATE, new UpdateTracker()),
+
+        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
+                METHOD_UPDATE, new com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment()),
+
+        FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0,
+                METHOD_CREATE, new FillOrder()),
+
+        NONE(0, "Not found status",0,METHOD_NONE, new UpdateTracker());
 
         private Integer code;
         private String description;
         private int sequence;
         private String method;
+        private IActionStrategy iActionStrategy;
 
-        ActionOrder(Integer code, String description,int sequence, String method) {
+        ActionOrder(Integer code, String description,int sequence, String method, IActionStrategy iActionStrategy) {
             this.code = code;
             this.description = description;
             this.sequence = sequence;
             this.method = method;
+            this.iActionStrategy = iActionStrategy;
         }
+
+
 
         public Integer getCode() {
             return code;
@@ -273,7 +285,9 @@ public interface Constant {
                     .findFirst().orElse(NONE);
         }
 
-
+        public IActionStrategy getiActionStrategy() {
+            return iActionStrategy;
+        }
     }
     enum OrderStatusTracker {
 
@@ -440,15 +454,13 @@ public interface Constant {
 
     enum OrderStatus {
 
-        SUCCESS_FULFILLMENT_PROCESS("00", true),
-
         // ========== ERRORES =================================================================
         ERROR_INSERT_TRACKER("01", false), ERROR_INSERT_INKAVENTA("02", false),
-        ERROR_RESERVED_ORDER("03", false), ERROR_PICKED("04", false),
-        ERROR_PREPARED("05", false), ERROR_READY_FOR_PICKUP("05", false),
-        ERROR_ASSIGNED("06", false), ERROR_ON_ROUTED("07", false),
-        ERROR_ARRIVED("08", false), ERROR_DELIVERED("09", false),
-        ERROR_CANCELLED("10", false),ERROR_REJECTED("10", false),
+        ERROR_PICKED("04", false), ERROR_PREPARED("05", false),
+        ERROR_READY_FOR_PICKUP("05", false), ERROR_ASSIGNED("06", false),
+        ERROR_ON_ROUTED("07", false), ERROR_ARRIVED("08", false),
+        ERROR_DELIVERED("09", false), ERROR_CANCELLED("10", false),
+        ERROR_REJECTED("10", false),
         // ==================================================================================================
 
 
@@ -630,6 +642,30 @@ public interface Constant {
     String METHOD_NONE = "NONE";
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
 
+    String CONFIRMED_STATUS = "CONFIRMED";
+
+    String ERROR_INSERT_TRACKER_STATUS = "ERROR_INSERT_TRACKER";
+    String ORDER_FAILED_STATUS = "ORDER_FAILED";
+    String ERROR_INSERT_INKAVENTA_STATUS = "ERROR_INSERT_INKAVENTA";
+
+    String CANCELLED_ORDER_STATUS = "CANCELLED_ORDER";
+    String REJECTED_ORDER_STATUS = "REJECTED_ORDER";
+    String CANCELLED_ORDER_ONLINE_PAYMENT_STATUS = "CANCELLED_ORDER_ONLINE_PAYMENT";
+    String REJECTED_ORDER_ONLINE_PAYMENT_STATUS = " REJECTED_ORDER_ONLINE_PAYMENT";
+    String CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK_STATUS = "CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK";
+    String CANCELLED_ORDER_NOT_ENOUGH_STOCK_STATUS = "CANCELLED_ORDER_NOT_ENOUGH_STOCK";
+
+    String DELIVERED_ORDER_STATUS = "DELIVERED_ORDER";
+
+    /* Estados de liquidación */
+
+    String LIQUIDATION_STATUS_ERROR = "LIQUIDATION_STATUS_ERROR";
+    String LIQUIDATION_STATUS_1 = "LIQUIDATION_STATUS_1";
+    String LIQUIDATION_STATUS_2 = "LIQUIDATION_STATUS_2";
+    String LIQUIDATION_STATUS_3 = "LIQUIDATION_STATUS_3";
+    String LIQUIDATION_STATUS_4 = "LIQUIDATION_STATUS_4";
+
+
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";
 
@@ -686,10 +722,6 @@ public interface Constant {
                 return description;
             }
         }
-    }
-
-    interface ServiceTypeCodes {
-        String PICKUP = "PICKUP";
     }
 
     enum StockType {

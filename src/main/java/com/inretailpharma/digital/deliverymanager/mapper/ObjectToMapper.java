@@ -162,6 +162,8 @@ public class ObjectToMapper {
                                         )
                         ).orElse(null)
         );
+        auditHistoryDto.setLiquidationStatus(orderCanonical.getOrderDetail().getLiquidationStatus());
+        auditHistoryDto.setLiquidationStatus(orderCanonical.getOrderDetail().getLiquidationStatusDetail());
         return auditHistoryDto;
     }
 
@@ -1243,6 +1245,7 @@ public class ObjectToMapper {
 
         // set detail order
         OrderDetailCanonical orderDetail = new OrderDetailCanonical();
+        orderDetail.setLiquidationStatus(orderWrapperResponse.getLiquidationStatus());
 
         Optional.ofNullable(orderDto.getSchedules()).ifPresent(r -> {
             orderDetail.setConfirmedSchedule(r.getScheduledTime());

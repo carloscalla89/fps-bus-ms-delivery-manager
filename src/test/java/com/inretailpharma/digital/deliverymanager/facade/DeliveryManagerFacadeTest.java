@@ -17,13 +17,8 @@ class DeliveryManagerFacadeTest {
     @MockBean
     private ApplicationParameterService applicationParameterService;
 
-    @MockBean
-    private OrderFacadeProxy orderFacadeProxy;
-
     @Test
     void createOrder() {
-
-
 
     }
 

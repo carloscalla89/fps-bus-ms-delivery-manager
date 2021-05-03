@@ -47,5 +47,9 @@ public class OrderWrapperResponse {
     private BigDecimal localLongitude;
     private Integer localRadius;
 
+    // liquidation status and detail
+    private String liquidationStatus;
+    private String liquidationStatusDetail;
+
 
 }

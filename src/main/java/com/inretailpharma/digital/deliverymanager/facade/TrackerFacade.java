@@ -4,12 +4,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.INotificationAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
+import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -34,20 +34,22 @@ import reactor.core.scheduler.Schedulers;
 @Component
 public class TrackerFacade extends FacadeAbstractUtil{
 
-	private OrderFacadeProxy orderFacadeProxy;
 	private OrderCancellationService orderCancellationService;
 
 	private ITrackerAdapter iOrderTrackerAdapter;
 	private IAuditAdapter iAuditAdapter;
 
+	private UpdateTracker updateTracker;
+
 	@Autowired
 	public TrackerFacade(@Qualifier("orderTrackerAdapter") ITrackerAdapter iOrderTrackerAdapter,
 						 @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
-						 OrderFacadeProxy orderFacadeProxy, OrderCancellationService orderCancellationService) {
-		this.orderFacadeProxy = orderFacadeProxy;
+						 OrderCancellationService orderCancellationService,
+						 @Qualifier("updateTracker") UpdateTracker updateTracker) {
 		this.iOrderTrackerAdapter = iOrderTrackerAdapter;
 		this.iAuditAdapter = iAuditAdapter;
 		this.orderCancellationService = orderCancellationService;
+		this.updateTracker = updateTracker;
 	}
 
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {   
@@ -228,7 +230,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 								actionDto.setActionDate(statusLast.getActionDate());
 
 
-								return orderFacadeProxy
+								return updateTracker
 										.sendOnlyLastStatusOrderFromSync(iorder, actionDto,
 												orderCancellationService.evaluateGetCancel(actionDto)
 										)
@@ -243,7 +245,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                                 return Flux
                                         .fromIterable(orderSynchronizeDto.getHistory())
                                         .sort(Comparator. comparing(obj -> Constant.ActionOrder.getByName(obj.getAction()).getSequence()))
-                                        .flatMap(orderHistory -> orderFacadeProxy.updateOrderStatusListAudit(iorder, orderStatusLast, orderHistory, orderSynchronizeDto.getOrigin()))
+                                        .flatMap(orderHistory -> updateTracker.updateOrderStatusListAudit(iorder, orderStatusLast, orderHistory, orderSynchronizeDto.getOrigin()))
                                         .filter(order ->  !order.getAction().equalsIgnoreCase(orderStatusLast.getAction()))
                                         .flatMap(order -> {
 

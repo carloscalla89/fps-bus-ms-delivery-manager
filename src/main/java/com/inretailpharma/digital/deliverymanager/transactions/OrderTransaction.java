@@ -10,6 +10,7 @@ import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -106,6 +107,9 @@ public class OrderTransaction {
                         .map(res -> DateUtils.getLocalDateTimeObjectNow())
                         .orElse(null)
         );
+
+        serviceLocalOrder.setLiquidationStatus(UtilFunctions.processLiquidationStatus.process(orderStatus.getType()));
+
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
         // Set values to return wrapped
@@ -150,6 +154,7 @@ public class OrderTransaction {
         orderWrapperResponse.setEndHour(serviceLocalOrderResponse.getEndHour());
         orderWrapperResponse.setLeadTime(serviceLocalOrderResponse.getLeadTime());
         orderWrapperResponse.setDaysToPickup(serviceLocalOrderResponse.getDaysToPickup());
+        orderWrapperResponse.setLiquidationStatus(serviceLocalOrderResponse.getLiquidationStatus());
 
         log.info("[END] createOrderReactive");
         return objectMapper.setsOrderWrapperResponseToOrderCanonical(orderWrapperResponse, orderDto);
@@ -187,6 +192,7 @@ public class OrderTransaction {
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 
             orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+
         } else if (Optional
                 .ofNullable(orderDto.getOrderStatusDto().getCode())
                 .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.DeliveryManagerStatus.ORDER_FAILED.name())) {

@@ -1,10 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Builder
 public class ActionDto {
 
     private String action;

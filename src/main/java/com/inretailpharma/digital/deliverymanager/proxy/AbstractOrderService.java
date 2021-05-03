@@ -1,10 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.InsinkResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.ResponseDispatcherCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.StatusDispatcher;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
@@ -13,24 +9,20 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Unassig
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
-import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ResponseErrorGeneric;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
 import reactor.core.publisher.Mono;
@@ -77,6 +69,15 @@ public class AbstractOrderService implements OrderExternalService {
 		return null;
 	}
 
+	@Override
+	public Mono<OrderCanonical> createOrderToLiquidation(OrderCanonical orderCanonical) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Mono<OrderCanonical> updateOrderToLiquidation(String status, Long ecommerceId) {
+		throw new UnsupportedOperationException();
+	}
 
 
 	@Override
@@ -262,4 +263,6 @@ public class AbstractOrderService implements OrderExternalService {
 
 		return Mono.just(orderCanonical);
 	}
+
+
 }
