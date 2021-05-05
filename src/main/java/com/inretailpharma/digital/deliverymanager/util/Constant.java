@@ -216,6 +216,7 @@ public interface Constant {
         // =========================
         READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING",5,
                 METHOD_UPDATE, new UpdateTracker()),
+
         PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4,
                 METHOD_UPDATE, new UpdateTracker()),
 
@@ -237,6 +238,9 @@ public interface Constant {
                 METHOD_UPDATE, new UpdateTracker()),
 
         ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8,
+                METHOD_UPDATE, new UpdateTracker()),
+
+        SET_PARTIAL_ORDER(4, "Acción para actualizar una orden parcial",3,
                 METHOD_UPDATE, new UpdateTracker()),
 
         LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
@@ -466,6 +470,8 @@ public interface Constant {
 
         INVOICED("40", true), ERROR_INVOICED("41", false),
 
+        PARTIAL("45", true), ERROR_PARTIAL("46", false),
+
         SUCCESS_RESERVED_ORDER("10", true),
 
         CONFIRMED("15", true), CONFIRMED_TRACKER("16", true),
@@ -637,6 +643,7 @@ public interface Constant {
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
     String TARGET_INSINK = "INSINK";
     String UPDATED_BY_INIT = "INIT";
+    String UPDATED_BY_INKATRACKER_WEB = "INKATRACKER_WEB";
     String METHOD_UPDATE = "UPDATE";
     String METHOD_CREATE = "CREATE";
     String METHOD_NONE = "NONE";

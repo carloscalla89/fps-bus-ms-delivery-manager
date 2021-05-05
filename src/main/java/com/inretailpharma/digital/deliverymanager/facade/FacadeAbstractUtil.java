@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.adapter.INotificationAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
@@ -140,4 +141,9 @@ public abstract class FacadeAbstractUtil {
                 .map(val -> Constant.Logical.getByValueString(val.getValue()).value())
                 .orElse(false);
     }
+
+    protected OrderCanonical updatePartialOrder(OrderDto partialOrderDto) {
+        return orderTransaction.updatePartialOrder(partialOrderDto);
+    }
+
 }

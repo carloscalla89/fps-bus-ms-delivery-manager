@@ -71,6 +71,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "af.department, af.notes, af.latitude, af.longitude, o.partial, " +
             "o.subTotalWithNoSpecificPaymentMethod, o.totalWithNoSpecificPaymentMethod, o.totalWithPaymentMethod, " + // referentes a 3 precios
             "o.paymentMethodCardType, o.discountAppliedNoDP " + // referentes a 3 precios
+            "os.liquidationEnabled, os.liquidationStatus " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -88,7 +89,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
             "o.scheduled_time as scheduledTime," +
             "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, " +
-            "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
+            "os.code as statusCode, os.type as statusName, os.liquidationEnabled, os.liquidationStatus, " +
             "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
             "s.cancellation_code as cancellationCode, " +
             "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as serviceChannel, " +
@@ -110,7 +111,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +
             "o.scheduled_time as scheduledTime," +
             "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, " +
-            "os.code as statusCode, os.type as statusName, os.send_notification_enabled as sendNotificationByStatus," +
+            "os.code as statusCode, os.type as statusName, os.liquidationEnabled, os.liquidationStatus, " +
             "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
             "s.cancellation_code as cancellationCode, " +
             "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as serviceChannel, " +

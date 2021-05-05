@@ -20,7 +20,6 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderRespon
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -135,7 +134,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                                             )
                                     )
                                     .flatMap(response -> iAuditAdapter.updateAudit(response, Constant.UPDATED_BY_INIT))
-                                    .flatMap(response -> liquidationFacade.evaluateUpdate(Constant.ActionOrder.FILL_ORDER.name(), response ));
+                                    .flatMap(response -> liquidationFacade.evaluateUpdate(Constant.ActionOrder.ATTEMPT_TRACKER_CREATE.name(), response ));
 
                     }
                     log.info("[END] Preparation to send order:{}", order.getEcommerceId());
@@ -183,7 +182,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
 
         return actionStrategy
                     .evaluate(actionDto, ecommerceId)
-                    .flatMap(response -> liquidationFacade.evaluateUpdate(Constant.ActionOrder.FILL_ORDER.name(), response));
+                    .flatMap(response -> liquidationFacade.evaluateUpdate(actionDto.getAction(), response));
 
     }
 
@@ -213,20 +212,28 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     }
 
     public Mono<OrderCanonical> getUpdatePartialOrder(OrderDto partialOrderDto) {
-        log.info("[START getUpdatePartialOrder]");
-        log.info("request partialOrderDto: {}", partialOrderDto);
-        try {
-            return Mono.just(orderTransaction.updatePartialOrder(partialOrderDto));
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("ERROR at updating the order:{}", e.getMessage());
-            OrderCanonical resultDefault = new OrderCanonical();
-            OrderStatusCanonical orderStatusNotFound = new OrderStatusCanonical();
-            orderStatusNotFound.setCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
-            orderStatusNotFound.setName(Constant.OrderTrackerResponseCode.ERROR_CODE);
-            orderStatusNotFound.setStatusDate(DateUtils.getLocalDateTimeNow());
-            return Mono.just(resultDefault);
-        }
+        log.info("[START] getUpdatePartialOrder:{}",partialOrderDto);
+
+        return Mono
+                .just(orderTransaction.updatePartialOrder(partialOrderDto))
+                .onErrorResume(e -> {
+
+                    e.printStackTrace();
+                    log.error("Error during update partial order:{}",e.getMessage());
+
+                    OrderCanonical orderCanonical = new OrderCanonical();
+                    orderCanonical.setEcommerceId(partialOrderDto.getEcommercePurchaseId());
+
+                    OrderStatusCanonical statusCanonical = new OrderStatusCanonical();
+                    statusCanonical.setCode(Constant.OrderStatus.ERROR_PARTIAL.getCode());
+                    statusCanonical.setName(Constant.OrderStatus.ERROR_PARTIAL.name());
+                    statusCanonical.setDetail(e.getMessage());
+
+                    return Mono.just(orderCanonical);
+
+                })
+                .flatMap(order -> iAuditAdapter.updateAudit(order, Constant.UPDATED_BY_INKATRACKER_WEB))
+                .flatMap(order -> liquidationFacade.evaluateUpdate(Constant.ActionOrder.SET_PARTIAL_ORDER.name(),order));
     }
 
 }
