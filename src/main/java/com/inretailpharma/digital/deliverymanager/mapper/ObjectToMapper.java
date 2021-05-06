@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.*;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.*;
 import com.inretailpharma.digital.deliverymanager.entity.*;
@@ -30,15 +34,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.Previous
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ScheduledCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ZoneTrackerCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderDetailCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.Address;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
@@ -60,16 +55,76 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ObjectToMapper {
 
+    public OrderCanonical getOrderToOrderTracker(IOrderFulfillment iOrderFulfillment,
+                                                 List<IOrderItemFulfillment> itemFulfillments) {
+
+        OrderCanonical orderCanonical = convertIOrderDtoToOrderFulfillmentCanonical(iOrderFulfillment);
+        orderCanonical.setOrderItems(getItems(itemFulfillments, iOrderFulfillment.getPartial()));
+
+        return orderCanonical;
+    }
+
+    public List<OrderItemCanonical> getItems(List<IOrderItemFulfillment> itemFulfillments, Boolean partial) {
+
+        return itemFulfillments.stream().map(item -> {
+            OrderItemCanonical orderItem = new OrderItemCanonical();
+            orderItem.setProductCode(item.getProductCode());
+            orderItem.setProductName(item.getNameProduct());
+            orderItem.setSkuSap(item.getProductSapCode());
+            orderItem.setShortDescription(item.getShortDescriptionProduct());
+            orderItem.setBrand(item.getBrandProduct());
+            orderItem.setQuantity(item.getQuantity());
+            orderItem.setUnitPrice(item.getUnitPrice());
+            orderItem.setTotalPrice(item.getTotalPrice());
+            orderItem.setFractionated(Constant.Logical.Y.name().equals(item.getFractionated()));
+            orderItem.setQuantityUnits(item.getQuantityUnits());
+            orderItem.setPresentationId(item.getPresentationId());
+            orderItem.setPresentationDescription(item.getPresentationDescription());
+
+            if (Constant.COLLECTION_PRESENTATION_ID.equals(item.getPresentationId())) {
+
+                if (Boolean.TRUE.equals(partial)) {
+
+                    if (Constant.Logical.Y.name().equalsIgnoreCase(item.getFractionated())) {
+
+                        if (item.getQuantityUnits() > 0) {
+                            orderItem.setQuantity(item.getQuantity()/item.getQuantityUnits());
+                        } else {
+                            log.error("[ERROR] convertIOrderItemDtoToOrderItemFulfillmentCanonical orderItem {} invalid QuantityUnits ({}) "
+                                    , item.getOrderFulfillmentId(), item.getQuantityUnits());
+                            orderItem.setQuantity(item.getQuantity());
+                        }
+
+                    } else {
+                        orderItem.setQuantity(item.getQuantity());
+                    }
+
+                } else {
+                    orderItem.setQuantity(item.getQuantityPresentation());
+                }
+            } else {
+                orderItem.setQuantity(item.getQuantity());
+            }
+
+            return orderItem;
+
+        }).collect(Collectors.toList());
+    }
 
     public OrderCanonical getOrderFromIOrdersProjects(IOrderFulfillment iOrderFulfillment,
                                                       List<IOrderItemFulfillment> itemFulfillments) {
 
         OrderCanonical orderCanonical = new OrderCanonical();
         orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+        orderCanonical.setExternalId(iOrderFulfillment.getExternalId());
+        orderCanonical.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).orElse(null));
+
         orderCanonical.setTotalAmount(iOrderFulfillment.getTotalCost());
         orderCanonical.setSubTotalCost(iOrderFulfillment.getSubTotalCost());
         orderCanonical.setDeliveryCost(iOrderFulfillment.getDeliveryCost());
         orderCanonical.setCompanyCode(iOrderFulfillment.getCompanyCode());
+        orderCanonical.setLocalCode(iOrderFulfillment.getCenterCode());
+        orderCanonical.setLocal(iOrderFulfillment.getCenterName());
         orderCanonical.setLocalType(
                 Constant.TrackerImplementation
                         .getClassImplement(iOrderFulfillment.getClassImplement())
@@ -84,51 +139,7 @@ public class ObjectToMapper {
         orderStatusDto.setCancellationDescription(iOrderFulfillment.getCancellationDescription());
         orderStatusDto.setSuccessful(!Optional.ofNullable(iOrderFulfillment.getStatusDetail()).isPresent());
         orderCanonical.setOrderStatus(orderStatusDto);
-
-        orderCanonical.setOrderItems(
-                itemFulfillments.stream().map(item -> {
-                    OrderItemCanonical orderItem = new OrderItemCanonical();
-                    orderItem.setProductCode(item.getProductCode());
-                    orderItem.setProductName(item.getNameProduct());
-                    orderItem.setSkuSap(item.getProductSapCode());
-                    orderItem.setShortDescription(item.getShortDescriptionProduct());
-                    orderItem.setBrand(item.getBrandProduct());
-                    orderItem.setQuantity(item.getQuantity());
-                    orderItem.setUnitPrice(item.getUnitPrice());
-                    orderItem.setTotalPrice(item.getTotalPrice());
-                    orderItem.setFractionated(Constant.Logical.Y.name().equals(item.getFractionated()));
-                    orderItem.setQuantityUnits(item.getQuantityUnits());
-                    orderItem.setPresentationId(item.getPresentationId());
-                    orderItem.setPresentationDescription(item.getPresentationDescription());
-
-                    if (Constant.COLLECTION_PRESENTATION_ID.equals(item.getPresentationId())) {
-
-                        if (Boolean.TRUE.equals(iOrderFulfillment.getPartial())) {
-
-                            if (Constant.Logical.Y.name().equalsIgnoreCase(item.getFractionated())) {
-
-                                if (item.getQuantityUnits() > 0) {
-                                    orderItem.setQuantity(item.getQuantity()/item.getQuantityUnits());
-                                } else {
-                                    log.error("[ERROR] convertIOrderItemDtoToOrderItemFulfillmentCanonical orderItem {} invalid QuantityUnits ({}) "
-                                            , item.getOrderFulfillmentId(), item.getQuantityUnits());
-                                    orderItem.setQuantity(item.getQuantity());
-                                }
-
-                            } else {
-                                orderItem.setQuantity(item.getQuantity());
-                            }
-
-                        } else {
-                            orderItem.setQuantity(item.getQuantityPresentation());
-                        }
-                    } else {
-                        orderItem.setQuantity(item.getQuantity());
-                    }
-
-                    return orderItem;
-
-                }).collect(Collectors.toList()));
+        orderCanonical.setOrderItems(getItems(itemFulfillments, iOrderFulfillment.getPartial()));
 
         return orderCanonical;
 
@@ -162,8 +173,14 @@ public class ObjectToMapper {
                                         )
                         ).orElse(null)
         );
-        auditHistoryDto.setLiquidationStatus(orderCanonical.getOrderDetail().getLiquidationStatus());
-        auditHistoryDto.setLiquidationStatus(orderCanonical.getOrderDetail().getLiquidationStatusDetail());
+
+        Optional.ofNullable(orderCanonical.getLiquidation())
+                .filter(LiquidationCanonical::isLiquidationEnabled)
+                .ifPresent(val -> {
+                    auditHistoryDto.setLiquidationStatus(val.getLiquidationStatus());
+                    auditHistoryDto.setLiquidationStatusDetail(val.getLiquidationStatusDetail());
+        });
+
         return auditHistoryDto;
     }
 
@@ -1014,7 +1031,7 @@ public class ObjectToMapper {
         	
         	orderCanonical.setEcommerceId(o.getEcommerceId());
         	orderCanonical.setExternalId(o.getExternalId());
-            orderCanonical.setPurchaseId(Optional.ofNullable(o.getPurchaseId()).map(Integer::longValue).orElse(null));
+            orderCanonical.setPurchaseId(Optional.ofNullable(o.getPurchaseId()).orElse(null));
         	
         	orderCanonical.setTotalAmount(o.getTotalCost());
         	orderCanonical.setDeliveryCost(o.getDeliveryCost());
@@ -1029,7 +1046,6 @@ public class ObjectToMapper {
                     + StringUtils.SPACE + Optional.ofNullable(o.getFirstName()).orElse(StringUtils.EMPTY));
         	client.setEmail(o.getEmail());
         	client.setPhone(o.getPhone());
-        	//client.setHasInkaClub(o.getInkaClub());
 
             OrderDetailCanonical orderDetail = new OrderDetailCanonical();
             Optional.ofNullable(o.getScheduledTime()).ifPresent(date -> {
@@ -1076,50 +1092,7 @@ public class ObjectToMapper {
         return orderCanonical;
     }
     
-    public OrderItemCanonical convertIOrderItemDtoToOrderItemFulfillmentCanonical(IOrderItemFulfillment iOrderItemFulfillment, Boolean partial) {
-    	log.debug("[START] map-convertIOrderItemDtoToOrderItemFulfillmentCanonical");
-    	
-    	OrderItemCanonical orderItemCanonical = new OrderItemCanonical();
-    	Optional.ofNullable(iOrderItemFulfillment).ifPresent(o -> {
-    		orderItemCanonical.setProductCode(o.getProductCode());
-    		orderItemCanonical.setProductName(o.getNameProduct());
-    		orderItemCanonical.setShortDescription(o.getShortDescriptionProduct());
-    		orderItemCanonical.setBrand(o.getBrandProduct());
-    		orderItemCanonical.setQuantity(o.getQuantity());
-    		orderItemCanonical.setUnitPrice(o.getUnitPrice());
-    		orderItemCanonical.setTotalPrice(o.getTotalPrice());
-    		orderItemCanonical.setFractionated(Constant.Logical.Y.name().equals(o.getFractionated()));
 
-    		if (Constant.COLLECTION_PRESENTATION_ID.equals(o.getPresentationId())) {
-    			
-				if (Boolean.TRUE.equals(partial)) {
-					
-        			if (Constant.Logical.Y.name().equalsIgnoreCase(o.getFractionated())) {
-        				
-        				if (o.getQuantityUnits() > 0) {
-        					orderItemCanonical.setQuantity(o.getQuantity()/o.getQuantityUnits());
-        				} else {
-        					log.error("[ERROR] convertIOrderItemDtoToOrderItemFulfillmentCanonical orderItem {} invalid QuantityUnits ({}) "
-        							, o.getOrderFulfillmentId(), o.getQuantityUnits());
-        					orderItemCanonical.setQuantity(o.getQuantity());
-        				}
-        				
-        			} else {    				
-        				orderItemCanonical.setQuantity(o.getQuantity());
-        			}    			
-        			
-        		} else {
-        			orderItemCanonical.setQuantity(o.getQuantityPresentation());
-        		}
-			} else {
-				orderItemCanonical.setQuantity(o.getQuantity());
-			}
-    		
-    	});
-    	
-    	log.debug("[END] map-convertIOrderItemDtoToOrderItemFulfillmentCanonical:{}", orderItemCanonical);
-        return orderItemCanonical;    	
-    }
 
 
     public OrderCanonical setsOrderWrapperResponseToOrderCanonical(OrderWrapperResponse orderWrapperResponse,
@@ -1245,7 +1218,6 @@ public class ObjectToMapper {
 
         // set detail order
         OrderDetailCanonical orderDetail = new OrderDetailCanonical();
-        orderDetail.setLiquidationStatus(orderWrapperResponse.getLiquidationStatus());
 
         Optional.ofNullable(orderDto.getSchedules()).ifPresent(r -> {
             orderDetail.setConfirmedSchedule(r.getScheduledTime());
@@ -1337,6 +1309,20 @@ public class ObjectToMapper {
         orderCanonical.setAttemptTracker(orderWrapperResponse.getAttemptTracker());
         orderCanonical.setAttempt(orderWrapperResponse.getAttemptBilling());
 
+        /*
+          Parameters of liquidations
+          date: 05-05-21
+          by: carlos calla
+         */
+        orderCanonical.setLiquidation(
+                LiquidationCanonical
+                        .builder()
+                        .liquidationEnabled(orderWrapperResponse.isLiquidationEnabled())
+                        .liquidationStatus(orderWrapperResponse.getLiquidationStatus())
+                        .build()
+        );
+        /* */
+
         return orderCanonical;
 
     }
@@ -1351,5 +1337,15 @@ public class ObjectToMapper {
             cancellationCanonical.setDescription(r.getReason());
             return cancellationCanonical;
         }).collect(Collectors.toList());
+    }
+
+    public LiquidationCanonical mapLiquidationStatusByEntity(OrderStatus orderStatus) {
+
+        return LiquidationCanonical
+                .builder()
+                .liquidationEnabled(orderStatus.isLiquidationEnabled())
+                .liquidationStatus(orderStatus.getLiquidationStatus())
+                .build();
+
     }
 }

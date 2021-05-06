@@ -191,78 +191,77 @@ public interface Constant {
     enum ActionOrder {
 
         ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker",1,
-                METHOD_CREATE, new RetryTracker()),
+                METHOD_CREATE, RetryTracker.class),
 
 
         ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink",1,
-                METHOD_CREATE, new RetryDeliveryDispatcher()),
+                METHOD_CREATE, RetryDeliveryDispatcher.class),
 
         REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger",5,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada",3,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         // ========== nuevas actions que enviarán TI - 29-10-2020
         // =========================
         READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING",5,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
         // =================================================================================
 
         ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker",2,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         // =========== nuevos actions que se enviarán desde el order-tracker
         ASSIGN_ORDER(4, "Acción para asignar órdenes",6,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
-        UNASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE,
-                new UpdateTracker()),
+        UNASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE, UpdateTracker.class),
 
         ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE",7,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         SET_PARTIAL_ORDER(4, "Acción para actualizar una orden parcial",3,
-                METHOD_UPDATE, new UpdateTracker()),
+                METHOD_UPDATE, UpdateTracker.class),
 
         LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
-                METHOD_UPDATE, new com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment()),
+                METHOD_UPDATE, com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment.class),
 
         FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0,
-                METHOD_CREATE, new FillOrder()),
+                METHOD_CREATE, FillOrder.class),
 
-        NONE(0, "Not found status",0,METHOD_NONE, new UpdateTracker());
+        NONE(0, "Not found status",0,METHOD_NONE, UpdateTracker.class);
 
         private Integer code;
         private String description;
         private int sequence;
         private String method;
-        private IActionStrategy iActionStrategy;
+        private Class<?> actionStrategyImplement;
 
-        ActionOrder(Integer code, String description,int sequence, String method, IActionStrategy iActionStrategy) {
+        ActionOrder(Integer code, String description,int sequence, String method, Class actionStrategyImplement) {
             this.code = code;
             this.description = description;
             this.sequence = sequence;
             this.method = method;
-            this.iActionStrategy = iActionStrategy;
+            this.actionStrategyImplement = actionStrategyImplement;
         }
 
 
@@ -289,8 +288,8 @@ public interface Constant {
                     .findFirst().orElse(NONE);
         }
 
-        public IActionStrategy getiActionStrategy() {
-            return iActionStrategy;
+        public Class<?> getActionStrategyImplement() {
+            return actionStrategyImplement;
         }
     }
     enum OrderStatusTracker {
@@ -470,7 +469,7 @@ public interface Constant {
 
         INVOICED("40", true), ERROR_INVOICED("41", false),
 
-        PARTIAL("45", true), ERROR_PARTIAL("46", false),
+        PARTIAL_UPDATE_ORDER("45", true), ERROR_PARTIAL_UPDATE("46", false),
 
         SUCCESS_RESERVED_ORDER("10", true),
 

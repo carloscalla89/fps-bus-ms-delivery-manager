@@ -100,17 +100,15 @@ public abstract class AdapterAbstractUtil {
         );
     }
 
-    protected OrderCanonical getOrderFromIOrdersProjects(Long ecommercePurchaseId) {
+    protected OrderCanonical getOrderToOrderTracker(Long ecommercePurchaseId) {
 
         IOrderFulfillment iOrderFulfillment = getOrderByEcommerceId(ecommercePurchaseId);
 
-        return objectToMapper
-                .getOrderFromIOrdersProjects(
-                        iOrderFulfillment,
-                        orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId())
-                );
-
+        return objectToMapper.getOrderToOrderTracker(
+                iOrderFulfillment,
+                orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()));
     }
+
 
     protected IOrderFulfillment getOrderByEcommerceId(Long ecommercePurchaseId) {
         return orderTransaction.getOrderByecommerceId(ecommercePurchaseId);

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
@@ -91,7 +93,8 @@ public class OrderTransaction {
                 Optional.ofNullable(orderDto.getSchedules().getLeadTime())
                         .filter(val -> val > 0)
                         .orElseGet(() -> Optional
-                                            .ofNullable(getApplicationParameter(Constant.ApplicationsParameters.DEFAULT_INTERVAL_TIME_BY_SERVICE_
+                                            .ofNullable(
+                                                    getApplicationParameter(Constant.ApplicationsParameters.DEFAULT_INTERVAL_TIME_BY_SERVICE_
                                                     + serviceType.getShortCode())
                                             )
                                             .map(Integer::parseInt)
@@ -135,8 +138,10 @@ public class OrderTransaction {
                 serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().isSendNotificationEnabled()
         );
 
-        orderWrapperResponse.setServiceEnabled(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getEnabled());
-        orderWrapperResponse.setServiceClassImplement(serviceLocalOrderResponse.getServiceLocalOrderIdentity().getServiceType().getClassImplement());
+        orderWrapperResponse.setServiceEnabled(serviceLocalOrderResponse
+                .getServiceLocalOrderIdentity().getServiceType().getEnabled());
+        orderWrapperResponse.setServiceClassImplement(serviceLocalOrderResponse.getServiceLocalOrderIdentity()
+                .getServiceType().getClassImplement());
 
         orderWrapperResponse.setAttemptBilling(serviceLocalOrderResponse.getAttempt());
         orderWrapperResponse.setAttemptTracker(serviceLocalOrderResponse.getAttemptTracker());
@@ -154,7 +159,14 @@ public class OrderTransaction {
         orderWrapperResponse.setEndHour(serviceLocalOrderResponse.getEndHour());
         orderWrapperResponse.setLeadTime(serviceLocalOrderResponse.getLeadTime());
         orderWrapperResponse.setDaysToPickup(serviceLocalOrderResponse.getDaysToPickup());
-        orderWrapperResponse.setLiquidationStatus(serviceLocalOrderResponse.getLiquidationStatus());
+
+        /*
+          Parameters of liquidations
+          date: 05-05-21
+          by: carlos calla
+         */
+        orderWrapperResponse.setLiquidationEnabled(orderStatus.isLiquidationEnabled());
+        orderWrapperResponse.setLiquidationStatus(orderStatus.getLiquidationStatus());
 
         log.info("[END] createOrderReactive");
         return objectMapper.setsOrderWrapperResponseToOrderCanonical(orderWrapperResponse, orderDto);
@@ -167,7 +179,7 @@ public class OrderTransaction {
 
         if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId() != null) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CONFIRMED.getCode());
+            orderStatus = getOrderStatusByCode(Constant.OrderStatus.CONFIRMED.getCode());
 
         } else if (Optional
                     .ofNullable(orderDto.getOrderStatusDto().getCode())
@@ -179,28 +191,26 @@ public class OrderTransaction {
                         .orElse(PaymentMethod.PaymentType.CASH.name())
                         .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.getCode());
-            orderStatus.setType(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name());
+            orderStatus = getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.getCode());
 
         } else if (Optional
                     .ofNullable(orderDto.getOrderStatusDto().getCode())
                     .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.getCode());
-            orderStatus.setType(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name());
+            orderStatus = getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.getCode());
 
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
+            orderStatus = getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode());
 
         } else if (Optional
                 .ofNullable(orderDto.getOrderStatusDto().getCode())
                 .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.DeliveryManagerStatus.ORDER_FAILED.name())) {
 
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ORDER_FAILED.getCode());
+            orderStatus = getOrderStatusByCode(Constant.OrderStatus.ORDER_FAILED.getCode());
 
         } else {
-            orderStatus = orderRepositoryService.getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
+            orderStatus = getOrderStatusByCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
         }
 
         return orderStatus;
@@ -209,6 +219,10 @@ public class OrderTransaction {
 
     public IOrderFulfillment getOrderByecommerceId(Long ecommerceId) {
         return orderRepositoryService.getOrderByecommerceId(ecommerceId);
+    }
+
+    public List<IOrderFulfillment> getOrderByEcommercesIds(Set<Long> ecommerceId) {
+        return orderRepositoryService.getOrdersByEcommerceIds(ecommerceId);
     }
 
     public IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId) {
@@ -279,5 +293,17 @@ public class OrderTransaction {
     private String getApplicationParameter(String code) {
         return applicationParameterService
                 .getApplicationParameterByCodeIs(code).getValue();
+    }
+
+    public OrderStatus getOrderStatusByCode(String code) {
+        return orderRepositoryService.getOrderStatusByCode(code);
+    }
+
+    public LiquidationCanonical getLiquidationCanonicalByOrderStatusCode(String code) {
+
+        return Optional
+                .ofNullable(getOrderStatusByCode(code))
+                .map(val -> objectMapper.mapLiquidationStatusByEntity(val))
+                .orElse(LiquidationCanonical.builder().liquidationEnabled(false).build());
     }
 }

@@ -52,9 +52,6 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
     @Autowired
     private IAuditAdapter iAuditAdapter;
 
-    public UpdateTracker() {
-
-    }
 
     @Autowired
     public UpdateTracker(OrderCancellationService orderCancellationService) {

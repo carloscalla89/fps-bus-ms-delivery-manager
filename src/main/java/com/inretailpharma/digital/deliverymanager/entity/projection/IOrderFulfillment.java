@@ -10,7 +10,7 @@ public interface IOrderFulfillment {
     Long getEcommerceId();
     Long getTrackerId();
     Long getExternalId();
-    Integer getPurchaseId();
+    Long getPurchaseId();
     String getExternalChannelId();
 
 

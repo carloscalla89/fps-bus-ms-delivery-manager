@@ -56,7 +56,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
     	
     	log.info("[START] assign orders to external tracker");
 
-    	return getOrderByEcommerceIds(
+    	return getOrdersByEcommerceIds(
     				projectedGroupCanonical
 							.getGroup()
 							.stream()
@@ -291,6 +291,18 @@ public class TrackerFacade extends FacadeAbstractUtil{
 				.parallel()
 				.runOn(Schedulers.elastic())
 				.flatMap(orders -> Flux.just(getOrderFromIOrdersProjects(orders)))
+				.ordered((o1, o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
+
+	}
+
+	private Flux<OrderCanonical> getOrdersByEcommerceIds(Set<Long> ecommerceIds) {
+		log.info("getOrdersByEcommerceId:{}",ecommerceIds);
+
+		return Flux
+				.fromIterable(getOrderByEcommercesIds(ecommerceIds))
+				.parallel()
+				.runOn(Schedulers.elastic())
+				.flatMap(orders -> Flux.just(getOrderToOrderTracker(orders)))
 				.ordered((o1, o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
 
 	}

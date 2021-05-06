@@ -2,7 +2,6 @@ package com.inretailpharma.digital.deliverymanager.facade;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -24,20 +23,31 @@ public class LiquidationFacade extends FacadeAbstractUtil {
 
     }
 
-    public Mono<OrderCanonical> evaluateUpdate(String action, OrderCanonical orderCanonical) {
+    public Mono<OrderCanonical> evaluateUpdate(OrderCanonical orderCanonical) {
 
-        if (getValueBoolenOfParameter() && UtilFunctions.processLiquidationStatus.evaluateToSent(action)) {
+        return Mono
+                .just(getValueBoolenOfParameter())
+                .zipWith(Mono.just(getLiquidationStatusByDigitalStatusCode(orderCanonical.getOrderStatus().getCode())),
 
-            return null;
+                        (var1,var2) -> {
 
-        } else {
-            return Mono.just(orderCanonical);
-        }
+                            if (var1 && var2.isLiquidationEnabled()) {
+                                // Agregar lógica para enviar al módulo de liquidación,
+                                // registro en el DM y audit respectivo
+                            }
+
+                            return orderCanonical;
+                })
+                .switchIfEmpty(Mono.defer(() -> Mono.just(orderCanonical)))
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    log.error("Error during evaluate the liquidation process:{}",e.getMessage());
+
+                    return Mono.just(orderCanonical);
+                });
+
 
     }
-
-
-
 
     private boolean getValueBoolenOfParameter() {
         return getValueBoolenOfParameter(Constant.ApplicationsParameters.ENABLED_SEND_TO_LIQUIDATION);

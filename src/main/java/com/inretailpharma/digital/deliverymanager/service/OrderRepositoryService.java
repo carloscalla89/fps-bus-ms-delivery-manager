@@ -30,7 +30,7 @@ public interface OrderRepositoryService {
     IOrderFulfillment getOrderByecommerceId(Long ecommerceId);
     IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId);
     List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommercesIds);
-
+    List<IOrderFulfillment> getOrdersByEcommerceIds(Set<Long> ecommercesIds);
 
     void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
                                     String orderStatusCode, Long orderFulfillmentId, LocalDateTime updateLast,

@@ -42,7 +42,7 @@ public class OrderTrackerAdapter extends AdapterAbstractUtil implements ITracker
                                                      ActionDto actionDto) {
 
         return orderTrackerExternalService
-                .sendOrderToOrderTracker(getOrderFromIOrdersProjects(ecommerceId), actionDto);
+                .sendOrderToOrderTracker(getOrderToOrderTracker(ecommerceId), actionDto);
     }
 
     @Override

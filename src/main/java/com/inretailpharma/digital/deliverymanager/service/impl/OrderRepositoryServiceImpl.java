@@ -112,6 +112,12 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return orderRepository.getOrderLightByecommercesIds(ecommercesIds);
     }
 
+    @Override
+    public List<IOrderFulfillment> getOrdersByEcommerceIds(Set<Long> ecommercesIds) {
+        log.info("repository:{}",ecommercesIds);
+        return orderRepository.getOrdersByEcommerceIds(ecommercesIds);
+    }
+
 
     @Override
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,

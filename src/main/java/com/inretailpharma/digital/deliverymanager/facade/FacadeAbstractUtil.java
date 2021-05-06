@@ -1,7 +1,13 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.INotificationAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.IStoreAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
@@ -13,6 +19,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -32,9 +39,26 @@ public abstract class FacadeAbstractUtil {
     @Autowired
     private ApplicationParameterService applicationParameterService;
 
+    @Autowired
+    private IStoreAdapter iStoreAdapter;
+
+    @Autowired
+    @Qualifier("trackerAdapter")
+    private ITrackerAdapter iTrackerAdapter;
+
+    @Autowired
+    private IAuditAdapter iAuditAdapter;
+
+    @Autowired
+    private LiquidationFacade liquidationFacade;
+
     protected List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup,
                                                             String statustype) {
         return orderTransaction.getListOrdersToCancel(serviceType, companyCode, maxDayPickup, statustype);
+    }
+
+    protected LiquidationCanonical getLiquidationStatusByDigitalStatusCode(String code) {
+        return orderTransaction.getLiquidationCanonicalByOrderStatusCode(code);
     }
 
     protected String getValueOfParameter(String parameter) {
@@ -108,6 +132,13 @@ public abstract class FacadeAbstractUtil {
 
     }
 
+    protected OrderCanonical getOrderToOrderTracker(IOrderFulfillment iOrderFulfillment) {
+
+        return objectToMapper.getOrderToOrderTracker(
+                iOrderFulfillment,
+                orderTransaction.getOrderItemByOrderFulfillmentId(iOrderFulfillment.getOrderId()));
+    }
+
     protected OrderCanonical getOrderFromIOrdersProjects(IOrderFulfillment iOrderFulfillment) {
 
         return objectToMapper
@@ -120,6 +151,10 @@ public abstract class FacadeAbstractUtil {
 
     protected List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommerceIds) {
         return orderTransaction.getOrderLightByecommercesIds(ecommerceIds);
+    }
+
+    protected List<IOrderFulfillment> getOrderByEcommercesIds(Set<Long> ecommerceIds) {
+        return orderTransaction.getOrderByEcommercesIds(ecommerceIds);
     }
 
     protected void updateOrderOnlinePaymentStatusByExternalId(Long orderId, String onlinePaymentStatus) {
@@ -144,6 +179,122 @@ public abstract class FacadeAbstractUtil {
 
     protected OrderCanonical updatePartialOrder(OrderDto partialOrderDto) {
         return orderTransaction.updatePartialOrder(partialOrderDto);
+    }
+
+    protected Mono<OrderCanonical> createOrderFulfillment(OrderDto orderDto) {
+
+        try {
+            log.info("[START] create-order:{}", new ObjectMapper().writeValueAsString(orderDto));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return Mono
+                .defer(() -> iStoreAdapter.getStoreByCompanyCodeAndLocalCode(orderDto.getCompanyCode(), orderDto.getLocalCode()))
+                .zipWith(Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)), (storeCenter, orderFulfillment) -> {
+
+                    OrderCanonical orderCanonicalResponse = orderTransaction
+                            .processOrderTransaction(
+                                    orderFulfillment,
+                                    orderDto,
+                                    storeCenter
+                            );
+                    orderCanonicalResponse.setStoreCenter(storeCenter);
+
+
+                    iAuditAdapter.createAudit(orderCanonicalResponse, Constant.UPDATED_BY_INIT);
+
+
+                    liquidationFacade.createUpdate(orderCanonicalResponse);
+
+                    return orderCanonicalResponse;
+                })
+                .flatMap(order -> {
+                    log.info("[START] Preparation to send order:{}, companyCode:{}, status:{}, classImplement:{}",
+                            order.getEcommerceId(), order.getCompanyCode(), order.getOrderStatus(),
+                            order.getOrderDetail().getServiceClassImplement());
+
+                    if (order.getOrderDetail().isServiceEnabled()
+                            && Constant.OrderStatus.getByName(order.getOrderStatus().getName()).isSuccess()) {
+
+                        return iTrackerAdapter
+                                .evaluateTracker(
+                                        Constant.TrackerImplementation
+                                                .getClassImplement(order.getOrderDetail().getServiceClassImplement())
+                                                .getTrackerImplement(),
+                                        ActionDto.builder().action(Constant.ActionOrder.FILL_ORDER.name()).build(),
+                                        order.getStoreCenter(),
+                                        order.getCompanyCode(),
+                                        order.getOrderDetail().getServiceType(),
+                                        order.getEcommerceId(),
+                                        order.getExternalId(),
+                                        Optional.ofNullable(order.getOrderStatus().getName())
+                                                .filter(r -> r.equalsIgnoreCase(Constant.OrderStatusTracker.CONFIRMED.name()))
+                                                .map(r -> Constant.OrderStatusTracker.CONFIRMED_TRACKER.name())
+                                                .orElse(order.getOrderStatus().getName()),
+                                        Optional.ofNullable(order.getOrderStatus())
+                                                .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
+                                                .orElse(null),
+                                        Optional.ofNullable(order.getOrderStatus())
+                                                .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getReason())
+                                                .orElse(null),
+                                        null,
+                                        order.getOrderStatus().getDetail()
+
+                                )
+                                .flatMap(response ->
+                                        updateOrderInfulfillment(
+                                                response,
+                                                order.getId(),
+                                                order.getEcommerceId(),
+                                                order.getExternalId(),
+                                                null,
+                                                null,
+                                                order.getSource(),
+                                                Constant.TrackerImplementation
+                                                        .getClassImplement(order.getOrderDetail().getServiceClassImplement())
+                                                        .getTargetName(),
+                                                Constant.UPDATED_BY_INIT,
+                                                null
+                                        )
+                                )
+                                .flatMap(response -> iAuditAdapter.updateAudit(response, Constant.UPDATED_BY_INIT))
+                                .flatMap(response -> liquidationFacade.evaluateUpdate(response));
+
+                    }
+                    log.info("[END] Preparation to send order:{}", order.getEcommerceId());
+
+                    return Mono.just(order);
+                }).switchIfEmpty(Mono.defer(() -> {
+                    log.error("Error empty Creating the order:{} with companyCode:{}",
+                            orderDto.getEcommercePurchaseId(), orderDto.getCompanyCode());
+
+                    // Cuando la orden ha fallado al insertar al DM, se insertará con lo mínimo para registrarlo en la auditoría
+                    OrderCanonical orderStatusCanonical = new OrderCanonical(
+                            orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
+                            Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode()
+                    );
+
+                    iAuditAdapter.createAudit(orderStatusCanonical, Constant.UPDATED_BY_INIT);
+
+                    return Mono.just(orderStatusCanonical);
+                }))
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    log.error("Error Creating the order:{} with companyCode:{} in Delivery-manager{}",
+                            orderDto.getEcommercePurchaseId(), orderDto.getCompanyCode(), e.getMessage());
+
+                    // Cuando la orden ha fallado al insertar al DM, se insertará con lo mínimo para registrarlo en la auditoría
+                    OrderCanonical orderStatusCanonical = new OrderCanonical(
+                            orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
+                            Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode()
+                    );
+
+                    iAuditAdapter.createAudit(orderStatusCanonical, Constant.UPDATED_BY_INIT);
+
+                    return Mono.just(orderStatusCanonical);
+                })
+                .doOnSuccess(r -> log.info("[END] createOrder facade success"));
     }
 
 }
