@@ -33,6 +33,11 @@ public class FillOrder extends FacadeAbstractUtil implements IActionStrategy {
     }
 
     @Override
+    public boolean validationStatusOrder(Long ecommerceId) {
+        return getOnlyOrderStatusByecommerceId(ecommerceId);
+    }
+
+    @Override
     public Mono<OrderCanonical> process(ActionDto actionDto, Long ecommerceId) {
         // action to fill order from ecommerce
         log.info("Action to fill order {} from ecommerce:", ecommerceId);

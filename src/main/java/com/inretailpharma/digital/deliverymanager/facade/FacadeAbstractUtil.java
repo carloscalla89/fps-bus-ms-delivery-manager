@@ -69,6 +69,13 @@ public abstract class FacadeAbstractUtil {
         return orderTransaction.getOrderLightByecommerceId(ecommerceId);
     }
 
+    protected boolean getOnlyOrderStatusByecommerceId(Long ecommerceId) {
+        return Optional
+                .ofNullable(orderTransaction.getOnlyOrderStatusByecommerceId(ecommerceId))
+                .filter(val -> !Constant.OrderStatus.getFinalStatusByCode(val.getStatusCode()))
+                .isPresent();
+    }
+
     protected List<CancellationCanonical> getCancellationsCodeByAppType(String appType) {
         return objectToMapper.convertEntityOrderCancellationToCanonical(orderTransaction.getListCancelReason(appType));
     }

@@ -85,6 +85,13 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
+    @Query(value = "SELECT order_status_code as statusCode " +
+            "FROM order_fulfillment o " +
+            "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
+            "where ecommerce_purchase_id = :ecommerceId", nativeQuery = true
+    )
+    IOrderFulfillment getOnlyOrderStatusByecommerceId(@Param("ecommerceId") Long ecommerceId);
+
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.tracker_id as trackerId, o.source, " +
             "o.external_purchase_id as externalId, o.purchase_number as purchaseId, o.external_channel_id as externalChannelId, " +
             "o.total_cost as totalCost,o.sub_total_cost as subTotalCost, o.delivery_cost as deliveryCost, " +
@@ -151,6 +158,9 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true
     )
     List<IOrderFulfillment> getOrderLightByecommerceId(@Param("ecommerceId") Long ecommerceId);
+
+
+
 
     @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
             "o.external_purchase_id as externalId, o.tracker_id as trackerId, pm.payment_type as paymentType, " +

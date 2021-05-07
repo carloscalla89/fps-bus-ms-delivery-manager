@@ -138,8 +138,12 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return clientRepository.save(client);
     }
 
+    @Override
+    public IOrderFulfillment getOnlyOrderStatusByecommerceId(Long ecommerceId) {
+        return orderRepository.getOnlyOrderStatusByecommerceId(ecommerceId);
+    }
 
-	@Override
+    @Override
 	public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
 		log.info("CALL Repository--getOrderByOrderNumber:"+orderNumber);
 		return orderRepository.getOrderByOrderNumber(orderNumber);

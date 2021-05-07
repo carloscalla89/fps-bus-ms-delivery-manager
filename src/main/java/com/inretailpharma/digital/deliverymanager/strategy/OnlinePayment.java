@@ -37,6 +37,11 @@ public class OnlinePayment extends FacadeAbstractUtil implements IActionStrategy
     }
 
     @Override
+    public boolean validationStatusOrder(Long ecommerceId) {
+        return getOnlyOrderStatusByecommerceId(ecommerceId);
+    }
+
+    @Override
     public Mono<OrderCanonical> process(ActionDto actionDto, Long ecommerceId) {
 
         IOrderFulfillment iOrderFulfillmentLight = getOrderLightByecommerceId(ecommerceId);

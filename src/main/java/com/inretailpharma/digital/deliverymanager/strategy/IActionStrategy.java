@@ -10,6 +10,9 @@ import java.util.Map;
 public interface IActionStrategy {
 
     boolean getAction(String action);
+
+    boolean validationStatusOrder(Long ecommerceId);
+
     Mono<OrderCanonical> process(ActionDto actionDto, Long ecommerceId);
 
     default Mono<OrderCanonical> evaluate(ActionDto actionDto, String ecommerceId) {
@@ -18,6 +21,11 @@ public interface IActionStrategy {
 
             throw new IllegalArgumentException("Wrong action type " + actionDto + "or not exist");
         }
+
+        if (!validationStatusOrder(Long.parseLong(ecommerceId))) {
+            throw new IllegalArgumentException("Status order with order {}" + ecommerceId + "or not exits");
+        }
+
         return process(actionDto, Long.parseLong(ecommerceId));
     }
 

@@ -40,7 +40,7 @@ public interface OrderRepositoryService {
 
     Client saveClient(Client client);
 
-
+    IOrderFulfillment getOnlyOrderStatusByecommerceId(Long ecommerceId);
 
     <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
 

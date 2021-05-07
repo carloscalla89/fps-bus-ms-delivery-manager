@@ -229,6 +229,10 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderLightByecommerceId(ecommerceId);
     }
 
+    public IOrderFulfillment getOnlyOrderStatusByecommerceId(Long ecommerceId) {
+        return orderRepositoryService.getOnlyOrderStatusByecommerceId(ecommerceId);
+    }
+
     public List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommerceId) {
         log.info("getTransaction:{}",ecommerceId);
         return orderRepositoryService.getOrderLightByecommercesIds(ecommerceId);

@@ -52,7 +52,6 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
     @Autowired
     private IAuditAdapter iAuditAdapter;
 
-
     @Autowired
     public UpdateTracker(OrderCancellationService orderCancellationService) {
         this.orderCancellationService = orderCancellationService;
@@ -69,6 +68,11 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                 Constant.ActionOrder.PICK_ORDER, Constant.ActionOrder.PREPARE_ORDER,
                 Constant.ActionOrder.UNASSIGN_ORDER, Constant.ActionOrder.REJECT_ORDER
         ).anyMatch(val -> val.name().equalsIgnoreCase(action));
+    }
+
+    @Override
+    public boolean validationStatusOrder(Long ecommerceId) {
+        return getOnlyOrderStatusByecommerceId(ecommerceId);
     }
 
     @Override
