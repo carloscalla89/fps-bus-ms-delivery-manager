@@ -107,7 +107,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 					log.info("The processs of assigned is success:{}",resultFinal);
 
 					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
-					response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE);
 
 					return Mono.just(response);
 				})
@@ -115,7 +115,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 					log.error("The process of assigned is empty");
 
 					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
-					response.setStatusCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
 					response.setDetail("The process of assigned is empty");
 					response.setFailedOrders(
 							projectedGroupCanonical
@@ -130,7 +130,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 					log.error("The process of assigned is failed");
 
 					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
-					response.setStatusCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
 					response.setDetail("The process of assigned has failed - detail:"+e.getMessage());
 					response.setFailedOrders(
 							projectedGroupCanonical
