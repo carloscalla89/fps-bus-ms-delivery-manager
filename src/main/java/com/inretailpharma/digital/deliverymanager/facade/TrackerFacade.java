@@ -90,6 +90,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 					newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
 					newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
 					newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
+					newProjectedGroupCanonical.setUpdateBy(projectedGroupCanonical.getUpdateBy());
 					newProjectedGroupCanonical.setSource(Constant.UPDATED_BY_INKATRACKER_WEB);
 
 					return ((OrderTrackerAdapter)iOrderTrackerAdapter)
