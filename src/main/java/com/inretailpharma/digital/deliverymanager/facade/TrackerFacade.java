@@ -98,7 +98,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 				})
 				.flatMap(result ->
 						updateOrderInfulfillment(
-								result, result.getEcommerceId(), Constant.ORIGIN_TRACKER, Constant.TARGET_ORDER_TRACKER,
+								result, result.getEcommerceId(), Constant.UPDATED_BY_INKATRACKER_WEB, Constant.TARGET_ORDER_TRACKER,
 								projectedGroupCanonical.getUpdateBy(), null)
 				)
 				.flatMap(result -> iAuditAdapter.updateAudit(result, projectedGroupCanonical.getUpdateBy()))
@@ -150,7 +150,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 					.unassignOrders(unassignedCanonical)
 					.flatMap(result ->
 							updateOrderInfulfillment(
-									result, result.getEcommerceId(), "", Constant.TARGET_TRACKER,
+									result, result.getEcommerceId(), Constant.UPDATED_BY_INKATRACKER_WEB, Constant.TARGET_TRACKER,
 									unassignedCanonical.getUpdateBy(), null)
 					)
 					.flatMap(result -> iAuditAdapter.updateAudit(result, unassignedCanonical.getUpdateBy()))
