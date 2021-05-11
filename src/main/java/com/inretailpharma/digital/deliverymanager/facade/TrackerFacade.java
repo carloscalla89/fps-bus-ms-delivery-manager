@@ -98,7 +98,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 				})
 				.flatMap(result ->
 						updateOrderInfulfillment(
-								result, result.getEcommerceId(), Constant.UPDATED_BY_INKATRACKER_WEB, Constant.TARGET_ORDER_TRACKER,
+								result, result.getEcommerceId(), Constant.UPDATED_BY_INKATRACKER_WEB, Constant.TARGET_TRACKER,
 								projectedGroupCanonical.getUpdateBy(), null)
 				)
 				.flatMap(result -> iAuditAdapter.updateAudit(result, projectedGroupCanonical.getUpdateBy()))
