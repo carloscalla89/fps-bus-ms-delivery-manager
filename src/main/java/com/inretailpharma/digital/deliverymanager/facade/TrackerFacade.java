@@ -90,6 +90,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 					newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
 					newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
 					newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
+					newProjectedGroupCanonical.setSource(Constant.UPDATED_BY_INKATRACKER_WEB);
 
 					return ((OrderTrackerAdapter)iOrderTrackerAdapter)
 								.assignOrders(newProjectedGroupCanonical, allGroups);
@@ -145,6 +146,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 
 	public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
 		log.info("[START] unassing orders from group {} - external tracker", unassignedCanonical.getGroupName());
+		unassignedCanonical.setSource(Constant.UPDATED_BY_INKATRACKER_WEB);
 
 		return ((OrderTrackerAdapter)iOrderTrackerAdapter)
 					.unassignOrders(unassignedCanonical)

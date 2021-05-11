@@ -15,4 +15,5 @@ public class UnassignedCanonical implements Serializable  {
 	private String groupName;
     private String motorizedId;
     private List<Long> orders;
+    private String source;
 }
