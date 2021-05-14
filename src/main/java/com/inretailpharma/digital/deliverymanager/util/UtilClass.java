@@ -118,7 +118,7 @@ public class UtilClass {
                         // cuando lo ejecuta el módulo de BBR
                         classList.add(TrackerAdapter.class);
 
-                        if (sendNewFlow || Constant.ORIGIN_BBR.equalsIgnoreCase(origin)) {
+                        if (Constant.ORIGIN_BBR.equalsIgnoreCase(origin) || Constant.ORIGIN_INKATRACKER_WEB.equalsIgnoreCase(origin)) {
                             classList.add(OrderTrackerAdapter.class);
                         }
                     }
