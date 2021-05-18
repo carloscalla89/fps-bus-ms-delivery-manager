@@ -28,7 +28,7 @@ stages {
             
 
             
-            /*
+            
             stage ('Create docker image') {
                 steps {
                     sh '$(aws ecr get-login --no-include-email --region us-west-2)'
@@ -42,6 +42,6 @@ stages {
                 }
 
             }
-            */
+            
   }
 }
