@@ -256,8 +256,10 @@ public class OrderTransaction {
         orderRepositoryService.updateStatusOrder(statusDetail, orderStatusCode, ecommerceId, updateLast);
     }
 
-    public List<CancellationCodeReason> getListCancelReason(String appType) {
-        return orderCancellationService.getListCodeCancellationByCode(appType);
+    public List<CancellationCodeReason> getListCancelReason(String appType, String type) {
+    	return Optional.ofNullable(type)
+    			.map(t -> orderCancellationService.getListCodeCancellationByAppTypeAndType(appType, t))
+    			.orElseGet(() -> orderCancellationService.getListCodeCancellationByCode(appType));
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)

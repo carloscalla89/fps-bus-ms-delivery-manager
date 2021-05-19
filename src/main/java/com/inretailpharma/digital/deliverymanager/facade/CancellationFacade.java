@@ -41,8 +41,8 @@ public class CancellationFacade extends FacadeAbstractUtil{
         this.updateTracker = updateTracker;
     }
 
-    public Flux<CancellationCanonical> getOrderCancellationList(String appType) {
-        return Flux.fromIterable(getCancellationsCodeByAppType(appType));
+    public Flux<CancellationCanonical> getOrderCancellationList(String appType, String type) {
+        return Flux.fromIterable(getCancellationsCodeByAppType(appType, type));
     }
 
     public Flux<OrderCancelledCanonical> cancelOrderProcess(CancellationDto cancellationDto) {

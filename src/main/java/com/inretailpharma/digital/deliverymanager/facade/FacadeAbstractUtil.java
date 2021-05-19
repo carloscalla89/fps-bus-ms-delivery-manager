@@ -76,8 +76,8 @@ public abstract class FacadeAbstractUtil {
                 .isPresent();
     }
 
-    protected List<CancellationCanonical> getCancellationsCodeByAppType(String appType) {
-        return objectToMapper.convertEntityOrderCancellationToCanonical(orderTransaction.getListCancelReason(appType));
+    protected List<CancellationCanonical> getCancellationsCodeByAppType(String appType, String type) {
+        return objectToMapper.convertEntityOrderCancellationToCanonical(orderTransaction.getListCancelReason(appType, type));
     }
 
     protected Mono<OrderCanonical> updateOrderInfulfillment(OrderCanonical orderCanonical, Long id, Long ecommerceId,

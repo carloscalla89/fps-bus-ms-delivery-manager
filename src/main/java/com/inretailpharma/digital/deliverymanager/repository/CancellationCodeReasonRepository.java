@@ -12,4 +12,5 @@ public interface CancellationCodeReasonRepository extends JpaRepository<Cancella
     List<CancellationCodeReason> findAllByAppType(String appType);
     List<CancellationCodeReason> findAllByCode(String code);
     CancellationCodeReason findByCodeAndAppType(String code, String appType);
+    List<CancellationCodeReason> findAllByAppTypeAndType(String appType, String type);
 }
