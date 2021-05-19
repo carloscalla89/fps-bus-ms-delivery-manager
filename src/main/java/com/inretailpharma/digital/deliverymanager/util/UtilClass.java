@@ -117,10 +117,8 @@ public class UtilClass {
                         // cuando se rechaza desde el inkatracker web
                         // cuando lo ejecuta el módulo de BBR
                         classList.add(TrackerAdapter.class);
+                        classList.add(OrderTrackerAdapter.class);
 
-                        if (Constant.ORIGIN_BBR.equalsIgnoreCase(origin) || Constant.ORIGIN_INKATRACKER_WEB.equalsIgnoreCase(origin)) {
-                            classList.add(OrderTrackerAdapter.class);
-                        }
                     }
 
                     break;
