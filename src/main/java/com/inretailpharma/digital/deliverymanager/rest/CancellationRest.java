@@ -24,7 +24,7 @@ public class CancellationRest {
     @GetMapping("/reason")
     public ResponseEntity<Flux<CancellationCanonical>> getCancellationReasonsCode(
             @RequestParam(name="appType") String appType
-            ,@RequestParam(name="type") String type) {
+            ,@RequestParam(name="type", required = false) String type) {
 
         log.info("[START] endpoint getCancellationReasonsCode");
 
