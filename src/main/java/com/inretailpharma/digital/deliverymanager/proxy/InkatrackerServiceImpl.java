@@ -66,6 +66,7 @@ public class InkatrackerServiceImpl extends AbstractOrderService implements Orde
         orderTrackerCanonical.setCancelReason(orderCancelDescription);
         orderTrackerCanonical.setCancelObservation(actionDto.getOrderCancelObservation());
         orderTrackerCanonical.setCancelAppType(actionDto.getOrigin());
+        orderTrackerCanonical.setUserUpdate(actionDto.getUpdatedBy());
 
         Constant.OrderStatusTracker orderStatusInkatracker = Constant.OrderStatusTracker.getByActionName(actionDto.getAction());
 
