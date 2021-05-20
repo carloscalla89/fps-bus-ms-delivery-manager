@@ -89,6 +89,8 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
 
         CancellationCodeReason codeReason = orderCancellationService.evaluateGetCancel(actionDto);
 
+        log.info("cancellationCodeReason:{}",codeReason);
+
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
                 actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),
                 iOrderFulfillment.getSendNewFlow());
@@ -137,7 +139,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                         iOrderFulfillment.getEcommerceId(),
                                         iOrderFulfillment.getExternalId(),
                                         Constant.OrderStatus.CANCELLED_ORDER.name(),
-                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
                                         Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
                                         actionDto.getOrderCancelObservation(),
                                         null
@@ -148,7 +150,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                                 iOrderFulfillment.getOrderId(),
                                                 iOrderFulfillment.getEcommerceId(),
                                                 iOrderFulfillment.getExternalId(),
-                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
                                                 actionDto.getOrderCancelObservation(),
                                                 Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                 utilClass.getOnlyTargetComponentTracker(),
@@ -182,7 +184,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                         iOrderFulfillment.getEcommerceId(),
                                         iOrderFulfillment.getExternalId(),
                                         iOrderFulfillment.getStatusName(),
-                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
                                         Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
                                         actionDto.getOrderCancelObservation(),
                                         null
@@ -194,7 +196,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                                 iOrderFulfillment.getOrderId(),
                                                 iOrderFulfillment.getEcommerceId(),
                                                 iOrderFulfillment.getExternalId(),
-                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
                                                 actionDto.getOrderCancelObservation(),
                                                 Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                 Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
@@ -254,7 +256,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                         iOrderFulfillment.getEcommerceId(),
                                         iOrderFulfillment.getExternalId(),
                                         iOrderFulfillment.getStatusName(),
-                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
                                         Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
                                         actionDto.getOrderCancelObservation(),
                                         null
@@ -264,7 +266,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                         iOrderFulfillment.getOrderId(),
                                         iOrderFulfillment.getEcommerceId(),
                                         iOrderFulfillment.getExternalId(),
-                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(null),
+                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
                                         actionDto.getOrderCancelObservation(),
                                         Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                         Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
