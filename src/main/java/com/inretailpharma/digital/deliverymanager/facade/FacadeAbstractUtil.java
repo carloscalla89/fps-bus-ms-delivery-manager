@@ -76,7 +76,7 @@ public abstract class FacadeAbstractUtil {
                 .isPresent();
     }
 
-    protected List<CancellationCanonical> getCancellationsCodeByAppType(String appType, String type) {
+    protected List<CancellationCanonical> getCancellationsCodeByAppTypeList(List<String> appType, String type) {
         return objectToMapper.convertEntityOrderCancellationToCanonical(orderTransaction.getListCancelReason(appType, type));
     }
 

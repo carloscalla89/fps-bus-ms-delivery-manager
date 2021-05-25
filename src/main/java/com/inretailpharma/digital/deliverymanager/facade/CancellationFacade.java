@@ -1,30 +1,32 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
-import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancelledCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.ResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.ShoppingCartStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
-import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
-import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCancelledCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ResponseCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ShoppingCartStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
+import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -41,8 +43,8 @@ public class CancellationFacade extends FacadeAbstractUtil{
         this.updateTracker = updateTracker;
     }
 
-    public Flux<CancellationCanonical> getOrderCancellationList(String appType, String type) {
-        return Flux.fromIterable(getCancellationsCodeByAppType(appType, type));
+    public Flux<CancellationCanonical> getOrderCancellationList(List<String> appType, String type) {
+        return Flux.fromIterable(getCancellationsCodeByAppTypeList(appType, type));
     }
 
     public Flux<OrderCancelledCanonical> cancelOrderProcess(CancellationDto cancellationDto) {

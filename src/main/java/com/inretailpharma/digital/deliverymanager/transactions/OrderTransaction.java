@@ -256,10 +256,10 @@ public class OrderTransaction {
         orderRepositoryService.updateStatusOrder(statusDetail, orderStatusCode, ecommerceId, updateLast);
     }
 
-    public List<CancellationCodeReason> getListCancelReason(String appType, String type) {
+    public List<CancellationCodeReason> getListCancelReason(List<String> appType, String type) {
     	return Optional.ofNullable(type)
-    			.map(t -> orderCancellationService.getListCodeCancellationByAppTypeAndType(appType, t))
-    			.orElseGet(() -> orderCancellationService.getListCodeCancellationByCode(appType));
+    			.map(t -> orderCancellationService.getListCodeCancellationByAppTypeListAndType(appType, t))
+    			.orElseGet(() -> orderCancellationService.getListCodeCancellationByAppTypeList(appType));
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)

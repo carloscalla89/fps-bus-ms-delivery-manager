@@ -19,8 +19,8 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
     }
 
     @Override
-    public List<CancellationCodeReason> getListCodeCancellationByCode(String appType) {
-        return cancellationCodeReasonRepository.findAllByAppType(appType);
+    public List<CancellationCodeReason> getListCodeCancellationByAppTypeList(List<String> appType) {
+        return cancellationCodeReasonRepository.findAllByAppTypeIn(appType);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
     }
     
     @Override
-    public List<CancellationCodeReason> getListCodeCancellationByAppTypeAndType(String appType, String type) {
-        return cancellationCodeReasonRepository.findAllByAppTypeAndType(appType, type);
+    public List<CancellationCodeReason> getListCodeCancellationByAppTypeListAndType(List<String> appType, String type) {
+        return cancellationCodeReasonRepository.findAllByAppTypeInAndType(appType, type);
     }
 }

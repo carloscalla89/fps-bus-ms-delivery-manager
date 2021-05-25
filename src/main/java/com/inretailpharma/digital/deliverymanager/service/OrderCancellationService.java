@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface OrderCancellationService {
 
-    List<CancellationCodeReason> getListCodeCancellationByCode(String appType);
+    List<CancellationCodeReason> getListCodeCancellationByAppTypeList(List<String> appType);
     CancellationCodeReason geByCode(String code);
     CancellationCodeReason geByCodeAndAppType(String code, String appType);
-    List<CancellationCodeReason> getListCodeCancellationByAppTypeAndType(String appType, String type);
+    List<CancellationCodeReason> getListCodeCancellationByAppTypeListAndType(List<String> appType, String type);
 
     default CancellationCodeReason evaluateGetCancel(ActionDto actionDto) {
 
