@@ -117,11 +117,7 @@ public class UtilClass {
                         // cuando lo ejecuta el módulo de BBR
 
                         classList.add(TrackerAdapter.class);
-
-                        if (!(orderStatusName.equalsIgnoreCase(Constant.OrderStatus.PREPARED_ORDER.name())
-                                && classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name()))) {
-                            classList.add(OrderTrackerAdapter.class);
-                        }
+                        classList.add(OrderTrackerAdapter.class);
 
                     }
 
