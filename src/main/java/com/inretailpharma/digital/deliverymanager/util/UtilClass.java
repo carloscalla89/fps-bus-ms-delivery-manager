@@ -77,8 +77,7 @@ public class UtilClass {
                 case Constant.PREPARE_ORDER:
                     classList.add(TrackerAdapter.class);
 
-                    if (sendNewFlow
-                            && !Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)
+                    if (!Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)
                             && classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatrackerlite.name())) {
                         classList.add(OrderTrackerAdapter.class);
                     }
@@ -116,8 +115,13 @@ public class UtilClass {
                         // cuando se pone como entregada o cancelado desde el pos
                         // cuando se rechaza desde el inkatracker web
                         // cuando lo ejecuta el módulo de BBR
+
                         classList.add(TrackerAdapter.class);
-                        classList.add(OrderTrackerAdapter.class);
+
+                        if (!(orderStatusName.equalsIgnoreCase(Constant.OrderStatus.PREPARED_ORDER.name())
+                                && classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name()))) {
+                            classList.add(OrderTrackerAdapter.class);
+                        }
 
                     }
 

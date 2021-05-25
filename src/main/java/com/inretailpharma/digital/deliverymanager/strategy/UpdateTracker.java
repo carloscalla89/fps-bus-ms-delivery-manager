@@ -66,7 +66,8 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                 Constant.ActionOrder.READY_PICKUP_ORDER, Constant.ActionOrder.INVOICED_ORDER,
                 Constant.ActionOrder.ON_ROUTE_ORDER, Constant.ActionOrder.ON_STORE_ORDER,
                 Constant.ActionOrder.PICK_ORDER, Constant.ActionOrder.PREPARE_ORDER,
-                Constant.ActionOrder.UNASSIGN_ORDER, Constant.ActionOrder.REJECT_ORDER
+                Constant.ActionOrder.UNASSIGN_ORDER, Constant.ActionOrder.REJECT_ORDER,
+                Constant.ActionOrder.CHECKOUT_ORDER
         ).anyMatch(val -> val.name().equalsIgnoreCase(action));
     }
 

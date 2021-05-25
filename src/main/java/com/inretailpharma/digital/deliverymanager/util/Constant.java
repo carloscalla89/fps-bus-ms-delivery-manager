@@ -1,6 +1,5 @@
 package com.inretailpharma.digital.deliverymanager.util;
 
-import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
 import com.inretailpharma.digital.deliverymanager.strategy.*;
@@ -242,6 +241,9 @@ public interface Constant {
         SET_PARTIAL_ORDER(4, "Acción para actualizar una orden parcial",3,
                 METHOD_UPDATE, UpdateTracker.class),
 
+        CHECKOUT_ORDER(4, "Acción para poner el estado checkout al inkatracker",8,
+                METHOD_UPDATE, UpdateTracker.class),
+
         LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
                 METHOD_UPDATE, com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment.class),
 
@@ -360,7 +362,10 @@ public interface Constant {
                 OrderStatus.ERROR_ON_ROUTED, ActionOrder.ON_ROUTE_ORDER.name()),
 
         ARRIVED_ORDER("ARRIVED", "ARRIVED", OrderStatus.ARRIVED_ORDER,
-                OrderStatus.ERROR_ARRIVED, ActionOrder.ARRIVAL_ORDER.name());
+                OrderStatus.ERROR_ARRIVED, ActionOrder.ARRIVAL_ORDER.name()),
+
+        CHECKOUT_ORDER("CHECKOUT", null, OrderStatus.CHECKOUT_ORDER,
+                      OrderStatus.ERROR_CHECKOUT, ActionOrder.CHECKOUT_ORDER.name());
 
 
         private String trackerStatus;
@@ -372,36 +377,6 @@ public interface Constant {
         public static OrderStatusTracker getByName(String name) {
             return EnumUtils.getEnumList(OrderStatusTracker.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(NOT_FOUND_ACTION);
-        }
-
-        public static OrderStatus getOrderStatusByTrackerStatus(String trackerStatus, String paymentMethod) {
-
-            OrderStatus orderStatus = OrderStatus.CANCELLED_ORDER;
-
-            switch (trackerStatus) {
-                case "CANCELLED":
-
-                    if (paymentMethod.equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
-
-                        orderStatus = OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT;
-
-                    }
-
-                    break;
-                case "REJECTED":
-                    if (paymentMethod.equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
-
-                        orderStatus = OrderStatus.REJECTED_ORDER_ONLINE_PAYMENT;
-
-                    }
-                    break;
-                default:
-                    orderStatus = OrderStatus.DELIVERED_ORDER;
-
-            }
-
-            return orderStatus;
-
         }
 
         public static OrderStatusTracker getByActionName(String actionName) {
@@ -463,7 +438,7 @@ public interface Constant {
         ERROR_READY_FOR_PICKUP("05", false), ERROR_ASSIGNED("06", false),
         ERROR_ON_ROUTED("07", false), ERROR_ARRIVED("08", false),
         ERROR_DELIVERED("09", false), ERROR_CANCELLED("10", false),
-        ERROR_REJECTED("10", false),
+        ERROR_REJECTED("10", false), ERROR_CHECKOUT("42",false),
         // ==================================================================================================
 
 
@@ -480,6 +455,8 @@ public interface Constant {
         PICKED_ORDER("18", true), PREPARED_ORDER("19", true),
 
         ON_ROUTED_ORDER("20",true), ARRIVED_ORDER("21",true),
+
+        CHECKOUT_ORDER("22",true),
 
         DELIVERED_ORDER("12", true), READY_PICKUP_ORDER("13", true),
 
