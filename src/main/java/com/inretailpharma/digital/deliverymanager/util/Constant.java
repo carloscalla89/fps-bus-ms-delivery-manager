@@ -471,8 +471,9 @@ public interface Constant {
         REJECTED_ORDER_ONLINE_PAYMENT("35", true),  ORDER_FAILED("38", false),
 
         // status cuando se llama al microservicio de visa - bbr
-        LIQUIDATED_ONLINE_PAYMENT("42", true),
-        CANCEL_ORDER("43", true),
+        LIQUIDATED_ONLINE_PAYMENT("43", true),
+
+        CANCEL_ORDER("47", true),
         SUCCESS_RESULT_ONLINE_PAYMENT("44", false),
         ERROR_RESULT_ONLINE_PAYMENT("-1", false),
 
