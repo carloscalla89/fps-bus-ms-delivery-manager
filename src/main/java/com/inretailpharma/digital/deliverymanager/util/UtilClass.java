@@ -76,15 +76,18 @@ public class UtilClass {
 
                 case Constant.CHECKOUT_ORDER:
 
-                    if (classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
+                    if (Constant.ORIGIN_DRUGSTORE_ENGINE.equalsIgnoreCase(origin) &&
+                            classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
                         classList.add(TrackerAdapter.class);
                     }
-
 
                     break;
 
                 case Constant.PREPARE_ORDER:
-                    classList.add(TrackerAdapter.class);
+
+                    if (!classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
+                        classList.add(TrackerAdapter.class);
+                    }
 
                     if (!Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)
                             && !classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
