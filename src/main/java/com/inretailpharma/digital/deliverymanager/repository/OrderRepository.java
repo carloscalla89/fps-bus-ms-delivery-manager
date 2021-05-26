@@ -88,7 +88,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "SELECT order_status_code as statusCode " +
             "FROM order_fulfillment o " +
             "inner join order_process_status ops on ops.order_fulfillment_id = o.id " +
-            "where ecommerce_purchase_id = :ecommerceId", nativeQuery = true
+            "where ecommerce_purchase_id = :ecommerceId order by created_order desc limit 1", nativeQuery = true
     )
     IOrderFulfillment getOnlyOrderStatusByecommerceId(@Param("ecommerceId") Long ecommerceId);
 
