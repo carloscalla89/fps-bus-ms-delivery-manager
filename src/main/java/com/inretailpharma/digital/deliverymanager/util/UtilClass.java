@@ -74,11 +74,19 @@ public class UtilClass {
 
             switch (actionName) {
 
+                case Constant.CHECKOUT_ORDER:
+
+                    if (classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
+                        classList.add(OrderTrackerAdapter.class);
+                    }
+
+                    break;
+
                 case Constant.PREPARE_ORDER:
                     classList.add(TrackerAdapter.class);
 
                     if (!Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)
-                            && classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatrackerlite.name())) {
+                            && !classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
                         classList.add(OrderTrackerAdapter.class);
                     }
 
