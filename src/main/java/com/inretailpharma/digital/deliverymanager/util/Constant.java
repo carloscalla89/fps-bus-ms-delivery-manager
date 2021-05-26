@@ -364,7 +364,7 @@ public interface Constant {
         ARRIVED_ORDER("ARRIVED", "ARRIVED", OrderStatus.ARRIVED_ORDER,
                 OrderStatus.ERROR_ARRIVED, ActionOrder.ARRIVAL_ORDER.name()),
 
-        CHECKOUT_ORDER("CHECKOUT", null, OrderStatus.CHECKOUT_ORDER,
+        CHECKOUT_ORDER("CHECKOUT_ORDER", null, OrderStatus.CHECKOUT_ORDER,
                       OrderStatus.ERROR_CHECKOUT, ActionOrder.CHECKOUT_ORDER.name());
 
 
