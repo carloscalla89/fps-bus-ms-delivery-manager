@@ -77,8 +77,9 @@ public class UtilClass {
                 case Constant.CHECKOUT_ORDER:
 
                     if (classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
-                        classList.add(OrderTrackerAdapter.class);
+                        classList.add(TrackerAdapter.class);
                     }
+
 
                     break;
 
