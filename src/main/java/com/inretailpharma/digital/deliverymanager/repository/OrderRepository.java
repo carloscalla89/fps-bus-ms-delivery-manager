@@ -87,7 +87,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, " +
             "af.department, af.notes, af.latitude, af.longitude, o.partial, " +
             "o.subTotalWithNoSpecificPaymentMethod, o.totalWithNoSpecificPaymentMethod, o.totalWithPaymentMethod, " + // referentes a 3 precios
-            "o.paymentMethodCardType " + // referentes a 3 precios
+            "o.paymentMethodCardType, o.discountAppliedNoDP " + // referentes a 3 precios
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +

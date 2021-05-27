@@ -300,6 +300,10 @@ public class ObjectToMapper {
                 Optional.ofNullable(iOrderFulfillment.getPaymentMethodCardType())
                         .orElse(Constant.VALUE_ZERO_STRING)
         );
+
+        if(iOrderFulfillment.getDiscountAppliedNoDP()!=null && iOrderFulfillment.getDiscountAppliedNoDP().compareTo(BigDecimal.ZERO)>0){
+            orderInkatrackerCanonical.setDiscountApplied(iOrderFulfillment.getDiscountAppliedNoDP().doubleValue());
+        }
         /** ********************* **/
 
         return orderInkatrackerCanonical;
@@ -813,6 +817,7 @@ public class ObjectToMapper {
         orderFulfillment.setTotalWithNoSpecificPaymentMethod(orderDto.getTotalWithNoSpecificPaymentMethod());
         orderFulfillment.setTotalWithPaymentMethod(orderDto.getTotalWithPaymentMethod());
         orderFulfillment.setPaymentMethodCardType(orderDto.getPaymentMethodCardType());
+        orderFulfillment.setDiscountAppliedNoDP(orderDto.getDiscountAppliedNoDP());
 
         /** ************ **/
 
