@@ -39,6 +39,7 @@ public interface IOrderItemFulfillment {
     BigDecimal getTotalPriceWithpaymentMethod();
     boolean getCrossOutPL();
     String getPaymentMethodCardType();
+    BigDecimal getPromotionalDiscount();
 
 
 }

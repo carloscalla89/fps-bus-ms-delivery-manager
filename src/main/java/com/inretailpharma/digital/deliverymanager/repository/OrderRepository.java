@@ -152,7 +152,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "oi.quantity_units as quantityUnits, oi.quantity_presentation as quantityPresentation, oi.quantity_unit_minimium as quantityUnitMinimium," +
             "oi.family_type as familyType, oi.fractionated_price as fractionatedPrice, oi.fractional_discount as fractionalDiscount," +
             "oi.priceList, oi.totalPriceList, oi.priceAllPaymentMethod, oi.totalPriceAllPaymentMethod, oi.priceWithpaymentMethod," +
-            "oi.totalPriceWithpaymentMethod, oi.crossOutPL, oi.paymentMethodCardType " +
+            "oi.totalPriceWithpaymentMethod, oi.crossOutPL, oi.paymentMethodCardType, oi.promotionalDiscount " +
             "from order_fulfillment_item oi " +
             "where oi.order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true

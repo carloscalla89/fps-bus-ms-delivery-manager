@@ -741,6 +741,7 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setTotalPriceWithpaymentMethod(r.getTotalPriceWithpaymentMethod());
                     orderFulfillmentItem.setCrossOutPL(r.isCrossOutPL());
                     orderFulfillmentItem.setPaymentMethodCardType(r.getPaymentMethodCardType());
+                    orderFulfillmentItem.setPromotionalDiscount(r.getPromotionalDiscount());
 
                     /** ************ **/
                     return orderFulfillmentItem;
