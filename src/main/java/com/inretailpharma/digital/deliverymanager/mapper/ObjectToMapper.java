@@ -301,7 +301,8 @@ public class ObjectToMapper {
                         .orElse(Constant.VALUE_ZERO_STRING)
         );
 
-        if(iOrderFulfillment.getDiscountAppliedNoDP()!=null && iOrderFulfillment.getDiscountAppliedNoDP().compareTo(BigDecimal.ZERO)>0){
+        if(orderInkatrackerCanonical.getTotalWithPaymentMethod()>0
+                || orderInkatrackerCanonical.getSubtotal() != orderInkatrackerCanonical.getSubTotalWithNoSpecificPaymentMethod()){
             orderInkatrackerCanonical.setDiscountApplied(iOrderFulfillment.getDiscountAppliedNoDP().doubleValue());
         }
         /** ********************* **/
