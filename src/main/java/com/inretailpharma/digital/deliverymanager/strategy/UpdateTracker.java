@@ -22,6 +22,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -206,8 +207,31 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                         )
                                 )
                                 .flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()))
-
                 )
+                .switchIfEmpty(Flux.defer(() -> {
+
+                    Constant.OrderStatus orderStatus = Constant.OrderStatusTracker.getByActionName(actionDto.getAction()).getOrderStatus();
+
+                    OrderStatusCanonical status = new OrderStatusCanonical();
+                    status.setCode(orderStatus.getCode());
+                    status.setName(orderStatus.name());
+
+                    OrderCanonical orderCanonical = new OrderCanonical();
+                    orderCanonical.setOrderStatus(status);
+
+                    return updateOrderInfulfillment(
+                            orderCanonical,
+                            iOrderFulfillment.getOrderId(),
+                            iOrderFulfillment.getEcommerceId(),
+                            iOrderFulfillment.getExternalId(),
+                            Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
+                            actionDto.getOrderCancelObservation(),
+                            Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                            Constant.ClassesImplements.getByClass(utilClass.getClassToTracker()).getTargetName(),
+                            actionDto.getUpdatedBy(),
+                            actionDto.getActionDate()
+                        ).flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()));
+                }))
                 .buffer()
                 .filter(finalResponse ->
                         finalResponse
