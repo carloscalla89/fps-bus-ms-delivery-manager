@@ -302,7 +302,7 @@ public class ObjectToMapper {
         );
 
         if(orderInkatrackerCanonical.getTotalWithPaymentMethod()>0
-                || orderInkatrackerCanonical.getSubtotal() != orderInkatrackerCanonical.getSubTotalWithNoSpecificPaymentMethod()){
+                || orderInkatrackerCanonical.getSubtotal().doubleValue() != orderInkatrackerCanonical.getSubTotalWithNoSpecificPaymentMethod().doubleValue()){
             if(iOrderFulfillment.getDiscountAppliedNoDP()!=null){
                 orderInkatrackerCanonical.setDiscountApplied(iOrderFulfillment.getDiscountAppliedNoDP().doubleValue());
             }
