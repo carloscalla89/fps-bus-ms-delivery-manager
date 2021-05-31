@@ -58,8 +58,7 @@ public class CancellationFacade extends FacadeAbstractUtil{
                                 cancellationDto.getStatusType()
                         )
                 )
-                .parallel()
-                .runOn(Schedulers.elastic())
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(r -> {
 
                     log.info("order info- companyCode:{}, centerCode:{}, ecommerceId:{}, serviceTypeCode:{}, getSendNewFlow:{} ",
@@ -119,7 +118,6 @@ public class CancellationFacade extends FacadeAbstractUtil{
                             );
 
                 })
-                .ordered((o1,o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue())
                 .doOnComplete(() -> log.info("[END] cancelOrderProcess"));
     }
 

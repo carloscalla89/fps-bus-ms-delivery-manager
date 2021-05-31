@@ -21,6 +21,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Component
@@ -62,9 +63,9 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
 
         Objects.requireNonNull(actionStrategy, "No processor for " + actionDto.getAction() + " found");
 
-        return actionStrategy
-                    .evaluate(actionDto, ecommerceId)
-                    .flatMap(response -> liquidationFacade.evaluateUpdate(response));
+        return Mono
+                .fromCallable(() -> actionStrategy.evaluate(actionDto, ecommerceId).subscribeOn(Schedulers.boundedElastic()))
+                .flatMap(val -> val);
 
     }
 
