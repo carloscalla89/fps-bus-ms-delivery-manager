@@ -136,6 +136,7 @@ public class EcommerceMapper {
                                 .orElse(NumberUtils.DOUBLE_ZERO)
                 );
                 itemDto.setFractionalDiscount(product.getFractionalDiscount());
+                itemDto.setPromotionalDiscount(product.getPromotionalDiscount());
                 orderItems.add(itemDto);
             }
 

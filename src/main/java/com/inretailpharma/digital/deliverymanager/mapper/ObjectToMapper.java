@@ -300,6 +300,13 @@ public class ObjectToMapper {
                 Optional.ofNullable(iOrderFulfillment.getPaymentMethodCardType())
                         .orElse(Constant.VALUE_ZERO_STRING)
         );
+
+        if(orderInkatrackerCanonical.getTotalWithPaymentMethod()>0
+                || orderInkatrackerCanonical.getSubtotal().doubleValue() != orderInkatrackerCanonical.getSubTotalWithNoSpecificPaymentMethod().doubleValue()){
+            if(iOrderFulfillment.getDiscountAppliedNoDP()!=null){
+                orderInkatrackerCanonical.setDiscountApplied(iOrderFulfillment.getDiscountAppliedNoDP().doubleValue());
+            }
+        }
         /** ********************* **/
 
         return orderInkatrackerCanonical;
@@ -737,6 +744,7 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setTotalPriceWithpaymentMethod(r.getTotalPriceWithpaymentMethod());
                     orderFulfillmentItem.setCrossOutPL(r.isCrossOutPL());
                     orderFulfillmentItem.setPaymentMethodCardType(r.getPaymentMethodCardType());
+                    orderFulfillmentItem.setPromotionalDiscount(r.getPromotionalDiscount());
 
                     /** ************ **/
                     return orderFulfillmentItem;
@@ -813,6 +821,7 @@ public class ObjectToMapper {
         orderFulfillment.setTotalWithNoSpecificPaymentMethod(orderDto.getTotalWithNoSpecificPaymentMethod());
         orderFulfillment.setTotalWithPaymentMethod(orderDto.getTotalWithPaymentMethod());
         orderFulfillment.setPaymentMethodCardType(orderDto.getPaymentMethodCardType());
+        orderFulfillment.setDiscountAppliedNoDP(orderDto.getDiscountAppliedNoDP());
 
         /** ************ **/
 

@@ -50,4 +50,5 @@ public class OrderItemDto {
     private BigDecimal totalPriceWithpaymentMethod;
     private boolean crossOutPL;
     private String paymentMethodCardType;
+    private BigDecimal promotionalDiscount;
 }

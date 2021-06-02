@@ -109,4 +109,5 @@ public class OrderFulfillment extends OrderEntity<Long> {
     private BigDecimal totalWithNoSpecificPaymentMethod;
     private BigDecimal totalWithPaymentMethod;
     private String paymentMethodCardType;
+    private BigDecimal discountAppliedNoDP;
 }

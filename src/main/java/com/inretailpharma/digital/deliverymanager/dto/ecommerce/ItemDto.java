@@ -53,5 +53,6 @@ public class ItemDto {
     @NotNull
     private Integer presentationType;
     private BigDecimal fractionalDiscount;
+    private BigDecimal promotionalDiscount;
 
 }

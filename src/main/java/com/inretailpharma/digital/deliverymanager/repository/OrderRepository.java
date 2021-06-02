@@ -87,7 +87,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "af.name as addressName, af.street, af.number, af.apartment, af.country, af.city, af.district, af.province, " +
             "af.department, af.notes, af.latitude, af.longitude, o.partial, " +
             "o.subTotalWithNoSpecificPaymentMethod, o.totalWithNoSpecificPaymentMethod, o.totalWithPaymentMethod, " + // referentes a 3 precios
-            "o.paymentMethodCardType " + // referentes a 3 precios
+            "o.paymentMethodCardType, o.discountAppliedNoDP " + // referentes a 3 precios
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -152,7 +152,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "oi.quantity_units as quantityUnits, oi.quantity_presentation as quantityPresentation, oi.quantity_unit_minimium as quantityUnitMinimium," +
             "oi.family_type as familyType, oi.fractionated_price as fractionatedPrice, oi.fractional_discount as fractionalDiscount," +
             "oi.priceList, oi.totalPriceList, oi.priceAllPaymentMethod, oi.totalPriceAllPaymentMethod, oi.priceWithpaymentMethod," +
-            "oi.totalPriceWithpaymentMethod, oi.crossOutPL, oi.paymentMethodCardType " +
+            "oi.totalPriceWithpaymentMethod, oi.crossOutPL, oi.paymentMethodCardType, oi.promotionalDiscount " +
             "from order_fulfillment_item oi " +
             "where oi.order_fulfillment_id = :orderFulfillmentId",
             nativeQuery = true
