@@ -126,5 +126,6 @@ public interface IOrderFulfillment {
     BigDecimal getTotalWithNoSpecificPaymentMethod();
     BigDecimal getTotalWithPaymentMethod();
     String getPaymentMethodCardType();
+    BigDecimal getDiscountAppliedNoDP();
     /** ********************* **/
 }

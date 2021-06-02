@@ -81,7 +81,7 @@ public class OrderDto {
     private BigDecimal totalWithNoSpecificPaymentMethod;
     private BigDecimal totalWithPaymentMethod;
     private String paymentMethodCardType;
-
+    private BigDecimal discountAppliedNoDP;
 
 
 
