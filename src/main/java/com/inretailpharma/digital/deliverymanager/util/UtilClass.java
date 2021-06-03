@@ -113,13 +113,12 @@ public class UtilClass {
                     if (orderStatusName.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
                             || orderStatusName.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED.name())
                             || orderStatusName.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
+                            || orderStatusName.equalsIgnoreCase(Constant.OrderStatus.CHECKOUT_ORDER.name())
                             || Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
 
                         // aquí entra cuando la orden se entrega o rechaza desde el omnidelivery
                         // se cancela desde el pos unificado y la orden no se ha pickeado aún
-
                         classList.add(TrackerAdapter.class);
-
                     } else {
                         // casos:
                         // cuando la orden es cancelada desde el farmadashboard

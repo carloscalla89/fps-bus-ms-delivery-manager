@@ -8,6 +8,9 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.PayloadDto;
@@ -87,6 +90,14 @@ public abstract class AdapterAbstractUtil {
 
         return messageDto;
 
+    }
+
+    protected LiquidationDto getLiquidationDtoFromOrderCanonical(OrderCanonical orderCanonical, String statusLiquidation) {
+        return objectToMapper.getLiquidationDtoFromOrderCanonical(orderCanonical, statusLiquidation);
+    }
+
+    protected StatusDto getStatusLiquidation(String statusLiquidation, OrderCanonical orderCanonical) {
+        return objectToMapper.getLiquidationStatusDtoFromOrderCanonical(statusLiquidation, orderCanonical);
     }
 
     protected OrderDto getMappOrder(Long ecommercePurchaseId, StoreCenterCanonical storeCenterCanonical) {

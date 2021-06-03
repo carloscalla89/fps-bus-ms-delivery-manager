@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 
 public interface ILiquidationAdapter {
 
-    Mono<OrderCanonical> createOrder(OrderCanonical orderCanonical);
+    Mono<OrderCanonical> createOrder(OrderCanonical completeOrder, OrderCanonical orderProcess);
 
-    Mono<OrderCanonical> updateOrder(OrderCanonical orderCanonical, String action);
+    Mono<OrderCanonical> updateOrder(OrderCanonical orderCanonical, String liquidationStatus);
 }

@@ -14,8 +14,9 @@ public class LiquidationCanonical {
       date: 05-05-21
       by: carlos calla
      */
-    private boolean liquidationEnabled;
-    private String liquidationStatus;
-    private String liquidationStatusDetail;
+    private boolean enabled;
+    private String code;
+    private String status;
+    private String detail;
     /**/
 }

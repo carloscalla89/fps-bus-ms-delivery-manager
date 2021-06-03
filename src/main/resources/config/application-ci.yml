@@ -108,6 +108,15 @@ external-service:
       uri: https://h66xgj99rd.execute-api.us-east-1.amazonaws.com/CI02/messaging
       connect-timeout: 10000
       read-timeout: 120000
+  liquidation:
+    create-order:
+      uri: https://us-liquidation/omni/liquidation/v1.0.0/orders
+      connect-timeout: 10000
+      read-timeout: 120000
+    update-order:
+      uri: https://us-liquidation/omni/liquidation/v1.0.0/orders
+      connect-timeout: 10000
+      read-timeout: 120000
 api:
   insink:
     stock: http://insink-aws-prueba.backend.inkafarma.pe/comanda-stock/{orderId}

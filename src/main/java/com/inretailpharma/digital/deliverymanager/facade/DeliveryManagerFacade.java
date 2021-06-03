@@ -64,7 +64,11 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
         Objects.requireNonNull(actionStrategy, "No processor for " + actionDto.getAction() + " found");
 
         return Mono
-                .fromCallable(() -> actionStrategy.evaluate(actionDto, ecommerceId).subscribeOn(Schedulers.boundedElastic()))
+                .fromCallable(() ->
+                        actionStrategy
+                                .evaluate(actionDto, ecommerceId)
+                                .flatMap(response -> liquidationFacade.evaluateUpdate(response))
+                                .subscribeOn(Schedulers.boundedElastic()))
                 .flatMap(val -> val);
 
     }

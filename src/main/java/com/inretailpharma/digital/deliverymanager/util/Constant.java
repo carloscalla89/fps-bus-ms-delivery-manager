@@ -430,6 +430,56 @@ public interface Constant {
         }
     }
 
+    enum OrderStatusLiquidation {
+        // Estados de error o satisfactorio al enviar desde el DM al componente de liquidación
+
+        STATUS_PENDING_CREATED("00",true), STATUS_ERROR_POS_CREATED("01", true),
+        STATUS_ERROR_TRACKER_CREATED("02",true), STATUS_CANCELLED_CREATED("03", true),
+        STATUS_IN_PROCESS_UPDATED("04",true), STATUS_BILLED_UPDATED("05", true),
+        STATUS_PARTIAL_BILLED_UPDATE("06",true),
+
+
+
+        ERROR_SENDING_CREATE_STATUS("10", false), ERROR_UPDATING_STATUS("11", false),
+        ERROR_IN_PROCESS_UPDATED("12",false), ERROR_BILLED_UPDATED("13",false),
+        ERROR_PARTIAL_BILLED_UPDATED("14",false),
+        NOT_FOUND_CODE("-1",false);
+
+        private String code;
+        private boolean isSuccess;
+
+        OrderStatusLiquidation(String code, boolean isSuccess) {
+            this.code = code;
+            this.isSuccess = isSuccess;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public boolean isSuccess() {
+            return isSuccess;
+        }
+
+        public static OrderStatusLiquidation getStatusByCode(String code) {
+            return EnumUtils
+                    .getEnumList(OrderStatusLiquidation.class)
+                    .stream()
+                    .filter(item -> item.code.equalsIgnoreCase(code))
+                    .findFirst().orElse(NOT_FOUND_CODE);
+        }
+
+        public static OrderStatusLiquidation getStatusByName(String name) {
+            return EnumUtils
+                    .getEnumList(OrderStatusLiquidation.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst().orElse(NOT_FOUND_CODE);
+        }
+
+    }
+
+
     enum OrderStatus {
 
         // ========== ERRORES =================================================================
@@ -476,9 +526,6 @@ public interface Constant {
         CANCEL_ORDER("47", true),
         SUCCESS_RESULT_ONLINE_PAYMENT("44", false),
         ERROR_RESULT_ONLINE_PAYMENT("-1", false),
-
-
-        // =======================================================================================================
 
         NOT_FOUND_CODE("-1", false), NOT_FOUND_ORDER("-1", false), NOT_FOUND_ACTION("-1", false),
         EMPTY_RESULT_CANCELLATION("-1", false), EMPTY_RESULT_DISPATCHER("-1", false),

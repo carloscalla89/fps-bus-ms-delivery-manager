@@ -9,6 +9,8 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Project
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
@@ -33,8 +35,8 @@ public interface OrderExternalService {
                                             String statusName, String orderCancelCode, String orderCancelDescription,
                                             String orderCancelObservation);
 
-    Mono<OrderCanonical> createOrderToLiquidation(OrderCanonical orderCanonical);
-    Mono<OrderCanonical> updateOrderToLiquidation(String status,Long ecommerceId);
+    Mono<OrderCanonical> createOrderToLiquidation(LiquidationDto liquidationDto);
+    Mono<OrderCanonical> updateOrderToLiquidation(String ecommerceId, StatusDto statusDto);
 
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);

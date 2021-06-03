@@ -1,8 +1,12 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.LiquidationAdapter;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -10,12 +14,18 @@ import reactor.core.publisher.Mono;
 @Component
 public class LiquidationFacade extends FacadeAbstractUtil {
 
+    private LiquidationAdapter iLiquidationAdapter;
 
-    public Mono<OrderCanonical> createUpdate(OrderCanonical orderCanonical) {
+    @Autowired
+    public LiquidationFacade(LiquidationAdapter iLiquidationAdapter) {
+        this.iLiquidationAdapter = iLiquidationAdapter;
+    }
+
+    public Mono<OrderCanonical> createUpdate(OrderCanonical orderCanonical, OrderCanonical completeOrder) {
 
         if (getValueBoolenOfParameter()) {
 
-            return null;
+            return iLiquidationAdapter.createOrder(completeOrder, orderCanonical);
 
         } else {
             return Mono.just(orderCanonical);
@@ -25,27 +35,17 @@ public class LiquidationFacade extends FacadeAbstractUtil {
 
     public Mono<OrderCanonical> evaluateUpdate(OrderCanonical orderCanonical) {
 
-        return Mono
-                .just(getValueBoolenOfParameter())
-                .zipWith(Mono.just(getLiquidationStatusByDigitalStatusCode(orderCanonical.getOrderStatus().getCode())),
+        if (getValueBoolenOfParameter()) {
+            return Mono
+                    .just(getLiquidationStatusByDigitalStatusCode(orderCanonical.getOrderStatus().getCode()))
+                    .defaultIfEmpty(LiquidationCanonical.builder().enabled(false).build())
+                    .filter(LiquidationCanonical::isEnabled)
+                    .flatMap(result -> iLiquidationAdapter.updateOrder(orderCanonical, result.getStatus()))
+                    .defaultIfEmpty(orderCanonical);
+        } else {
 
-                        (var1,var2) -> {
-
-                            if (var1 && var2.isLiquidationEnabled()) {
-                                // Agregar lógica para enviar al módulo de liquidación,
-                                // registro en el DM y audit respectivo
-                            }
-
-                            return orderCanonical;
-                })
-                .switchIfEmpty(Mono.defer(() -> Mono.just(orderCanonical)))
-                .onErrorResume(e -> {
-                    e.printStackTrace();
-                    log.error("Error during evaluate the liquidation process:{}",e.getMessage());
-
-                    return Mono.just(orderCanonical);
-                });
-
+            return Mono.just(orderCanonical);
+        }
 
     }
 

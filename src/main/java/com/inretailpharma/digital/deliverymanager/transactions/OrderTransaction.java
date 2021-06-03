@@ -310,6 +310,6 @@ public class OrderTransaction {
         return Optional
                 .ofNullable(getOrderStatusByCode(code))
                 .map(val -> objectMapper.mapLiquidationStatusByEntity(val))
-                .orElse(LiquidationCanonical.builder().liquidationEnabled(false).build());
+                .orElse(LiquidationCanonical.builder().enabled(false).build());
     }
 }

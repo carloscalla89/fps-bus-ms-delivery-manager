@@ -252,7 +252,9 @@ public abstract class FacadeAbstractUtil {
                                                 order.getId(),
                                                 order.getEcommerceId(),
                                                 order.getExternalId(),
-                                                null,
+                                                Optional.ofNullable(order.getOrderStatus())
+                                                        .map(os -> Constant.CancellationStockDispatcher.getByName(os.getName()).getId())
+                                                        .orElse(null),
                                                 null,
                                                 order.getSource(),
                                                 Constant.TrackerImplementation
@@ -263,12 +265,12 @@ public abstract class FacadeAbstractUtil {
                                         )
                                 )
                                 .flatMap(response -> iAuditAdapter.updateAudit(response, Constant.UPDATED_BY_INIT))
-                                .flatMap(response -> liquidationFacade.createUpdate(response));
+                                .flatMap(response -> liquidationFacade.createUpdate(response, order));
 
                     }
                     log.info("[END] Preparation to send order:{}", order.getEcommerceId());
 
-                    return liquidationFacade.createUpdate(order);
+                    return liquidationFacade.createUpdate(order, order);
 
                 }).switchIfEmpty(Mono.defer(() -> {
                     log.error("Error empty Creating the order:{} with companyCode:{}",

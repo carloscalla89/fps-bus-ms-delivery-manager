@@ -8,6 +8,8 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Project
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
@@ -70,15 +72,14 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
-	public Mono<OrderCanonical> createOrderToLiquidation(OrderCanonical orderCanonical) {
+	public Mono<OrderCanonical> createOrderToLiquidation(LiquidationDto liquidationDto) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Mono<OrderCanonical> updateOrderToLiquidation(String status, Long ecommerceId) {
+	public Mono<OrderCanonical> updateOrderToLiquidation(String ecommerceId, StatusDto statusDto) {
 		throw new UnsupportedOperationException();
 	}
-
 
 	@Override
 	public Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
@@ -170,6 +171,31 @@ public class AbstractOrderService implements OrderExternalService {
 
 	}
 
+	protected Mono<OrderCanonical> mapResponseFromTargetLiquidation(ClientResponse clientResponse, Long ecommerceId,
+																	String code, String statusDetail) {
+
+		if (clientResponse.statusCode().is2xxSuccessful()) {
+
+			return clientResponse
+					.bodyToMono(Void.class)
+					.thenReturn((getResponseLiquidation(ecommerceId, code, statusDetail)));
+
+		} else {
+			log.error("Error in response from tracker, ecommerceId:{}, statusCode:{}",
+					ecommerceId,clientResponse.statusCode());
+			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
+
+			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
+
+		}
+
+	}
+
+	protected Mono<OrderCanonical> mapResponseFromTargetWithErrorOrEmpty(Long ecommerceId, String code, String statusDetail) {
+
+		return Mono.just(getResponseLiquidation(ecommerceId, code, statusDetail));
+
+	}
 
 	protected Mono<OrderCanonical> mapResponseFromUpdateTracker(ClientResponse clientResponse, Long ecommerceId,
 																Constant.OrderStatusTracker orderStatusInkatracker) {
@@ -224,6 +250,14 @@ public class AbstractOrderService implements OrderExternalService {
 
         return orderCanonical;
     }
+
+	private OrderCanonical getResponseLiquidation(Long ecommerceId, String code, String statusDetail) {
+		OrderCanonical orderCanonical = new OrderCanonical();
+		orderCanonical.setEcommerceId(ecommerceId);
+		orderCanonical.setOrderStatus(objectToMapper.getOrderStatusLiquidation(code, statusDetail));
+
+		return orderCanonical;
+	}
 
 	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusName,
 															   String cancellationCode, String cancellationObservation) {
