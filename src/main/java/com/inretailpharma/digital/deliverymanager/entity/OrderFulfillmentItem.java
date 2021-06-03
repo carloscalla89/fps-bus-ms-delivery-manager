@@ -83,4 +83,7 @@ public class OrderFulfillmentItem {
     private String paymentMethodCardType;
     private BigDecimal promotionalDiscount;
 
+    @Column(name = "product_code_inka")
+    private String productCodeInkafarma;
+
 }

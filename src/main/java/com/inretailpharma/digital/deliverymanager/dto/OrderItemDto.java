@@ -51,4 +51,6 @@ public class OrderItemDto {
     private boolean crossOutPL;
     private String paymentMethodCardType;
     private BigDecimal promotionalDiscount;
+
+    private String productCodeInkafarma;
 }
