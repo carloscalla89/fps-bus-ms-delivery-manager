@@ -576,6 +576,14 @@ public class ObjectToMapper {
             canonical.setTotalPriceWithpaymentMethod(Optional.ofNullable(itemCanonical.getTotalPriceWithpaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
             canonical.setCrossOutPL(itemCanonical.getCrossOutPL());
             canonical.setPaymentMethodCardType(Optional.ofNullable(itemCanonical.getPaymentMethodCardType()).orElse(Constant.VALUE_ZERO_STRING));
+
+            if(canonical.getTotalPriceWithpaymentMethod().doubleValue() > Constant.VALUE_ZERO_DOUBLE){
+                canonical.setTotalPrice(canonical.getTotalPriceWithpaymentMethod());
+                canonical.setUnitPrice(canonical.getPriceWithpaymentMethod());
+            }else if(canonical.getTotalPriceAllPaymentMethod().doubleValue() > Constant.VALUE_ZERO_DOUBLE){
+                canonical.setTotalPrice(canonical.getTotalPriceAllPaymentMethod());
+                canonical.setUnitPrice(canonical.getPriceAllPaymentMethod());
+            }
             /** ** **/
             itemCanonicalList.add(canonical);
         }
