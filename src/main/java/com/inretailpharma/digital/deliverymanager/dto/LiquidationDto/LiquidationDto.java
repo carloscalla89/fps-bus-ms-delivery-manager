@@ -31,7 +31,10 @@ public class LiquidationDto {
    // @NotBlank(message = "paymentMethod may not be blank")
     private String paymentMethod;
     private String cardProvider;
-    private String liquidationStatus;
+
+    private String fullName;
+    private String phone;
+    private String documentNumber;
 
 
 

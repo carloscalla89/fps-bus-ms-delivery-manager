@@ -158,14 +158,6 @@ public class OrderTransaction {
         orderWrapperResponse.setLeadTime(serviceLocalOrderResponse.getLeadTime());
         orderWrapperResponse.setDaysToPickup(serviceLocalOrderResponse.getDaysToPickup());
 
-        /*
-          Parameters of liquidations
-          date: 05-05-21
-          by: carlos calla
-         */
-        orderWrapperResponse.setLiquidationEnabled(orderStatus.isLiquidationEnabled());
-        orderWrapperResponse.setLiquidationStatus(orderStatus.getLiquidationStatus());
-
         log.info("[END] createOrderReactive");
         return objectMapper.setsOrderWrapperResponseToOrderCanonical(orderWrapperResponse, orderDto);
     }

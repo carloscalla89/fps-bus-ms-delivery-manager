@@ -63,15 +63,17 @@ public class ObjectToMapper {
 
         LiquidationDto liquidationDto = new LiquidationDto();
         liquidationDto.setEcommerceId(orderCanonical.getEcommerceId().toString());
-        liquidationDto.setPurchaseNumber(
-                Optional.ofNullable(orderCanonical.getPurchaseId()).map(Object::toString).orElse(null)
-        );
+        liquidationDto.setPurchaseNumber(orderCanonical.getPaymentMethod().getPurchaseNumber());
 
         liquidationDto.setChannel(orderCanonical.getOrderDetail().getServiceSourceChannel());
         liquidationDto.setCompanyCode(orderCanonical.getCompanyCode());
         liquidationDto.setLocalCode(orderCanonical.getLocalCode());
-        //liquidationDto.setTransactionVisanet(orderCanonical.getPaymentMethod().getChangeAmount());
-        //liquidationDto.setTransactionVisanetDate();
+
+        liquidationDto.setTransactionVisanet(orderCanonical.getPaymentMethod().getPaymentTransactionId());
+        liquidationDto.setTransactionVisanetDate(
+                Optional.ofNullable(orderCanonical.getPaymentMethod().getTransactionDateVisanet())
+                        .map(DateUtils::getLocalDateTimeFormatUTC).orElse(null)
+        );
         liquidationDto.setSource(orderCanonical.getSource());
         liquidationDto.setServiceType(orderCanonical.getOrderDetail().getServiceType());
         liquidationDto.setLocalType(orderCanonical.getStoreCenter().getLocalType());
@@ -81,6 +83,10 @@ public class ObjectToMapper {
         liquidationDto.setChangeAmount(orderCanonical.getPaymentMethod().getChangeAmount());
         liquidationDto.setPaymentMethod(orderCanonical.getPaymentMethod().getType());
         liquidationDto.setCardProvider(orderCanonical.getPaymentMethod().getCardProvider());
+
+        liquidationDto.setFullName(orderCanonical.getClient().getFullName());
+        liquidationDto.setDocumentNumber(orderCanonical.getClient().getDocumentNumber());
+        liquidationDto.setPhone(orderCanonical.getClient().getPhone());
 
         return liquidationDto;
 
@@ -1314,6 +1320,17 @@ public class ObjectToMapper {
         paymentMethod.setChangeAmount(orderDto.getPayment().getChangeAmount());
         paymentMethod.setPaidAmount(orderDto.getPayment().getPaidAmount());
         paymentMethod.setPaymentTransactionId(orderDto.getPayment().getPaymentTransactionId());
+        paymentMethod.setPurchaseNumber(
+                Optional.ofNullable(orderDto.getPurchaseNumber()).map(Object::toString).orElse(null)
+        );
+        paymentMethod.setCardProviderCode(orderDto.getPayment().getCardProviderCode());
+        paymentMethod.setNumPanVisanet(orderDto.getPayment().getNumPanVisaNet());
+        paymentMethod.setProviderCardCommercialCode(orderDto.getPayment().getProviderCardCommercialCode());
+
+        Optional.ofNullable(orderDto.getPayment().getTransactionDateVisaNet())
+                .filter(res -> GenericValidator.isDate(res, DateUtils.getFormatDateTimeTemplate(), true))
+                .ifPresent(paymentMethod::setTransactionDateVisanet);
+
         orderCanonical.setPaymentMethod(paymentMethod);
 
         log.info("[END] convertEntityToOrderCanonical");
@@ -1408,7 +1425,7 @@ public class ObjectToMapper {
         return LiquidationCanonical
                 .builder()
                 .enabled(orderStatus.isLiquidationEnabled())
-                .code(orderStatus.getCode())
+                .code(orderStatus.getLiquidationCode())
                 .status(orderStatus.getLiquidationStatus())
                 .build();
 

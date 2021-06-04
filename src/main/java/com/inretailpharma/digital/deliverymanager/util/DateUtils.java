@@ -62,6 +62,11 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         }
     }
 
+    public static String getLocalDateTimeFormatUTC(String localDateTime) {
+
+        return LocalDateTime.parse(localDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME).toString();
+
+    }
 
     public static LocalDateTime getLocalDateTimeFromStringWithFormat(String localDateTime) {
         return LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
