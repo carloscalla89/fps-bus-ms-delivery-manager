@@ -435,11 +435,8 @@ public interface Constant {
         PENDING("50",true), ERROR("51",true), AUTOMATIC_CANCELLED("52",true),
         IN_PROCESS("53",true),  BILLED("54", true), PARTIAL_BILLED("55", true),
 
-        ERROR_PENDING("56", false), ERROR_ERROR("57",false),
-        ERROR_AUTOMATIC_CANCELLED("58",false), ERROR_IN_PROCESS("59", false),
-        ERROR_BILLED("60",false), ERROR_PARTIAL_BILLED("61",false),
-
-        ERROR_SENDING_CREATE_STATUS("62", false), ERROR_UPDATING_STATUS("63", false),
+        CANCELLED("08", true), BILLED("05",true), PENDING_LIQUIDATE("07",true),
+        ERROR_SENDING_CREATE_STATUS("10", false), ERROR_UPDATING_STATUS("11", false),
         NOT_FOUND_CODE("-1",false);
 
         private String code;
@@ -694,14 +691,8 @@ public interface Constant {
     String ACTION_CANCEL_ORDER = "CANCEL_ORDER";
     String ACTION_REJECT_ORDER = "REJECT_ORDER";
 
-
-    String LIQUIDATION_STATUS_AUTOMATIC_CANCELLED_CODE = "03";
-    String LIQUIDATION_STATUS_AUTOMATIC_CANCELLED = "AUTOMATIC_CANCELLED";
-    String LIQUIDATION_STATUS_CANCELLED_CODE = "07";
     String LIQUIDATION_STATUS_CANCELLED = "CANCELLED";
-    String LIQUIDATION_STATUS_PENDING_CODE = "08";
     String LIQUIDATION_STATUS_PENDING = "PENDING_LIQUIDATE";
-    String LIQUIDATION_STATUS_BILLED_CODE = "09";
     String LIQUIDATION_STATUS_BILLED = "BILLED";
 
     /* Estados de liquidación */

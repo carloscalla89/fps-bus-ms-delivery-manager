@@ -1421,7 +1421,7 @@ public class ObjectToMapper {
         return LiquidationCanonical
                 .builder()
                 .enabled(orderStatus.isLiquidationEnabled())
-                .code(orderStatus.getLiquidationCode())
+                .code(orderStatus.getCode())
                 .status(orderStatus.getLiquidationStatus())
                 .build();
 

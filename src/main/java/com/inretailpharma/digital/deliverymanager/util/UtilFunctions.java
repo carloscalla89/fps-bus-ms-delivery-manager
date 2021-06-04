@@ -100,8 +100,6 @@ public class UtilFunctions {
                                 statusDto.setName(Constant.LIQUIDATION_STATUS_CANCELLED);
                             }
 
-
-
                         } else {
 
                             statusDto.setCode(Constant.LIQUIDATION_STATUS_PENDING_CODE);

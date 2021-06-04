@@ -5,7 +5,7 @@ import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 @FunctionalInterface
 public interface LiquidationStatus {
 
-    StatusDto process(String liquidationStatus, String firstDigitalStatus, String action, String orderCancelCode,
-                      String serviceType);
+    String process(String liquidationStatus, String firstDigitalStatus, String action, String orderCancelCode,
+                   String serviceType);
 
 }
