@@ -58,7 +58,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ObjectToMapper {
 
 
-    public LiquidationDto getLiquidationDtoFromOrderCanonical(OrderCanonical orderCanonical, String statusLiquidation) {
+    public LiquidationDto getLiquidationDtoFromOrderCanonical(OrderCanonical orderCanonical,
+                                                              LiquidationCanonical liquidationCanonical) {
 
         LiquidationDto liquidationDto = new LiquidationDto();
         liquidationDto.setEcommerceId(orderCanonical.getEcommerceId().toString());
@@ -75,7 +76,7 @@ public class ObjectToMapper {
         liquidationDto.setServiceType(orderCanonical.getOrderDetail().getServiceType());
         liquidationDto.setLocalType(orderCanonical.getStoreCenter().getLocalType());
 
-        liquidationDto.setStatus(getStatusLiquidation(statusLiquidation, orderCanonical));
+        liquidationDto.setStatus(getStatusLiquidation(liquidationCanonical, orderCanonical));
         liquidationDto.setTotalAmount(orderCanonical.getTotalAmount());
         liquidationDto.setChangeAmount(orderCanonical.getPaymentMethod().getChangeAmount());
         liquidationDto.setPaymentMethod(orderCanonical.getPaymentMethod().getType());
@@ -85,12 +86,11 @@ public class ObjectToMapper {
 
     }
 
-    private StatusDto getStatusLiquidation(String liquidationStatus, OrderCanonical orderCanonical) {
-        Constant.OrderStatusLiquidation status = Constant.OrderStatusLiquidation.getStatusByName(liquidationStatus);
+    private StatusDto getStatusLiquidation(LiquidationCanonical liquidationCanonical, OrderCanonical orderCanonical) {
 
         StatusDto statusDto = new StatusDto();
-        statusDto.setCode(status.getCode());
-        statusDto.setName(status.name());
+        statusDto.setCode(liquidationCanonical.getCode());
+        statusDto.setName(liquidationCanonical.getStatus());
         statusDto.setDetail(orderCanonical.getOrderStatus().getDetail());
         statusDto.setCancellationCode(orderCanonical.getOrderStatus().getCancellationCode());
         statusDto.setCancellationDescription(orderCanonical.getOrderStatus().getCancellationDescription());
@@ -98,9 +98,10 @@ public class ObjectToMapper {
         return statusDto;
     }
 
-    public StatusDto getLiquidationStatusDtoFromOrderCanonical(String liquidationStatus, OrderCanonical orderCanonical) {
+    public StatusDto getLiquidationStatusDtoFromOrderCanonical(LiquidationCanonical liquidationCanonical,
+                                                               OrderCanonical orderCanonical) {
 
-        return getStatusLiquidation(liquidationStatus, orderCanonical);
+        return getStatusLiquidation(liquidationCanonical, orderCanonical);
 
     }
 
@@ -1407,6 +1408,7 @@ public class ObjectToMapper {
         return LiquidationCanonical
                 .builder()
                 .enabled(orderStatus.isLiquidationEnabled())
+                .code(orderStatus.getCode())
                 .status(orderStatus.getLiquidationStatus())
                 .build();
 

@@ -433,16 +433,8 @@ public interface Constant {
     enum OrderStatusLiquidation {
         // Estados de error o satisfactorio al enviar desde el DM al componente de liquidación
 
-        STATUS_PENDING_CREATED("00",true), STATUS_ERROR_POS_CREATED("01", true),
-        STATUS_ERROR_TRACKER_CREATED("02",true), STATUS_CANCELLED_CREATED("03", true),
-        STATUS_IN_PROCESS_UPDATED("04",true), STATUS_BILLED_UPDATED("05", true),
-        STATUS_PARTIAL_BILLED_UPDATE("06",true),
-
-
-
+        CANCELLED("08", true), BILLED("05",true), PENDING_LIQUIDATE("07",true),
         ERROR_SENDING_CREATE_STATUS("10", false), ERROR_UPDATING_STATUS("11", false),
-        ERROR_IN_PROCESS_UPDATED("12",false), ERROR_BILLED_UPDATED("13",false),
-        ERROR_PARTIAL_BILLED_UPDATED("14",false),
         NOT_FOUND_CODE("-1",false);
 
         private String code;
@@ -691,6 +683,14 @@ public interface Constant {
     String CANCELLED_ORDER_NOT_ENOUGH_STOCK_STATUS = "CANCELLED_ORDER_NOT_ENOUGH_STOCK";
 
     String DELIVERED_ORDER_STATUS = "DELIVERED_ORDER";
+
+    String ACTION_DELIVER_ORDER = "DELIVER_ORDER";
+    String ACTION_CANCEL_ORDER = "CANCEL_ORDER";
+    String ACTION_REJECT_ORDER = "REJECT_ORDER";
+
+    String LIQUIDATION_STATUS_CANCELLED = "CANCELLED";
+    String LIQUIDATION_STATUS_PENDING = "PENDING_LIQUIDATE";
+    String LIQUIDATION_STATUS_BILLED = "BILLED";
 
     /* Estados de liquidación */
 

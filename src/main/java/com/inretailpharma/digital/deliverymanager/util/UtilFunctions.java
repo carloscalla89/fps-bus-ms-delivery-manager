@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 public class UtilFunctions {
 
     public static ProcessFunctionInterface getSuccessResponseFunction =
-            (y,z,e) -> {
+            (y,z,e, x) -> {
                 log.info("success response ecommerceId:{}, action:{}",y,z);
                 OrderCanonical orderCanonical = new OrderCanonical();
                 orderCanonical.setEcommerceId(y);
@@ -19,7 +19,7 @@ public class UtilFunctions {
                 orderStatusCanonical.setCode(orderStatus.getCode());
                 orderStatusCanonical.setName(orderStatus.name());
                 orderStatusCanonical.setStatusDate(DateUtils.getLocalDateTimeNow());
-
+                orderStatusCanonical.setFirstStatusName(x);
                 orderCanonical.setOrderStatus(orderStatusCanonical);
 
                 return Mono.just(orderCanonical);
@@ -27,7 +27,7 @@ public class UtilFunctions {
             };
 
     public static ProcessFunctionInterface getErrorResponseFunction =
-            (y,z,e) -> {
+            (y,z,e, x) -> {
 
                 OrderCanonical orderCanonical = new OrderCanonical();
                 orderCanonical.setEcommerceId(y);
@@ -48,42 +48,39 @@ public class UtilFunctions {
 
 
     public static LiquidationStatus processLiquidationStatus =
-            (digitalStatus) -> {
+            (liquidationStatus, firstDigitalStatus,  action, cancelCode, serviceType) -> {
 
-                String liquidationStatus;
+                String var = null;
 
-                switch (digitalStatus) {
+                switch (action) {
 
-                    case Constant.CONFIRMED_STATUS:
-                        liquidationStatus = Constant.LIQUIDATION_STATUS_1;
-                        break;
+                    case Constant.ACTION_DELIVER_ORDER:
 
-                    case Constant.ERROR_INSERT_INKAVENTA_STATUS:
-                    case Constant.ERROR_INSERT_TRACKER_STATUS:
-                    case Constant.ORDER_FAILED_STATUS:
-                        liquidationStatus = Constant.LIQUIDATION_STATUS_2;
-                        break;
+                        if (serviceType.equalsIgnoreCase(Constant.DELIVERY)) {
+                            var = Constant.LIQUIDATION_STATUS_PENDING;
+                        } else {
+                            var = Constant.LIQUIDATION_STATUS_BILLED;
+                        }
 
-                    case Constant.CANCELLED_ORDER_STATUS:
-                    case Constant.REJECTED_ORDER_STATUS:
-                    case Constant.CANCELLED_ORDER_ONLINE_PAYMENT_STATUS:
-                    case Constant.REJECTED_ORDER_ONLINE_PAYMENT_STATUS:
-                    case Constant.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK_STATUS:
-                    case Constant.CANCELLED_ORDER_NOT_ENOUGH_STOCK_STATUS:
-
-                        liquidationStatus = Constant.LIQUIDATION_STATUS_3;
 
                         break;
 
-                    case Constant.DELIVERED_ORDER_STATUS:
-                        liquidationStatus = Constant.LIQUIDATION_STATUS_4;
-                        break;
+                    case Constant.ACTION_CANCEL_ORDER:
+                    case Constant.ACTION_REJECT_ORDER:
 
-                    default:
-                        liquidationStatus = Constant.LIQUIDATION_STATUS_ERROR;
+                        if (firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CHECKOUT_ORDER.name())
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.READY_PICKUP_ORDER.name())) {
+                            var = Constant.LIQUIDATION_STATUS_CANCELLED;
+                        } else {
+                            var = Constant.LIQUIDATION_STATUS_PENDING;
+                        }
+
+                        break;
                 }
 
-                return liquidationStatus;
+                return var;
 
             };
 }

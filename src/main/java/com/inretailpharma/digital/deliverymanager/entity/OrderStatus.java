@@ -16,6 +16,7 @@ public class OrderStatus implements Serializable {
     private String type;
     private String description;
     private boolean liquidationEnabled;
+    private String liquidationCode;
     private String liquidationStatus;
 
 }

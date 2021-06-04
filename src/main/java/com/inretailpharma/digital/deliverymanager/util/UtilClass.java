@@ -20,20 +20,19 @@ public class UtilClass {
     private String origin;
     private String target;
     private String orderStatusName;
-    private boolean sendNewFlow;
+    private String firstOrderStatusName;
 
     public UtilClass(String classImplementTracker) {
         this.classImplementTracker = classImplementTracker;
     }
 
-    public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin, String orderStatusName,
-                     boolean sendNewFlow) {
+    public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin,
+                     String orderStatusName) {
         this.classImplementTracker = classImplementTracker;
         this.serviceType = serviceType;
         this.actionName = actionName;
         this.origin = origin;
         this.orderStatusName = orderStatusName;
-        this.sendNewFlow = sendNewFlow;
     }
 
     public String getOnlyTargetComponentTracker() {
@@ -62,7 +61,14 @@ public class UtilClass {
 
     }
 
+    public String getFirstOrderStatusName() {
+
+        return firstOrderStatusName;
+    }
+
     public List<Class<?>> getClassesToSend() {
+
+        firstOrderStatusName = orderStatusName;
 
         if (serviceType.equalsIgnoreCase(Constant.PICKUP)) {
             return Collections.singletonList(TrackerAdapter.class);

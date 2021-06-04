@@ -111,8 +111,6 @@ public class OrderTransaction {
                         .orElse(null)
         );
 
-        serviceLocalOrder.setLiquidationStatus(UtilFunctions.processLiquidationStatus.process(orderStatus.getType()));
-
         ServiceLocalOrder serviceLocalOrderResponse =  orderRepositoryService.saveServiceLocalOrder(serviceLocalOrder);
 
         // Set values to return wrapped

@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.InsinkRes
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.ResponseDispatcherCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.StatusDispatcher;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
@@ -92,12 +93,13 @@ public abstract class AdapterAbstractUtil {
 
     }
 
-    protected LiquidationDto getLiquidationDtoFromOrderCanonical(OrderCanonical orderCanonical, String statusLiquidation) {
-        return objectToMapper.getLiquidationDtoFromOrderCanonical(orderCanonical, statusLiquidation);
+    protected LiquidationDto getLiquidationDtoFromOrderCanonical(OrderCanonical orderCanonical,
+                                                                 LiquidationCanonical liquidationCanonical) {
+        return objectToMapper.getLiquidationDtoFromOrderCanonical(orderCanonical, liquidationCanonical);
     }
 
-    protected StatusDto getStatusLiquidation(String statusLiquidation, OrderCanonical orderCanonical) {
-        return objectToMapper.getLiquidationStatusDtoFromOrderCanonical(statusLiquidation, orderCanonical);
+    protected StatusDto getStatusLiquidation(LiquidationCanonical liquidationCanonical, OrderCanonical orderCanonical) {
+        return objectToMapper.getLiquidationStatusDtoFromOrderCanonical(liquidationCanonical, orderCanonical);
     }
 
     protected OrderDto getMappOrder(Long ecommercePurchaseId, StoreCenterCanonical storeCenterCanonical) {
