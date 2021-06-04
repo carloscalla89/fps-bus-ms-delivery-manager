@@ -265,12 +265,12 @@ public abstract class FacadeAbstractUtil {
                                         )
                                 )
                                 .flatMap(response -> iAuditAdapter.updateAudit(response, Constant.UPDATED_BY_INIT))
-                                .flatMap(response -> liquidationFacade.createUpdate(response, order));
+                                .flatMap(response -> liquidationFacade.create(response, order));
 
                     }
                     log.info("[END] Preparation to send order:{}", order.getEcommerceId());
 
-                    return liquidationFacade.createUpdate(order, order);
+                    return liquidationFacade.create(order, order);
 
                 }).switchIfEmpty(Mono.defer(() -> {
                     log.error("Error empty Creating the order:{} with companyCode:{}",
