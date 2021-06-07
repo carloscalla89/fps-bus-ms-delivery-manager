@@ -41,5 +41,6 @@ public interface IOrderItemFulfillment {
     String getPaymentMethodCardType();
     BigDecimal getPromotionalDiscount();
 
+    String getProductCodeInkafarma();
 
 }
