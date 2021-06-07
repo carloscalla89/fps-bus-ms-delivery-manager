@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 public class UtilFunctions {
 
     public static ProcessFunctionInterface getSuccessResponseFunction =
-            (y,z,e, x, i, s) -> {
+            (y,z,e, x, i, s,c) -> {
                 log.info("success response ecommerceId:{}, action:{}",y,z);
                 OrderCanonical orderCanonical = new OrderCanonical();
                 orderCanonical.setEcommerceId(y);
@@ -29,6 +29,7 @@ public class UtilFunctions {
                 orderStatusCanonical.setStatusDate(DateUtils.getLocalDateTimeNow());
                 orderStatusCanonical.setFirstStatusName(x);
                 orderStatusCanonical.setSuccessful(true);
+                orderStatusCanonical.setCancellationCode(c);
                 orderCanonical.setOrderStatus(orderStatusCanonical);
 
                 return Mono.just(orderCanonical);
@@ -36,7 +37,7 @@ public class UtilFunctions {
             };
 
     public static ProcessFunctionInterface getErrorResponseFunction =
-            (y,z,e, x, i, s) -> {
+            (y,z,e, x, i, s, c) -> {
 
                 OrderCanonical orderCanonical = new OrderCanonical();
                 orderCanonical.setEcommerceId(y);
@@ -53,6 +54,7 @@ public class UtilFunctions {
                 orderStatusCanonical.setName(orderStatus.name());
                 orderStatusCanonical.setStatusDate(DateUtils.getLocalDateTimeNow());
                 orderStatusCanonical.setDetail(e);
+                orderStatusCanonical.setCancellationCode(c);
                 orderCanonical.setOrderStatus(orderStatusCanonical);
 
                 return Mono.just(orderCanonical);

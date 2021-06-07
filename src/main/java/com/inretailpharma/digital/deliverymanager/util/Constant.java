@@ -192,7 +192,6 @@ public interface Constant {
         ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker",1,
                 METHOD_CREATE, RetryTracker.class),
 
-
         ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink",1,
                 METHOD_CREATE, RetryDeliveryDispatcher.class),
 
@@ -365,7 +364,7 @@ public interface Constant {
                 OrderStatus.ERROR_ARRIVED, ActionOrder.ARRIVAL_ORDER.name()),
 
         CHECKOUT_ORDER("CHECKOUT_ORDER", null, OrderStatus.CHECKOUT_ORDER,
-                      OrderStatus.ERROR_CHECKOUT, ActionOrder.CHECKOUT_ORDER.name());
+                OrderStatus.ERROR_CHECKOUT, ActionOrder.CHECKOUT_ORDER.name());
 
 
         private String trackerStatus;
@@ -432,11 +431,11 @@ public interface Constant {
 
     enum LiquidationStatus {
         // Estados de error o satisfactorio al enviar desde el DM al componente de liquidación o a la auditoria
-        PENDING("50",true), ERROR("51",true), AUTOMATIC_CANCELLED("52",true),
-        IN_PROCESS("53",true),  BILLED("54", true), PARTIAL_BILLED("55", true),
+        PENDING("00",true), ERROR("02",true), AUTOMATIC_CANCELLED("03",true),
+        IN_PROCESS("04",true),  BILLED("05", true), PARTIAL_BILLED("06", true),
+        CANCELLED("07",true), PENDING_LIQUIDATE("07",true),
 
-        CANCELLED("08", true), BILLED("05",true), PENDING_LIQUIDATE("07",true),
-        ERROR_SENDING_CREATE_STATUS("10", false), ERROR_UPDATING_STATUS("11", false),
+        ERROR_SENDING_CREATE_STATUS("62", false), ERROR_UPDATING_STATUS("63", false),
         NOT_FOUND_CODE("-1",false);
 
         private String code;
@@ -565,11 +564,11 @@ public interface Constant {
                     .stream()
                     .anyMatch(item -> ORIGIN_BBR.equalsIgnoreCase(origin)
                             && (ERROR_INSERT_TRACKER.code.equalsIgnoreCase(code)
-                                || ERROR_PICKED.code.equalsIgnoreCase(code)
-                                || PICKED_ORDER.code.equalsIgnoreCase(code)
-                                || ERROR_PREPARED.code.equalsIgnoreCase(code)
-                                || CONFIRMED.code.equalsIgnoreCase(code)
-                                || CONFIRMED_TRACKER.code.equalsIgnoreCase(code))
+                            || ERROR_PICKED.code.equalsIgnoreCase(code)
+                            || PICKED_ORDER.code.equalsIgnoreCase(code)
+                            || ERROR_PREPARED.code.equalsIgnoreCase(code)
+                            || CONFIRMED.code.equalsIgnoreCase(code)
+                            || CONFIRMED_TRACKER.code.equalsIgnoreCase(code))
                     );
         }
 
@@ -672,6 +671,7 @@ public interface Constant {
     String METHOD_NONE = "NONE";
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
     String CANCELLATION_CODE_EXP = "EXP";
+
     String CONFIRMED_STATUS = "CONFIRMED";
 
     String ERROR_INSERT_TRACKER_STATUS = "ERROR_INSERT_TRACKER";
@@ -691,8 +691,13 @@ public interface Constant {
     String ACTION_CANCEL_ORDER = "CANCEL_ORDER";
     String ACTION_REJECT_ORDER = "REJECT_ORDER";
 
+    String LIQUIDATION_STATUS_AUTOMATIC_CANCELLED_CODE = "03";
+    String LIQUIDATION_STATUS_AUTOMATIC_CANCELLED = "AUTOMATIC_CANCELLED";
+    String LIQUIDATION_STATUS_CANCELLED_CODE = "07";
     String LIQUIDATION_STATUS_CANCELLED = "CANCELLED";
+    String LIQUIDATION_STATUS_PENDING_CODE = "08";
     String LIQUIDATION_STATUS_PENDING = "PENDING_LIQUIDATE";
+    String LIQUIDATION_STATUS_BILLED_CODE = "09";
     String LIQUIDATION_STATUS_BILLED = "BILLED";
 
     /* Estados de liquidación */
@@ -738,9 +743,9 @@ public interface Constant {
             DR("DR", "Solicitud de Devolución"),
             PP("PP", "No pagado"),
             RC("RC", "Despacho rechazado"),
-            CC("CC", "Cancelado por el cliente"), 
+            CC("CC", "Cancelado por el cliente"),
             EC("EC", "Error de cliente"),
-            PI("PI", "Primer despacho infructuoso"), 
+            PI("PI", "Primer despacho infructuoso"),
             DI("DI", "Despacho infructuoso"),
             CS("CS", "Cancelado por el seller");
 

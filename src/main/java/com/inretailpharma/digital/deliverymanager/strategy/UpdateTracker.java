@@ -82,7 +82,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
         IOrderFulfillment iOrderFulfillment = getOrderLightByecommerceId(ecommerceId);
 
         log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, serviceType:{}, serviceShortCode:{}, " +
-                 "classImplementTracker:{}, source:{}, channel:{}, sendNotificationByChannel:{}",
+                        "classImplementTracker:{}, source:{}, channel:{}, sendNotificationByChannel:{}",
                 iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), actionDto,
                 iOrderFulfillment.getServiceType(), iOrderFulfillment.getServiceTypeShortCode(),
                 iOrderFulfillment.getClassImplement(), iOrderFulfillment.getSource(), iOrderFulfillment.getServiceChannel(),
@@ -162,11 +162,21 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
 
                         )
                         .filter(response -> Constant.OrderStatus.getByName(response.getOrderStatus().getName()).isSuccess())
-                        .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),
-                                actionDto.getAction(), null, utilClass.getFirstOrderStatusName()))
+                        .flatMap(resp ->
+                                UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(
+                                        iOrderFulfillment.getEcommerceId(), actionDto.getAction(), null,
+                                        utilClass.getFirstOrderStatusName(), iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
+                                        actionDto.getOrderCancelCode()
+                                )
+                        )
                         .switchIfEmpty(Mono.defer(() ->
-                                UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(
-                                        iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS, null)));
+                                        UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(
+                                                iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS,
+                                                null, iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
+                                                actionDto.getOrderCancelCode()
+                                        )
+                                )
+                        );
 
             }
 
@@ -230,7 +240,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                             Constant.ClassesImplements.getByClass(utilClass.getClassToTracker()).getTargetName(),
                             actionDto.getUpdatedBy(),
                             actionDto.getActionDate()
-                        ).flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()));
+                    ).flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()));
                 }))
                 .buffer()
                 .filter(finalResponse ->
@@ -243,12 +253,17 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                         UtilFunctions
                                 .getSuccessResponseFunction
                                 .getMapOrderCanonical(
-                                        iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null, utilClass.getFirstOrderStatusName())
+                                        iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null,
+                                        utilClass.getFirstOrderStatusName(), iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
+                                        actionDto.getOrderCancelCode()
+                                )
                 )
                 .switchIfEmpty(Mono.defer(() ->
                         UtilFunctions
                                 .getErrorResponseFunction
-                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS, null))
+                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS,
+                                        null, iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
+                                        actionDto.getOrderCancelCode()))
                 )
                 .single();
 
@@ -310,10 +325,15 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                 .flatMap(resp ->
                         UtilFunctions
                                 .getSuccessResponseFunction
-                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null, utilClass.getFirstOrderStatusName()))
+                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null,
+                                        utilClass.getFirstOrderStatusName(), iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
+                                        actionDto.getOrderCancelCode()))
                 .switchIfEmpty(Mono.defer(() ->
                         UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(
-                                iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS, null)))
+                                iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS,
+                                null, iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
+                                actionDto.getOrderCancelCode()))
+                )
                 .single();
     }
 

@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 public interface ProcessFunctionInterface {
 
     Mono<OrderCanonical> getMapOrderCanonical(Long ecommerceId, String action, String errorDetail,
-                                              String firstOrderStatusName);
+                                              String firstOrderStatusName, Long orderId, String serviceType,
+                                              String orderCancelCode);
 
 }
