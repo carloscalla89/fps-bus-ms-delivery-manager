@@ -188,7 +188,7 @@ public class ObjectToMapper {
         );
         // para obtener la info del drugstore, se llamará al servicio de fulfillment-center
 
-        orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments));
+        orderInkatrackerCanonical.setOrderItems(createFirebaseOrderItemsFromOrderItemCanonical(itemFulfillments,storeCenterCanonical.getCompanyCode()));
         // ====set Status to tracker
         orderInkatrackerCanonical.setOrderStatus(
                 getFromOrderCanonical(iOrderFulfillment, status, orderCancelCode, orderCancelDescription,orderInkatrackerCanonical, detail));
@@ -533,7 +533,7 @@ public class ObjectToMapper {
         return orderStatusInkatrackerCanonical;
     }
 
-    private List<OrderItemInkatrackerCanonical> createFirebaseOrderItemsFromOrderItemCanonical(List<IOrderItemFulfillment> itemCanonicals) {
+    private List<OrderItemInkatrackerCanonical> createFirebaseOrderItemsFromOrderItemCanonical(List<IOrderItemFulfillment> itemCanonicals,String companyCode) {
 
         List<OrderItemInkatrackerCanonical> itemCanonicalList = new ArrayList<>();
 
@@ -544,8 +544,13 @@ public class ObjectToMapper {
             canonical.setFractionated(Optional.ofNullable(itemCanonical.getFractionated()).orElse("N"));
             canonical.setName(itemCanonical.getNameProduct());
             canonical.setQuantity(itemCanonical.getQuantity());
-            canonical.setSku(itemCanonical.getProductCode());
-            canonical.setProductId(itemCanonical.getProductCode());
+            if(companyCode.equalsIgnoreCase(Constant.COMPANY_CODE_MF) && itemCanonical.getProductCodeInkafarma()!=null){
+                canonical.setSku(itemCanonical.getProductCodeInkafarma());
+                canonical.setProductId(itemCanonical.getProductCodeInkafarma());
+            }else{
+                canonical.setSku(itemCanonical.getProductCode());
+                canonical.setProductId(itemCanonical.getProductCode());
+            }
             canonical.setEanCode(itemCanonical.getEanCode());
             canonical.setTotalPrice(itemCanonical.getTotalPrice().doubleValue());
             canonical.setUnitPrice(itemCanonical.getUnitPrice().doubleValue());
@@ -571,6 +576,14 @@ public class ObjectToMapper {
             canonical.setTotalPriceWithpaymentMethod(Optional.ofNullable(itemCanonical.getTotalPriceWithpaymentMethod()).map(BigDecimal::doubleValue).orElse(Constant.VALUE_ZERO_DOUBLE));
             canonical.setCrossOutPL(itemCanonical.getCrossOutPL());
             canonical.setPaymentMethodCardType(Optional.ofNullable(itemCanonical.getPaymentMethodCardType()).orElse(Constant.VALUE_ZERO_STRING));
+
+            if(canonical.getTotalPriceWithpaymentMethod().doubleValue() > Constant.VALUE_ZERO_DOUBLE){
+                canonical.setTotalPrice(canonical.getTotalPriceWithpaymentMethod());
+                canonical.setUnitPrice(canonical.getPriceWithpaymentMethod());
+            }else if(canonical.getTotalPriceAllPaymentMethod().doubleValue() > Constant.VALUE_ZERO_DOUBLE){
+                canonical.setTotalPrice(canonical.getTotalPriceAllPaymentMethod());
+                canonical.setUnitPrice(canonical.getPriceAllPaymentMethod());
+            }
             /** ** **/
             itemCanonicalList.add(canonical);
         }
@@ -747,6 +760,7 @@ public class ObjectToMapper {
                     orderFulfillmentItem.setPromotionalDiscount(r.getPromotionalDiscount());
 
                     /** ************ **/
+                    orderFulfillmentItem.setProductCodeInkafarma(r.getProductCodeInkafarma());
                     return orderFulfillmentItem;
                 }).collect(Collectors.toList())
         );
