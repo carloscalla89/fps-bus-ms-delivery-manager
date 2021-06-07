@@ -286,6 +286,13 @@ public class OrderTransaction {
         orderRepositoryService.updateOnlinePaymentStatusByOrderId(orderId, onlinePaymentStatus);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public void updateLiquidationStatusOrder(String liquidationStatus, String liquidationStatusDetail,
+                                             Long orderfulfillmentId) {
+
+        orderRepositoryService.updateLiquidationStatusOrder(liquidationStatus, liquidationStatusDetail, orderfulfillmentId);
+    }
+
     private String getApplicationParameter(String code) {
         return applicationParameterService
                 .getApplicationParameterByCodeIs(code).getValue();

@@ -10,6 +10,7 @@ import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
@@ -172,16 +173,16 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	protected Mono<OrderCanonical> mapResponseFromTargetLiquidation(ClientResponse clientResponse, Long ecommerceId,
-																	String code, String statusDetail) {
+																	StatusDto statusDto) {
 
 		if (clientResponse.statusCode().is2xxSuccessful()) {
 
 			return clientResponse
 					.bodyToMono(Void.class)
-					.thenReturn((getResponseLiquidation(ecommerceId, code, statusDetail)));
+					.thenReturn((getResponseLiquidation(ecommerceId, statusDto, null, true)));
 
 		} else {
-			log.error("Error in response from tracker, ecommerceId:{}, statusCode:{}",
+			log.error("Error in response from liquidation, ecommerceId:{}, statusCode:{}",
 					ecommerceId,clientResponse.statusCode());
 			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
 
@@ -193,7 +194,12 @@ public class AbstractOrderService implements OrderExternalService {
 
 	protected Mono<OrderCanonical> mapResponseFromTargetWithErrorOrEmpty(Long ecommerceId, String code, String statusDetail) {
 
-		return Mono.just(getResponseLiquidation(ecommerceId, code, statusDetail));
+		Constant.LiquidationStatus StatusLiquidationError = Constant.LiquidationStatus.getStatusByCode(code);
+		StatusDto statusDto = new StatusDto();
+		statusDto.setCode(StatusLiquidationError.getCode());
+		statusDto.setName(StatusLiquidationError.name());
+
+		return Mono.just(getResponseLiquidation(ecommerceId, statusDto, statusDetail, false));
 
 	}
 
@@ -230,6 +236,7 @@ public class AbstractOrderService implements OrderExternalService {
 		orderStatus.setCode(orderStatusResult.getCode());
 		orderStatus.setName(orderStatusResult.name());
 		orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+		orderStatus.setSuccessful(orderStatusResult.isSuccess());
 		orderCanonical.setOrderStatus(orderStatus);
 
 		return orderCanonical;
@@ -251,10 +258,11 @@ public class AbstractOrderService implements OrderExternalService {
         return orderCanonical;
     }
 
-	private OrderCanonical getResponseLiquidation(Long ecommerceId, String code, String statusDetail) {
+	private OrderCanonical getResponseLiquidation(Long ecommerceId, StatusDto statusDto, String statusDetail,
+												  boolean isSuccess) {
 		OrderCanonical orderCanonical = new OrderCanonical();
 		orderCanonical.setEcommerceId(ecommerceId);
-		orderCanonical.setOrderStatus(objectToMapper.getOrderStatusLiquidation(code, statusDetail));
+		orderCanonical.setOrderStatus(objectToMapper.getOrderStatusLiquidation(statusDto, statusDetail, isSuccess));
 
 		return orderCanonical;
 	}

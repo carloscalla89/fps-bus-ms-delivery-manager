@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import lombok.Data;
@@ -71,6 +72,7 @@ public class OrderCanonical {
 
 
     // Canonical IDs
+    @JsonIgnore
     private Long id;
     private Long ecommerceId;
     private Long trackerId;

@@ -134,6 +134,14 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public void updateLiquidationStatusOrder(String liquidationStatus, String liquidationStatusDetail,
+                                             Long orderfulfillmentId) {
+
+        orderRepository.updateLiquidationStatusOrder(liquidationStatus, liquidationStatusDetail, orderfulfillmentId);
+
+    }
+
+    @Override
     public Client saveClient(Client client) {
         return clientRepository.save(client);
     }

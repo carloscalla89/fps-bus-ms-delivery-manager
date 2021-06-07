@@ -76,6 +76,7 @@ public class ObjectToMapper {
         );
         liquidationDto.setSource(orderCanonical.getSource());
         liquidationDto.setServiceType(orderCanonical.getOrderDetail().getServiceType());
+        liquidationDto.setServiceTypeCode(orderCanonical.getOrderDetail().getServiceShortCode());
         liquidationDto.setLocalType(orderCanonical.getStoreCenter().getLocalType());
 
         liquidationDto.setStatus(getStatusLiquidation(liquidationCanonical, orderCanonical));
@@ -229,13 +230,6 @@ public class ObjectToMapper {
                                         )
                         ).orElse(null)
         );
-
-        Optional.ofNullable(orderCanonical.getLiquidation())
-                .filter(LiquidationCanonical::isEnabled)
-                .ifPresent(val -> {
-                    auditHistoryDto.setLiquidationStatus(val.getStatus());
-                    auditHistoryDto.setLiquidationStatusDetail(val.getDetail());
-        });
 
         return auditHistoryDto;
     }
@@ -669,6 +663,7 @@ public class ObjectToMapper {
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
         orderStatus.setCode(status.getCode());
         orderStatus.setName(status.name());
+        orderStatus.setSuccessful(status.isSuccess());
         orderStatus.setDetail(errorDetail);
         orderStatus.setCancellationCode(cancellationCode);
         orderStatus.setCancellationObservation(cancellationObservation);
@@ -677,15 +672,13 @@ public class ObjectToMapper {
         return orderStatus;
     }
 
-    public OrderStatusCanonical getOrderStatusLiquidation(String code, String errorDetail) {
+    public OrderStatusCanonical getOrderStatusLiquidation(StatusDto statusDto, String errorDetail, boolean isSuccess) {
 
         OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-
-        Constant.OrderStatusLiquidation orderStatusLiquidation = Constant.OrderStatusLiquidation.getStatusByCode(code);
-
-        orderStatus.setCode(orderStatusLiquidation.getCode());
-        orderStatus.setName(orderStatusLiquidation.name());
+        orderStatus.setCode(statusDto.getCode());
+        orderStatus.setName(statusDto.getName());
         orderStatus.setDetail(errorDetail);
+        orderStatus.setSuccessful(isSuccess);
         orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
 
         return orderStatus;
@@ -1098,7 +1091,8 @@ public class ObjectToMapper {
     	
         OrderCanonical orderCanonical = new OrderCanonical();
         Optional.ofNullable(iOrderFulfillment).ifPresent(o -> {
-        	
+
+            orderCanonical.setId(iOrderFulfillment.getOrderId());
         	orderCanonical.setEcommerceId(o.getEcommerceId());
         	orderCanonical.setExternalId(o.getExternalId());
             orderCanonical.setPurchaseId(Optional.ofNullable(o.getPurchaseId()).orElse(null));
@@ -1124,7 +1118,8 @@ public class ObjectToMapper {
             orderDetail.setLeadTime(o.getLeadTime());
             orderDetail.setServiceCode(o.getServiceTypeCode());
             orderDetail.setServiceName(o.getServiceTypeName());
-            
+            orderDetail.setServiceType(o.getServiceType());
+
             AddressCanonical address = new AddressCanonical();
             address.setName(Optional.ofNullable(o.getStreet()).orElse(StringUtils.EMPTY));
             address.setNumber(Optional.ofNullable(o.getNumber()).orElse(StringUtils.EMPTY));
@@ -1156,6 +1151,7 @@ public class ObjectToMapper {
             orderCanonical.setPaymentMethod(paymentMethod);
             
             orderCanonical.setPartial(o.getPartial());
+
         });
 
         log.debug("[END] map-convertIOrderDtoToOrderFulfillmentCanonical:{}", orderCanonical);

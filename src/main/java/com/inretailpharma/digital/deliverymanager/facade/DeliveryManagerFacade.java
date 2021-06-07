@@ -67,7 +67,8 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                 .fromCallable(() ->
                         actionStrategy
                                 .evaluate(actionDto, ecommerceId)
-                                .flatMap(response -> liquidationFacade.evaluateUpdate(response, actionDto.getAction()))
+                                .flatMap(response ->
+                                        liquidationFacade.evaluateUpdate(response, actionDto.getAction()))
                                 .subscribeOn(Schedulers.boundedElastic()))
                 .flatMap(val -> val);
 
@@ -104,6 +105,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
         return Mono
                 .just(orderTransaction.updatePartialOrder(partialOrderDto))
                 .flatMap(order -> {
+
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
                     orderStatus.setCode(Constant.OrderStatus.PARTIAL_UPDATE_ORDER.getCode());
                     orderStatus.setName(Constant.OrderStatus.PARTIAL_UPDATE_ORDER.getCode());

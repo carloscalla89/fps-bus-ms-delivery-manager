@@ -285,4 +285,12 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Modifying
     @Query(value = "update payment_method set online_payment_status = :onlinePaymentStatus where order_fulfillment_id = :orderId", nativeQuery = true)
     void updateOnlinePaymentStatusByOrderId(@Param("orderId") Long orderId, @Param("onlinePaymentStatus") String onlinePaymentStatus);
+
+    @Modifying
+    @Query(value = "update order_process_status " +
+            "set liquidationStatus = :liquidationStatus, liquidationStatusDetail =:liquidationStatusDetail " +
+            "where order_fulfillment_id = :order_fulfillment_id", nativeQuery = true)
+    void updateLiquidationStatusOrder(@Param("liquidationStatus") String liquidationStatus,
+                                      @Param("liquidationStatusDetail") String liquidationStatusDetail,
+                                      @Param("order_fulfillment_id") Long order_fulfillment_id);
 }

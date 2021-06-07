@@ -1,5 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
@@ -25,8 +27,12 @@ public class LiquidationServiceImpl extends AbstractOrderService implements Orde
     @Override
     public Mono<OrderCanonical> createOrderToLiquidation(LiquidationDto liquidationDto) {
 
-        log.info("[START] createOrderToLiquidation: uri:{}, dto:{}",
-                externalServicesProperties.getLiquidationCreateOrderUri(), liquidationDto);
+        try {
+            log.info("[START] createOrderToLiquidation: uri:{}, dto:{}",
+                    externalServicesProperties.getLiquidationCreateOrderUri(),new ObjectMapper().writeValueAsString(liquidationDto));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         return WebClient
                 .builder()
@@ -42,12 +48,12 @@ public class LiquidationServiceImpl extends AbstractOrderService implements Orde
                 .body(Mono.just(liquidationDto), LiquidationDto.class)
                 .exchange()
                 .flatMap(clientResponse -> mapResponseFromTargetLiquidation(
-                        clientResponse, Long.parseLong(liquidationDto.getEcommerceId()), liquidationDto.getStatus().getCode(), null)
+                        clientResponse, Long.parseLong(liquidationDto.getEcommerceId()), liquidationDto.getStatus())
                 )
                 .doOnSuccess(s -> log.info("Response is Success in liquidation:{}",s))
                 .switchIfEmpty(Mono.defer(() -> mapResponseFromTargetWithErrorOrEmpty(
                         Long.parseLong(liquidationDto.getEcommerceId()),
-                        Constant.OrderStatusLiquidation.ERROR_SENDING_CREATE_STATUS.getCode(),
+                        Constant.LiquidationStatus.ERROR_SENDING_CREATE_STATUS.getCode(),
                         "La respuesta al servicio es vacía"))
                 )
                 .doOnError(e -> {
@@ -56,15 +62,20 @@ public class LiquidationServiceImpl extends AbstractOrderService implements Orde
                 })
                 .onErrorResume(e -> mapResponseFromTargetWithErrorOrEmpty(
                         Long.parseLong(liquidationDto.getEcommerceId()),
-                        Constant.OrderStatusLiquidation.ERROR_SENDING_CREATE_STATUS.getCode(), e.getMessage())
+                        Constant.LiquidationStatus.ERROR_SENDING_CREATE_STATUS.getCode(), e.getMessage())
                 );
     }
 
     @Override
     public Mono<OrderCanonical> updateOrderToLiquidation(String ecommerceId, StatusDto statusDto) {
 
-        log.info("[START] updateOrderToLiquidation: uri:{},ecommerceId:{}",
-                externalServicesProperties.getLiquidationUpdateOrderUri(), ecommerceId);
+        try {
+            log.info("[START] updateOrderToLiquidation: uri:{},ecommerceId:{}, statusDto:{}",
+                    externalServicesProperties.getLiquidationUpdateOrderUri(),ecommerceId,
+                    new ObjectMapper().writeValueAsString(statusDto));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
         return WebClient
                 .builder()
@@ -83,13 +94,12 @@ public class LiquidationServiceImpl extends AbstractOrderService implements Orde
                                 .build(ecommerceId))
                 .body(Mono.just(statusDto), StatusDto.class)
                 .exchange()
-                .flatMap(clientResponse -> mapResponseFromTargetLiquidation(
-                        clientResponse, Long.parseLong(ecommerceId), statusDto.getCode(), null)
+                .flatMap(clientResponse -> mapResponseFromTargetLiquidation(clientResponse, Long.parseLong(ecommerceId), statusDto)
                 )
                 .doOnSuccess(s -> log.info("Response is Success in update liquidation:{}",s))
                 .switchIfEmpty(Mono.defer(() -> mapResponseFromTargetWithErrorOrEmpty(
                         Long.parseLong(ecommerceId),
-                        Constant.OrderStatusLiquidation.ERROR_UPDATING_STATUS.getCode(),
+                        Constant.LiquidationStatus.ERROR_UPDATING_STATUS.getCode(),
                         "La respuesta al servicio es vacía"))
                 )
                 .doOnError(e -> {
@@ -98,7 +108,7 @@ public class LiquidationServiceImpl extends AbstractOrderService implements Orde
                 })
                 .onErrorResume(e -> mapResponseFromTargetWithErrorOrEmpty(
                         Long.parseLong(ecommerceId),
-                        Constant.OrderStatusLiquidation.ERROR_UPDATING_STATUS.getCode(), e.getMessage())
+                        Constant.LiquidationStatus.ERROR_UPDATING_STATUS.getCode(), e.getMessage())
                 );
     }
 

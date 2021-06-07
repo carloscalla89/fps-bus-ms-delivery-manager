@@ -430,17 +430,22 @@ public interface Constant {
         }
     }
 
-    enum OrderStatusLiquidation {
-        // Estados de error o satisfactorio al enviar desde el DM al componente de liquidación
+    enum LiquidationStatus {
+        // Estados de error o satisfactorio al enviar desde el DM al componente de liquidación o a la auditoria
+        PENDING("50",true), ERROR("51",true), AUTOMATIC_CANCELLED("52",true),
+        IN_PROCESS("53",true),  BILLED("54", true), PARTIAL_BILLED("55", true),
 
-        CANCELLED("08", true), BILLED("05",true), PENDING_LIQUIDATE("07",true),
-        ERROR_SENDING_CREATE_STATUS("10", false), ERROR_UPDATING_STATUS("11", false),
+        ERROR_PENDING("56", false), ERROR_ERROR("57",false),
+        ERROR_AUTOMATIC_CANCELLED("58",false), ERROR_IN_PROCESS("59", false),
+        ERROR_BILLED("60",false), ERROR_PARTIAL_BILLED("61",false),
+
+        ERROR_SENDING_CREATE_STATUS("62", false), ERROR_UPDATING_STATUS("63", false),
         NOT_FOUND_CODE("-1",false);
 
         private String code;
         private boolean isSuccess;
 
-        OrderStatusLiquidation(String code, boolean isSuccess) {
+        LiquidationStatus(String code, boolean isSuccess) {
             this.code = code;
             this.isSuccess = isSuccess;
         }
@@ -453,17 +458,17 @@ public interface Constant {
             return isSuccess;
         }
 
-        public static OrderStatusLiquidation getStatusByCode(String code) {
+        public static LiquidationStatus getStatusByCode(String code) {
             return EnumUtils
-                    .getEnumList(OrderStatusLiquidation.class)
+                    .getEnumList(LiquidationStatus.class)
                     .stream()
                     .filter(item -> item.code.equalsIgnoreCase(code))
                     .findFirst().orElse(NOT_FOUND_CODE);
         }
 
-        public static OrderStatusLiquidation getStatusByName(String name) {
+        public static LiquidationStatus getStatusByName(String name) {
             return EnumUtils
-                    .getEnumList(OrderStatusLiquidation.class)
+                    .getEnumList(LiquidationStatus.class)
                     .stream()
                     .filter(item -> item.name().equalsIgnoreCase(name))
                     .findFirst().orElse(NOT_FOUND_CODE);
@@ -661,6 +666,7 @@ public interface Constant {
     String TARGET_TRACKER = "TRACKER";
     String TARGET_LITE = "LITE";
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
+    String TARGET_LIQUIDATION = "LIQUIDATION";
     String TARGET_INSINK = "INSINK";
     String UPDATED_BY_INIT = "INIT";
     String UPDATED_BY_INKATRACKER_WEB = "INKATRACKER_WEB";
@@ -688,8 +694,11 @@ public interface Constant {
     String ACTION_CANCEL_ORDER = "CANCEL_ORDER";
     String ACTION_REJECT_ORDER = "REJECT_ORDER";
 
+    String LIQUIDATION_STATUS_CANCELLED_CODE = "07";
     String LIQUIDATION_STATUS_CANCELLED = "CANCELLED";
+    String LIQUIDATION_STATUS_PENDING_CODE = "08";
     String LIQUIDATION_STATUS_PENDING = "PENDING_LIQUIDATE";
+    String LIQUIDATION_STATUS_BILLED_CODE = "09";
     String LIQUIDATION_STATUS_BILLED = "BILLED";
 
     /* Estados de liquidación */

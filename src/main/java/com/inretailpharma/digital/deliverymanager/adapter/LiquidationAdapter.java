@@ -35,7 +35,8 @@ public class LiquidationAdapter extends AdapterAbstractUtil implements ILiquidat
 
                                     completeOrder.setLiquidation(
                                             LiquidationCanonical
-                                                    .builder().code(order.getOrderStatus().getCode())
+                                                    .builder()
+                                                    .code(order.getOrderStatus().getCode())
                                                     .status(order.getOrderStatus().getName())
                                                     .detail(order.getOrderStatus().getDetail())
                                                     .build()
@@ -44,11 +45,13 @@ public class LiquidationAdapter extends AdapterAbstractUtil implements ILiquidat
                                     return Mono.just(completeOrder);
 
                                 }).onErrorResume(e -> {
-
+                                    e.printStackTrace();
+                                    log.error("Error during processing to create order to liquidation:{}",e.getMessage());
                                     completeOrder.setLiquidation(
                                             LiquidationCanonical
-                                                    .builder().code(Constant.OrderStatusLiquidation.ERROR_SENDING_CREATE_STATUS.getCode())
-                                                    .status(Constant.OrderStatusLiquidation.ERROR_SENDING_CREATE_STATUS.name())
+                                                    .builder()
+                                                    .code(Constant.LiquidationStatus.ERROR_SENDING_CREATE_STATUS.getCode())
+                                                    .status(Constant.LiquidationStatus.ERROR_SENDING_CREATE_STATUS.name())
                                                     .detail(e.getMessage())
                                                     .build()
                                     );
@@ -72,7 +75,8 @@ public class LiquidationAdapter extends AdapterAbstractUtil implements ILiquidat
 
                                     orderCanonical.setLiquidation(
                                             LiquidationCanonical
-                                                    .builder().code(order.getOrderStatus().getCode())
+                                                    .builder()
+                                                    .code(order.getOrderStatus().getCode())
                                                     .status(order.getOrderStatus().getName())
                                                     .detail(order.getOrderStatus().getDetail())
                                                     .build()
@@ -82,17 +86,18 @@ public class LiquidationAdapter extends AdapterAbstractUtil implements ILiquidat
 
                                 }).onErrorResume(e -> {
 
-                            orderCanonical.setLiquidation(
-                                    LiquidationCanonical
-                                            .builder().code(Constant.OrderStatusLiquidation.ERROR_UPDATING_STATUS.getCode())
-                                            .status(Constant.OrderStatusLiquidation.ERROR_UPDATING_STATUS.name())
-                                            .detail(e.getMessage())
-                                            .build()
-                            );
+                                    orderCanonical.setLiquidation(
+                                            LiquidationCanonical
+                                                    .builder()
+                                                    .code(Constant.LiquidationStatus.ERROR_UPDATING_STATUS.getCode())
+                                                    .status(Constant.LiquidationStatus.ERROR_UPDATING_STATUS.name())
+                                                    .detail(e.getMessage())
+                                                    .build()
+                                    );
 
-                            return Mono.just(orderCanonical);
+                                    return Mono.just(orderCanonical);
 
-                        })
+                                })
                 );
     }
 }

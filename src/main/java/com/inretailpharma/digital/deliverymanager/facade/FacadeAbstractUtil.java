@@ -9,6 +9,7 @@ import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;

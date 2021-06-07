@@ -38,6 +38,8 @@ public interface OrderRepositoryService {
 
     void updateStatusOrder(String statusDetail, String orderStatusCode, Long ecommerceId, LocalDateTime updateLast);
 
+    void updateLiquidationStatusOrder(String liquidationStatusDetail, String liquidaitonStatus, Long orderFulfillmentId);
+
     Client saveClient(Client client);
 
     IOrderFulfillment getOnlyOrderStatusByecommerceId(Long ecommerceId);

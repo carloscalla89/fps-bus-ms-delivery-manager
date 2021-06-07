@@ -22,7 +22,6 @@ import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -163,11 +162,18 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
 
                         )
                         .filter(response -> Constant.OrderStatus.getByName(response.getOrderStatus().getName()).isSuccess())
-                        .flatMap(resp -> UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),
-                                actionDto.getAction(), null, utilClass.getFirstOrderStatusName()))
+                        .flatMap(resp ->
+                                UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(
+                                        iOrderFulfillment.getEcommerceId(), actionDto.getAction(), null,
+                                        utilClass.getFirstOrderStatusName(), iOrderFulfillment.getOrderId(), utilClass.getServiceType()
+                                )
+                        )
                         .switchIfEmpty(Mono.defer(() ->
                                 UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(
-                                        iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS, null)));
+                                        iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS,
+                                        null, iOrderFulfillment.getOrderId(), utilClass.getServiceType())
+                                )
+                        );
 
             }
 
@@ -216,7 +222,7 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                     OrderStatusCanonical status = new OrderStatusCanonical();
                     status.setCode(orderStatus.getCode());
                     status.setName(orderStatus.name());
-
+                    status.setSuccessful(true);
                     OrderCanonical orderCanonical = new OrderCanonical();
                     orderCanonical.setOrderStatus(status);
 
@@ -244,12 +250,15 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                         UtilFunctions
                                 .getSuccessResponseFunction
                                 .getMapOrderCanonical(
-                                        iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null, utilClass.getFirstOrderStatusName())
+                                        iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null,
+                                        utilClass.getFirstOrderStatusName(), iOrderFulfillment.getOrderId(), utilClass.getServiceType()
+                                )
                 )
                 .switchIfEmpty(Mono.defer(() ->
                         UtilFunctions
                                 .getErrorResponseFunction
-                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS, null))
+                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS,
+                                        null, iOrderFulfillment.getOrderId(), utilClass.getServiceType()))
                 )
                 .single();
 
@@ -311,10 +320,13 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                 .flatMap(resp ->
                         UtilFunctions
                                 .getSuccessResponseFunction
-                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null, utilClass.getFirstOrderStatusName()))
+                                .getMapOrderCanonical(iOrderFulfillment.getEcommerceId(),actionDto.getAction(), null,
+                                        utilClass.getFirstOrderStatusName(), iOrderFulfillment.getOrderId(), utilClass.getServiceType()))
                 .switchIfEmpty(Mono.defer(() ->
                         UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(
-                                iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS, null)))
+                                iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS,
+                                null, iOrderFulfillment.getOrderId(), utilClass.getServiceType()))
+                )
                 .single();
     }
 
