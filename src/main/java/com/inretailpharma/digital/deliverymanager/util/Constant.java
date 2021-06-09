@@ -203,6 +203,7 @@ public interface Constant {
 
     interface OnlinePayment {
         String LIQUIDETED = "LIQUIDETED";
+        String CANCELLED = "CANCELLED";
     }
 
     enum ActionOrder {
@@ -471,6 +472,7 @@ public interface Constant {
 
         // status cuando se llama al microservicio de visa - bbr
         LIQUIDATED_ONLINE_PAYMENT("42", true),
+        CANCEL_ORDER("43", true),
         SUCCESS_RESULT_ONLINE_PAYMENT("44", false),
         ERROR_RESULT_ONLINE_PAYMENT("-1", false),
 

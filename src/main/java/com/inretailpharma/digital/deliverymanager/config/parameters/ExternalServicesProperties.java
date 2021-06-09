@@ -164,7 +164,9 @@ public class ExternalServicesProperties {
     // properties seller-center
     @Value("${external-service.seller-center.add-controversy.uri}")
     private String addControversyUri;
-    //online payment
+    
+    //online payment    
+    //Liquidation
     @Value("${external-service.online-payment.liquidated.uri}")
     private String onlinePaymentLiquidatedUri;
 
@@ -176,6 +178,19 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.online-payment.liquidated.read-timeout}")
     private String onlinePaymentLiquidatedReadTimeOut;
+    
+    //Cancelation
+    @Value("${external-service.online-payment.rejected.uri}")
+    private String onlinePaymentRejectedUri;
+
+    @Value("${external-service.online-payment.rejected.uri-mifa}")
+    private String onlinePaymentRejectedUriMifa;
+
+    @Value("${external-service.online-payment.rejected.connect-timeout}")
+    private String onlinePaymentRejectedConnectTimeOut;
+
+    @Value("${external-service.online-payment.rejected.read-timeout}")
+    private String onlinePaymentRejectedReadTimeOut;
 
 
     // properties lambda notification

@@ -303,6 +303,21 @@ public class DeliveryManagerFacade {
             }
 
         } else {
+        	
+        	if((actionDto.getOrderCancelCode() != null && 
+        			actionDto.getOrderCancelCode().equalsIgnoreCase(Constant.ORIGIN_BBR)) || 
+        			(actionDto.getOrderCancelObservation() != null && actionDto.getOrderCancelObservation().indexOf(Constant.ORIGIN_BBR) != -1)) {
+        		
+        		return orderFacadeProxy
+                        .getfromOnlinePaymentExternalServices(
+                                iOrderFulfillmentLight.getOrderId(),
+                                iOrderFulfillmentLight.getEcommerceId(),
+                                iOrderFulfillmentLight.getSource(),
+                                iOrderFulfillmentLight.getServiceTypeShortCode(),
+                                iOrderFulfillmentLight.getCompanyCode(),
+                                actionDto);
+            	
+            }
 
             return Optional
                     .ofNullable(iOrderFulfillmentLight)
@@ -361,6 +376,7 @@ public class DeliveryManagerFacade {
                             .paymentMethodId(orderResponseFulfillment.getPaymentMethodId())
                             .confirmedOrder(orderResponseFulfillment.getConfirmedOrder())
                             .currency(orderResponseFulfillment.getCurrency())
+                            .orderStatus(orderResponseFulfillment.getStatusName())
                             .build();
                     log.info("END FACADE getOrderByOrderNumber:" + orderNumber);
                     return Mono.just(orderResponseCanonical);
