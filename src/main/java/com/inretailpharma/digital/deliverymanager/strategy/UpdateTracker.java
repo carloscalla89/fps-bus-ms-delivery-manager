@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.strategy;
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.IStoreAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.PaymentAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -36,25 +37,28 @@ import java.util.stream.Stream;
 @Component
 public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy {
 
-    @Autowired
     private OrderCancellationService orderCancellationService;
 
-    @Autowired
     private IStoreAdapter iStoreAdapter;
 
-    @Autowired
     private ApplicationContext context;
 
-    @Autowired
-    @Qualifier("trackerAdapter")
     private ITrackerAdapter iTrackerAdapter;
 
-    @Autowired
     private IAuditAdapter iAuditAdapter;
 
+    private PaymentAdapter paymentAdapter;
+
     @Autowired
-    public UpdateTracker(OrderCancellationService orderCancellationService) {
+    public UpdateTracker(OrderCancellationService orderCancellationService, IStoreAdapter iStoreAdapter,
+                         ApplicationContext context, @Qualifier("trackerAdapter")ITrackerAdapter iTrackerAdapter,
+                         IAuditAdapter iAuditAdapter, PaymentAdapter paymentAdapter) {
         this.orderCancellationService = orderCancellationService;
+        this.iStoreAdapter = iStoreAdapter;
+        this.context = context;
+        this.iTrackerAdapter = iTrackerAdapter;
+        this.iAuditAdapter = iAuditAdapter;
+        this.paymentAdapter = paymentAdapter;
     }
 
     @Override
@@ -88,6 +92,14 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                 iOrderFulfillment.getServiceType(), iOrderFulfillment.getServiceTypeShortCode(),
                 iOrderFulfillment.getClassImplement(), iOrderFulfillment.getSource(), iOrderFulfillment.getServiceChannel(),
                 iOrderFulfillment.getSendNotificationByChannel());
+
+        if ((actionDto.getOrderCancelCode() != null &&
+                actionDto.getOrderCancelCode().equalsIgnoreCase(Constant.ORIGIN_BBR)) ||
+                (actionDto.getOrderCancelObservation() != null && actionDto.getOrderCancelObservation().contains(Constant.ORIGIN_BBR))) {
+
+            return paymentAdapter.getfromOnlinePayment(iOrderFulfillment, actionDto);
+
+        }
 
         CancellationCodeReason codeReason = orderCancellationService.evaluateGetCancel(actionDto);
 
