@@ -70,7 +70,11 @@ public abstract class FacadeAbstractUtil {
         return orderTransaction.getOrderLightByecommerceId(ecommerceId);
     }
 
-    protected boolean getOnlyOrderStatusByecommerceId(Long ecommerceId) {
+    protected IOrderFulfillment getOnlyOrderByecommerceId(Long ecommerceId) {
+        return orderTransaction.getOnlyOrderStatusByecommerceId(ecommerceId);
+    }
+
+    protected boolean getOnlyOrderStatusFinalByecommerceId(Long ecommerceId) {
         return Optional
                 .ofNullable(orderTransaction.getOnlyOrderStatusByecommerceId(ecommerceId))
                 .filter(val -> !Constant.OrderStatus.getFinalStatusByCode(val.getStatusCode()))

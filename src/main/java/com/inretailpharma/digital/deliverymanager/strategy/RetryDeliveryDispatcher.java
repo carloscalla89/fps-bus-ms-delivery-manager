@@ -48,13 +48,9 @@ public class RetryDeliveryDispatcher extends FacadeAbstractUtil implements IActi
     }
 
     @Override
-    public boolean getAction(String action) {
-        return Constant.ActionOrder.ATTEMPT_INSINK_CREATE.name().equalsIgnoreCase(action);
-    }
+    public boolean validationIfExistOrder(Long ecommerceId, ActionDto actionDto) {
 
-    @Override
-    public boolean validationStatusOrder(Long ecommerceId) {
-        return getOnlyOrderStatusByecommerceId(ecommerceId);
+        return getOnlyOrderStatusFinalByecommerceId(ecommerceId);
     }
 
     @Override

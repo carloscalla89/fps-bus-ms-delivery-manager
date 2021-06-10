@@ -52,17 +52,14 @@ public class LiquidationServiceImpl extends AbstractOrderService implements Orde
                 )
                 .doOnSuccess(s -> log.info("Response is Success in liquidation:{}",s))
                 .switchIfEmpty(Mono.defer(() -> mapResponseFromTargetWithErrorOrEmpty(
-                        Long.parseLong(liquidationDto.getEcommerceId()),
-                        Constant.LiquidationStatus.ERROR_SENDING_CREATE_STATUS.getCode(),
-                        "La respuesta al servicio es vacía"))
+                        Long.parseLong(liquidationDto.getEcommerceId()), liquidationDto.getStatus(), "La respuesta del servicio es vacía"))
                 )
                 .doOnError(e -> {
                     e.printStackTrace();
                     log.error("Error creating in us-liquidation:{}",e.getMessage());
                 })
                 .onErrorResume(e -> mapResponseFromTargetWithErrorOrEmpty(
-                        Long.parseLong(liquidationDto.getEcommerceId()),
-                        Constant.LiquidationStatus.ERROR_SENDING_CREATE_STATUS.getCode(), e.getMessage())
+                        Long.parseLong(liquidationDto.getEcommerceId()), liquidationDto.getStatus(), e.getMessage())
                 );
     }
 
@@ -98,17 +95,14 @@ public class LiquidationServiceImpl extends AbstractOrderService implements Orde
                 )
                 .doOnSuccess(s -> log.info("Response is Success in update liquidation:{}",s))
                 .switchIfEmpty(Mono.defer(() -> mapResponseFromTargetWithErrorOrEmpty(
-                        Long.parseLong(ecommerceId),
-                        Constant.LiquidationStatus.ERROR_UPDATING_STATUS.getCode(),
-                        "La respuesta al servicio es vacía"))
+                        Long.parseLong(ecommerceId), statusDto, "La respuesta al servicio es vacía"))
                 )
                 .doOnError(e -> {
                     e.printStackTrace();
                     log.error("Error updating in us-liquidation:{}",e.getMessage());
                 })
                 .onErrorResume(e -> mapResponseFromTargetWithErrorOrEmpty(
-                        Long.parseLong(ecommerceId),
-                        Constant.LiquidationStatus.ERROR_UPDATING_STATUS.getCode(), e.getMessage())
+                        Long.parseLong(ecommerceId), statusDto, e.getMessage())
                 );
     }
 

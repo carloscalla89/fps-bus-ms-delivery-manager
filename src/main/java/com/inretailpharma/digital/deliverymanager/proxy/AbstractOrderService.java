@@ -192,9 +192,9 @@ public class AbstractOrderService implements OrderExternalService {
 
 	}
 
-	protected Mono<OrderCanonical> mapResponseFromTargetWithErrorOrEmpty(Long ecommerceId, String code, String statusDetail) {
+	protected Mono<OrderCanonical> mapResponseFromTargetWithErrorOrEmpty(Long ecommerceId, StatusDto statusDtoToSend, String statusDetail) {
 
-		Constant.LiquidationStatus StatusLiquidationError = Constant.LiquidationStatus.getStatusByCode(code);
+		Constant.LiquidationStatus StatusLiquidationError = Constant.LiquidationStatus.getErrorByStatusByName(statusDtoToSend.getName());
 		StatusDto statusDto = new StatusDto();
 		statusDto.setCode(StatusLiquidationError.getCode());
 		statusDto.setName(StatusLiquidationError.name());

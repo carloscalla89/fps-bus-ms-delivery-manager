@@ -249,6 +249,9 @@ public interface Constant {
         FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0,
                 METHOD_CREATE, FillOrder.class),
 
+        LIQUIDATE_ORDER(7,"Acción para enviar el estado al dominio de liquidacion", 11,
+                METHOD_UPDATE, LiquidationOrder.class),
+
         NONE(0, "Not found status",0,METHOD_NONE, UpdateTracker.class);
 
         private Integer code;
@@ -430,13 +433,19 @@ public interface Constant {
     }
 
     enum LiquidationStatus {
-        // Estados de error o satisfactorio al enviar desde el DM al componente de liquidación o a la auditoria
+        // Estados satisfactorioS al enviar desde el DM al componente de liquidación o a la auditoria
         PENDING("00",true), ERROR("02",true), AUTOMATIC_CANCELLED("03",true),
         IN_PROCESS("04",true),  BILLED("05", true), PARTIAL_BILLED("06", true),
-        CANCELLED("07",true), PENDING_LIQUIDATE("07",true),
+        CANCELLED("07",true), PENDING_LIQUIDATE("08",true),
 
-        ERROR_SENDING_CREATE_STATUS("62", false), ERROR_UPDATING_STATUS("63", false),
-        NOT_FOUND_CODE("-1",false);
+        // Estados de error al enviarse al componnte de liquidación
+        ERROR_PENDING("60",false), ERROR_ERROR("61", false), ERROR_AUTOMATIC_CANCELLED("62", false),
+        ERROR_IN_PROCESS("63", false), ERROR_BILLED("64", false), ERROR_PARTIAL_BILLED("65", false),
+        ERROR_CANCELLED("66",false), ERROR_PENDING_LIQUIDATE("67",false),
+        NOT_FOUND_CODE("-1",false),
+
+        // Estados de error cuando falló algo al enviar al componente de liquidación
+        ERROR_SENDING_CREATE_STATUS("68", false), ERROR_UPDATING_STATUS("69", false);
 
         private String code;
         private boolean isSuccess;
@@ -462,11 +471,11 @@ public interface Constant {
                     .findFirst().orElse(NOT_FOUND_CODE);
         }
 
-        public static LiquidationStatus getStatusByName(String name) {
+        public static LiquidationStatus getErrorByStatusByName(String name) {
             return EnumUtils
                     .getEnumList(LiquidationStatus.class)
                     .stream()
-                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .filter(item -> item.name().equalsIgnoreCase("ERROR_"+name))
                     .findFirst().orElse(NOT_FOUND_CODE);
         }
 

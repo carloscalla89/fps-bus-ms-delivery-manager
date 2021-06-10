@@ -11,25 +11,19 @@ import java.util.Map;
 
 public interface IActionStrategy {
 
-    boolean getAction(String action);
-
-    boolean validationStatusOrder(Long ecommerceId);
+    boolean validationIfExistOrder(Long ecommerceId, ActionDto actionDto);
 
     Mono<OrderCanonical> process(ActionDto actionDto, Long ecommerceId);
 
     default Mono<OrderCanonical> evaluate(ActionDto actionDto, String ecommerceId) {
 
-        if (!getAction(actionDto.getAction()) ) {
 
-            throw new IllegalArgumentException("Wrong action type " + actionDto + "or not exist");
-        }
-
-        if (!validationStatusOrder(Long.parseLong(ecommerceId))) {
+        if (!validationIfExistOrder(Long.parseLong(ecommerceId), actionDto)) {
 
             OrderStatusCanonical os = new OrderStatusCanonical();
             os.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
             os.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
-            os.setDetail("The order " + ecommerceId + " not exits or has a final status");
+            os.setDetail("The order " + ecommerceId + " not exist or this has a final status");
             os.setStatusDate(DateUtils.getLocalDateTimeNow());
 
             OrderCanonical resultOrderNotFound = new OrderCanonical();

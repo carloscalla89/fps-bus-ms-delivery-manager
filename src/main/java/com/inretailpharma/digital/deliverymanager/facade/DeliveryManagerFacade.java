@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.*;
 import com.inretailpharma.digital.deliverymanager.strategy.IActionStrategy;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -61,7 +62,21 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
 
         IActionStrategy actionStrategy = actionsProcessors.get(Constant.ActionOrder.getByName(actionDto.getAction()));
 
-        Objects.requireNonNull(actionStrategy, "No processor for " + actionDto.getAction() + " found");
+        if (actionStrategy == null) {
+
+            OrderStatusCanonical os = new OrderStatusCanonical();
+            os.setCode(Constant.OrderStatus.NOT_FOUND_ACTION.getCode());
+            os.setName(Constant.OrderStatus.NOT_FOUND_ACTION.name());
+            os.setDetail("The action " + actionDto.getAction() + " not exist");
+            os.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+            OrderCanonical resultOrderNotFound = new OrderCanonical();
+
+            resultOrderNotFound.setOrderStatus(os);
+            resultOrderNotFound.setEcommerceId(Long.parseLong(ecommerceId));
+
+            return Mono.just(resultOrderNotFound);
+        }
 
         return Mono
                 .fromCallable(() ->

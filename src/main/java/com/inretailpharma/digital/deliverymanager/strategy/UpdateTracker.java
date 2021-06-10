@@ -58,22 +58,23 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
     }
 
     @Override
-    public boolean getAction(String action) {
+    public boolean validationIfExistOrder(Long ecommerceId, ActionDto actionDto) {
 
-        return Stream.of(
-                Constant.ActionOrder.CANCEL_ORDER, Constant.ActionOrder.ARRIVAL_ORDER,
-                Constant.ActionOrder.ASSIGN_ORDER, Constant.ActionOrder.DELIVER_ORDER,
-                Constant.ActionOrder.READY_PICKUP_ORDER, Constant.ActionOrder.INVOICED_ORDER,
-                Constant.ActionOrder.ON_ROUTE_ORDER, Constant.ActionOrder.ON_STORE_ORDER,
-                Constant.ActionOrder.PICK_ORDER, Constant.ActionOrder.PREPARE_ORDER,
-                Constant.ActionOrder.UNASSIGN_ORDER, Constant.ActionOrder.REJECT_ORDER,
-                Constant.ActionOrder.CHECKOUT_ORDER
-        ).anyMatch(val -> val.name().equalsIgnoreCase(action));
-    }
+       return  Optional
+                .ofNullable(getOnlyOrderByecommerceId(ecommerceId))
+                .filter(val -> {
 
-    @Override
-    public boolean validationStatusOrder(Long ecommerceId) {
-        return getOnlyOrderStatusByecommerceId(ecommerceId);
+                    if (Constant.OrderStatus.getFinalStatusByCode(val.getStatusCode())) {
+
+                        return (actionDto.getOrderCancelCode() != null &&
+                                actionDto.getOrderCancelCode().equalsIgnoreCase(Constant.ORIGIN_BBR)) ||
+                                (actionDto.getOrderCancelObservation() != null && actionDto.getOrderCancelObservation().contains(Constant.ORIGIN_BBR));
+                    }
+
+                    return true;
+
+                })
+                .isPresent();
     }
 
     @Override

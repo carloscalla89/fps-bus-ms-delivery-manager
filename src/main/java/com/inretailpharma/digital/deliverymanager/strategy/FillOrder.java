@@ -1,15 +1,9 @@
 package com.inretailpharma.digital.deliverymanager.strategy;
 
-import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.IDeliveryDispatcherAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.IStoreAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.facade.FacadeAbstractUtil;
-import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
-import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,16 +19,10 @@ public class FillOrder extends FacadeAbstractUtil implements IActionStrategy {
     @Autowired
     private IDeliveryDispatcherAdapter iDeliveryDispatcherAdapter;
 
-
     @Override
-    public boolean getAction(String action) {
+    public boolean validationIfExistOrder(Long ecommerceId, ActionDto actionDto) {
 
-        return Constant.ActionOrder.FILL_ORDER.name().equalsIgnoreCase(action);
-    }
-
-    @Override
-    public boolean validationStatusOrder(Long ecommerceId) {
-        return getOnlyOrderStatusByecommerceId(ecommerceId);
+        return true;
     }
 
     @Override

@@ -32,13 +32,8 @@ public class OnlinePayment extends FacadeAbstractUtil implements IActionStrategy
     }
 
     @Override
-    public boolean getAction(String action) {
-        return Constant.ActionOrder.LIQUIDATED_ONLINE_PAYMENT.name().equalsIgnoreCase(action);
-    }
-
-    @Override
-    public boolean validationStatusOrder(Long ecommerceId) {
-        return getOnlyOrderStatusByecommerceId(ecommerceId);
+    public boolean validationIfExistOrder(Long ecommerceId, ActionDto actionDto) {
+        return getOnlyOrderStatusFinalByecommerceId(ecommerceId);
     }
 
     @Override
