@@ -31,7 +31,6 @@ public class LiquidationFacade extends FacadeAbstractUtil {
 
             return Mono
                     .just(orderCanonical)
-                    .filter(order -> order.getOrderStatus().isSuccessful())
                     .flatMap(order -> Mono.just(getLiquidationStatusByDigitalStatusCode(order.getOrderStatus().getCode())))
                     .defaultIfEmpty(LiquidationCanonical.builder().enabled(false).build())
                     .filter(LiquidationCanonical::getEnabled)
@@ -60,7 +59,6 @@ public class LiquidationFacade extends FacadeAbstractUtil {
 
             return Mono
                     .just(orderCanonical)
-                    .filter(order -> order.getOrderStatus().isSuccessful())
                     .flatMap(order -> Mono.just(getLiquidationStatusByDigitalStatusCode(order.getOrderStatus().getCode())))
                     .defaultIfEmpty(LiquidationCanonical.builder().enabled(false).build())
                     .filter(LiquidationCanonical::getEnabled)

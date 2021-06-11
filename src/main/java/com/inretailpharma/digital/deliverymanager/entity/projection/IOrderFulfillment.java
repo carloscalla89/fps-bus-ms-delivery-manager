@@ -72,6 +72,7 @@ public interface IOrderFulfillment {
     String getCoupon();
     BigDecimal getPaidAmount();
     BigDecimal getChangeAmount();
+    LocalDateTime getTransactionDateVisanet();
 
     String getReceiptType();
     String getDocumentNumberReceipt();
@@ -131,6 +132,6 @@ public interface IOrderFulfillment {
      * autor: Carlos CAlla
      * Campos referentes a los estdos de liquidation
      */
-    boolean getLiquidationEnabled();
     String getLiquidationStatus();
+    String getLiquidaitonStatusDetail();
 }

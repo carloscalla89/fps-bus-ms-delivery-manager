@@ -35,7 +35,4 @@ public class LiquidationDto {
     private String fullName;
     private String phone;
     private String documentNumber;
-
-
-
 }

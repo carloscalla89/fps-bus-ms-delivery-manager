@@ -434,25 +434,29 @@ public interface Constant {
 
     enum LiquidationStatus {
         // Estados satisfactorioS al enviar desde el DM al componente de liquidación o a la auditoria
-        PENDING("00",true), ERROR("02",true), AUTOMATIC_CANCELLED("03",true),
-        IN_PROCESS("04",true),  BILLED("05", true), PARTIAL_BILLED("06", true),
-        CANCELLED("07",true), PENDING_LIQUIDATE("08",true),
+        PENDING("00",true,METHOD_CREATE), ERROR("02",true, METHOD_CREATE),
+        AUTOMATIC_CANCELLED("03",true, METHOD_CREATE), IN_PROCESS("04",true, METHOD_UPDATE),
+        BILLED("05", true, METHOD_UPDATE), PARTIAL_BILLED("06", true, METHOD_UPDATE),
+        CANCELLED("07",true, METHOD_UPDATE), PENDING_LIQUIDATE("08",true, METHOD_UPDATE),
 
         // Estados de error al enviarse al componnte de liquidación
-        ERROR_PENDING("60",false), ERROR_ERROR("61", false), ERROR_AUTOMATIC_CANCELLED("62", false),
-        ERROR_IN_PROCESS("63", false), ERROR_BILLED("64", false), ERROR_PARTIAL_BILLED("65", false),
-        ERROR_CANCELLED("66",false), ERROR_PENDING_LIQUIDATE("67",false),
-        NOT_FOUND_CODE("-1",false),
+        ERROR_PENDING("60",false, METHOD_CREATE), ERROR_ERROR("61", false, METHOD_CREATE),
+        ERROR_AUTOMATIC_CANCELLED("62", false, METHOD_CREATE), ERROR_IN_PROCESS("63", false, METHOD_UPDATE),
+        ERROR_BILLED("64", false, METHOD_UPDATE), ERROR_PARTIAL_BILLED("65", false, METHOD_UPDATE),
+        ERROR_CANCELLED("66",false, METHOD_UPDATE), ERROR_PENDING_LIQUIDATE("67",false, METHOD_UPDATE),
+        NOT_FOUND_CODE("-1",false, METHOD_UPDATE),
 
         // Estados de error cuando falló algo al enviar al componente de liquidación
-        ERROR_SENDING_CREATE_STATUS("68", false), ERROR_UPDATING_STATUS("69", false);
+        ERROR_SENDING_CREATE_STATUS("68", false, METHOD_CREATE), ERROR_UPDATING_STATUS("69", false, METHOD_UPDATE);
 
         private String code;
         private boolean isSuccess;
+        private String method;
 
-        LiquidationStatus(String code, boolean isSuccess) {
+        LiquidationStatus(String code, boolean isSuccess, String method) {
             this.code = code;
             this.isSuccess = isSuccess;
+            this.method = method;
         }
 
         public String getCode() {
@@ -463,12 +467,8 @@ public interface Constant {
             return isSuccess;
         }
 
-        public static LiquidationStatus getStatusByCode(String code) {
-            return EnumUtils
-                    .getEnumList(LiquidationStatus.class)
-                    .stream()
-                    .filter(item -> item.code.equalsIgnoreCase(code))
-                    .findFirst().orElse(NOT_FOUND_CODE);
+        public String getMethod() {
+            return method;
         }
 
         public static LiquidationStatus getErrorByStatusByName(String name) {
@@ -476,6 +476,14 @@ public interface Constant {
                     .getEnumList(LiquidationStatus.class)
                     .stream()
                     .filter(item -> item.name().equalsIgnoreCase("ERROR_"+name))
+                    .findFirst().orElse(NOT_FOUND_CODE);
+        }
+
+        public static LiquidationStatus getStatusSuccessByErrorStatus(String name) {
+            return EnumUtils
+                    .getEnumList(LiquidationStatus.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name.substring(name.length())))
                     .findFirst().orElse(NOT_FOUND_CODE);
         }
 
