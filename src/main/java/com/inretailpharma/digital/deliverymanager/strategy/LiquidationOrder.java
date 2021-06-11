@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@Component("liquidationStrat")
+@Component("liquidation")
 public class LiquidationOrder extends FacadeAbstractUtil implements IActionStrategy {
 
     @Override
