@@ -11,4 +11,5 @@ public class OnlinePaymentOrder  implements Serializable {
     String ecommerceExternalId;
     String source;
     String serviceTypeShortCode;
+    String companyCode;
 }

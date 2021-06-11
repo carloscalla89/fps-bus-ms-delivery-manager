@@ -30,6 +30,7 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
         onlinePaymentOrder.setEcommerceExternalId(String.valueOf(ecommercePurchaseId));
         onlinePaymentOrder.setSource(source);
         onlinePaymentOrder.setServiceTypeShortCode(serviceTypeShortCode);
+        onlinePaymentOrder.setCompanyCode(companyCode);
         
         String action = actionDto.getAction();
 
