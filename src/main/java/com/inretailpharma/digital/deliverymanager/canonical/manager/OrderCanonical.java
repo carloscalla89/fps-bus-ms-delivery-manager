@@ -68,6 +68,19 @@ public class OrderCanonical {
         this.orderStatus.setDetail(detail);
         this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
     }
+    
+    public OrderCanonical(Long ecommerceId, String code, String name, String localCode, String companyCode, String source, String serviceTypeCode) {
+        this.ecommerceId = ecommerceId;
+        this.localCode = localCode;
+        this.companyCode = companyCode;
+        this.orderStatus = new OrderStatusCanonical();
+        this.orderStatus.setCode(code);
+        this.orderStatus.setName(name);
+        this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+        this.source = source;
+        this.orderDetail = new OrderDetailCanonical();
+        this.orderDetail.setServiceType(serviceTypeCode);
+    }
 
 
 

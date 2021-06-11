@@ -284,7 +284,8 @@ public abstract class FacadeAbstractUtil {
                     // Cuando la orden ha fallado al insertar al DM, se insertará con lo mínimo para registrarlo en la auditoría
                     OrderCanonical orderStatusCanonical = new OrderCanonical(
                             orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
-                            Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode()
+                            Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode(),
+                            orderDto.getSource(), orderDto.getServiceTypeCode()
                     );
 
                     iAuditAdapter.createAudit(orderStatusCanonical, Constant.UPDATED_BY_INIT);
@@ -299,7 +300,8 @@ public abstract class FacadeAbstractUtil {
                     // Cuando la orden ha fallado al insertar al DM, se insertará con lo mínimo para registrarlo en la auditoría
                     OrderCanonical orderStatusCanonical = new OrderCanonical(
                             orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
-                            Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode()
+                            Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode(),
+                            orderDto.getSource(), orderDto.getServiceTypeCode()
                     );
 
                     iAuditAdapter.createAudit(orderStatusCanonical, Constant.UPDATED_BY_INIT);

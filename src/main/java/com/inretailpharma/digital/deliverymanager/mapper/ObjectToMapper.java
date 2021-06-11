@@ -230,7 +230,13 @@ public class ObjectToMapper {
                                         )
                         ).orElse(null)
         );
-
+        
+        auditHistoryDto.setBrand(orderCanonical.getCompanyCode());
+        auditHistoryDto.setSourceChannel(orderCanonical.getSource());
+        auditHistoryDto.setDeliveryType(
+        		 Optional.ofNullable(orderCanonical.getOrderDetail())
+        		 		.map(od -> od.getServiceCode()).orElse(null)
+        );
         return auditHistoryDto;
     }
 

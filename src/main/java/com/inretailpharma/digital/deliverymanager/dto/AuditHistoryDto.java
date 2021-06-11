@@ -24,5 +24,9 @@ public class AuditHistoryDto {
     // liquidation status and detail
     private String liquidationStatus;
     private String liquidationStatusDetail;
+    // Operations Audit
+    private String brand;
+    private String deliveryType;
+    private String sourceChannel;
 
 }
