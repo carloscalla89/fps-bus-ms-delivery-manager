@@ -38,23 +38,17 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
         Long readTimeout;
         
         switch (action) {
-        	case Constant.CANCEL_ORDER:
-        		 if(Constant.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
-        	            onlinePaymentUri = externalServicesProperties.getOnlinePaymentRejectedUri();
-        	        }else {
-        	        	onlinePaymentUri = externalServicesProperties.getOnlinePaymentRejectedUriMifa();
-        	        }
+        	case Constant.CANCEL_ORDER:   
+        		
+        	     onlinePaymentUri = externalServicesProperties.getOnlinePaymentRejectedUri();        	       
         		 connetTimeout = Integer.parseInt(externalServicesProperties.getOnlinePaymentRejectedConnectTimeOut());
         		 readTimeout = Long.parseLong(externalServicesProperties.getOnlinePaymentRejectedReadTimeOut());
         		 break;
         	default:
-        		if(Constant.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
-    	            onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();
-    	        }else {
-    	        	onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUriMifa();
-    	        }
-    		 connetTimeout = Integer.parseInt(externalServicesProperties.getOnlinePaymentLiquidatedConnectTimeOut());
-    		 readTimeout = Long.parseLong(externalServicesProperties.getOnlinePaymentLiquidatedReadTimeOut());
+        		
+    	      onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();    	        
+    		  connetTimeout = Integer.parseInt(externalServicesProperties.getOnlinePaymentLiquidatedConnectTimeOut());
+    		  readTimeout = Long.parseLong(externalServicesProperties.getOnlinePaymentLiquidatedReadTimeOut());
         		
         }        
        

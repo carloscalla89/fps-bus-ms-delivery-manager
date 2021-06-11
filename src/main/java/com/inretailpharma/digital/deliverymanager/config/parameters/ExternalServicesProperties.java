@@ -168,10 +168,7 @@ public class ExternalServicesProperties {
     //online payment    
     //Liquidation
     @Value("${external-service.online-payment.liquidated.uri}")
-    private String onlinePaymentLiquidatedUri;
-
-    @Value("${external-service.online-payment.liquidated.uri-mifa}")
-    private String onlinePaymentLiquidatedUriMifa;
+    private String onlinePaymentLiquidatedUri;    
 
     @Value("${external-service.online-payment.liquidated.connect-timeout}")
     private String onlinePaymentLiquidatedConnectTimeOut;
@@ -182,9 +179,6 @@ public class ExternalServicesProperties {
     //Cancelation
     @Value("${external-service.online-payment.rejected.uri}")
     private String onlinePaymentRejectedUri;
-
-    @Value("${external-service.online-payment.rejected.uri-mifa}")
-    private String onlinePaymentRejectedUriMifa;
 
     @Value("${external-service.online-payment.rejected.connect-timeout}")
     private String onlinePaymentRejectedConnectTimeOut;
