@@ -223,7 +223,7 @@ public abstract class FacadeAbstractUtil {
                             order.getEcommerceId(), order.getCompanyCode(), order.getOrderStatus(),
                             order.getOrderDetail().getServiceClassImplement());
 
-                    if (order.getOrderDetail().isServiceEnabled()
+                    if (Optional.ofNullable(order.getOrderDetail().getServiceEnabled()).filter(val -> val).isPresent()
                             && Constant.OrderStatus.getByName(order.getOrderStatus().getName()).isSuccess()) {
 
                         return iTrackerAdapter

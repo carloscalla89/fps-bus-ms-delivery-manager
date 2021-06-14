@@ -1345,10 +1345,6 @@ public class ObjectToMapper {
         orderCanonical.getOrderDetail().setServiceSourceChannel(orderWrapperResponse.getServiceSourcechannel());
         orderCanonical.getOrderDetail().setServiceClassImplement(orderWrapperResponse.getServiceClassImplement());
 
-        orderCanonical.getOrderDetail().setServiceSendNewFlowEnabled(
-                orderWrapperResponse.isServiceSendNewFlowEnabled()
-        );
-
         orderCanonical.getOrderDetail().setServiceSendNotificationEnabled(
                 orderWrapperResponse.isServiceSendNotificationEnabled()
         );

@@ -143,7 +143,6 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "os.code as statusCode, os.type as statusName, os.liquidationEnabled, os.liquidationStatus, " +
             "s.status_detail as statusDetail, s.center_code as centerCode, s.company_code as companyCode," +
             "s.cancellation_code as cancellationCode, s.lead_time as leadTime, st.name as serviceTypeName, " +
-            "s.liquidationStatus, s.liquidationStatusdetail, " +
             "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as serviceChannel, " +
             "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
             "st.class_implement as classImplement, st.short_code as serviceTypeShortCode, " +
