@@ -29,8 +29,7 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
         OnlinePaymentOrder onlinePaymentOrder = new OnlinePaymentOrder();
         onlinePaymentOrder.setEcommerceExternalId(String.valueOf(ecommercePurchaseId));
         onlinePaymentOrder.setSource(source);
-        onlinePaymentOrder.setServiceTypeShortCode(serviceTypeShortCode);
-        onlinePaymentOrder.setCompanyCode(companyCode);
+        onlinePaymentOrder.setServiceTypeShortCode(serviceTypeShortCode);        
         
         String action = actionDto.getAction();
 
@@ -40,16 +39,22 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
         
         switch (action) {
         	case Constant.CANCEL_ORDER:   
-        		
-        	     onlinePaymentUri = externalServicesProperties.getOnlinePaymentRejectedUri();        	       
+        		if(Constant.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
+    	            onlinePaymentUri = externalServicesProperties.getOnlinePaymentRejectedUri();
+    	        }else {
+    	        	onlinePaymentUri = externalServicesProperties.getOnlinePaymentRejectedUriMifa();
+    	        }     	       
         		 connetTimeout = Integer.parseInt(externalServicesProperties.getOnlinePaymentRejectedConnectTimeOut());
         		 readTimeout = Long.parseLong(externalServicesProperties.getOnlinePaymentRejectedReadTimeOut());
         		 break;
         	default:
-        		
-    	      onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();    	        
-    		  connetTimeout = Integer.parseInt(externalServicesProperties.getOnlinePaymentLiquidatedConnectTimeOut());
-    		  readTimeout = Long.parseLong(externalServicesProperties.getOnlinePaymentLiquidatedReadTimeOut());
+        		if(Constant.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
+    	            onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();
+    	        }else {
+    	        	onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUriMifa();
+    	        }        
+	    		  connetTimeout = Integer.parseInt(externalServicesProperties.getOnlinePaymentLiquidatedConnectTimeOut());
+	    		  readTimeout = Long.parseLong(externalServicesProperties.getOnlinePaymentLiquidatedReadTimeOut());
         		
         }        
        
