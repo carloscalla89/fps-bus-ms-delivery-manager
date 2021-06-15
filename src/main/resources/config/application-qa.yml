@@ -110,10 +110,10 @@ external-service:
       read-timeout: 120000
   liquidation:
     create-order:
-      uri: https://us-liquidation/omni/liquidation/v1.0.0/orders
+      uri: http://us-liquidation/omni/liquidation/v1.0.0/orders
       connect-timeout: 10000
       read-timeout: 120000
     update-order:
-      uri: https://us-liquidation/omni/liquidation/v1.0.0/orders
+      uri: http://us-liquidation/omni/liquidation/v1.0.0/orders
       connect-timeout: 10000
       read-timeout: 120000
