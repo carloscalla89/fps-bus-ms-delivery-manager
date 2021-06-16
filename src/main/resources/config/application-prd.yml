@@ -97,12 +97,13 @@ external-service:
       read-timeout: 120000
   online-payment:
     liquidated:
-      uri: https://visauat.cindibyinkafarma.com/visa/confirmation
-      uri-mifa: https://visamfuat.cindibyinkafarma.com/visa/confirmation
+      uri: https://api.inkafarma.pe/visa/confirmation
+      uri-mifa: https://api.mifarma.com.pe/visa/confirmation
       connect-timeout: 10000
       read-timeout: 120000
     rejected:
-      uri: https://visauat.cindibyinkafarma.com/visa/rejected
+      uri: https://api.inkafarma.pe/visa/rejected
+      uri-mifa: https://api.mifarma.com.pe/visa/rejected
       connect-timeout: 10000
       read-timeout: 120000
   notification-lambda:

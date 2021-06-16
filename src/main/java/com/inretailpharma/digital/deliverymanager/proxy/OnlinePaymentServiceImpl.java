@@ -29,15 +29,35 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
         OnlinePaymentOrder onlinePaymentOrder = new OnlinePaymentOrder();
         onlinePaymentOrder.setEcommerceExternalId(String.valueOf(ecommercePurchaseId));
         onlinePaymentOrder.setSource(source);
-        onlinePaymentOrder.setServiceTypeShortCode(serviceTypeShortCode);
+        onlinePaymentOrder.setServiceTypeShortCode(serviceTypeShortCode);        
+        
+        String action = actionDto.getAction();
 
         String onlinePaymentUri = null;
-        if(Constant.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
-            onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();
-        }
-        if(Constant.COMPANY_CODE_MF.equalsIgnoreCase(companyCode)) {
-            onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUriMifa();
-        }
+        Integer connetTimeout;
+        Long readTimeout;
+        
+        switch (action) {
+        	case Constant.CANCEL_ORDER:   
+        		if(Constant.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
+    	            onlinePaymentUri = externalServicesProperties.getOnlinePaymentRejectedUri();
+    	        }else {
+    	        	onlinePaymentUri = externalServicesProperties.getOnlinePaymentRejectedUriMifa();
+    	        }     	       
+        		 connetTimeout = Integer.parseInt(externalServicesProperties.getOnlinePaymentRejectedConnectTimeOut());
+        		 readTimeout = Long.parseLong(externalServicesProperties.getOnlinePaymentRejectedReadTimeOut());
+        		 break;
+        	default:
+        		if(Constant.COMPANY_CODE_IFK.equalsIgnoreCase(companyCode)) {
+    	            onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUri();
+    	        }else {
+    	        	onlinePaymentUri = externalServicesProperties.getOnlinePaymentLiquidatedUriMifa();
+    	        }        
+	    		  connetTimeout = Integer.parseInt(externalServicesProperties.getOnlinePaymentLiquidatedConnectTimeOut());
+	    		  readTimeout = Long.parseLong(externalServicesProperties.getOnlinePaymentLiquidatedReadTimeOut());
+        		
+        }        
+       
 
         log.info("ecommercePurchaseId::{}, url:{}", ecommercePurchaseId, onlinePaymentUri);
 
@@ -45,8 +65,8 @@ public class OnlinePaymentServiceImpl extends AbstractOrderService implements Or
                 .builder()
                 .clientConnector(
                         generateClientConnector(
-                                Integer.parseInt(externalServicesProperties.getOnlinePaymentLiquidatedConnectTimeOut()),
-                                Long.parseLong(externalServicesProperties.getOnlinePaymentLiquidatedReadTimeOut())
+                        		connetTimeout,
+                        		readTimeout
                         )
                 )
                 .baseUrl(onlinePaymentUri)

@@ -613,20 +613,19 @@ public class OrderFacadeProxyImpl implements OrderFacadeProxy{
     @Override
     public Mono<OrderCanonical> getfromOnlinePaymentExternalServices(Long orderId, Long ecommercePurchaseId, String source,
                                                                      String serviceTypeShortCode, String companyCode,
-                                                                     ActionDto actionDto) {
-
+                                                                     ActionDto actionDto) {    	
         return externalOnlinePaymentService
                 .getResultfromOnlinePaymentExternalServices(ecommercePurchaseId, source, serviceTypeShortCode, companyCode, actionDto)
                 .map(r -> {
                     log.info("[START] to update online payment order = {}", r);
-
+                    String onlinePaymentStatus = "";
                     if(SUCCESS_RESULT_ONLINE_PAYMENT.getCode().equals(r.getOrderStatus().getCode())) {
                         Constant.OrderStatus status = Constant.OrderStatus.getByName(actionDto.getAction());
                         OrderStatusCanonical paymentRsp = new OrderStatusCanonical();
                         paymentRsp.setCode(status.getCode());
                         paymentRsp.setName(status.name());
-                        r.setOrderStatus(paymentRsp);
-                        String onlinePaymentStatus = Constant.OnlinePayment.LIQUIDETED;
+                        r.setOrderStatus(paymentRsp);                        
+                        onlinePaymentStatus = actionDto.getAction().equalsIgnoreCase(Constant.CANCEL_ORDER) ?  Constant.OnlinePayment.CANCELLED:Constant.OnlinePayment.LIQUIDETED;
                         log.info("[PROCESS] to update online payment order::{}, status::{}", orderId, onlinePaymentStatus);
                         orderTransaction.updateOrderOnlinePaymentStatusByExternalId(orderId,onlinePaymentStatus);
                     }

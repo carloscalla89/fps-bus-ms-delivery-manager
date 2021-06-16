@@ -17,4 +17,5 @@ public class OrderResponseCanonical {
     private Long creditCardId;
     private String confirmedOrder;
     private String transactionId;
+    private String orderStatus;
 }
