@@ -192,11 +192,14 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "paymet.payment_method_id as paymentMethodId, " +
             "pay.card_provider,pay.payment_type, " +
             "(case when pay.payment_type = 'CASH_DOLAR' then 'dolar' else 'sol' end) as currency,"+
-            "pay.payment_transaction_id as  transactionId " +
+            "pay.payment_transaction_id as  transactionId, " +
+            "os.type as statusName " +
             "from order_fulfillment o inner join " +
             "payment_method pay on o.id=pay.order_fulfillment_id " +
             "inner join payment_method_type paymet on paymet.name=pay.payment_type " +
             "left join card_provider card on pay.card_provider=card.name and paymet.payment_method_id = card.payment_method_id " +
+            "inner join order_process_status s on o.id = s.order_fulfillment_id "+
+            "inner join order_status os on os.code = s.order_status_code "+
             "where o.ecommerce_purchase_id = :orderNumber",
             nativeQuery = true)
 	Optional<IOrderResponseFulfillment> getOrderByOrderNumber(@Param("orderNumber") Long orderNumber);

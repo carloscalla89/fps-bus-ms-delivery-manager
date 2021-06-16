@@ -10,5 +10,5 @@ import java.io.Serializable;
 public class OnlinePaymentOrder  implements Serializable {
     String ecommerceExternalId;
     String source;
-    String serviceTypeShortCode;
+    String serviceTypeShortCode;  
 }

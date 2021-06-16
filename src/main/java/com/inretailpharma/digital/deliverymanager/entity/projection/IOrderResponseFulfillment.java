@@ -12,5 +12,6 @@ public interface IOrderResponseFulfillment {
     Long getCreditCardId();
     String getConfirmedOrder();
     String getTransactionId();
+    String getStatusName();
     
 }
