@@ -133,5 +133,5 @@ public interface IOrderFulfillment {
      * Campos referentes a los estdos de liquidation
      */
     String getLiquidationStatus();
-    String getLiquidaitonStatusDetail();
+    String getLiquidationStatusDetail();
 }
