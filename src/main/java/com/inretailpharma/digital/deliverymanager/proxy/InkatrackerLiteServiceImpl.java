@@ -7,34 +7,29 @@ import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInk
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.List;
 
 @Slf4j
 @Service("inkatrackerlite")
 public class InkatrackerLiteServiceImpl extends AbstractOrderService implements OrderExternalService {
 
-    private ApplicationParameterService applicationParameterService;
     private ExternalServicesProperties externalServicesProperties;
     private ObjectToMapper objectToMapper;
 
-    public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties, ObjectToMapper objectToMapper,
-                                      ApplicationParameterService applicationParameterService) {
+    public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties,
+                                      ObjectToMapper objectToMapper) {
+
         this.externalServicesProperties = externalServicesProperties;
         this.objectToMapper = objectToMapper;
-        this.applicationParameterService = applicationParameterService;
     }
 
 
@@ -151,8 +146,5 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                         actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation())
                 );
     }
-    private String getApplicationParameter(String code) {
-        return applicationParameterService
-                .getApplicationParameterByCodeIs(code).getValue();
-    }
+
 }

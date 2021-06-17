@@ -10,7 +10,7 @@ public interface IOrderFulfillment {
     Long getEcommerceId();
     Long getTrackerId();
     Long getExternalId();
-    Integer getPurchaseId();
+    Long getPurchaseId();
     String getExternalChannelId();
 
 
@@ -24,8 +24,6 @@ public interface IOrderFulfillment {
     LocalDateTime getScheduledTime();
     LocalDateTime getConfirmedOrder();
     LocalDateTime getCancelledOrder();
-    LocalDateTime getConfirmedInsinkOrder();
-    String getTransactionOrderDate();
 
     String getFirstName();
     String getLastName();
@@ -54,8 +52,6 @@ public interface IOrderFulfillment {
     String getCancellationCode();
     String getCancellationDescription();
 
-    Integer getAttempt();
-    Integer getAttemptTracker();
     String getStockType();
 
     String getServiceTypeShortCode();
@@ -76,6 +72,7 @@ public interface IOrderFulfillment {
     String getCoupon();
     BigDecimal getPaidAmount();
     BigDecimal getChangeAmount();
+    LocalDateTime getTransactionDateVisanet();
 
     String getReceiptType();
     String getDocumentNumberReceipt();
@@ -128,4 +125,13 @@ public interface IOrderFulfillment {
     String getPaymentMethodCardType();
     BigDecimal getDiscountAppliedNoDP();
     /** ********************* **/
+
+
+    /**
+     * Fecha: 04-05-21
+     * autor: Carlos CAlla
+     * Campos referentes a los estdos de liquidation
+     */
+    String getLiquidationStatus();
+    String getLiquidaitonStatusDetail();
 }

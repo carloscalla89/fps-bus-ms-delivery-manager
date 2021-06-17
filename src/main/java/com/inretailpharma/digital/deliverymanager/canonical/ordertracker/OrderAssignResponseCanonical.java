@@ -12,5 +12,6 @@ import lombok.Data;
 public class OrderAssignResponseCanonical  implements Serializable {
 
 	private String statusCode;
+	private String detail;
     private List<Long> failedOrders;
 }

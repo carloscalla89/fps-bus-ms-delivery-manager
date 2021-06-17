@@ -15,59 +15,6 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
     @Modifying
     @Transactional
     @Query(value = "Update order_process_status " +
-            " set attempt_tracker = :attemptTracker, " +
-            " order_status_code = :orderStatusCode, status_detail = :statusDetail " +
-            " where order_fulfillment_id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateReattemtpTracker(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                @Param("attemptTracker") Integer attemptTracker,
-                                @Param("orderStatusCode") String orderStatusCode,
-                                @Param("statusDetail") String statusDetail
-    );
-
-
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_process_status " +
-            " set attempt_tracker = :attemptTracker, attempt = :attempt, " +
-            " order_status_code = :orderStatusCode, status_detail = :statusDetail " +
-            " where order_fulfillment_id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateRetryingOrderStatusProcess(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                          @Param("attemptTracker") Integer attemptTracker,
-                                          @Param("attempt") Integer attempt,
-                                          @Param("orderStatusCode") String orderStatusCode,
-                                          @Param("statusDetail") String statusDetail
-    );
-
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_process_status " +
-            " set attempt = :attempt, " +
-            " order_status_code = :orderStatusCode, status_detail = :statusDetail " +
-            " where order_fulfillment_id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateStatusToReservedOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                                     @Param("attempt") Integer attempt,
-                                     @Param("orderStatusCode") String orderStatusCode,
-                                     @Param("statusDetail") String statusDetail
-    );
-
-
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_process_status " +
-            " set order_status_code = :orderStatusCode, status_detail = :statusDetail " +
-            " where order_fulfillment_id = :orderFulfillmentId",
-            nativeQuery = true)
-    void updateStatusOrder(@Param("orderFulfillmentId") Long orderFulfillmentId,
-                           @Param("orderStatusCode") String orderStatusCode,
-                           @Param("statusDetail") String statusDetail
-    );
-
-    @Modifying
-    @Transactional
-    @Query(value = "Update order_process_status " +
             " set status_detail = :statusDetail, cancellation_observation = :cancellationObservation, " +
             " cancellation_code = :cancellationCode, order_status_code = :orderStatusCode," +
             " date_last_updated = :dateLastUpdated, date_cancelled = :dateCancelled" +
@@ -86,12 +33,13 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
     @Modifying
     @Transactional
     @Query(value = "Update order_process_status " +
-            " set order_status_code = :orderStatusCode" +
-            " where order_fulfillment_id = :orderFulfillmentId",
+            " set status_detail = :statusDetail, order_status_code = :orderStatusCode, date_last_updated = :dateLastUpdated" +
+            " where order_fulfillment_id = (select id from order_fulfillment where ecommerce_purchase_id = :ecommerceId)",
             nativeQuery = true)
-    void updateStatusOrderToDeletePending(@Param("orderStatusCode") String orderStatusCode,
-                                          @Param("orderFulfillmentId") Long orderFulfillmentId
-
+    void updateStatusOrder(@Param("statusDetail") String statusDetail,
+                           @Param("orderStatusCode") String orderStatusCode,
+                           @Param("ecommerceId") Long ecommerceId,
+                           @Param("dateLastUpdated") LocalDateTime dateLastUpdated
     );
 
 }

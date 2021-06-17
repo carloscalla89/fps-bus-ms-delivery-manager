@@ -13,9 +13,8 @@ public class OrderDetailCanonical {
     private String serviceSourceChannel; // DIGITAL, CALL_CENTER
     private String serviceClassImplement; // inkatrackerlite, inkatracker
 
-    private boolean serviceSendNewFlowEnabled; // TRUE = ENABLED , FALSE = DISABLED
-    private boolean serviceSendNotificationEnabled; // TRUE = ENABLED , FALSE = DISABLED
-    private boolean serviceEnabled; // TRUE = ENABLED , FALSE = DISABLED
+    private Boolean serviceSendNotificationEnabled; // TRUE = ENABLED , FALSE = DISABLED
+    private Boolean serviceEnabled; // TRUE = ENABLED , FALSE = DISABLED
 
 
     // schedules
@@ -35,8 +34,5 @@ public class OrderDetailCanonical {
     private String startHour;
     private String endHour;
     private Integer daysToPickup;
-
-    // boolean if the order is programmed or not
-    private boolean programmed;
 
 }
