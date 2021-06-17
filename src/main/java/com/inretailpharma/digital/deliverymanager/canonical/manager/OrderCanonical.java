@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import lombok.Data;
@@ -67,10 +68,24 @@ public class OrderCanonical {
         this.orderStatus.setDetail(detail);
         this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
     }
+    
+    public OrderCanonical(Long ecommerceId, String code, String name, String localCode, String companyCode, String source, String serviceTypeCode) {
+        this.ecommerceId = ecommerceId;
+        this.localCode = localCode;
+        this.companyCode = companyCode;
+        this.orderStatus = new OrderStatusCanonical();
+        this.orderStatus.setCode(code);
+        this.orderStatus.setName(name);
+        this.orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+        this.source = source;
+        this.orderDetail = new OrderDetailCanonical();
+        this.orderDetail.setServiceType(serviceTypeCode);
+    }
 
 
 
     // Canonical IDs
+    @JsonIgnore
     private Long id;
     private Long ecommerceId;
     private Long trackerId;
@@ -134,5 +149,9 @@ public class OrderCanonical {
 
     private String action;
     private Boolean partial;
+
+    private String updateBy;
+
+    private LiquidationCanonical liquidation;
 
 }

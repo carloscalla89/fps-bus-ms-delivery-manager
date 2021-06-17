@@ -1,9 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
-import com.inretailpharma.digital.deliverymanager.entity.OrderCancelled;
 import com.inretailpharma.digital.deliverymanager.repository.CancellationCodeReasonRepository;
-import com.inretailpharma.digital.deliverymanager.repository.OrderCancelledRepository;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,8 +19,8 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
     }
 
     @Override
-    public List<CancellationCodeReason> getListCodeCancellationByCode(String appType) {
-        return cancellationCodeReasonRepository.findAllByAppType(appType);
+    public List<CancellationCodeReason> getListCodeCancellationByAppTypeList(List<String> appType) {
+        return cancellationCodeReasonRepository.findAllByAppTypeIn(appType);
     }
 
     @Override
@@ -33,5 +31,10 @@ public class OrderCancellationServiceImpl implements OrderCancellationService {
     @Override
     public CancellationCodeReason geByCodeAndAppType(String code, String appType) {
         return cancellationCodeReasonRepository.findByCodeAndAppType(code, appType);
+    }
+    
+    @Override
+    public List<CancellationCodeReason> getListCodeCancellationByAppTypeListAndType(List<String> appType, String type) {
+        return cancellationCodeReasonRepository.findAllByAppTypeInAndType(appType, type);
     }
 }

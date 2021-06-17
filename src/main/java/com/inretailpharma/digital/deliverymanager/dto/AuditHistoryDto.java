@@ -21,5 +21,12 @@ public class AuditHistoryDto {
     private String localCode;
     private String endScheduleDate;
     private String updatedBy;
+    // liquidation status and detail
+    private String liquidationStatus;
+    private String liquidationStatusDetail;
+    // Operations Audit
+    private String brand;
+    private String deliveryType;
+    private String sourceChannel;
 
 }

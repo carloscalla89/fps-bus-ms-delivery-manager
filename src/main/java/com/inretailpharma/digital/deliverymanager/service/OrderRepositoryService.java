@@ -30,16 +30,19 @@ public interface OrderRepositoryService {
     IOrderFulfillment getOrderByecommerceId(Long ecommerceId);
     IOrderFulfillment getOrderLightByecommerceId(Long ecommerceId);
     List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommercesIds);
-
-    void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail);
+    List<IOrderFulfillment> getOrdersByEcommerceIds(Set<Long> ecommercesIds);
 
     void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
                                     String orderStatusCode, Long orderFulfillmentId, LocalDateTime updateLast,
                                     LocalDateTime dateCancelled);
 
+    void updateStatusOrder(String statusDetail, String orderStatusCode, Long ecommerceId, LocalDateTime updateLast);
+
+    void updateLiquidationStatusOrder(String liquidationStatusDetail, String liquidaitonStatus, Long orderFulfillmentId);
+
     Client saveClient(Client client);
 
-
+    IOrderFulfillment getOnlyOrderStatusByecommerceId(Long ecommerceId);
 
     <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
 

@@ -9,6 +9,8 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Project
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
@@ -32,18 +34,16 @@ public interface OrderExternalService {
                                             StoreCenterCanonical storeCenterCanonical, Long externalId, String statusDetail,
                                             String statusName, String orderCancelCode, String orderCancelDescription,
                                             String orderCancelObservation);
-    Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical);
-    Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
-                                            List<IOrderItemFulfillment> itemFulfillments, String action,
-                                            StoreCenterCanonical storeCenterCanonical);
+
+    Mono<OrderCanonical> createOrderToLiquidation(LiquidationDto liquidationDto);
+    Mono<OrderCanonical> updateOrderToLiquidation(String ecommerceId, StatusDto statusDto);
+
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
-    Mono<String> updateOrderStatus(Long ecommerceId, String status);
     Mono<OrderCanonical> updateOrderStatus(Long ecommerceId, ActionDto actionDto);
     Mono<OrderCanonical> getResultfromOnlinePaymentExternalServices(Long ecommercePurchaseId, String source,
                                                                     String serviceTypeShortCode, String companyCode,
                                                                     ActionDto actionDto);
-    Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId);
     Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long ecommerceId);
     Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical, ActionDto actionDto);
     Mono<Void> updateOrderNewAudit(AuditHistoryDto orderCanonical);

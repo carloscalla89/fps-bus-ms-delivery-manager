@@ -112,11 +112,12 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         return orderRepository.getOrderLightByecommercesIds(ecommercesIds);
     }
 
-
     @Override
-    public void updateStatusOrder(Long orderFulfillmentId, String orderStatusCode, String statusDetail) {
-        serviceLocalOrderRepository.updateStatusOrder(orderFulfillmentId, orderStatusCode, statusDetail);
+    public List<IOrderFulfillment> getOrdersByEcommerceIds(Set<Long> ecommercesIds) {
+        log.info("repository:{}",ecommercesIds);
+        return orderRepository.getOrdersByEcommerceIds(ecommercesIds);
     }
+
 
     @Override
     public void updateStatusCancelledOrder(String statusDetail, String cancellationObservation, String cancellationCode,
@@ -128,12 +129,29 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
+    public void updateStatusOrder(String statusDetail, String orderStatusCode, Long ecommerceId, LocalDateTime updateLast) {
+        serviceLocalOrderRepository.updateStatusOrder(statusDetail, orderStatusCode, ecommerceId, updateLast);
+    }
+
+    @Override
+    public void updateLiquidationStatusOrder(String liquidationStatus, String liquidationStatusDetail,
+                                             Long orderfulfillmentId) {
+
+        orderRepository.updateLiquidationStatusOrder(liquidationStatus, liquidationStatusDetail, orderfulfillmentId);
+
+    }
+
+    @Override
     public Client saveClient(Client client) {
         return clientRepository.save(client);
     }
 
+    @Override
+    public IOrderFulfillment getOnlyOrderStatusByecommerceId(Long ecommerceId) {
+        return orderRepository.getOnlyOrderStatusByecommerceId(ecommerceId);
+    }
 
-	@Override
+    @Override
 	public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
 		log.info("CALL Repository--getOrderByOrderNumber:"+orderNumber);
 		return orderRepository.getOrderByOrderNumber(orderNumber);

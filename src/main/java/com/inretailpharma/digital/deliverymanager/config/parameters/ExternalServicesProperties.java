@@ -205,4 +205,31 @@ public class ExternalServicesProperties {
 
     @Value("${api.insink.stock}")
     private String uriApiRestoreStock;
+
+
+
+    //********** properties para el componente de liquidación
+
+    // endoint para create una orden
+    @Value("${external-service.liquidation.create-order.uri}")
+    private String liquidationCreateOrderUri;
+
+    @Value("${external-service.liquidation.create-order.connect-timeout}")
+    private String liquidationCreateOrderConnectTimeOut;
+
+    @Value("${external-service.liquidation.create-order.read-timeout}")
+    private String liquidationCreateOrderReadTimeOut;
+
+
+    // endoint para create una orden
+    @Value("${external-service.liquidation.update-order.uri}")
+    private String liquidationUpdateOrderUri;
+
+    @Value("${external-service.liquidation.update-order.connect-timeout}")
+    private String liquidationUpdateOrderConnectTimeOut;
+
+    @Value("${external-service.liquidation.update-order.read-timeout}")
+    private String liquidationUpdateOrderReadTimeOut;
+
+    // ********************************************
 }

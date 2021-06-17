@@ -3,32 +3,26 @@ package com.inretailpharma.digital.deliverymanager.facade;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.inretailpharma.digital.deliverymanager.adapter.AdapterInterface;
+import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
-import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
-import com.inretailpharma.digital.deliverymanager.proxy.OrderFacadeProxy;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
-import com.inretailpharma.digital.deliverymanager.util.UtilClass;
-import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
+import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
+import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+
 
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.GroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderAssignResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderToAssignCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.OrderTrackerResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
-import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
-import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,198 +32,170 @@ import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Component
-public class TrackerFacade {
+public class TrackerFacade extends FacadeAbstractUtil{
 
-	private OrderTransaction orderTransaction;
-	private ObjectToMapper objectToMapper;
-	private OrderExternalService orderExternalOrderTracker;
-	private OrderExternalService orderExternalServiceAudit;
-	private OrderFacadeProxy orderFacadeProxy;
-	private AdapterInterface adapterInterface;
+	private OrderCancellationService orderCancellationService;
+
+	private ITrackerAdapter iOrderTrackerAdapter;
+	private IAuditAdapter iAuditAdapter;
+
+	private UpdateTracker updateTracker;
 
 	@Autowired
-	public TrackerFacade(OrderTransaction orderTransaction,
-						 ObjectToMapper objectToMapper,
-						 @Qualifier("orderTracker") OrderExternalService orderExternalOrderTracker,
-						 @Qualifier("audit") OrderExternalService orderExternalServiceAudit,
-						 @Qualifier("trackeradapter") AdapterInterface adapterInterface,
-						 OrderFacadeProxy orderFacadeProxy) {
-		this.orderTransaction = orderTransaction;
-		this.objectToMapper = objectToMapper;
-		this.orderExternalOrderTracker = orderExternalOrderTracker;
-		this.orderExternalServiceAudit = orderExternalServiceAudit;
-		this.adapterInterface = adapterInterface;
-		this.orderFacadeProxy = orderFacadeProxy;
+	public TrackerFacade(@Qualifier("orderTrackerAdapter") ITrackerAdapter iOrderTrackerAdapter,
+						 @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
+						 OrderCancellationService orderCancellationService,
+						 @Qualifier("updateTracker") UpdateTracker updateTracker) {
+		this.iOrderTrackerAdapter = iOrderTrackerAdapter;
+		this.iAuditAdapter = iAuditAdapter;
+		this.orderCancellationService = orderCancellationService;
+		this.updateTracker = updateTracker;
 	}
 
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {   
     	
     	log.info("[START] assign orders to external tracker");
-    	
-    	List<Long> notMappedOrders = new ArrayList<>();
-    	
-    	return Flux.fromIterable(projectedGroupCanonical.getGroup())
-    		.parallel()
-            .runOn(Schedulers.elastic())
-	    	.map(group -> {
-  		
-		    		OrderCanonical orderCanonical = getOrder(group.getOrderId());
-	                
-	                Optional.ofNullable(group.getPickUpDetails()).ifPresent(pickUpDetails -> {
-	                	orderCanonical.setShelfList(pickUpDetails.getShelfList());
-	                	orderCanonical.setPayBackEnvelope(pickUpDetails.getPayBackEnvelope());
-	                }); 
-	                
-	                group.setOrder(orderCanonical);
 
-	                return group;
-	    	})
-	    	.sequential()
-	    	.onErrorContinue((ex, group) -> {
-	    		if (group instanceof GroupCanonical) {
-	    			Long orderId = ((GroupCanonical)group).getOrderId();
-	    			notMappedOrders.add(orderId);
-	    			log.error("[ERROR] assign orders to external tracker {} - " , orderId, ex);
-	    		} else {
-	    			log.error("[ERROR] assign orders to external tracker {} - " , group, ex);
-	    		}
-	    	})
-	    	.collectList()
-	    	.flatMap(allGroups -> {
-	    		log.info("[START] assign orders from group {} to external tracker", projectedGroupCanonical.getGroupName());
-	    		log.info("assign orders - mapped orders {}", allGroups.stream().map(GroupCanonical::getOrderId).collect(Collectors.toList()));
-	    		log.info("assign orders - not mapped orders {}", notMappedOrders);
-	    		
-	    		OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
+    	return getOrdersByEcommerceIds(
+    				projectedGroupCanonical
+							.getGroup()
+							.stream()
+							.map(GroupCanonical::getOrderId)
+							.collect(Collectors.toSet())
+				)
+				.flatMap(order -> {
 
-	    		ProjectedGroupCanonical newProjectedGroupCanonical = new ProjectedGroupCanonical();
-	    		newProjectedGroupCanonical.setGroup(allGroups);
-	    		newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
-	    		newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
-	    		newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
-	    		
-	    		return orderExternalOrderTracker
-							.assignOrders(newProjectedGroupCanonical)
-							.map(r -> {
-								log.info("#assign orders from group {} to external tracker - response: {}"
-										, projectedGroupCanonical.getGroupName(), r);
+					GroupCanonical group =  projectedGroupCanonical
+												.getGroup()
+												.stream()
+												.filter(r -> r.getOrderId().equals(order.getEcommerceId()))
+												.findFirst()
+												.get();
 
-								if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(r.getAssigmentSuccessful())) {
+					Optional.ofNullable(group.getPickUpDetails()).ifPresent(pickUpDetails -> {
+						order.setShelfList(pickUpDetails.getShelfList());
+						order.setPayBackEnvelope(pickUpDetails.getPayBackEnvelope());
+					});
 
-									List<Long> allFailedOrders = new ArrayList<>();
-									r.getCreatedOrders().forEach(orderId -> auditOrder(orderId, Constant.OrderStatus.ASSIGNED));
-									r.getFailedOrders().forEach(order -> {
-										auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, order.getReason());
-										allFailedOrders.add(order.getOrderId());
-									});
-									notMappedOrders.forEach(orderId -> {
-										auditOrder(orderId, Constant.OrderStatus.ERROR_ASSIGNED);
-										allFailedOrders.add(orderId);
-									});
+					group.setOrder(order);
 
-									response.setStatusCode(
-											allFailedOrders.isEmpty() ? Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE
-													: Constant.OrderTrackerResponseCode.ASSIGN_PARTIAL_CODE
-									);
-									response.setFailedOrders(allFailedOrders);
-
-								} else {
-									allGroups.stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED));
-
-									response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
-									response.setFailedOrders(allGroups.stream().map(GroupCanonical::getOrderId).collect(Collectors.toList())
-									);
-								}
-								return response;
-							});
+					return Flux.just(group);
 
 				})
-				.onErrorResume(ex -> {
-					log.error("[ERROR] assign orders to external tracker", ex);
-					projectedGroupCanonical.getGroup().stream().forEach(order -> auditOrder(order.getOrderId(), Constant.OrderStatus.ERROR_ASSIGNED, ex.getMessage()));
+				.buffer()
+				.flatMap(allGroups -> {
+
+					ProjectedGroupCanonical newProjectedGroupCanonical = new ProjectedGroupCanonical();
+					newProjectedGroupCanonical.setGroup(allGroups);
+					newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
+					newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
+					newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
+					newProjectedGroupCanonical.setUpdateBy(projectedGroupCanonical.getUpdateBy());
+					newProjectedGroupCanonical.setSource(Constant.UPDATED_BY_INKATRACKER_WEB);
+
+					return ((OrderTrackerAdapter)iOrderTrackerAdapter)
+								.assignOrders(newProjectedGroupCanonical, allGroups);
+
+
+				})
+				.flatMap(result ->
+						updateOrderInfulfillment(
+								result, result.getEcommerceId(), Constant.UPDATED_BY_INKATRACKER_WEB, Constant.TARGET_TRACKER,
+								projectedGroupCanonical.getUpdateBy(), null)
+				)
+				.flatMap(result -> iAuditAdapter.updateAudit(result, projectedGroupCanonical.getUpdateBy()))
+				.buffer()
+				.flatMap(resultFinal -> {
+					log.info("The processs of assigned is success:{}",resultFinal);
+
 					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
-					response.setFailedOrders(projectedGroupCanonical.getGroup().stream().map(GroupCanonical::getOrderId).collect(Collectors.toList()));
-					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE);
+
 					return Mono.just(response);
-				});
+				})
+				.switchIfEmpty(Flux.defer(() -> {
+					log.error("The process of assigned is empty");
+
+					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
+					response.setDetail("The process of assigned is empty");
+					response.setFailedOrders(
+							projectedGroupCanonical
+									.getGroup().stream().map(GroupCanonical::getOrderId)
+									.collect(Collectors.toList())
+					);
+					return Mono.just(response);
+
+				}))
+				.onErrorResume(e -> {
+					e.printStackTrace();
+					log.error("The process of assigned is failed");
+
+					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
+					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
+					response.setDetail("The process of assigned has failed - detail:"+e.getMessage());
+					response.setFailedOrders(
+							projectedGroupCanonical
+									.getGroup().stream().map(GroupCanonical::getOrderId)
+									.collect(Collectors.toList())
+					);
+
+					return Mono.just(response);
+				})
+				.single();
 	}
 
 	public Mono<OrderTrackerResponseCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
 		log.info("[START] unassing orders from group {} - external tracker", unassignedCanonical.getGroupName());
-		return orderExternalOrderTracker
-				.unassignOrders(unassignedCanonical)
-				.flatMap(statusCode -> {
-					log.info("#unassing orders from group {} - external tracker - statusCode: {}"
-							, unassignedCanonical.getGroupName(), statusCode);
-					unassignedCanonical.getOrders().forEach(orderId -> {
+		unassignedCanonical.setSource(Constant.UPDATED_BY_INKATRACKER_WEB);
 
-						if (Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(statusCode)) {
-							auditOrder(orderId, Constant.OrderStatus.PREPARED_ORDER);
-						} else {
-							auditOrder(orderId, Constant.OrderStatus.ERROR_PREPARED);
-						}
-					});
+		return ((OrderTrackerAdapter)iOrderTrackerAdapter)
+					.unassignOrders(unassignedCanonical)
+					.flatMap(result ->
+							updateOrderInfulfillment(
+									result, result.getEcommerceId(), Constant.UPDATED_BY_INKATRACKER_WEB, Constant.TARGET_TRACKER,
+									unassignedCanonical.getUpdateBy(), null)
+					)
+					.flatMap(result -> iAuditAdapter.updateAudit(result, unassignedCanonical.getUpdateBy()))
+					.buffer()
+					.flatMap(resultFinal -> {
+						log.info("The processs of unassigned is success:{}",resultFinal);
 
-					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-					response.setStatusCode(statusCode);
-					return Mono.just(response);
-				});
-	}
+						OrderTrackerResponseCanonical orderTracker = new OrderTrackerResponseCanonical();
+						orderTracker.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
 
-	public Mono<OrderTrackerResponseCanonical> updateOrderStatus(Long ecommerceId, String status) {
-		log.info("[START] update order: {} status: {} - external tracker", ecommerceId, status);
+						return Mono.just(orderTracker);
+					})
+					.switchIfEmpty(Flux.defer(() -> {
+						log.error("The processs of unassigned is empty");
 
-		return Mono
-				.justOrEmpty(orderTransaction.getOrderLightByecommerceId(ecommerceId))
-				.flatMap(filtredOrder -> {
+						OrderTrackerResponseCanonical orderTracker = new OrderTrackerResponseCanonical();
+						orderTracker.setStatusCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+						orderTracker.setStatusDetail("The processs is empty");
+						return Mono.just(orderTracker);
 
-					if (!filtredOrder.getServiceType().equalsIgnoreCase(Constant.ServiceTypeCodes.PICKUP)) {
-						return orderExternalOrderTracker
-								.updateOrderStatus(filtredOrder.getEcommerceId(), status)
-								.filter(resultCode -> resultCode.equalsIgnoreCase(Constant.OrderTrackerResponseCode.SUCCESS_CODE))
-								.flatMap(resultCode -> Mono.just(getOrderTrackerResponse(
-										resultCode, filtredOrder.getOrderId(), filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType()))
-								).switchIfEmpty(Mono.defer(() -> Mono.just(getOrderTrackerResponse(
-										Constant.OrderTrackerResponseCode.ERROR_CODE, filtredOrder.getOrderId(),
-										filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType())))
-								);
-					}
+					}))
+					.onErrorResume(e -> {
+						e.printStackTrace();
+						log.error("The processs of unassigned is error");
 
-					return Mono.just(getOrderTrackerResponse(
-							Constant.OrderTrackerResponseCode.SUCCESS_CODE, filtredOrder.getOrderId(), filtredOrder.getEcommerceId(), status, filtredOrder.getPaymentType())
-					);
+						OrderTrackerResponseCanonical orderTracker = new OrderTrackerResponseCanonical();
+						orderTracker.setStatusCode(Constant.OrderTrackerResponseCode.ERROR_CODE);
+						orderTracker.setStatusDetail(e.getMessage());
 
-
-				}).switchIfEmpty(Mono.defer(Mono::empty) );
-
-	}
-
-	public Mono<OrderTrackerResponseCanonical> sendOrder(OrderToAssignCanonical orderToAssignCanonical) {
-		log.info("[START] sendOrder - external tracker");
-
-		OrderCanonical orderCanonical = this.getOrder(orderToAssignCanonical.getOrderId());
-		orderCanonical.setOrderStatus(null);
-
-		return orderExternalOrderTracker
-				.sendOrderToOrderTracker(orderCanonical)
-				.flatMap(resp -> {
-					OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-					response.setStatusCode(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
-					return Mono.just(response);
-				});
-
+						return Mono.just(orderTracker);
+					})
+					.single();
 	}
 
 	public Flux<OrderTrackerResponseCanonical>  synchronizeOrderStatus(List<OrderSynchronizeDto> ordersList) {
 		log.info("[START] synchronizeOrderStatus list:{}",ordersList);
 
-		List<IOrderFulfillment> iOrdersFulfillment = orderTransaction
-														.getOrderLightByecommercesIds(
-																ordersList
-																		.stream()
-																		.map(OrderSynchronizeDto::getEcommerceId)
-																		.collect(Collectors.toSet())
-														);
+		List<IOrderFulfillment> iOrdersFulfillment = getOrderLightByecommercesIds(
+															ordersList
+																	.stream()
+																	.map(OrderSynchronizeDto::getEcommerceId)
+																	.collect(Collectors.toSet()));
 
 		return Flux
 				.fromIterable(iOrdersFulfillment)
@@ -257,18 +223,23 @@ public class TrackerFacade {
 
                                 // Se envía el último estado para que se registre en la DB fulfillment y su tracker
 
-								ActionDto actionDto = new ActionDto();
-								actionDto.setAction(statusLast.getAction());
-								actionDto.setOrigin(orderSynchronizeDto.getOrigin());
-								actionDto.setOrderCancelCode(statusLast.getOrderCancelCode());
-								actionDto.setOrderCancelObservation(statusLast.getOrderCancelObservation());
-								actionDto.setMotorizedId(statusLast.getMotorizedId());
-								actionDto.setUpdatedBy(statusLast.getUpdatedBy());
-								actionDto.setActionDate(statusLast.getActionDate());
+
+								ActionDto actionDto = ActionDto
+														.builder()
+														.action(statusLast.getAction())
+														.origin(orderSynchronizeDto.getOrigin())
+														.orderCancelCode(statusLast.getOrderCancelCode())
+														.orderCancelObservation(statusLast.getOrderCancelObservation())
+														.motorizedId(statusLast.getMotorizedId())
+														.updatedBy(statusLast.getUpdatedBy())
+														.actionDate(statusLast.getActionDate())
+														.build();
 
 
-								return orderFacadeProxy
-										.sendOnlyLastStatusOrderFromSync(iorder, actionDto)
+								return updateTracker
+										.sendOnlyLastStatusOrderFromSync(iorder, actionDto,
+												orderCancellationService.evaluateGetCancel(actionDto)
+										)
 										.flatMap(orderCanonical -> {
 											orderCanonical.setAction(statusLast.getAction());
 
@@ -280,19 +251,19 @@ public class TrackerFacade {
                                 return Flux
                                         .fromIterable(orderSynchronizeDto.getHistory())
                                         .sort(Comparator. comparing(obj -> Constant.ActionOrder.getByName(obj.getAction()).getSequence()))
-                                        .flatMap(orderHistory -> orderFacadeProxy.updateOrderStatusListAudit(iorder, orderStatusLast, orderHistory, orderSynchronizeDto.getOrigin()))
+                                        .flatMap(orderHistory -> updateTracker.updateOrderStatusListAudit(iorder, orderStatusLast, orderHistory, orderSynchronizeDto.getOrigin()))
                                         .filter(order ->  !order.getAction().equalsIgnoreCase(orderStatusLast.getAction()))
                                         .flatMap(order -> {
 
                                         	log.info("Sending status order to notification:{}",order.getEcommerceId());
 
-                                            ActionDto actionDto = new ActionDto();
-                                            actionDto.setAction(order.getAction());
-                                            actionDto.setOrigin(orderSynchronizeDto.getOrigin());
+											ActionDto actionDto = ActionDto
+																		.builder()
+																		.action(order.getAction())
+																		.origin(orderSynchronizeDto.getOrigin())
+																		.build();
 
-                                            return orderFacadeProxy
-                                                        .processSendNotification(actionDto, iorder);
-
+                                            return processSendNotification(actionDto, iorder);
 
                                         })
 										.defaultIfEmpty(true)
@@ -309,74 +280,34 @@ public class TrackerFacade {
 
 	}
 
-	private OrderCanonical getOrder(Long orderId) {
-		IOrderFulfillment orderDto = orderTransaction.getOrderByecommerceId(orderId);
-		OrderCanonical orderCanonical = objectToMapper.convertIOrderDtoToOrderFulfillmentCanonical(orderDto);
-
-		List<IOrderItemFulfillment> orderItemDtoList = orderTransaction.getOrderItemByOrderFulfillmentId(orderDto.getOrderId());
-		List<OrderItemCanonical> orderItemCanonicalList = orderItemDtoList.stream()
-				.map(o -> objectToMapper.convertIOrderItemDtoToOrderItemFulfillmentCanonical(o, orderDto.getPartial()))
-				.collect(Collectors.toList());		
-		
-		orderCanonical.setOrderItems(orderItemCanonicalList);
-		
-		return orderCanonical;
-    }
-    
-    private void auditOrder(Long ecommerceId, Constant.OrderStatus status) {
-    	orderExternalServiceAudit.updateOrderReactive(
-        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), null)).subscribe();
-    }
-    
-    private void auditOrder(Long ecommerceId, Constant.OrderStatus status, String detail) {
-    	orderExternalServiceAudit.updateOrderReactive(
-        		new OrderCanonical(ecommerceId, status.getCode(), status.name(), detail)).subscribe();
-    }
-
-    private OrderTrackerResponseCanonical getOrderTrackerResponse(String result,Long orderId, Long ecommerceId, String trackerStatus,
-																  String paymentType) {
-
-		log.info("#update order: {} status: {} - external tracker - statusCode: {}", ecommerceId, trackerStatus, result);
-
-		Constant.OrderStatus orderStatus = Constant.OrderStatusTracker.getOrderStatusByTrackerStatus(trackerStatus, paymentType);
-
-		// Para actualizar los últimos status en el fulfillment
-		orderTransaction.updateStatusOrder(orderId, orderStatus.getCode(), null);
-
-		// enviar a la auditoría el cambio del status
-		auditOrder(ecommerceId, orderStatus);
-
-		OrderTrackerResponseCanonical response = new OrderTrackerResponseCanonical();
-		response.setStatusCode(result);
-		return response;
-
-	}
-
 	public Mono<OrderCanonical> getOrderByEcommerceId(Long ecommerceId) {
 
-		IOrderFulfillment iOrderFulfillmentLight = orderTransaction.getOrderLightByecommerceId(ecommerceId);
-
-		return Optional
-				.ofNullable(iOrderFulfillmentLight)
-				.map(order -> adapterInterface.getOrder(order))
-				.orElse(Mono.empty());
+		return Optional.ofNullable(getOrderFromIOrdersProjects(ecommerceId)).map(Mono::just) .orElse(Mono.empty());
 
 	}
 
-	public Flux<OrderCanonical> getOrderByEcommerceIds(String ecommerceIds) {
+	public Flux<OrderCanonical> getOrderByEcommerceIds(Set<Long> ecommerceIds) {
 		log.info("getOrderByEcommerceIds:{}",ecommerceIds);
 
 		return Flux
-				.fromIterable(orderTransaction
-						.getOrderLightByecommercesIds(
-								Arrays.stream(ecommerceIds.split(",")).map(Long::parseLong).collect(Collectors.toSet())
-						))
+				.fromIterable(getOrderLightByecommercesIds(ecommerceIds))
 				.parallel()
 				.runOn(Schedulers.elastic())
-				.flatMap(orders -> {
-					log.info("in orders flux");
-					return adapterInterface.getOrder(orders).flux();
-				}).ordered((o1,o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
+				.flatMap(orders -> Flux.just(getOrderFromIOrdersProjects(orders)))
+				.ordered((o1, o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
 
 	}
+
+	private Flux<OrderCanonical> getOrdersByEcommerceIds(Set<Long> ecommerceIds) {
+		log.info("getOrdersByEcommerceId:{}",ecommerceIds);
+
+		return Flux
+				.fromIterable(getOrderByEcommercesIds(ecommerceIds))
+				.parallel()
+				.runOn(Schedulers.elastic())
+				.flatMap(orders -> Flux.just(getOrderToOrderTracker(orders)))
+				.ordered((o1, o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
+
+	}
+
 }

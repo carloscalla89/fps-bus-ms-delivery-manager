@@ -1,10 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.InsinkResponseCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.ResponseDispatcherCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.dispatcher.StatusDispatcher;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
@@ -12,25 +8,24 @@ import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.Project
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
-import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ResponseErrorGeneric;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
 import reactor.core.publisher.Mono;
@@ -78,14 +73,12 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
-	public Mono<OrderCanonical> sendOrderToOrderTracker(OrderCanonical orderCanonical) {
-		return null;
+	public Mono<OrderCanonical> createOrderToLiquidation(LiquidationDto liquidationDto) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Mono<OrderCanonical> sendOrderEcommerce(IOrderFulfillment iOrderFulfillment,
-												   List<IOrderItemFulfillment> itemFulfillments, String action,
-												   StoreCenterCanonical storeCenterCanonical){
+	public Mono<OrderCanonical> updateOrderToLiquidation(String ecommerceId, StatusDto statusDto) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -99,10 +92,6 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public Mono<String> updateOrderStatus(Long ecommerceId, String status) {
-		throw new UnsupportedOperationException();
-	}
 
 	@Override
 	public Mono<OrderCanonical> updateOrderStatus(Long ecommerceId,  ActionDto actionDto) {
@@ -115,11 +104,7 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
-	public Mono<com.inretailpharma.digital.deliverymanager.dto.OrderDto> getOrderFromEcommerce(Long ecommerceId) {
-		return null;
-	}
-	
+
 	@Override
 	public Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long EcommerceId) {
 		throw new UnsupportedOperationException();
@@ -145,6 +130,7 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
+
 	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, long readTimeOut) {
 		log.info("generateClientConnector, connectionTimeOut:{}, readTimeOut:{}",connectionTimeOut,readTimeOut);
 		HttpClient httpClient = HttpClient.create()
@@ -160,50 +146,6 @@ public class AbstractOrderService implements OrderExternalService {
 
 
 		return new ReactorClientHttpConnector(httpClient);
-
-	}
-
-	protected Mono<OrderCanonical> mapResponseFromDispatcher(ClientResponse clientResponse, Long ecommerceId, String companyCode) {
-
-		if (clientResponse.statusCode().is2xxSuccessful()) {
-
-			return clientResponse
-					.bodyToMono(ResponseDispatcherCanonical.class)
-					.flatMap(cr -> {
-						InsinkResponseCanonical dispatcherResponse = cr.getBody();
-						StatusDispatcher statusDispatcher = cr.getStatus();
-
-						log.info("result dispatcher to reattempt - body:{}, status:{}",dispatcherResponse, statusDispatcher);
-
-						OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-						Constant.OrderStatus orderStatusUtil = Constant
-								.OrderStatus
-								.getByName(Constant.StatusDispatcherResult.getByName(statusDispatcher.getCode()).getStatus());
-
-						orderStatus.setCode(orderStatusUtil.getCode());
-						orderStatus.setName(orderStatusUtil.name());
-						orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-						orderStatus.setDetail(dispatcherResponse.getMessageDetail());
-
-						OrderCanonical resultCanonical = new OrderCanonical();
-						resultCanonical.setEcommerceId(ecommerceId);
-						resultCanonical.setExternalId(
-								Optional
-										.ofNullable(dispatcherResponse.getInkaventaId())
-										.map(Long::parseLong).orElse(null)
-						);
-						resultCanonical.setCompanyCode(companyCode);
-						resultCanonical.setOrderStatus(orderStatus);
-
-						return Mono.just(resultCanonical);
-
-					});
-
-		} else {
-			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
-
-			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
-		}
 
 	}
 
@@ -230,6 +172,36 @@ public class AbstractOrderService implements OrderExternalService {
 
 	}
 
+	protected Mono<OrderCanonical> mapResponseFromTargetLiquidation(ClientResponse clientResponse, Long ecommerceId,
+																	StatusDto statusDto) {
+
+		if (clientResponse.statusCode().is2xxSuccessful()) {
+
+			return clientResponse
+					.bodyToMono(Void.class)
+					.thenReturn((getResponseLiquidation(ecommerceId, statusDto, null, true)));
+
+		} else {
+			log.error("Error in response from liquidation, ecommerceId:{}, statusCode:{}",
+					ecommerceId,clientResponse.statusCode());
+			ResponseErrorGeneric<OrderCanonical> responseErrorGeneric = new ResponseErrorGeneric<>();
+
+			return responseErrorGeneric.getErrorFromClientResponse(clientResponse);
+
+		}
+
+	}
+
+	protected Mono<OrderCanonical> mapResponseFromTargetWithErrorOrEmpty(Long ecommerceId, StatusDto statusDtoToSend, String statusDetail) {
+
+		Constant.LiquidationStatus StatusLiquidationError = Constant.LiquidationStatus.getErrorByStatusByName(statusDtoToSend.getName());
+		StatusDto statusDto = new StatusDto();
+		statusDto.setCode(StatusLiquidationError.getCode());
+		statusDto.setName(StatusLiquidationError.name());
+
+		return Mono.just(getResponseLiquidation(ecommerceId, statusDto, statusDetail, false));
+
+	}
 
 	protected Mono<OrderCanonical> mapResponseFromUpdateTracker(ClientResponse clientResponse, Long ecommerceId,
 																Constant.OrderStatusTracker orderStatusInkatracker) {
@@ -264,6 +236,7 @@ public class AbstractOrderService implements OrderExternalService {
 		orderStatus.setCode(orderStatusResult.getCode());
 		orderStatus.setName(orderStatusResult.name());
 		orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
+		orderStatus.setSuccessful(orderStatusResult.isSuccess());
 		orderCanonical.setOrderStatus(orderStatus);
 
 		return orderCanonical;
@@ -284,6 +257,15 @@ public class AbstractOrderService implements OrderExternalService {
 
         return orderCanonical;
     }
+
+	private OrderCanonical getResponseLiquidation(Long ecommerceId, StatusDto statusDto, String statusDetail,
+												  boolean isSuccess) {
+		OrderCanonical orderCanonical = new OrderCanonical();
+		orderCanonical.setEcommerceId(ecommerceId);
+		orderCanonical.setOrderStatus(objectToMapper.getOrderStatusLiquidation(statusDto, statusDetail, isSuccess));
+
+		return orderCanonical;
+	}
 
 	protected Mono<OrderCanonical> mapResponseErrorFromTracker(Throwable e, Long id, Long ecommerceId, String statusName,
 															   String cancellationCode, String cancellationObservation) {
@@ -323,24 +305,6 @@ public class AbstractOrderService implements OrderExternalService {
 
 		return Mono.just(orderCanonical);
 	}
-
-	protected Mono<OrderCanonical> mapResponseErrorFromDispatcher(Throwable e, Long ecommerceId) {
-
-		OrderCanonical orderCanonical = new OrderCanonical();
-
-		orderCanonical.setEcommerceId(ecommerceId);
-		OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-
-		orderStatus.setCode(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode());
-		orderStatus.setName(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name());
-		orderStatus.setDetail(e.getMessage());
-		orderStatus.setStatusDate(DateUtils.getLocalDateTimeNow());
-
-		orderCanonical.setOrderStatus(orderStatus);
-
-		return Mono.just(orderCanonical);
-	}
-
 
 
 }

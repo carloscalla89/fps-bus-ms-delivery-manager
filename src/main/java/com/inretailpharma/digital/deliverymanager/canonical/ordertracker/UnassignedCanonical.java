@@ -11,7 +11,9 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UnassignedCanonical implements Serializable  {
 
+    private String updateBy;
 	private String groupName;
     private String motorizedId;
     private List<Long> orders;
+    private String source;
 }
