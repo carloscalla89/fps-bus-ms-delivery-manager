@@ -30,8 +30,8 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 
     @Override
 	public Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
-    	log.info("[START] call to OrderTracker - assignOrders - uri:{} - body:{}",
-                externalServicesProperties.getOrderTrackerAssignOrdersUri(), projectedGroupCanonical);
+    	log.info("[START] call to OrderTracker - assignOrders - uri:{}",
+                externalServicesProperties.getOrderTrackerAssignOrdersUri());
     	
     	return WebClient
             	.create(externalServicesProperties.getOrderTrackerAssignOrdersUri())
