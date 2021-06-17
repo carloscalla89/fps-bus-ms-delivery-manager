@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 import static com.inretailpharma.digital.deliverymanager.util.Constant.OrderStatus.SUCCESS_RESULT_ONLINE_PAYMENT;
 
 @Slf4j
@@ -33,7 +35,9 @@ public class OnlinePayment extends FacadeAbstractUtil implements IActionStrategy
 
     @Override
     public boolean validationIfExistOrder(Long ecommerceId, ActionDto actionDto) {
-        return getOnlyOrderStatusFinalByecommerceId(ecommerceId);
+
+        return  Optional.ofNullable(getOnlyOrderByecommerceId(ecommerceId)).isPresent();
+
     }
 
     @Override
