@@ -138,7 +138,7 @@ public abstract class AdapterAbstractUtil {
     }
 
     protected String uriRetryDDmifa() {
-        return externalServicesProperties.getDispatcherOrderEcommerceUriMifarma();
+        return externalServicesProperties.getDispatcherLegacySystemUriMifarma();
     }
 
     protected String uriGetFillinka() {

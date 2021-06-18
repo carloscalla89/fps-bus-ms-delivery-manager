@@ -15,22 +15,22 @@ external-service:
     read-timeout: 10000
   dispatcher:
     insink-tracker:
-      uri: http://us-dd/order/insink-tracker
-      uri-mifarma: http://ddmfci02.backend.cindyinkafarma.com/order/insink-tracker
+      uri: http://ddci02.backend.cindibyinkafarma.com/order/insink-tracker
+      uri-mifarma: http://ddmfci02.backend.cindibyinkafarma.com/order/insink-tracker
       connect-timeout: 30000
       read-timeout: 60000
     tracker:
-      uri: http://us-dd/order/tracker
-      uri-mifarma: http://ddmfqa.backend.cindyinkafarma.com/order/tracker
+      uri: http://ddci02.backend.cindibyinkafarma.com/order/tracker
+      uri-mifarma: http://ddmfqa.backend.cindibyinkafarma.com/order/tracker
       connect-timeout: 30000
       read-timeout: 60000
     legacy-system:
-      uri: http://us-dd/order/legacy-system
+      uri: http://ddci02.backend.cindibyinkafarma.com/order/legacy-system
       uri-mifarma: http://ddmfci02.backend.cindibyinkafarma.com/order/legacy-system
       connect-timeout: 30000
       read-timeout: 60000
     order-ecommerce:
-      uri: http://us-dd/order/ecommerce
+      uri: http://ddci02.backend.cindibyinkafarma.com/order/ecommerce
       uri-mifarma: http://ddmfci02.backend.cindibyinkafarma.com/order/ecommerce
       connect-timeout: 30000
       read-timeout: 60000

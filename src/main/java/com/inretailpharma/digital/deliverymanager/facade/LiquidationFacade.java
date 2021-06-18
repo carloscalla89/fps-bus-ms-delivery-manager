@@ -55,7 +55,7 @@ public class LiquidationFacade extends FacadeAbstractUtil {
 
     public Mono<OrderCanonical> evaluateUpdate(OrderCanonical orderCanonical, String action) {
 
-        if (getValueBoolenOfParameter()) {
+        if (getValueBoolenOfParameter() && !action.equalsIgnoreCase(Constant.ActionOrder.LIQUIDATE_ORDER.name())) {
 
             return Mono
                     .just(orderCanonical)
