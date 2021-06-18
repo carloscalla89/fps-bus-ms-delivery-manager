@@ -471,6 +471,14 @@ public interface Constant {
             return method;
         }
 
+        public static LiquidationStatus getByStatusByName(String name) {
+            return EnumUtils
+                    .getEnumList(LiquidationStatus.class)
+                    .stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name))
+                    .findFirst().orElse(NOT_FOUND_CODE);
+        }
+
         public static LiquidationStatus getErrorByStatusByName(String name) {
             return EnumUtils
                     .getEnumList(LiquidationStatus.class)
@@ -483,7 +491,7 @@ public interface Constant {
             return EnumUtils
                     .getEnumList(LiquidationStatus.class)
                     .stream()
-                    .filter(item -> item.name().equalsIgnoreCase(name.substring(name.length())))
+                    .filter(item -> item.name().equalsIgnoreCase(name.substring("ERROR_".length())))
                     .findFirst().orElse(NOT_FOUND_CODE);
         }
 

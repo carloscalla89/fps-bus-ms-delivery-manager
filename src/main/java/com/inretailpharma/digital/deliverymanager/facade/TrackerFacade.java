@@ -106,7 +106,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
 				.flatMap(result -> iAuditAdapter.updateAudit(result, projectedGroupCanonical.getUpdateBy()))
 				.buffer()
 				.flatMap(resultFinal -> {
-					log.info("The processs of assigned is success:{}",resultFinal);
+					log.info("The processs of assigned is success");
 
 					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
 					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_SUCCESS_CODE);

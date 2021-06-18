@@ -78,7 +78,7 @@ public class RetryDeliveryDispatcher extends FacadeAbstractUtil implements IActi
                                             .orElse(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.getCode())
                                     ).isSuccess())) {
 
-                                iTrackerAdapter
+                                return iTrackerAdapter
                                         .evaluateTracker(
                                                 Constant.TrackerImplementation
                                                         .getClassImplement(iOrderFulfillmentLight.getClassImplement())

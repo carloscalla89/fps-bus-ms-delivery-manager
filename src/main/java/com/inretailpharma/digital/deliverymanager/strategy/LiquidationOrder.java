@@ -34,8 +34,8 @@ public class LiquidationOrder extends FacadeAbstractUtil implements IActionStrat
     public boolean validationIfExistOrder(Long ecommerceId, ActionDto actionDto) {
         return Optional
                 .ofNullable(getOnlyOrderByecommerceId(ecommerceId))
-                .filter(val -> val.getLiquidaitonStatusDetail() != null
-                        && Constant.LiquidationStatus.getStatusSuccessByErrorStatus(val.getLiquidationStatus()) != Constant.LiquidationStatus.NOT_FOUND_CODE)
+                .filter(val -> val.getLiquidationStatusDetail() != null
+                        && !Constant.LiquidationStatus.getStatusSuccessByErrorStatus(val.getLiquidationStatus()).equals(Constant.LiquidationStatus.NOT_FOUND_CODE))
                 .isPresent();
     }
 
@@ -55,7 +55,7 @@ public class LiquidationOrder extends FacadeAbstractUtil implements IActionStrat
         orderCanonical.setOrderStatus(orderStatus);
 
         Constant.LiquidationStatus liquidationStatus =
-                Constant.LiquidationStatus.getStatusSuccessByErrorStatus(iOrderFulfillment.getLiquidationStatus());
+                Constant.LiquidationStatus.getByStatusByName(iOrderFulfillment.getLiquidationStatus());
 
         if (liquidationStatus.getMethod().equalsIgnoreCase(Constant.METHOD_CREATE)) {
 
@@ -85,6 +85,7 @@ public class LiquidationOrder extends FacadeAbstractUtil implements IActionStrat
             orderDetailCanonical.setServiceSourceChannel(iOrderFulfillment.getServiceChannel());
             orderDetailCanonical.setServiceType(iOrderFulfillment.getServiceType());
             orderDetailCanonical.setServiceShortCode(iOrderFulfillment.getServiceTypeShortCode());
+            orderCanonical.setOrderDetail(orderDetailCanonical);
 
             StoreCenterCanonical storeCenter = new StoreCenterCanonical();
             storeCenter.setLocalType(

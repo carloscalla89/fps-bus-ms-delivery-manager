@@ -56,88 +56,29 @@ public class OrderTrackerAdapter extends AdapterAbstractUtil implements ITracker
     public Flux<OrderCanonical> assignOrders(ProjectedGroupCanonical newProjectedGroupCanonical,
                                              List<GroupCanonical> groupCanonicals) {
 
-        return orderTrackerExternalService
-                    .assignOrders(newProjectedGroupCanonical)
-                    .filter(result -> Constant.OrderTrackerResponseCode.SUCCESS_CODE.equals(result.getAssigmentSuccessful()))
-                    .flux()
-                    .flatMap(result -> {
+        log.info("[START] Sending orders to OT");
 
-                        List<OrderCanonical> list = new ArrayList<>();
-                        list.addAll(
-                                result.getCreatedOrders().stream().map(orderSuccess -> {
-                                    OrderCanonical orderCanonical = new OrderCanonical();
-                                    orderCanonical.setEcommerceId(orderSuccess);
+        orderTrackerExternalService
+                .assignOrders(newProjectedGroupCanonical)
+                .subscribe(resp -> log.info("[END] Sending order to OT with response:{}",resp));
 
-                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                    orderStatus.setCode(Constant.OrderStatus.ASSIGNED.getCode());
-                                    orderStatus.setName(Constant.OrderStatus.ASSIGNED.name());
+        return Flux
+                .fromIterable(groupCanonicals)
+                .flatMap(ecommerceId -> {
 
-                                    orderCanonical.setOrderStatus(orderStatus);
+                    OrderCanonical orderCanonical = new OrderCanonical();
+                    orderCanonical.setEcommerceId(ecommerceId.getOrderId());
 
-                                    return orderCanonical;
-                                }).collect(Collectors.toList())
-                        );
+                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+                    orderStatus.setCode(Constant.OrderStatus.ASSIGNED.getCode());
+                    orderStatus.setName(Constant.OrderStatus.ASSIGNED.name());
+                    orderStatus.setDetail("The order was sent to order tracker");
+                    orderCanonical.setOrderStatus(orderStatus);
 
-                        list.addAll(
-                                result.getFailedOrders().stream().map(orderFailed -> {
-                                    OrderCanonical orderCanonical = new OrderCanonical();
-                                    orderCanonical.setEcommerceId(orderFailed.getOrderId());
+                    return Flux.just(orderCanonical);
 
-                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                    orderStatus.setCode(Constant.OrderStatus.ERROR_ASSIGNED.getCode());
-                                    orderStatus.setName(Constant.OrderStatus.ERROR_ASSIGNED.name());
+                });
 
-                                    orderCanonical.setOrderStatus(orderStatus);
-                                    return orderCanonical;
-                                }).collect(Collectors.toList())
-                        );
-
-                        return Flux.fromIterable(list);
-
-                    })
-                    .switchIfEmpty(Flux.defer(() -> {
-                        log.error("#assign orders statusCode ERROR:{}", newProjectedGroupCanonical);
-
-                        return Flux
-                                .fromIterable(groupCanonicals)
-                                .flatMap(group -> {
-
-                                    OrderCanonical orderCanonical = new OrderCanonical();
-                                    orderCanonical.setEcommerceId(group.getOrderId());
-
-                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                    orderStatus.setCode(Constant.OrderStatus.ERROR_ASSIGNED.getCode());
-                                    orderStatus.setName(Constant.OrderStatus.ERROR_ASSIGNED.name());
-                                    orderStatus.setDetail("Error when the orders have been assigned");
-                                    orderCanonical.setOrderStatus(orderStatus);
-
-                                    return Flux.just(orderCanonical);
-
-                                });
-                    }))
-                    .onErrorResume(e -> {
-                        e.printStackTrace();
-                        log.error("#assing orders:{} with ERROR:{}", newProjectedGroupCanonical, e.getMessage());
-
-                        return Flux
-                                .fromIterable(groupCanonicals)
-                                .flatMap(ecommerceId -> {
-
-                                    OrderCanonical orderCanonical = new OrderCanonical();
-                                    orderCanonical.setEcommerceId(ecommerceId.getOrderId());
-
-                                    OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                                    orderStatus.setCode(Constant.OrderStatus.ERROR_ASSIGNED.getCode());
-                                    orderStatus.setName(Constant.OrderStatus.ERROR_ASSIGNED.name());
-                                    orderStatus.setDetail("The response is failed when the orders have been assigneds:" +
-                                            "- detail:" + e.getMessage());
-                                    orderCanonical.setOrderStatus(orderStatus);
-
-                                    return Flux.just(orderCanonical);
-
-                                });
-
-                    });
     }
 
     public Flux<OrderCanonical> unassignOrders(UnassignedCanonical unassignedCanonical) {
