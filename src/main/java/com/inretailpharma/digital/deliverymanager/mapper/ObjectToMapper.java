@@ -406,6 +406,11 @@ public class ObjectToMapper {
                 || orderInkatrackerCanonical.getSubtotal().doubleValue() != orderInkatrackerCanonical.getSubTotalWithNoSpecificPaymentMethod().doubleValue()){
             if(iOrderFulfillment.getDiscountAppliedNoDP()!=null){
                 orderInkatrackerCanonical.setDiscountApplied(iOrderFulfillment.getDiscountAppliedNoDP().doubleValue());
+                BigDecimal discountAppliedNoDP = BigDecimal.valueOf(iOrderFulfillment.getDiscountAppliedNoDP().doubleValue());
+                BigDecimal discountApplied = BigDecimal.valueOf(iOrderFulfillment.getDiscountApplied().doubleValue());
+                BigDecimal subTotalCost = BigDecimal.valueOf(orderInkatrackerCanonical.getSubtotal().doubleValue());
+                discountApplied=discountApplied.subtract(discountAppliedNoDP);
+                orderInkatrackerCanonical.setSubtotal(subTotalCost.subtract(discountApplied).doubleValue());
             }
         }
         /** ********************* **/
