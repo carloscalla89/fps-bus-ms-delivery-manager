@@ -33,14 +33,14 @@ import reactor.core.scheduler.Schedulers;
 public class CancellationFacade extends FacadeAbstractUtil{
 
     private ExternalServicesProperties externalServicesProperties;
-    private UpdateTracker updateTracker;
+    private DeliveryManagerFacade deliveryManagerFacade;
 
     @Autowired
     public CancellationFacade(ExternalServicesProperties externalServicesProperties,
-                              @Qualifier("updateTracker") UpdateTracker updateTracker) {
+                              DeliveryManagerFacade deliveryManagerFacade) {
 
         this.externalServicesProperties = externalServicesProperties;
-        this.updateTracker = updateTracker;
+        this.deliveryManagerFacade = deliveryManagerFacade;
     }
 
     public Flux<CancellationCanonical> getOrderCancellationList(List<String> appType, String type) {
@@ -73,8 +73,8 @@ public class CancellationFacade extends FacadeAbstractUtil{
                                                 .updatedBy(Constant.TASK_LAMBDA_UPDATED_BY)
                                                 .build();
 
-                    return updateTracker
-                            .evaluate(actionDto,r.getEcommerceId().toString())
+                    return deliveryManagerFacade
+                            .getUpdateOrder(actionDto, r.getEcommerceId().toString())
                             .defaultIfEmpty(
                                     new OrderCanonical(
                                             r.getEcommerceId(),
@@ -108,7 +108,7 @@ public class CancellationFacade extends FacadeAbstractUtil{
                                 orderCancelledCanonical.setStatusCode(s.getOrderStatus().getCode());
                                 orderCancelledCanonical.setStatusName(s.getOrderStatus().getName());
                                 orderCancelledCanonical.setStatusDetail(s.getOrderStatus().getDetail());
-                                
+
                                 return Flux.just(orderCancelledCanonical);
                             }).defaultIfEmpty(
                                     new OrderCancelledCanonical(
