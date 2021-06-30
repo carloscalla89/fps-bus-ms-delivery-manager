@@ -69,8 +69,7 @@ public class ObjectToMapper {
 
         liquidationDto.setTransactionVisanet(orderCanonical.getPaymentMethod().getPaymentTransactionId());
         liquidationDto.setTransactionVisanetDate(
-                Optional.ofNullable(orderCanonical.getPaymentMethod().getTransactionDateVisanet())
-                        .map(DateUtils::getLocalDateTimeFormatUTC).orElse(null)
+                Optional.ofNullable(orderCanonical.getPaymentMethod().getTransactionVisaOrder()).orElse(null)
         );
         liquidationDto.setSource(orderCanonical.getSource());
         liquidationDto.setServiceType(orderCanonical.getOrderDetail().getServiceType());
@@ -1054,10 +1053,6 @@ public class ObjectToMapper {
         paymentMethod.setProviderCardCommercialCode(orderDto.getPayment().getProviderCardCommercialCode());
         paymentMethod.setNumPanVisanet(orderDto.getPayment().getNumPanVisaNet());
 
-        Optional.ofNullable(orderDto.getPayment().getTransactionDateVisaNet())
-                .filter(res -> GenericValidator.isDate(res, DateUtils.getFormatDateTimeTemplate(), true))
-                .ifPresent(res -> paymentMethod.setTransactionDateVisanet(DateUtils.getLocalDateTimeFromStringWithFormat(res)));
-
         orderFulfillment.setPaymentMethod(paymentMethod);
 
         // object receipt
@@ -1331,6 +1326,8 @@ public class ObjectToMapper {
         Optional.ofNullable(orderDto.getPayment().getTransactionDateVisaNet())
                 .filter(res -> GenericValidator.isDate(res, DateUtils.getFormatDateTimeTemplate(), true))
                 .ifPresent(paymentMethod::setTransactionDateVisanet);
+
+        paymentMethod.setTransactionVisaOrder(orderDto.getSchedules().getTransactionVisaOrder());
 
         orderCanonical.setPaymentMethod(paymentMethod);
 

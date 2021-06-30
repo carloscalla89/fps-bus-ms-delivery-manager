@@ -18,4 +18,5 @@ public class PaymentMethodCanonical {
     private String numPanVisanet;
     private String transactionDateVisanet;
     private String providerCardCommercialCode;
+    private String transactionVisaOrder;
 }

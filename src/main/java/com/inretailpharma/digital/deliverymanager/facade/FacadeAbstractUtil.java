@@ -226,11 +226,10 @@ public abstract class FacadeAbstractUtil {
                                     storeCenter
                             );
 
-                            orderCanonicalResponse.setStoreCenter(storeCenter);
+                    iAuditAdapter.createAudit(orderCanonicalResponse, Constant.UPDATED_BY_INIT);
 
-                            iAuditAdapter.createAudit(orderCanonicalResponse, Constant.UPDATED_BY_INIT);
 
-                            return orderCanonicalResponse;
+                    return orderCanonicalResponse;
                 })
                 .flatMap(order -> {
                     log.info("[START] Preparation to send order:{}, companyCode:{}, status:{}, classImplement:{}",
