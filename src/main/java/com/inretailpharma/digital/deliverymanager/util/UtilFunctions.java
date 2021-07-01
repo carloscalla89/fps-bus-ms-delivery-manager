@@ -94,13 +94,8 @@ public class UtilFunctions {
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.READY_PICKUP_ORDER.name())) {
 
-                            if (cancelCode != null && cancelCode.equalsIgnoreCase(Constant.CANCELLATION_CODE_EXP)) {
-                                statusDto.setCode(Constant.LIQUIDATION_STATUS_AUTOMATIC_CANCELLED_CODE);
-                                statusDto.setName(Constant.LIQUIDATION_STATUS_AUTOMATIC_CANCELLED);
-                            } else {
-                                statusDto.setCode(Constant.LIQUIDATION_STATUS_CANCELLED_CODE);
-                                statusDto.setName(Constant.LIQUIDATION_STATUS_CANCELLED);
-                            }
+                            statusDto.setCode(Constant.LIQUIDATION_STATUS_CANCELLED_CODE);
+                            statusDto.setName(Constant.LIQUIDATION_STATUS_CANCELLED);
 
                         } else {
 
