@@ -561,6 +561,7 @@ public class ObjectToMapper {
                                 .orElse(NumberUtils.DOUBLE_ZERO)
                 );
                 itemDto.setFractionalDiscount(product.getFractionalDiscount());
+                itemDto.setPromotionalDiscount(product.getPromotionalDiscount());
                 orderItems.add(itemDto);
             }
 
