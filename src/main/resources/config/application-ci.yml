@@ -23,7 +23,7 @@ external-service:
       read-timeout: 60000
     legacy-system:
       uri: http://us-dd/order/legacy-system
-      uri-mifarma: http://ddmfci02.backend.cindibyinkafarma.com/order/legacy-system
+      uri-mifarma: http://ddmf.backend.cindibyinkafarma.com/order/legacy-system
       connect-timeout: 30000
       read-timeout: 60000
     order-ecommerce:
