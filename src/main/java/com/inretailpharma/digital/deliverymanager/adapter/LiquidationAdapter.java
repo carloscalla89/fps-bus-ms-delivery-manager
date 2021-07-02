@@ -64,7 +64,8 @@ public class LiquidationAdapter extends AdapterAbstractUtil implements ILiquidat
     }
 
     @Override
-    public Mono<OrderCanonical> updateOrder(OrderCanonical orderCanonical,LiquidationCanonical liquidationCanonical) {
+    public Mono<OrderCanonical> updateOrder(OrderCanonical orderCanonical,LiquidationCanonical liquidationCanonical,
+                                            String origin) {
 
         return Mono
                 .just(getStatusLiquidation(liquidationCanonical, orderCanonical))

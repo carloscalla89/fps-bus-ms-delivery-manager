@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.facade;
 import com.inretailpharma.digital.deliverymanager.adapter.LiquidationAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -53,9 +54,9 @@ public class LiquidationFacade extends FacadeAbstractUtil {
 
     }
 
-    public Mono<OrderCanonical> evaluateUpdate(OrderCanonical orderCanonical, String action) {
+    public Mono<OrderCanonical> evaluateUpdate(OrderCanonical orderCanonical, ActionDto actionDto) {
 
-        if (getValueBoolenOfParameter() && !action.equalsIgnoreCase(Constant.ActionOrder.LIQUIDATE_ORDER.name())) {
+        if (getValueBoolenOfParameter() && !actionDto.getAction().equalsIgnoreCase(Constant.ActionOrder.LIQUIDATE_ORDER.name())) {
 
             return Mono
                     .just(orderCanonical)
@@ -68,7 +69,7 @@ public class LiquidationFacade extends FacadeAbstractUtil {
 
                             StatusDto liquidationStatus = UtilFunctions.processLiquidationStatus.process(
                                     result.getStatus(), orderCanonical.getOrderStatus().getFirstStatusName(),
-                                    action, orderCanonical.getOrderStatus().getCancellationCode(), orderCanonical.getOrderDetail().getServiceType());
+                                    actionDto.getAction(), orderCanonical.getOrderStatus().getCancellationCode(), orderCanonical.getOrderDetail().getServiceType());
 
                             result.setCode(liquidationStatus.getCode());
                             result.setStatus(liquidationStatus.getName());
@@ -78,7 +79,7 @@ public class LiquidationFacade extends FacadeAbstractUtil {
                     })
                     .flatMap(result ->
                             iLiquidationAdapter
-                                    .updateOrder(orderCanonical, result)
+                                    .updateOrder(orderCanonical, result, actionDto.getOrigin())
                                     .flatMap(resultOrder -> {
 
                                         orderTransaction.updateLiquidationStatusOrder(

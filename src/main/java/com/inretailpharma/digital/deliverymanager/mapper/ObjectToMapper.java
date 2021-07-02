@@ -86,6 +86,8 @@ public class ObjectToMapper {
         liquidationDto.setDocumentNumber(orderCanonical.getClient().getDocumentNumber());
         liquidationDto.setPhone(orderCanonical.getClient().getPhone());
 
+        liquidationDto.setOrigin(orderCanonical.getSource());
+
         return liquidationDto;
 
     }

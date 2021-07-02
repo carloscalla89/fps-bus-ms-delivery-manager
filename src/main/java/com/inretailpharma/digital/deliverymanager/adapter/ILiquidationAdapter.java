@@ -8,5 +8,6 @@ public interface ILiquidationAdapter {
 
     Mono<OrderCanonical> createOrder(OrderCanonical completeOrder, LiquidationCanonical liquidationCanonical);
 
-    Mono<OrderCanonical> updateOrder(OrderCanonical orderCanonical, LiquidationCanonical liquidationCanonical);
+    Mono<OrderCanonical> updateOrder(OrderCanonical orderCanonical, LiquidationCanonical liquidationCanonical,
+                                     String origin);
 }

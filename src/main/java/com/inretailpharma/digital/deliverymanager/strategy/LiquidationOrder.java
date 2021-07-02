@@ -130,7 +130,7 @@ public class LiquidationOrder extends FacadeAbstractUtil implements IActionStrat
                             .enabled(true)
                             .code(liquidationStatus.getCode())
                             .status(liquidationStatus.name())
-                            .build())
+                            .build(), actionDto.getOrigin())
                     .flatMap(resultOrder -> {
 
                         orderTransaction.updateLiquidationStatusOrder(
