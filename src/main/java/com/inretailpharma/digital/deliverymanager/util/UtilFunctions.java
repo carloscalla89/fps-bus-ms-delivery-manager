@@ -89,7 +89,9 @@ public class UtilFunctions {
                     case Constant.ACTION_CANCEL_ORDER:
                     case Constant.ACTION_REJECT_ORDER:
 
-                        if (firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
+                        if (firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CHECKOUT_ORDER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.READY_PICKUP_ORDER.name())) {

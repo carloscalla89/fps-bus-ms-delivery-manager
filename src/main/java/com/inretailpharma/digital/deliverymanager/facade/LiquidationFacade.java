@@ -64,7 +64,7 @@ public class LiquidationFacade extends FacadeAbstractUtil {
                     .defaultIfEmpty(LiquidationCanonical.builder().enabled(false).build())
                     .filter(LiquidationCanonical::getEnabled)
                     .flatMap(result -> {
-
+                        log.info("evaluateUpdate liquidation result:{}",result);
                         if (result.getStatus() == null) {
 
                             StatusDto liquidationStatus = UtilFunctions.processLiquidationStatus.process(

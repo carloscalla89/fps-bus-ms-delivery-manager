@@ -138,6 +138,8 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
             if (Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
                     || Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
 
+                utilClass.setFirstOrderStatusName(Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
+
                 return iStoreAdapter
                         .getStoreByCompanyCodeAndLocalCode(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
                         .flatMap(resultStore -> iTrackerAdapter
