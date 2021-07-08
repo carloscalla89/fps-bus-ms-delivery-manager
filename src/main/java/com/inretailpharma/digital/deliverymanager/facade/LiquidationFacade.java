@@ -79,7 +79,7 @@ public class LiquidationFacade extends FacadeAbstractUtil {
                     })
                     .flatMap(result ->
                             iLiquidationAdapter
-                                    .updateOrder(orderCanonical, result, actionDto.getOrigin())
+                                    .updateOrder(orderCanonical, result)
                                     .flatMap(resultOrder -> {
 
                                         orderTransaction.updateLiquidationStatusOrder(

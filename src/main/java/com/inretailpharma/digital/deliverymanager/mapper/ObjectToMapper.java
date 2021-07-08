@@ -86,7 +86,7 @@ public class ObjectToMapper {
         liquidationDto.setDocumentNumber(orderCanonical.getClient().getDocumentNumber());
         liquidationDto.setPhone(orderCanonical.getClient().getPhone());
 
-        liquidationDto.setOrigin(orderCanonical.getSource());
+        liquidationDto.setOrigin(Constant.ORIGIN_DELIVERY_MANAGER);
 
         return liquidationDto;
 
@@ -100,6 +100,7 @@ public class ObjectToMapper {
         statusDto.setDetail(orderCanonical.getOrderStatus().getDetail());
         statusDto.setCancellationCode(orderCanonical.getOrderStatus().getCancellationCode());
         statusDto.setCancellationDescription(orderCanonical.getOrderStatus().getCancellationDescription());
+        statusDto.setOrigin(Constant.ORIGIN_DELIVERY_MANAGER);
 
         return statusDto;
     }

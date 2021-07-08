@@ -64,14 +64,13 @@ public class LiquidationAdapter extends AdapterAbstractUtil implements ILiquidat
     }
 
     @Override
-    public Mono<OrderCanonical> updateOrder(OrderCanonical orderCanonical,LiquidationCanonical liquidationCanonical,
-                                            String origin) {
+    public Mono<OrderCanonical> updateOrder(OrderCanonical orderCanonical,LiquidationCanonical liquidationCanonical) {
 
         return Mono
                 .just(getStatusLiquidation(liquidationCanonical, orderCanonical))
-                .flatMap(result ->
+                .flatMap(statusDto ->
                         liquidationExternalService
-                                .updateOrderToLiquidation(orderCanonical.getEcommerceId().toString(),result)
+                                .updateOrderToLiquidation(orderCanonical.getEcommerceId().toString(),statusDto)
                                 .flatMap(order -> {
 
                                     orderCanonical.setLiquidation(
