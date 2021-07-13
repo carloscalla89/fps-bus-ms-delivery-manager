@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderSynchronizeDto;
 import com.inretailpharma.digital.deliverymanager.service.OrderCancellationService;
@@ -104,6 +105,25 @@ public class TrackerFacade extends FacadeAbstractUtil{
 								projectedGroupCanonical.getUpdateBy(), null)
 				)
 				.flatMap(result -> iAuditAdapter.updateAudit(result, projectedGroupCanonical.getUpdateBy()))
+                .onErrorContinue((e,o) -> {
+                    e.printStackTrace();
+                    log.error("Error during update status order assigning - error:{}, object:{}",e.getMessage(), o);
+
+                    Long ecommerceId;
+
+                    if (o instanceof OrderCanonical) {
+                        ecommerceId = ((OrderCanonical)o).getEcommerceId();
+                    } else {
+                        ecommerceId = 0L;
+                    }
+
+                    processErrorOrdersToSendAudit(
+                            "Error during update status order assigning " + o + " - error: " + e.getMessage() +
+                                    " - groupname:" + projectedGroupCanonical.getGroupName(),
+                            Collections.singletonList(ecommerceId), projectedGroupCanonical.getUpdateBy()
+                    );
+
+                })
 				.buffer()
 				.flatMap(resultFinal -> {
 					log.info("The processs of assigned is success");
@@ -124,12 +144,21 @@ public class TrackerFacade extends FacadeAbstractUtil{
 									.getGroup().stream().map(GroupCanonical::getOrderId)
 									.collect(Collectors.toList())
 					);
+
+                    processErrorOrdersToSendAudit(
+                            "The process of assigned is empty" +
+                                    " - groupname:" + projectedGroupCanonical.getGroupName(),
+                            projectedGroupCanonical
+                                    .getGroup().stream().map(GroupCanonical::getOrderId)
+                                    .collect(Collectors.toList()), projectedGroupCanonical.getUpdateBy()
+                    );
+
 					return Mono.just(response);
 
 				}))
 				.onErrorResume(e -> {
 					e.printStackTrace();
-					log.error("The process of assigned is failed");
+					log.error("The process of assigned of orders is failed");
 
 					OrderAssignResponseCanonical response = new OrderAssignResponseCanonical();
 					response.setStatusCode(Constant.OrderTrackerResponseCode.ASSIGN_ERROR_CODE);
@@ -139,6 +168,14 @@ public class TrackerFacade extends FacadeAbstractUtil{
 									.getGroup().stream().map(GroupCanonical::getOrderId)
 									.collect(Collectors.toList())
 					);
+
+                    processErrorOrdersToSendAudit(
+                            "The process of assigned of orders is failed - error  " + e.getMessage() +
+                                    " - groupname:" + projectedGroupCanonical.getGroupName(),
+                            projectedGroupCanonical
+                                    .getGroup().stream().map(GroupCanonical::getOrderId)
+                                    .collect(Collectors.toList()), projectedGroupCanonical.getUpdateBy()
+                    );
 
 					return Mono.just(response);
 				})
@@ -222,7 +259,6 @@ public class TrackerFacade extends FacadeAbstractUtil{
                             .flatMap(statusLast -> {
 
                                 // Se envía el último estado para que se registre en la DB fulfillment y su tracker
-
 
 								ActionDto actionDto = ActionDto
 														.builder()
@@ -309,5 +345,20 @@ public class TrackerFacade extends FacadeAbstractUtil{
 				.ordered((o1, o2) -> o2.getEcommerceId().intValue() - o1.getEcommerceId().intValue());
 
 	}
+
+	private void processErrorOrdersToSendAudit(String errorDetail, List<Long> ecommercesIds, String updateBy) {
+
+        ecommercesIds.stream().forEach(val -> {
+            OrderCanonical orderCanonical = new OrderCanonical();
+            OrderStatusCanonical orderStatus = new OrderStatusCanonical();
+            orderStatus.setCode(Constant.OrderStatus.ERROR_ASSIGNED.getCode());
+            orderStatus.setName(Constant.OrderStatus.ERROR_ASSIGNED.name());
+            orderStatus.setDetail(errorDetail);
+            orderCanonical.setOrderStatus(orderStatus);
+            orderCanonical.setEcommerceId(val);
+            iAuditAdapter.updateAudit(orderCanonical, updateBy);
+        });
+
+    }
 
 }
