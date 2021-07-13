@@ -1,0 +1,123 @@
+spring:
+  datasource:
+    url: jdbc:mysql://uatfulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/uatfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
+    username: operaciones
+    password: Operaciones2020
+external-service:
+  audit:
+    create-order: http://us-audit/audit/order
+    create-order-history-audit: http://us-audit/audit/order/history
+    update-order-history-audit: http://us-audit/audit/order/history
+    connect-timeout: 10000
+    read-timeout: 10000
+  dispatcher:
+    insink-tracker:
+      uri: http://us-dd/order/insink-tracker
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/insink-tracker
+      connect-timeout: 30000
+      read-timeout: 60000
+    tracker:
+      uri: http://us-dd/order/tracker
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/tracker
+      connect-timeout: 30000
+      read-timeout: 60000
+    legacy-system:
+      uri: http://us-dd/order/legacy-system
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/legacy-system
+      connect-timeout: 30000
+      read-timeout: 60000
+    order-ecommerce:
+      uri: http://us-dd/order/ecommerce
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/ecommerce
+      connect-timeout: 30000
+      read-timeout: 60000
+  inkatracker-lite:
+    create-order:
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/orders/create
+      connect-timeout: 30000
+      read-timeout: 60000
+    update-order:
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/v2/unattended-orders
+      connect-timeout: 30000
+      read-timeout: 60000
+    update-onlinepayment-status-order:
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
+      connect-timeout: 30000
+      read-timeout: 60000
+  inkatracker:
+    create-order:
+      uri: http://us-inkatracker/nvr/orders/create
+      connect-timeout: 30000
+      read-timeout: 60000
+    update-order:
+      uri: http://us-inkatracker/nvr/orders/create
+      connect-timeout: 30000
+      read-timeout: 60000
+    update-status-order:
+      uri: http://us-inkatracker/nvr/orders
+      connect-timeout: 30000
+      read-timeout: 60000
+    update-onlinepayment-status-order:
+      uri: http://us-inkatracker/nvr/onlinepayment/orders
+      connect-timeout: 30000
+      read-timeout: 60000
+  order-tracker:
+    create-order:
+      uri: http://us-ordertracker/order
+      connect-timeout: 10000
+      read-timeout: 120000
+    assign-orders:
+      uri: http://us-ordertracker/orders/status/assigned
+      connect-timeout: 10000
+      read-timeout: 120000
+    unassign-orders:
+      uri: http://us-ordertracker/orders/status/unassigned
+      connect-timeout: 10000
+      read-timeout: 120000
+    update-order-status:
+      uri: http://us-ordertracker/order
+      connect-timeout: 10000
+      read-timeout: 120000
+  fulfillment-center:
+    get-center:
+      uri: http://fulfillment-centeruat.backend.cindibyinkafarma.com/fulfillment/store/
+      connect-timeout: 15000
+      read-timeout: 30000
+  seller-center:
+    get-controversies:
+      uri: http://uS-Seller-Center/sellercenter/orders/
+      connect-timeout: 10000
+      read-timeout: 120000
+    add-controversy:
+      uri: http://uS-Seller-Center/sellercenter/orders/
+      connect-timeout: 10000
+      read-timeout: 120000l
+  online-payment:
+    liquidated:
+      uri: https://visauat.cindibyinkafarma.com/visa/confirmation
+      uri-mifa: https://visamfuat.cindibyinkafarma.com/visa/confirmation
+      connect-timeout: 10000
+      read-timeout: 120000
+    rejected:
+      uri: https://visauat.cindibyinkafarma.com/visa/rejected
+      uri-mifa: https://visamfuat.cindibyinkafarma.com/visa/rejected
+      connect-timeout: 10000
+      read-timeout: 120000
+  notification-lambda:
+    send-message:
+      uri: https://h66xgj99rd.execute-api.us-east-1.amazonaws.com/UAT/messaging
+      connect-timeout: 10000
+      read-timeout: 120000
+  liquidation:
+    create-order:
+      uri: http://us-liquidation/omni/liquidation/v1.0.0/orders
+      connect-timeout: 10000
+      read-timeout: 120000
+    update-order:
+      uri: http ://us-liquidation/omni/liquidation/v1.0.0/orders
+      connect-timeout: 10000
+      read-timeout: 120000
+
+api:
+  insink:
+    stock: http://200.37.146.169:9383/comanda-stock/{orderId}

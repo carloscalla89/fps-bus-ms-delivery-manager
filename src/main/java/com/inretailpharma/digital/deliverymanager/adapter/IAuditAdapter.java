@@ -9,4 +9,6 @@ public interface IAuditAdapter {
 
     Mono<OrderCanonical> updateAudit(OrderCanonical orderCanonical, String updateBy);
 
+    Mono<OrderCanonical> createAuditOnlyMysql(OrderCanonical orderCanonical, String updateBy);
+
 }
