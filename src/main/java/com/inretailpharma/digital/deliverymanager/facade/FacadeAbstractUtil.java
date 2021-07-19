@@ -198,9 +198,6 @@ public abstract class FacadeAbstractUtil {
                 .orElse(false);
     }
 
-    protected OrderCanonical updatePartialOrder(OrderDto partialOrderDto) {
-        return orderTransaction.updatePartialOrder(partialOrderDto);
-    }
 
     protected Mono<OrderCanonical> createOrderFulfillment(OrderDto orderDto) {
 
@@ -226,10 +223,11 @@ public abstract class FacadeAbstractUtil {
                                     storeCenter
                             );
 
-                    iAuditAdapter.createAudit(orderCanonicalResponse, Constant.UPDATED_BY_INIT);
+                            orderCanonicalResponse.setStoreCenter(storeCenter);
 
+                        iAuditAdapter.createAudit(orderCanonicalResponse, Constant.UPDATED_BY_INIT);
 
-                    return orderCanonicalResponse;
+                        return orderCanonicalResponse;
                 })
                 .flatMap(order -> {
                     log.info("[START] Preparation to send order:{}, companyCode:{}, status:{}, classImplement:{}",
