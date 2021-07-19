@@ -31,7 +31,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join order_status os on os.code = ops.order_status_code " +
             "inner join service_type st on st.code = ops.service_type_code " +
             "where DATE_FORMAT(DATE_ADD(o.scheduled_time, INTERVAL :maxDayPickup DAY), '%Y-%m-%d') < DATE_FORMAT(NOW(), '%Y-%m-%d') " +
-            "and st.type = :serviceType and os.type in :statustype and ops.company_code = :companyCode",
+            "and st.type = :serviceType and os.type in :statustype and ops.company_code = :companyCode " +
+            "group by o.ecommerce_purchase_id order by scheduled_time desc ",
             nativeQuery = true
     )
     List<IOrderFulfillment> getListOrdersToCancel(@Param("serviceType") String serviceType,
@@ -80,7 +81,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
             "inner join receipt_type rt on rt.order_fulfillment_id = o.id " +
             "inner join address_fulfillment af on af.order_fulfillment_id = o.id " +
-            "where o.ecommerce_purchase_id = :ecommerceId",
+            "where o.ecommerce_purchase_id = :ecommerceId " +
+            "group by o.ecommerce_purchase_id order by scheduled_time desc ",
             nativeQuery = true
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
@@ -132,7 +134,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
             "inner join receipt_type rt on rt.order_fulfillment_id = o.id " +
             "inner join address_fulfillment af on af.order_fulfillment_id = o.id " +
-            "where o.ecommerce_purchase_id in :ecommercesIds",
+            "where o.ecommerce_purchase_id in :ecommercesIds " +
+            "group by o.ecommerce_purchase_id order by scheduled_time desc ",
             nativeQuery = true
     )
     List<IOrderFulfillment> getOrdersByEcommerceIds(@Param("ecommercesIds") Set<Long> ecommercesIds);
@@ -155,7 +158,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join order_status os on os.code = s.order_status_code " +
             "inner join service_type st on st.code = s.service_type_code " +
             "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
-            "where o.ecommerce_purchase_id = :ecommerceId",
+            "where o.ecommerce_purchase_id = :ecommerceId " +
+            "group by o.ecommerce_purchase_id order by scheduled_time desc ",
             nativeQuery = true
     )
     List<IOrderFulfillment> getOrderLightByecommerceId(@Param("ecommerceId") Long ecommerceId);
@@ -180,7 +184,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join order_status os on os.code = s.order_status_code " +
             "inner join service_type st on st.code = s.service_type_code " +
             "inner join payment_method pm on pm.order_fulfillment_id = o.id " +
-            "where o.ecommerce_purchase_id in :ecommercesIds",
+            "where o.ecommerce_purchase_id in :ecommercesIds " +
+            "group by o.ecommerce_purchase_id order by scheduled_time desc ",
             nativeQuery = true
     )
     List<IOrderFulfillment> getOrderLightByecommercesIds(@Param("ecommercesIds") Set<Long> ecommercesIds);
@@ -212,7 +217,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "left join card_provider card on pay.card_provider=card.name and paymet.payment_method_id = card.payment_method_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id "+
             "inner join order_status os on os.code = s.order_status_code "+
-            "where o.ecommerce_purchase_id = :orderNumber",
+            "where o.ecommerce_purchase_id = :orderNumber " +
+            "group by o.ecommerce_purchase_id order by scheduled_time desc ",
             nativeQuery = true)
 	Optional<IOrderResponseFulfillment> getOrderByOrderNumber(@Param("orderNumber") Long orderNumber);
 

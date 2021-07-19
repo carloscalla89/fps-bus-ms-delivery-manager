@@ -13,6 +13,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusC
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
@@ -21,6 +22,8 @@ import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -72,6 +75,12 @@ public abstract class FacadeAbstractUtil {
 
     protected IOrderFulfillment getOnlyOrderByecommerceId(Long ecommerceId) {
         return orderTransaction.getOnlyOrderStatusByecommerceId(ecommerceId);
+    }
+
+    protected boolean existOrder(Long ecommerceId) {
+        return Optional
+                .ofNullable(orderTransaction.getOnlyOrderStatusByecommerceId(ecommerceId))
+                .isPresent();
     }
 
     protected boolean getOnlyOrderStatusFinalByecommerceId(Long ecommerceId) {
@@ -203,20 +212,25 @@ public abstract class FacadeAbstractUtil {
 
         return Mono
                 .defer(() -> iStoreAdapter.getStoreByCompanyCodeAndLocalCode(orderDto.getCompanyCode(), orderDto.getLocalCode()))
-                .zipWith(Mono.just(objectToMapper.convertOrderdtoToOrderEntity(orderDto)), (storeCenter, orderFulfillment) -> {
+                .zipWith(
+                        Mono.just(existOrder(orderDto.getEcommercePurchaseId()))
+                                .filter(val -> !val)
+                                .switchIfEmpty(
+                                        Mono.defer(() ->
+                                                Mono.error(new CustomException("Order already exist", HttpStatus.INTERNAL_SERVER_ERROR.value())))),
+                        (storeCenter, existOrder) -> {
 
-                    OrderCanonical orderCanonicalResponse = orderTransaction
-                            .processOrderTransaction(
-                                    orderFulfillment,
+                            OrderCanonical orderCanonicalResponse = orderTransaction.processOrderTransaction(
+                                    objectToMapper.convertOrderdtoToOrderEntity(orderDto),
                                     orderDto,
                                     storeCenter
                             );
-                    orderCanonicalResponse.setStoreCenter(storeCenter);
 
+                            orderCanonicalResponse.setStoreCenter(storeCenter);
 
-                    iAuditAdapter.createAudit(orderCanonicalResponse, Constant.UPDATED_BY_INIT);
+                            iAuditAdapter.createAudit(orderCanonicalResponse, Constant.UPDATED_BY_INIT);
 
-                    return orderCanonicalResponse;
+                            return orderCanonicalResponse;
                 })
                 .flatMap(order -> {
                     log.info("[START] Preparation to send order:{}, companyCode:{}, status:{}, classImplement:{}",
@@ -285,7 +299,7 @@ public abstract class FacadeAbstractUtil {
                     OrderCanonical orderStatusCanonical = new OrderCanonical(
                             orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
                             Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode(),
-                            orderDto.getSource(), orderDto.getServiceTypeCode()
+                            orderDto.getSource(), orderDto.getServiceTypeCode(), "Error empty Creating the order"
                     );
 
                     iAuditAdapter.createAudit(orderStatusCanonical, Constant.UPDATED_BY_INIT);
@@ -301,10 +315,10 @@ public abstract class FacadeAbstractUtil {
                     OrderCanonical orderStatusCanonical = new OrderCanonical(
                             orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
                             Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode(),
-                            orderDto.getSource(), orderDto.getServiceTypeCode()
+                            orderDto.getSource(), orderDto.getServiceTypeCode(), e.getMessage()
                     );
 
-                    iAuditAdapter.createAudit(orderStatusCanonical, Constant.UPDATED_BY_INIT);
+                    iAuditAdapter.createAuditOnlyMysql(orderStatusCanonical, Constant.UPDATED_BY_INIT);
 
                     return Mono.just(orderStatusCanonical);
                 })

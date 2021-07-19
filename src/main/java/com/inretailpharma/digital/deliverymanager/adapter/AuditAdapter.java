@@ -38,4 +38,12 @@ public class AuditAdapter extends  AdapterAbstractUtil implements IAuditAdapter{
 
         return Mono.just(orderAudit);
     }
+
+    @Override
+    public Mono<OrderCanonical> createAuditOnlyMysql(OrderCanonical orderAudit, String updateBy) {
+
+        orderExternalServiceAudit.createOrderNewAudit(getAuditHistoryDtoFromObject(orderAudit, updateBy)).subscribe();
+
+        return Mono.just(orderAudit);
+    }
 }

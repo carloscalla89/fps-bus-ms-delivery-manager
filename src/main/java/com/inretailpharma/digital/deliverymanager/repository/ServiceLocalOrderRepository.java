@@ -34,7 +34,8 @@ public interface ServiceLocalOrderRepository extends JpaRepository<ServiceLocalO
     @Transactional
     @Query(value = "Update order_process_status " +
             " set status_detail = :statusDetail, order_status_code = :orderStatusCode, date_last_updated = :dateLastUpdated" +
-            " where order_fulfillment_id = (select id from order_fulfillment where ecommerce_purchase_id = :ecommerceId)",
+            " where order_fulfillment_id = " +
+            " (select id from order_fulfillment where ecommerce_purchase_id = :ecommerceId order by created_order desc limit 1)",
             nativeQuery = true)
     void updateStatusOrder(@Param("statusDetail") String statusDetail,
                            @Param("orderStatusCode") String orderStatusCode,
