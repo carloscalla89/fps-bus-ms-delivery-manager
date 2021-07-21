@@ -2,7 +2,6 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 
 import java.util.ArrayList;
 
-
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;

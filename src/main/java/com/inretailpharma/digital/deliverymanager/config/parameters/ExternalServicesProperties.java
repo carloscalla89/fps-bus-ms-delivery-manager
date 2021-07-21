@@ -254,4 +254,5 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.insink.get-order-callcenter.read-timeout}")
     private String insinkGetOrderCallcenterReadTimeout;
+
 }

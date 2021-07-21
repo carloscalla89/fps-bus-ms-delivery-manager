@@ -16,10 +16,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     private static final String TIME_TEMPLATE = "HH:mm:ss";
     private static final String TIME_TEMPLATE_HOUR_MINUTE = "HH:mm";
     private static final String DATE_TEMPLATE = "yyyy-MM-dd";
-    private static final String FORMATE_DATE_CUSTOM = "EEEE, dd MMMM";
     private static final String DATETIME_TEMPLATE = "yyyy-MM-dd HH:mm:ss";
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_TEMPLATE);
-    private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(DATETIME_TEMPLATE);
 
     public static boolean validFormatDateTimeFormat(String dateTime) {
 

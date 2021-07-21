@@ -243,11 +243,11 @@ public interface Constant {
         CHECKOUT_ORDER(4, "Acción para poner el estado checkout al inkatracker",8,
                 METHOD_UPDATE, UpdateTracker.class),
 
-        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
-                METHOD_UPDATE, com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment.class),
-
         FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0,
                 METHOD_CREATE, FillOrder.class),
+
+        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
+                METHOD_UPDATE, com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment.class),
 
         LIQUIDATE_ORDER(7,"Acción para enviar el estado al dominio de liquidacion", 11,
                 METHOD_UPDATE, LiquidationOrder.class),
