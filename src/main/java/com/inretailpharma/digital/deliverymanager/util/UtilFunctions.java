@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class UtilFunctions {
 
-    public static ProcessFunctionInterface getSuccessResponseFunction =
+    public final static ProcessFunctionInterface getSuccessResponseFunction =
             (y,z,e, x, i, s,c) -> {
                 log.info("success response ecommerceId:{}, action:{}",y,z);
                 OrderCanonical orderCanonical = new OrderCanonical();
@@ -36,7 +36,7 @@ public class UtilFunctions {
 
             };
 
-    public static ProcessFunctionInterface getErrorResponseFunction =
+    public final static ProcessFunctionInterface getErrorResponseFunction =
             (y,z,e, x, i, s, c) -> {
 
                 OrderCanonical orderCanonical = new OrderCanonical();
@@ -63,7 +63,7 @@ public class UtilFunctions {
 
 
 
-    public static LiquidationStatus processLiquidationStatus =
+    public final static LiquidationStatus processLiquidationStatus =
             (liquidationStatus, firstDigitalStatus,  action, cancelCode, serviceType) -> {
 
                 StatusDto statusDto = new StatusDto();
