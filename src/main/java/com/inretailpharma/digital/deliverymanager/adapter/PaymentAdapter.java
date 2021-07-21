@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.inretailpharma.digital.deliverymanager.util.Constant.OrderStatus.SUCCESS_RESULT_ONLINE_PAYMENT;
 
 @Slf4j
 @Component
@@ -38,7 +37,7 @@ public class PaymentAdapter implements IPaymentAdapter{
                 .map(r -> {
                     log.info("[START] to update online payment order = {}", r);
                     String onlinePaymentStatus = "";
-                    if(SUCCESS_RESULT_ONLINE_PAYMENT.getCode().equals(r.getOrderStatus().getCode())) {
+                    if(Constant.OrderStatus.SUCCESS_RESULT_ONLINE_PAYMENT.getCode().equals(r.getOrderStatus().getCode())) {
                         Constant.OrderStatus status = Constant.OrderStatus.getByName(actionDto.getAction());
                         OrderStatusCanonical paymentRsp = new OrderStatusCanonical();
                         paymentRsp.setCode(status.getCode());
