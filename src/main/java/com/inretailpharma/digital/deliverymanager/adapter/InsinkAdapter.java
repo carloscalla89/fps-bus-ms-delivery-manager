@@ -30,7 +30,7 @@ public class InsinkAdapter extends AdapterAbstractUtil implements IInsinkAdapter
                 .uri(builder ->
                         builder
                                 .path("/{orderId}")
-                                .build(ecommerceId))
+                                .build(ecommerceId.toString()))
                 .exchange()
                 .flatMap(clientResponse -> {
 

@@ -20,31 +20,31 @@ external-service:
       connect-timeout: 30000
       read-timeout: 60000
     tracker:
-      uri: http://ddqa02.backend.cindibyinkafarma.com/order/tracker
-      uri-mifarma: http://ddmfqa.backend.cindibyinkafarma.com/order/tracker
+      uri: http://dduat.backend.cindibyinkafarma.com/order/tracker
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/tracker
       connect-timeout: 30000
       read-timeout: 60000
     legacy-system:
-      uri: http://ddci02.backend.cindibyinkafarma.com/order/legacy-system
-      uri-mifarma: http://ddmfci02.backend.cindibyinkafarma.com/order/legacy-system
+      uri: http://dduat.backend.cindibyinkafarma.com/order/legacy-system
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/legacy-system
       connect-timeout: 30000
       read-timeout: 60000
     order-ecommerce:
-      uri: http://ddci02.backend.cindibyinkafarma.com/order/ecommerce
-      uri-mifarma: http://ddmfci02.backend.cindibyinkafarma.com/order/ecommerce
+      uri: http://dduat.backend.cindibyinkafarma.com/order/ecommerce
+      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/ecommerce
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker-lite:
     create-order:
-      uri: http://inkatrackerliteci02.backend.cindibyinkafarma.com/nvr/orders/create
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://inkatrackerliteci02.backend.cindibyinkafarma.com/v2/unattended-orders
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/v2/unattended-orders
       connect-timeout: 30000
       read-timeout: 60000
     update-onlinepayment-status-order:
-      uri: http://inkatrackerliteci02.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
+      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker:
