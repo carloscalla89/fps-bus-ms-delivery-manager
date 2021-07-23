@@ -5,7 +5,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.facade.FacadeAbstractUtil;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

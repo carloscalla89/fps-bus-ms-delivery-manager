@@ -137,6 +137,19 @@ public abstract class AdapterAbstractUtil {
         return externalServicesProperties.getDispatcherLegacySystemUri();
     }
 
+    protected String uriGetInsinkCallCenter() {
+        return externalServicesProperties.getInsinkGetOrderCallcenterUri();
+    }
+
+    protected String connectTimeOutGetInsinkCallCenter() {
+        return externalServicesProperties.getInsinkGetOrderCallcenterConnectTimeout();
+    }
+
+    protected String readTimeOutGetInsinkCallCenter() {
+
+        return externalServicesProperties.getInsinkGetOrderCallcenterReadTimeout();
+    }
+
     protected String uriRetryDDmifa() {
         return externalServicesProperties.getDispatcherLegacySystemUriMifarma();
     }
