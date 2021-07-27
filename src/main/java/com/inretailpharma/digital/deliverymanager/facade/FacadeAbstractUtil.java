@@ -284,7 +284,34 @@ public abstract class FacadeAbstractUtil {
                                         )
                                 )
                                 .flatMap(response -> iAuditAdapter.updateAudit(response, Constant.UPDATED_BY_INIT))
-                                .flatMap(response -> liquidationFacade.create(response, order));
+                                .flatMap(response -> liquidationFacade.create(response, order))
+                                .onErrorResume(e -> {
+                                    e.printStackTrace();
+
+                                    log.error("Error sending to tracker the order :{}",order);
+
+                                    // Cuando la orden ha fallado al enviar a los trackers
+                                    OrderCanonical orderErrorTracker = new OrderCanonical(
+                                            order.getEcommerceId(), Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(),
+                                            Constant.OrderStatus.ERROR_INSERT_TRACKER.name(), e.getMessage()
+                                    );
+
+                                    return updateOrderInfulfillment(
+                                            orderErrorTracker,
+                                            order.getId(),
+                                            order.getEcommerceId(),
+                                            order.getExternalId(),
+                                            null,
+                                            null,
+                                            order.getSource(),
+                                            Constant.TrackerImplementation
+                                                    .getClassImplement(order.getOrderDetail().getServiceClassImplement())
+                                                    .getTargetName(),
+                                            Constant.UPDATED_BY_INIT,
+                                            null
+                                    ).flatMap(response -> iAuditAdapter.updateAudit(response, Constant.UPDATED_BY_INIT));
+
+                                });
 
                     }
                     log.info("[END] Preparation to send order:{}", order.getEcommerceId());
@@ -297,7 +324,7 @@ public abstract class FacadeAbstractUtil {
 
                     // Cuando la orden ha fallado al insertar al DM, se insertará con lo mínimo para registrarlo en la auditoría
                     OrderCanonical orderStatusCanonical = new OrderCanonical(
-                            orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
+                            orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.getCode(),
                             Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode(),
                             orderDto.getSource(), orderDto.getServiceTypeCode(), "Error empty Creating the order"
                     );
@@ -313,12 +340,12 @@ public abstract class FacadeAbstractUtil {
 
                     // Cuando la orden ha fallado al insertar al DM, se insertará con lo mínimo para registrarlo en la auditoría
                     OrderCanonical orderStatusCanonical = new OrderCanonical(
-                            orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.name(),
+                            orderDto.getEcommercePurchaseId(), Constant.DeliveryManagerStatus.ORDER_FAILED.getCode(),
                             Constant.DeliveryManagerStatus.ORDER_FAILED.getStatus(), orderDto.getLocalCode(), orderDto.getCompanyCode(),
                             orderDto.getSource(), orderDto.getServiceTypeCode(), e.getMessage()
                     );
 
-                    iAuditAdapter.createAuditOnlyMysql(orderStatusCanonical, Constant.UPDATED_BY_INIT);
+                    iAuditAdapter.createAudit(orderStatusCanonical, Constant.UPDATED_BY_INIT);
 
                     return Mono.just(orderStatusCanonical);
                 })
