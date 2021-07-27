@@ -93,4 +93,5 @@ public class OrderDto {
 
     private boolean mixedOrder;
 
+
 }
