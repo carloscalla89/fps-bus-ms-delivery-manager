@@ -232,4 +232,14 @@ public class ExternalServicesProperties {
     private String liquidationUpdateOrderReadTimeOut;
 
     // ********************************************
+
+    // endoint para traer la orden desde el insink(call center)
+    @Value("${external-service.insink.get-order-callcenter.uri}")
+    private String insinkGetOrderCallcenterUri;
+
+    @Value("${external-service.insink.get-order-callcenter.connect-timeout}")
+    private String insinkGetOrderCallcenterConnectTimeout;
+
+    @Value("${external-service.insink.get-order-callcenter.read-timeout}")
+    private String insinkGetOrderCallcenterReadTimeout;
 }

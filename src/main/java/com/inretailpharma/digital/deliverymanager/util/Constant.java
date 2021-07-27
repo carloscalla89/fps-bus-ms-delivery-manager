@@ -252,6 +252,9 @@ public interface Constant {
         LIQUIDATE_ORDER(7,"Acción para enviar el estado al dominio de liquidacion", 11,
                 METHOD_UPDATE, LiquidationOrder.class),
 
+        FILL_ORDER_CALL(8, "Accion para llenar data de call center ",0,
+                METHOD_CREATE, FillOrderCall.class),
+
         NONE(0, "Not found status",0,METHOD_NONE, UpdateTracker.class);
 
         private Integer code;
@@ -739,12 +742,17 @@ public interface Constant {
 
     enum DeliveryManagerStatus {
 
-        ORDER_FAILED("ERROR_INSERT_DM"), NONE("ERROR_NOT_IDENTIFIED");
-
+        ORDER_FAILED("-01","ERROR_INSERT_DM"), NONE("-02","ERROR_NOT_IDENTIFIED");
+        private String code;
         private String status;
 
-        DeliveryManagerStatus(String status) {
+        DeliveryManagerStatus(String code, String status) {
+            this.code = code;
             this.status = status;
+        }
+
+        public String getCode() {
+            return code;
         }
 
         public String getStatus() {
