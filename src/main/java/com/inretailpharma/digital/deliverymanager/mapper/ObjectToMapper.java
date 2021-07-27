@@ -410,6 +410,8 @@ public class ObjectToMapper {
         }
         /** ********************* **/
 
+        orderInkatrackerCanonical.setMixedOrder(iOrderFulfillment.getMixedOrder());
+
         return orderInkatrackerCanonical;
     }
 
@@ -1085,6 +1087,8 @@ public class ObjectToMapper {
         orderFulfillment.setDiscountAppliedNoDP(orderDto.getDiscountAppliedNoDP());
 
         /** ************ **/
+
+        orderFulfillment.setMixedOrder(orderDto.isMixedOrder());
 
         log.info("[END] map-convertOrderdtoToOrderEntity");
 

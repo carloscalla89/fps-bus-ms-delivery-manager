@@ -83,6 +83,8 @@ public class OrderDto {
     private String paymentMethodCardType;
     private BigDecimal discountAppliedNoDP;
 
+    private boolean mixedOrder;
+
 
 
 }
