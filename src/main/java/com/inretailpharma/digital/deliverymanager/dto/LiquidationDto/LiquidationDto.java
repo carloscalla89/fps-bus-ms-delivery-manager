@@ -37,4 +37,5 @@ public class LiquidationDto {
     private String documentNumber;
 
     private String origin;
+    private Long groupId;
 }
