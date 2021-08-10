@@ -18,7 +18,7 @@ stages {
   script {
   env.GIT_REPO_NAME= scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
   env.SONARPATH = "/home/centos/sonarqube/sonar-scanner/bin/sonar-scanner"
-  env.EXTRAS = "-Dsonar.sources=./src/ -Dsonar.sourceEncoding=UTF-8 -Dsonar.java.source=8 -Dsonar.java.binaries=target/classes -Dsonar.language=java"   
+  env.EXTRAS = "-Dsonar.sources=./src/ -Dsonar.sourceEncoding=UTF-8 -Dsonar.java.source=8 -Dsonar.java.binaries=target/classes -Dsonar.language=java -Dsonar.java.libraries=target/dependency/*.jar"
   sonarQube.analyzeWith(SONARPATH)
   sonarQube.checkQualityGate('userpass-jenkins','userpass-sonar');    
   }

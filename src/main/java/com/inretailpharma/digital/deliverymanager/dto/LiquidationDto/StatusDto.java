@@ -12,4 +12,5 @@ public class StatusDto {
     private String detail;
     private String cancellationCode;
     private String cancellationDescription;
+    private String origin;
 }

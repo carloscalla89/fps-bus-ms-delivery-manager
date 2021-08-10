@@ -198,9 +198,6 @@ public abstract class FacadeAbstractUtil {
                 .orElse(false);
     }
 
-    protected OrderCanonical updatePartialOrder(OrderDto partialOrderDto) {
-        return orderTransaction.updatePartialOrder(partialOrderDto);
-    }
 
     protected Mono<OrderCanonical> createOrderFulfillment(OrderDto orderDto) {
 
@@ -218,14 +215,13 @@ public abstract class FacadeAbstractUtil {
                                 .switchIfEmpty(
                                         Mono.defer(() ->
                                                 Mono.error(new CustomException("Order already exist", HttpStatus.INTERNAL_SERVER_ERROR.value())))),
-                        (storeCenter, existOrder) -> {
+                            (storeCenter, existOrder) -> {
 
                             OrderCanonical orderCanonicalResponse = orderTransaction.processOrderTransaction(
                                     objectToMapper.convertOrderdtoToOrderEntity(orderDto),
                                     orderDto,
                                     storeCenter
                             );
-
                             orderCanonicalResponse.setStoreCenter(storeCenter);
 
                             iAuditAdapter.createAudit(orderCanonicalResponse, Constant.UPDATED_BY_INIT);
@@ -349,7 +345,7 @@ public abstract class FacadeAbstractUtil {
 
                     return Mono.just(orderStatusCanonical);
                 })
-                .doOnSuccess(r -> log.info("[END] createOrder facade success"));
+                .doOnSuccess(r -> log.info("[END] createOrder facade"));
     }
 
 }
