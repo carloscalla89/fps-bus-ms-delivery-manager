@@ -1,6 +1,5 @@
 package com.inretailpharma.digital.deliverymanager.canonical.inkatracker;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

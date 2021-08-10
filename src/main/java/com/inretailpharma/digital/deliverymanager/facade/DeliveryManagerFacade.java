@@ -83,7 +83,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                         actionStrategy
                                 .evaluate(actionDto, ecommerceId)
                                 .flatMap(response ->
-                                        liquidationFacade.evaluateUpdate(response, actionDto.getAction()))
+                                        liquidationFacade.evaluateUpdate(response, actionDto))
                                 .subscribeOn(Schedulers.boundedElastic()))
                 .flatMap(val -> val);
 
@@ -146,7 +146,12 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
 
                 })
                 .flatMap(order -> iAuditAdapter.updateAudit(order, Constant.UPDATED_BY_INKATRACKER_WEB))
-                .flatMap(order -> liquidationFacade.evaluateUpdate(order, Constant.ActionOrder.SET_PARTIAL_ORDER.name()));
+                .flatMap(order -> liquidationFacade.evaluateUpdate(
+                        order,
+                        ActionDto.builder()
+                                .origin(Constant.ORIGIN_INKATRACKER_WEB)
+                                .action(Constant.ActionOrder.SET_PARTIAL_ORDER.name()).build())
+                );
     }
 
 }

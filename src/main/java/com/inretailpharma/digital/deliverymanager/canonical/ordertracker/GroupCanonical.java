@@ -23,9 +23,6 @@ public class GroupCanonical implements Serializable{
         return "GroupCanonical{" +
                 "position=" + position +
                 ", orderId=" + orderId +
-                ", eta=" + eta +
-                ", timeRemaining=" + timeRemaining +
-                ", pickUpDetails=" + pickUpDetails +
                 '}';
     }
 }

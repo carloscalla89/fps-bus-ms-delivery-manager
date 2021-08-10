@@ -33,8 +33,8 @@ public interface Constant {
 
     enum CancellationStockDispatcher {
 
-        CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el Delivery Center"),
-        CANCELLED_ORDER_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el Delivery Center"),
+        CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el local"),
+        CANCELLED_ORDER_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el local"),
         NONE(null, null);
 
         private String id;
@@ -243,11 +243,11 @@ public interface Constant {
         CHECKOUT_ORDER(4, "Acción para poner el estado checkout al inkatracker",8,
                 METHOD_UPDATE, UpdateTracker.class),
 
-        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
-                METHOD_UPDATE, com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment.class),
-
         FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0,
                 METHOD_CREATE, FillOrder.class),
+
+        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
+                METHOD_UPDATE, com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment.class),
 
         LIQUIDATE_ORDER(7,"Acción para enviar el estado al dominio de liquidacion", 11,
                 METHOD_UPDATE, LiquidationOrder.class),
@@ -687,6 +687,7 @@ public interface Constant {
     String ORIGIN_UNIFIED_POS = "UNIFIED_POS";
     String ORIGIN_TASK = "TASK";
     String ORIGIN_TASK_EXPIRATION = "TASK_EXPIRATION";
+    String ORIGIN_DELIVERY_MANAGER = "DELIVERY_MANAGER";
     String TARGET_TRACKER = "TRACKER";
     String TARGET_LITE = "LITE";
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
@@ -698,44 +699,18 @@ public interface Constant {
     String METHOD_CREATE = "CREATE";
     String METHOD_NONE = "NONE";
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
-    String CANCELLATION_CODE_EXP = "EXP";
 
-    String CONFIRMED_STATUS = "CONFIRMED";
-
-    String ERROR_INSERT_TRACKER_STATUS = "ERROR_INSERT_TRACKER";
-    String ORDER_FAILED_STATUS = "ORDER_FAILED";
-    String ERROR_INSERT_INKAVENTA_STATUS = "ERROR_INSERT_INKAVENTA";
-
-    String CANCELLED_ORDER_STATUS = "CANCELLED_ORDER";
-    String REJECTED_ORDER_STATUS = "REJECTED_ORDER";
-    String CANCELLED_ORDER_ONLINE_PAYMENT_STATUS = "CANCELLED_ORDER_ONLINE_PAYMENT";
-    String REJECTED_ORDER_ONLINE_PAYMENT_STATUS = " REJECTED_ORDER_ONLINE_PAYMENT";
-    String CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK_STATUS = "CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK";
-    String CANCELLED_ORDER_NOT_ENOUGH_STOCK_STATUS = "CANCELLED_ORDER_NOT_ENOUGH_STOCK";
-
-    String DELIVERED_ORDER_STATUS = "DELIVERED_ORDER";
 
     String ACTION_DELIVER_ORDER = "DELIVER_ORDER";
     String ACTION_CANCEL_ORDER = "CANCEL_ORDER";
     String ACTION_REJECT_ORDER = "REJECT_ORDER";
 
-    String LIQUIDATION_STATUS_AUTOMATIC_CANCELLED_CODE = "03";
-    String LIQUIDATION_STATUS_AUTOMATIC_CANCELLED = "AUTOMATIC_CANCELLED";
     String LIQUIDATION_STATUS_CANCELLED_CODE = "07";
     String LIQUIDATION_STATUS_CANCELLED = "CANCELLED";
     String LIQUIDATION_STATUS_PENDING_CODE = "08";
     String LIQUIDATION_STATUS_PENDING = "PENDING_LIQUIDATE";
-    String LIQUIDATION_STATUS_BILLED_CODE = "09";
+    String LIQUIDATION_STATUS_BILLED_CODE = "05";
     String LIQUIDATION_STATUS_BILLED = "BILLED";
-
-    /* Estados de liquidación */
-
-    String LIQUIDATION_STATUS_ERROR = "LIQUIDATION_STATUS_ERROR";
-    String LIQUIDATION_STATUS_1 = "LIQUIDATION_STATUS_1";
-    String LIQUIDATION_STATUS_2 = "LIQUIDATION_STATUS_2";
-    String LIQUIDATION_STATUS_3 = "LIQUIDATION_STATUS_3";
-    String LIQUIDATION_STATUS_4 = "LIQUIDATION_STATUS_4";
-
 
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";
