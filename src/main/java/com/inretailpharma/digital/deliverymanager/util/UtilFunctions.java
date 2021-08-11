@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class UtilFunctions {
 
-    public static ProcessFunctionInterface getSuccessResponseFunction =
+    public final static ProcessFunctionInterface getSuccessResponseFunction =
             (y,z,e, x, i, s,c) -> {
                 log.info("success response ecommerceId:{}, action:{}",y,z);
                 OrderCanonical orderCanonical = new OrderCanonical();
@@ -36,7 +36,7 @@ public class UtilFunctions {
 
             };
 
-    public static ProcessFunctionInterface getErrorResponseFunction =
+    public final static ProcessFunctionInterface getErrorResponseFunction =
             (y,z,e, x, i, s, c) -> {
 
                 OrderCanonical orderCanonical = new OrderCanonical();
@@ -63,7 +63,7 @@ public class UtilFunctions {
 
 
 
-    public static LiquidationStatus processLiquidationStatus =
+    public final static LiquidationStatus processLiquidationStatus =
             (liquidationStatus, firstDigitalStatus,  action, cancelCode, serviceType) -> {
 
                 StatusDto statusDto = new StatusDto();
@@ -89,18 +89,15 @@ public class UtilFunctions {
                     case Constant.ACTION_CANCEL_ORDER:
                     case Constant.ACTION_REJECT_ORDER:
 
-                        if (firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
+                        if (firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CHECKOUT_ORDER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.READY_PICKUP_ORDER.name())) {
 
-                            if (cancelCode != null && cancelCode.equalsIgnoreCase(Constant.CANCELLATION_CODE_EXP)) {
-                                statusDto.setCode(Constant.LIQUIDATION_STATUS_AUTOMATIC_CANCELLED_CODE);
-                                statusDto.setName(Constant.LIQUIDATION_STATUS_AUTOMATIC_CANCELLED);
-                            } else {
-                                statusDto.setCode(Constant.LIQUIDATION_STATUS_CANCELLED_CODE);
-                                statusDto.setName(Constant.LIQUIDATION_STATUS_CANCELLED);
-                            }
+                            statusDto.setCode(Constant.LIQUIDATION_STATUS_CANCELLED_CODE);
+                            statusDto.setName(Constant.LIQUIDATION_STATUS_CANCELLED);
 
                         } else {
 

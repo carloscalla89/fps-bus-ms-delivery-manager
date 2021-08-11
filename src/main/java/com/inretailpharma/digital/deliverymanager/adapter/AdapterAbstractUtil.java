@@ -11,7 +11,6 @@ import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServ
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.PayloadDto;
@@ -167,6 +166,7 @@ public abstract class AdapterAbstractUtil {
     }
 
     protected String readTimeOutRetryDD() {
+
         return externalServicesProperties.getDispatcherLegacySystemReadTimeout();
     }
 

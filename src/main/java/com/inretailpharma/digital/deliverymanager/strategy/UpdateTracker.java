@@ -138,54 +138,54 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
             if (Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_INKAVENTA.name())
                     || Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name().equalsIgnoreCase(Constant.OrderStatus.ERROR_INSERT_TRACKER.name())) {
 
+                utilClass.setFirstOrderStatusName(Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
+
                 return iStoreAdapter
                         .getStoreByCompanyCodeAndLocalCode(iOrderFulfillment.getCompanyCode(), iOrderFulfillment.getCenterCode())
                         .flatMap(resultStore -> iTrackerAdapter
-                                .evaluateTracker(
-                                        Constant.TrackerImplementation
-                                                .getClassImplement(iOrderFulfillment.getClassImplement())
-                                                .getTrackerImplement(),
-                                        actionDto,
-                                        resultStore,
-                                        iOrderFulfillment.getCompanyCode(),
-                                        iOrderFulfillment.getServiceType(),
-                                        iOrderFulfillment.getEcommerceId(),
-                                        iOrderFulfillment.getExternalId(),
-                                        Constant.OrderStatus.CANCELLED_ORDER.name(),
-                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
-                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
-                                        actionDto.getOrderCancelObservation(),
-                                        null
-                                )
-                                .flatMap(response ->
-                                        updateOrderInfulfillment(
-                                                response,
-                                                iOrderFulfillment.getOrderId(),
-                                                iOrderFulfillment.getEcommerceId(),
-                                                iOrderFulfillment.getExternalId(),
-                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
-                                                actionDto.getOrderCancelObservation(),
-                                                Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
-                                                utilClass.getOnlyTargetComponentTracker(),
-                                                actionDto.getUpdatedBy(),
-                                                actionDto.getActionDate()
-                                        )
-                                )
-                                .flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()))
+                                                    .createOrderToTracker(
+                                                            Constant.TrackerImplementation
+                                                                    .getClassImplement(iOrderFulfillment.getClassImplement())
+                                                                    .getTrackerImplement(),
+                                                            resultStore,
+                                                            iOrderFulfillment.getEcommerceId(),
+                                                            iOrderFulfillment.getExternalId(),
+                                                            Constant.OrderStatus.CANCELLED_ORDER.name(),
+                                                            Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
+                                                            Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
+                                                            actionDto.getOrderCancelObservation(),
+                                                            iOrderFulfillment.getStatusDetail(),
+                                                            actionDto
+                                                    )
+                                                    .flatMap(response ->
+                                                            updateOrderInfulfillment(
+                                                                    response,
+                                                                    iOrderFulfillment.getOrderId(),
+                                                                    iOrderFulfillment.getEcommerceId(),
+                                                                    iOrderFulfillment.getExternalId(),
+                                                                    Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
+                                                                    actionDto.getOrderCancelObservation(),
+                                                                    Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
+                                                                    utilClass.getOnlyTargetComponentTracker(),
+                                                                    actionDto.getUpdatedBy(),
+                                                                    actionDto.getActionDate()
+                                                            )
+                                                    )
+                                                    .flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()))
 
                         )
                         .filter(response -> Constant.OrderStatus.getByName(response.getOrderStatus().getName()).isSuccess())
                         .flatMap(resp ->
                                 UtilFunctions.getSuccessResponseFunction.getMapOrderCanonical(
-                                        iOrderFulfillment.getEcommerceId(), actionDto.getAction(), null,
+                                        iOrderFulfillment.getEcommerceId(), Constant.ActionOrder.CANCEL_ORDER.name(), null,
                                         utilClass.getFirstOrderStatusName(), iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
                                         actionDto.getOrderCancelCode()
                                 )
                         )
                         .switchIfEmpty(Mono.defer(() ->
                                         UtilFunctions.getErrorResponseFunction.getMapOrderCanonical(
-                                                iOrderFulfillment.getEcommerceId(), actionDto.getAction(), Constant.ERROR_PROCESS,
-                                                null, iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
+                                                iOrderFulfillment.getEcommerceId(), Constant.ActionOrder.CANCEL_ORDER.name(),
+                                                Constant.ERROR_PROCESS, null, iOrderFulfillment.getOrderId(), utilClass.getServiceType(),
                                                 actionDto.getOrderCancelCode()
                                         )
                                 )

@@ -66,6 +66,10 @@ public class UtilClass {
         return firstOrderStatusName;
     }
 
+    public void setFirstOrderStatusName(String statusName) {
+        firstOrderStatusName = statusName;
+    }
+
     public List<Class<?>> getClassesToSend() {
 
         firstOrderStatusName = orderStatusName;

@@ -2,7 +2,6 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 
 import java.util.ArrayList;
 
-
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
@@ -32,49 +31,68 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 	public Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
     	log.info("[START] call to OrderTracker - assignOrders - uri:{}",
                 externalServicesProperties.getOrderTrackerAssignOrdersUri());
-    	
-    	return WebClient
-            	.create(externalServicesProperties.getOrderTrackerAssignOrdersUri())
-            	.post()
-            	.bodyValue(projectedGroupCanonical)
-            	.retrieve()
-            	.bodyToMono(AssignedOrdersCanonical.class)
-            	.doOnSuccess(r -> log.info("[END] call to OrderTracker - assignOrders - response {}", r))
-	        	.defaultIfEmpty(
-	        		 new AssignedOrdersCanonical(new ArrayList<>(), new ArrayList<>(), Constant.OrderTrackerResponseCode.EMPTY_CODE, "EMPTY")
-	        	)
-	        	.onErrorResume(ex -> {
-	        		AssignedOrdersCanonical error = new AssignedOrdersCanonical(new ArrayList<>(), new ArrayList<>()
-	        				, Constant.OrderTrackerResponseCode.ERROR_CODE, ex.getMessage());
-                    log.error("[ERROR] call to OrderTracker - assignOrders",ex);
-                    return Mono.just(error);
-                });
+
+		return WebClient
+				.builder()
+				.clientConnector(
+						generateClientConnector(
+								Integer.parseInt(externalServicesProperties.getOrderTrackerAssignOrdersConnectTimeout()),
+								Long.parseLong(externalServicesProperties.getOrderTrackerAssignOrdersReadTimeout())
+						)
+				)
+				.baseUrl(externalServicesProperties.getOrderTrackerAssignOrdersUri())
+				.build()
+				.post()
+				.bodyValue(projectedGroupCanonical)
+				.retrieve()
+				.bodyToMono(AssignedOrdersCanonical.class)
+				.doOnSuccess(r -> log.info("[END] call to OrderTracker - assignOrders - response {}", r))
+				.defaultIfEmpty(
+						new AssignedOrdersCanonical(new ArrayList<>(), new ArrayList<>(), Constant.OrderTrackerResponseCode.EMPTY_CODE, "EMPTY")
+				)
+				.onErrorResume(ex -> {
+					ex.printStackTrace();
+					AssignedOrdersCanonical error = new AssignedOrdersCanonical(new ArrayList<>(), new ArrayList<>()
+							, Constant.OrderTrackerResponseCode.ERROR_CODE, ex.getMessage());
+					log.error("[ERROR] call to OrderTracker - assignOrders - error:{}, group:{}",ex.getMessage(), projectedGroupCanonical);
+					return Mono.just(error);
+				});
 	}
 
 	@Override
 	public Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical) {
 		log.info("[START] call to OrderTracker - unassignOrders - uri:{} - body:{}",
                 externalServicesProperties.getOrderTrackerUnassignOrdersUri(), unassignedCanonical);
-		
+
 		return WebClient
-	        	.create(externalServicesProperties.getOrderTrackerUnassignOrdersUri())
-	        	.patch()
-	        	.bodyValue(unassignedCanonical)
-	        	.exchange()
-	        	.flatMap(r -> {
-	        		if (r.statusCode().is2xxSuccessful()) {
-	        			log.info("[END] call to OrderTracker - unassignOrders - status {}", r.statusCode());
+				.builder()
+				.clientConnector(
+						generateClientConnector(
+								Integer.parseInt(externalServicesProperties.getOrderTrackerUnassignOrdersConnectTimeout()),
+								Long.parseLong(externalServicesProperties.getOrderTrackerUnassignOrdersReadTimeout())
+						)
+				)
+				.baseUrl(externalServicesProperties.getOrderTrackerUnassignOrdersUri())
+				.build()
+				.patch()
+				.bodyValue(unassignedCanonical)
+				.exchange()
+				.flatMap(r -> {
+					if (r.statusCode().is2xxSuccessful()) {
+						log.info("[END] call to OrderTracker - unassignOrders - status {}", r.statusCode());
 						return r.bodyToMono(Void.class).thenReturn(Constant.OrderTrackerResponseCode.SUCCESS_CODE);
-	        		} else {
-	        			log.error("[ERROR] call to OrderTracker - unassignOrders - status {}", r.statusCode());
+					} else {
+						log.error("[ERROR] call to OrderTracker - unassignOrders - status {}", r.statusCode());
 						return r.bodyToMono(Void.class).thenReturn(Constant.OrderTrackerResponseCode.ERROR_CODE);
-	        		}
-	        	})
-	        	.defaultIfEmpty(Constant.OrderTrackerResponseCode.EMPTY_CODE)
-	        	.onErrorResume(ex -> {
-                    log.error("[ERROR] call to OrderTracker - unassignOrders - ",ex);
-                    return Mono.just(Constant.OrderTrackerResponseCode.ERROR_CODE);
-                });
+					}
+				})
+				.defaultIfEmpty(Constant.OrderTrackerResponseCode.EMPTY_CODE)
+				.onErrorResume(ex -> {
+					ex.printStackTrace();
+					log.error("[ERROR] call to OrderTracker - unassignOrders - error:{}, unassignedCanonical:{}",
+							ex.getMessage(), unassignedCanonical);
+					return Mono.just(Constant.OrderTrackerResponseCode.ERROR_CODE);
+				});
 	}
 
 
