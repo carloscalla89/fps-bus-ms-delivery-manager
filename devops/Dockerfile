@@ -1,4 +1,4 @@
-FROM 519901771307.dkr.ecr.us-west-2.amazonaws.com/open-jdk-alpine
+FROM 519901771307.dkr.ecr.us-west-2.amazonaws.com/open-jdk-alpine:jre-11-tz-lima
 COPY /target/us-deliverymanager.jar /usr/src/service/service.jar
 COPY /devops/setup.sh /
 RUN chmod 777 /setup.sh
