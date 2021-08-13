@@ -254,5 +254,16 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.insink.get-order-callcenter.read-timeout}")
     private String insinkGetOrderCallcenterReadTimeout;
+    
+    // endpoint para legacy bridge
+    @Value("${external-service.legacy-bridge.release-stock.uri}")
+    private String legacyBridgeReleaseStockUri;
+
+    @Value("${external-service.legacy-bridge.release-stock.connect-timeout}")
+    private String legacyBridgeReleaseStockConnectTimeout;
+
+    @Value("${external-service.legacy-bridge.release-stock.read-timeout}")
+    private String legacyBridgeReleaseStockReadTimeout;
+    
 
 }

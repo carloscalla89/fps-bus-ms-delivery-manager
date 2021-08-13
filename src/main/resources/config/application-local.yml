@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://uatfulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/uatfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
-    username: operaciones
-    password: Operaciones2020
+    url: jdbc:mysql://ci02fulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/ci02fulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
+    username: carloscalla
+    password: elpreciomasbajo
   mvc:
     async:
       request-timeout: 240000
@@ -125,6 +125,12 @@ external-service:
       uri: http://insink-aws-prueba.backend.inkafarma.pe/get/order
       connect-timeout: 30000
       read-timeout: 60000
+  legacy-bridge:
+    release-stock:
+      uri: http://localhost:8036/omni/v1.0.0/release-stock/
+      connect-timeout: 30000
+      read-timeout: 60000
+
 api:
   insink:
     stock: http://insink-aws.backend.inkafarma.pe/comanda-stock/{orderId}
