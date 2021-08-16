@@ -127,6 +127,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                 .queryParam("origin",actionDto.getOrigin())
                                 .queryParam("observation",actionDto.getOrderCancelObservation())
                                 .queryParam("motorizedId",actionDto.getMotorizedId())
+                                .queryParam("updateBy",actionDto.getUpdatedBy())
                                 .build(ecommerceId))
                 .exchange()
                 .flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, ecommerceId, orderStatusInkatracker))
