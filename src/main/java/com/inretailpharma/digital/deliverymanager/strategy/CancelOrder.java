@@ -199,14 +199,14 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
 
         }
         
+        log.info("Releasing stock for order {}", ecommerceId);
         if (!Constant.CANCEL_CODE_POSU.equals(actionDto.getOrderCancelCode())) {
         	
-        	log.info("Releasing stock for order {}", ecommerceId);
         	stockService.releaseStock(ecommerceId).subscribe();
         	
         } else {
         	
-        	log.info("Cancelation code {}, wont relesase stock for order {}",
+        	log.info("Cancelation code {}, wont release stock for order {}",
         			actionDto.getOrderCancelCode(), ecommerceId);
         }
 

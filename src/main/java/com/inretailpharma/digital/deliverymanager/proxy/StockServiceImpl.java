@@ -34,12 +34,11 @@ public class StockServiceImpl extends AbstractOrderService  implements OrderExte
                 )
                 .baseUrl(externalServicesProperties.getLegacyBridgeReleaseStockUri())
                 .build()
-                .patch()
+                .put()
                 .uri(builder ->
                         builder
                                 .path("/{externalId}")
                                 .build(externalId))
-                //.body(Mono.just(auditHistoryDto), AuditHistoryDto.class)
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.bodyToMono(String.class))
                 .doOnSuccess((r) -> log.info("[END] service to call api legay-brigde to releaseStock - ecommerceId:{},{}",
