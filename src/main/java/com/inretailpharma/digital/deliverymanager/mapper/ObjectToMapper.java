@@ -87,7 +87,9 @@ public class ObjectToMapper {
         liquidationDto.setPhone(orderCanonical.getClient().getPhone());
         
         liquidationDto.setGroupId(orderCanonical.getGroupId());
-
+        Optional.ofNullable(orderCanonical.getPaymentMethod())
+        	.ifPresent(r -> liquidationDto.setCardProviderCode(r.getCardProviderCode()));
+        
         liquidationDto.setOrigin(Constant.ORIGIN_DELIVERY_MANAGER);
 
         return liquidationDto;
