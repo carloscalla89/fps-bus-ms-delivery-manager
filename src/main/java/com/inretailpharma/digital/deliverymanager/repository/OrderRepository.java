@@ -232,7 +232,15 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "  fractionated = :fractionated, " +
             " quantity_units = :quantityUnits, "+
             " presentation_description = :presentation_description, "+
-            " presentation_id = :presentation_id "+
+            " presentation_id = :presentation_id, "+
+            " fractional_discount = :fractional_discount, "+
+            " priceList = :priceList, "+
+            " priceAllPaymentMethod = :priceAllPaymentMethod, "+
+            " priceWithpaymentMethod = :priceWithpaymentMethod, "+
+            " totalPriceList = :totalPriceList, "+
+            " totalPriceAllPaymentMethod = :totalPriceAllPaymentMethod, "+
+            " totalPriceWithpaymentMethod = :totalPriceWithpaymentMethod, "+
+            " promotionalDiscount = :promotionalDiscount "+
             " where order_fulfillment_id = :orderFulfillmentId " +
             " and product_code = :productCode",
             nativeQuery = true)
@@ -245,7 +253,15 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                                  @Param("quantityUnits") Integer quantityUnits,
                                  @Param("productCode") String productCode,
                                  @Param("presentation_description") String presentation_description,
-                                 @Param("presentation_id") Integer presentation_id
+                                 @Param("presentation_id") Integer presentation_id,
+                                 @Param("fractional_discount") BigDecimal fractionalDiscount,
+                                 @Param("priceList") BigDecimal priceList,
+                                 @Param("priceAllPaymentMethod") BigDecimal priceAllPaymentMethod,
+                                 @Param("priceWithpaymentMethod") BigDecimal priceWithpaymentMethod,
+                                 @Param("totalPriceList") BigDecimal totalPriceList,
+                                 @Param("totalPriceAllPaymentMethod") BigDecimal totalPriceAllPaymentMethod,
+                                 @Param("totalPriceWithpaymentMethod") BigDecimal totalPriceWithpaymentMethod,
+                                 @Param("promotionalDiscount") BigDecimal promotionalDiscount
                                  );
 
     @Modifying
@@ -254,14 +270,28 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             " set total_cost = :totalCost ," +
             "  delivery_cost = :deliveryCost ," +
             "  date_last_updated = :date_last_updated, " +
-            "  partial = :partial " +
+            "  partial = :partial, " +
+            "  discount_applied = :discount_applied, " +
+            "  sub_total_cost = :sub_total_cost, " +
+            "  total_cost_no_discount = :total_cost_no_discount, " +
+            "  discountAppliedNoDP = :discountAppliedNoDP, " +
+            "  subTotalWithNoSpecificPaymentMethod = :subTotalWithNoSpecificPaymentMethod, " +
+            "  totalWithNoSpecificPaymentMethod = :totalWithNoSpecificPaymentMethod, " +
+            "  totalWithPaymentMethod = :totalWithPaymentMethod " +
             " where ecommerce_purchase_id = :externalPurchaseId",
             nativeQuery = true)
     void updatePartialOrder(@Param("totalCost") BigDecimal unitPrice,
                             @Param("deliveryCost") BigDecimal totalPrice,
                             @Param("date_last_updated") LocalDateTime date_last_updated,
                             @Param("externalPurchaseId") Long externalPurchaseId,
-                            @Param("partial") boolean partial
+                            @Param("partial") boolean partial,
+                            @Param("discount_applied") BigDecimal discountApplied,
+                            @Param("sub_total_cost") BigDecimal subTotalCost,
+                            @Param("total_cost_no_discount") BigDecimal totalCostNoDiscount,
+                            @Param("discountAppliedNoDP") BigDecimal discountAppliedNoDP,
+                            @Param("subTotalWithNoSpecificPaymentMethod") BigDecimal subTotalWithNoSpecificPaymentMethod,
+                            @Param("totalWithNoSpecificPaymentMethod") BigDecimal totalWithNoSpecificPaymentMethod,
+                            @Param("totalWithPaymentMethod") BigDecimal totalWithPaymentMethod
     );
 
     @Modifying
