@@ -22,6 +22,7 @@ import com.inretailpharma.digital.deliverymanager.facade.CancellationFacade;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @RestController
@@ -62,16 +63,16 @@ public class CancellationRest {
 
     @ResponseBody
     @PostMapping("/restore/stock")
-    public ResponseCanonical addCartInformation(@RequestBody ShoppingCartStatusCanonical shoppingCartStatusCanonical) {
-        try {
-            log.info("************** START [ /shoppingcart/setstatus ] **************");
-            log.info("#cancel- proccess");
-            log.info("ShoppingCartStatusCanonical: {}", shoppingCartStatusCanonical);
-            ResponseCanonical responseCanonical = cancellationFacade.updateShoppingCartStatusAndNotes(shoppingCartStatusCanonical);
-            log.info("ShoppingCartStatusCanonical: {}", responseCanonical);
-            return responseCanonical;
-        } finally {
-            log.info("************** END [ /shoppingcart/setstatus ] **************");
-        }
+    public ResponseEntity<Mono<ResponseCanonical>> addCartInformation(@RequestBody ShoppingCartStatusCanonical shoppingCartStatusCanonical) {
+    	
+    	log.info("************** START [ /shoppingcart/setstatus ] **************");
+        log.info("#cancel- proccess");
+        log.info("ShoppingCartStatusCanonical: {}", shoppingCartStatusCanonical);
+        
+        return new ResponseEntity<>(
+        		cancellationFacade.updateShoppingCartStatusAndNotes(shoppingCartStatusCanonical)
+                        .subscribeOn(Schedulers.parallel()),
+                HttpStatus.OK
+        );
     }
 }
