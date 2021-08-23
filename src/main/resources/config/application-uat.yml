@@ -122,6 +122,3 @@ external-service:
      uri: http://insink-aws-prueba.backend.inkafarma.pe/get/order
      connect-timeout: 30000
      read-timeout: 60000
-api:
-  insink:
-    stock: http://200.37.146.169:9383/comanda-stock/{orderId}

@@ -130,7 +130,3 @@ external-service:
       uri: http://localhost:8036/omni/v1.0.0/legacy/release-stock/
       connect-timeout: 30000
       read-timeout: 60000
-
-api:
-  insink:
-    stock: http://insink-aws.backend.inkafarma.pe/comanda-stock/{orderId}
