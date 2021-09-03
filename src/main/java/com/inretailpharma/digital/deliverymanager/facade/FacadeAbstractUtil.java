@@ -211,7 +211,7 @@ public abstract class FacadeAbstractUtil {
                 .defer(() -> iStoreAdapter.getStoreByCompanyCodeAndLocalCode(orderDto.getCompanyCode(), orderDto.getLocalCode()))
                 .zipWith(
                         Mono.just(existOrder(orderDto.getEcommercePurchaseId()))
-                                .filter(val -> !val)
+                                .filter(val -> !val || orderDto.getSource().equalsIgnoreCase(Constant.SOURCE_AGORA))
                                 .switchIfEmpty(
                                         Mono.defer(() ->
                                                 Mono.error(new CustomException("Order already exist", HttpStatus.INTERNAL_SERVER_ERROR.value())))),

@@ -15,6 +15,7 @@ import java.util.List;
 @Data
 public class OrderDto {
 
+    @NotNull
     private String source;
 
     private String localCode;
