@@ -699,6 +699,7 @@ public interface Constant {
     String METHOD_CREATE = "CREATE";
     String METHOD_NONE = "NONE";
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
+    String SOURCE_AGORA = "AGORA";
 
 
     String ACTION_DELIVER_ORDER = "DELIVER_ORDER";
