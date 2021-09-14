@@ -85,7 +85,11 @@ public class ObjectToMapper {
         liquidationDto.setFullName(orderCanonical.getClient().getFullName());
         liquidationDto.setDocumentNumber(orderCanonical.getClient().getDocumentNumber());
         liquidationDto.setPhone(orderCanonical.getClient().getPhone());
-
+        
+        liquidationDto.setGroupId(orderCanonical.getGroupId());
+        Optional.ofNullable(orderCanonical.getPaymentMethod())
+        	.ifPresent(r -> liquidationDto.setCardProviderCode(r.getCardProviderCode()));
+        
         liquidationDto.setOrigin(Constant.ORIGIN_DELIVERY_MANAGER);
 
         return liquidationDto;
@@ -1089,6 +1093,7 @@ public class ObjectToMapper {
 
         /** ************ **/
 
+        orderFulfillment.setGroupId(orderDto.getGroupId());
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
         return orderFulfillment;
@@ -1405,6 +1410,8 @@ public class ObjectToMapper {
                         .build()
         );
         /* */
+                
+        orderCanonical.setGroupId(orderDto.getGroupId());
 
         return orderCanonical;
 
