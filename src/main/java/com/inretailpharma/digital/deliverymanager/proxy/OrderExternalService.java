@@ -2,7 +2,6 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInfoCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
@@ -12,7 +11,6 @@ import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
-import com.inretailpharma.digital.deliverymanager.dto.ecommerce.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
@@ -54,4 +52,6 @@ public interface OrderExternalService {
     Mono<Void> sendNotification(MessageDto messageDto);
 
     Mono<Void> createOrderNewAudit(AuditHistoryDto auditHistoryDto);
+    
+    Mono<Void> releaseStock(Long externalId);
 }
