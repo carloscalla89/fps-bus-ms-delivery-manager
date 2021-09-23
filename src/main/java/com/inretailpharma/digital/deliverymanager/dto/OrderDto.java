@@ -15,6 +15,7 @@ import java.util.List;
 @Data
 public class OrderDto {
 
+    @NotNull
     private String source;
 
     private String localCode;
@@ -82,6 +83,12 @@ public class OrderDto {
     private BigDecimal totalWithPaymentMethod;
     private String paymentMethodCardType;
     private BigDecimal discountAppliedNoDP;
+    
+    /**
+     * Fecha: 26/07/2021
+     * autor: Omni
+     */
+    private Long groupId;
 
     private boolean mixedOrder;
 

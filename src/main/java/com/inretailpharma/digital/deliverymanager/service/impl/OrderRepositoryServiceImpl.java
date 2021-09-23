@@ -11,6 +11,7 @@ import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -164,7 +165,10 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         LocalDateTime dateLastUpdated =  DateUtils.getLocalDateTimeObjectNow();
         Long externalPurchaseId = orderDto.getEcommercePurchaseId();
 
-         orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId,true);
+         orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId,true,
+                 orderDto.getDiscountApplied(),orderDto.getSubTotalCost(),orderDto.getTotalCostNoDiscount(),
+                 orderDto.getDiscountAppliedNoDP(),orderDto.getSubTotalWithNoSpecificPaymentMethod(),
+                 orderDto.getTotalWithNoSpecificPaymentMethod(),orderDto.getTotalWithPaymentMethod());
          log.info("The order {} header was updated sucessfully",externalPurchaseId);
          return true;
     }
@@ -194,7 +198,10 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
                     Constant.Logical fractionated = Constant.Logical.parse(itemDto.getFractionated());
                     String presentationDescription = itemDto.getPresentationDescription();
                     orderRepository.updateItemsPartialOrder(quantity, quantityPresentation,unitPrice, totalPrice, fractionated.name(),
-                            orderFulfillmentId,quantityUnits, productCode,presentationDescription,presentationID);
+                            orderFulfillmentId,quantityUnits, productCode,presentationDescription,presentationID,
+                            itemDto.getFractionalDiscount(),itemDto.getPriceList(),itemDto.getPriceAllPaymentMethod(),
+                            itemDto.getPriceWithpaymentMethod(),itemDto.getTotalPriceList(),itemDto.getTotalPriceAllPaymentMethod(),
+                            itemDto.getTotalPriceWithpaymentMethod(),itemDto.getPromotionalDiscount());
                 }
             }
         }

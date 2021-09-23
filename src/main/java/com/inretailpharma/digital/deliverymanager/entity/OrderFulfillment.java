@@ -110,6 +110,9 @@ public class OrderFulfillment extends OrderEntity<Long> {
     private BigDecimal totalWithPaymentMethod;
     private String paymentMethodCardType;
     private BigDecimal discountAppliedNoDP;
+    
+    @Column(name="group_id")
+    private Long groupId;
 
     private boolean mixedOrder;
 }

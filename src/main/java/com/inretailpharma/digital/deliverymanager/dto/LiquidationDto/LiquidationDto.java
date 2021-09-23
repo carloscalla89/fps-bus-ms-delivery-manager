@@ -35,4 +35,8 @@ public class LiquidationDto {
     private String fullName;
     private String phone;
     private String documentNumber;
+
+    private String origin;
+    private Long groupId;
+    private String cardProviderCode;
 }

@@ -2,10 +2,8 @@ package com.inretailpharma.digital.deliverymanager.adapter;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -68,9 +66,9 @@ public class LiquidationAdapter extends AdapterAbstractUtil implements ILiquidat
 
         return Mono
                 .just(getStatusLiquidation(liquidationCanonical, orderCanonical))
-                .flatMap(result ->
+                .flatMap(statusDto ->
                         liquidationExternalService
-                                .updateOrderToLiquidation(orderCanonical.getEcommerceId().toString(),result)
+                                .updateOrderToLiquidation(orderCanonical.getEcommerceId().toString(),statusDto)
                                 .flatMap(order -> {
 
                                     orderCanonical.setLiquidation(

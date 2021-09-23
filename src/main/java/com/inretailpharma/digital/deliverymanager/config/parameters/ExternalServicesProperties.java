@@ -139,14 +139,26 @@ public class ExternalServicesProperties {
 
     // properties to order tracker
     @Value("${external-service.order-tracker.create-order.uri}")
-    private String orderTrackerCreateOrderUri; 
-    
+    private String orderTrackerCreateOrderUri;
+
     @Value("${external-service.order-tracker.assign-orders.uri}")
     private String orderTrackerAssignOrdersUri;
-    
+
+    @Value("${external-service.order-tracker.assign-orders.connect-timeout}")
+    private String orderTrackerAssignOrdersConnectTimeout;
+
+    @Value("${external-service.order-tracker.assign-orders.read-timeout}")
+    private String orderTrackerAssignOrdersReadTimeout;
+
     @Value("${external-service.order-tracker.unassign-orders.uri}")
     private String orderTrackerUnassignOrdersUri;
-    
+
+    @Value("${external-service.order-tracker.unassign-orders.connect-timeout}")
+    private String orderTrackerUnassignOrdersConnectTimeout;
+
+    @Value("${external-service.order-tracker.unassign-orders.read-timeout}")
+    private String orderTrackerUnassignOrdersReadTimeout;
+
     @Value("${external-service.order-tracker.update-order-status.uri}")
     private String orderTrackerUpdateOrderStatusUri;
     // ------------------------------------------------------
@@ -202,11 +214,7 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.notification-lambda.send-message.read-timeout}")
     private String notificationLambdaReadTimeOut;
-
-    @Value("${api.insink.stock}")
-    private String uriApiRestoreStock;
-
-
+    
 
     //********** properties para el componente de liquidación
 
@@ -242,4 +250,16 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.insink.get-order-callcenter.read-timeout}")
     private String insinkGetOrderCallcenterReadTimeout;
+    
+    // endpoint para legacy bridge
+    @Value("${external-service.legacy-bridge.release-stock.uri}")
+    private String legacyBridgeReleaseStockUri;
+
+    @Value("${external-service.legacy-bridge.release-stock.connect-timeout}")
+    private String legacyBridgeReleaseStockConnectTimeout;
+
+    @Value("${external-service.legacy-bridge.release-stock.read-timeout}")
+    private String legacyBridgeReleaseStockReadTimeout;
+    
+
 }

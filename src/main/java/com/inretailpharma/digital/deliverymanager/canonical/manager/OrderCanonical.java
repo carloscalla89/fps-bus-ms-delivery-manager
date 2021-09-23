@@ -155,5 +155,6 @@ public class OrderCanonical {
     private String updateBy;
 
     private LiquidationCanonical liquidation;
+    private Long groupId;
 
 }

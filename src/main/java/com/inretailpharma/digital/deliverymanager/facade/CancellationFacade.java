@@ -20,12 +20,13 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.ShoppingCart
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.CancellationDto;
-import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
+import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @Slf4j
@@ -33,14 +34,17 @@ import reactor.core.scheduler.Schedulers;
 public class CancellationFacade extends FacadeAbstractUtil{
 
     private ExternalServicesProperties externalServicesProperties;
-    private UpdateTracker updateTracker;
+    private DeliveryManagerFacade deliveryManagerFacade;
+    private OrderExternalService stockService;
 
     @Autowired
     public CancellationFacade(ExternalServicesProperties externalServicesProperties,
-                              @Qualifier("updateTracker") UpdateTracker updateTracker) {
+                              DeliveryManagerFacade deliveryManagerFacade,
+                              @Qualifier("stock")OrderExternalService stockService) {
 
         this.externalServicesProperties = externalServicesProperties;
-        this.updateTracker = updateTracker;
+        this.deliveryManagerFacade = deliveryManagerFacade;
+        this.stockService = stockService;
     }
 
     public Flux<CancellationCanonical> getOrderCancellationList(List<String> appType, String type) {
@@ -73,8 +77,8 @@ public class CancellationFacade extends FacadeAbstractUtil{
                                                 .updatedBy(Constant.TASK_LAMBDA_UPDATED_BY)
                                                 .build();
 
-                    return updateTracker
-                            .evaluate(actionDto,r.getEcommerceId().toString())
+                    return deliveryManagerFacade
+                            .getUpdateOrder(actionDto, r.getEcommerceId().toString())
                             .defaultIfEmpty(
                                     new OrderCanonical(
                                             r.getEcommerceId(),
@@ -108,7 +112,7 @@ public class CancellationFacade extends FacadeAbstractUtil{
                                 orderCancelledCanonical.setStatusCode(s.getOrderStatus().getCode());
                                 orderCancelledCanonical.setStatusName(s.getOrderStatus().getName());
                                 orderCancelledCanonical.setStatusDetail(s.getOrderStatus().getDetail());
-                                
+
                                 return Flux.just(orderCancelledCanonical);
                             }).defaultIfEmpty(
                                     new OrderCancelledCanonical(
@@ -121,21 +125,13 @@ public class CancellationFacade extends FacadeAbstractUtil{
                 .doOnComplete(() -> log.info("[END] cancelOrderProcess"));
     }
 
-    public ResponseCanonical updateShoppingCartStatusAndNotes(ShoppingCartStatusCanonical shoppingCartStatusCanonical) {
-        ResponseCanonical responseCanonical = new ResponseCanonical();
-        try{
-            RestTemplate restTemplate = new RestTemplate();
-            String restoreStockUrl = externalServicesProperties.getUriApiRestoreStock();
-            log.info("calling Insink service: {}", restoreStockUrl);
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("orderId", shoppingCartStatusCanonical.getId());
-            restTemplate.exchange(restoreStockUrl, HttpMethod.PUT, HttpEntity.EMPTY, String.class, parameters);
-            responseCanonical.setCode("200");
-        }catch (Exception e) {
-            e.getStackTrace();
-            responseCanonical.setCode("500");
-        }
-        return responseCanonical;
+    public Mono<ResponseCanonical> updateShoppingCartStatusAndNotes(ShoppingCartStatusCanonical shoppingCartStatusCanonical) {
+
+    	stockService.releaseStock(shoppingCartStatusCanonical.getId()).subscribe();
+    	ResponseCanonical responseCanonical = new ResponseCanonical();
+    	responseCanonical.setCode("200");
+    	return Mono.just(responseCanonical);
+
     }
 
 }

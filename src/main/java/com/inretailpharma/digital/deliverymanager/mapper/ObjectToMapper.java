@@ -69,8 +69,7 @@ public class ObjectToMapper {
 
         liquidationDto.setTransactionVisanet(orderCanonical.getPaymentMethod().getPaymentTransactionId());
         liquidationDto.setTransactionVisanetDate(
-                Optional.ofNullable(orderCanonical.getPaymentMethod().getTransactionDateVisanet())
-                        .map(DateUtils::getLocalDateTimeFormatUTC).orElse(null)
+                Optional.ofNullable(orderCanonical.getPaymentMethod().getTransactionVisaOrder()).orElse(null)
         );
         liquidationDto.setSource(orderCanonical.getSource());
         liquidationDto.setServiceType(orderCanonical.getOrderDetail().getServiceType());
@@ -86,6 +85,12 @@ public class ObjectToMapper {
         liquidationDto.setFullName(orderCanonical.getClient().getFullName());
         liquidationDto.setDocumentNumber(orderCanonical.getClient().getDocumentNumber());
         liquidationDto.setPhone(orderCanonical.getClient().getPhone());
+        
+        liquidationDto.setGroupId(orderCanonical.getGroupId());
+        Optional.ofNullable(orderCanonical.getPaymentMethod())
+        	.ifPresent(r -> liquidationDto.setCardProviderCode(r.getCardProviderCode()));
+        
+        liquidationDto.setOrigin(Constant.ORIGIN_DELIVERY_MANAGER);
 
         return liquidationDto;
 
@@ -99,6 +104,7 @@ public class ObjectToMapper {
         statusDto.setDetail(orderCanonical.getOrderStatus().getDetail());
         statusDto.setCancellationCode(orderCanonical.getOrderStatus().getCancellationCode());
         statusDto.setCancellationDescription(orderCanonical.getOrderStatus().getCancellationDescription());
+        statusDto.setOrigin(Constant.ORIGIN_DELIVERY_MANAGER);
 
         return statusDto;
     }
@@ -406,6 +412,11 @@ public class ObjectToMapper {
                 || orderInkatrackerCanonical.getSubtotal().doubleValue() != orderInkatrackerCanonical.getSubTotalWithNoSpecificPaymentMethod().doubleValue()){
             if(iOrderFulfillment.getDiscountAppliedNoDP()!=null){
                 orderInkatrackerCanonical.setDiscountApplied(iOrderFulfillment.getDiscountAppliedNoDP().doubleValue());
+                BigDecimal discountAppliedNoDP = BigDecimal.valueOf(iOrderFulfillment.getDiscountAppliedNoDP().doubleValue());
+                BigDecimal discountApplied = BigDecimal.valueOf(iOrderFulfillment.getDiscountApplied().doubleValue());
+                BigDecimal subTotalCost = BigDecimal.valueOf(orderInkatrackerCanonical.getSubtotal().doubleValue());
+                discountApplied=discountApplied.subtract(discountAppliedNoDP);
+                orderInkatrackerCanonical.setSubtotal(subTotalCost.subtract(discountApplied).doubleValue());
             }
         }
         /** ********************* **/
@@ -1056,10 +1067,6 @@ public class ObjectToMapper {
         paymentMethod.setProviderCardCommercialCode(orderDto.getPayment().getProviderCardCommercialCode());
         paymentMethod.setNumPanVisanet(orderDto.getPayment().getNumPanVisaNet());
 
-        Optional.ofNullable(orderDto.getPayment().getTransactionDateVisaNet())
-                .filter(res -> GenericValidator.isDate(res, DateUtils.getFormatDateTimeTemplate(), true))
-                .ifPresent(res -> paymentMethod.setTransactionDateVisanet(DateUtils.getLocalDateTimeFromStringWithFormat(res)));
-
         orderFulfillment.setPaymentMethod(paymentMethod);
 
         // object receipt
@@ -1087,6 +1094,8 @@ public class ObjectToMapper {
         orderFulfillment.setDiscountAppliedNoDP(orderDto.getDiscountAppliedNoDP());
 
         /** ************ **/
+
+        orderFulfillment.setGroupId(orderDto.getGroupId());
 
         orderFulfillment.setMixedOrder(orderDto.isMixedOrder());
 
@@ -1336,6 +1345,8 @@ public class ObjectToMapper {
                 .filter(res -> GenericValidator.isDate(res, DateUtils.getFormatDateTimeTemplate(), true))
                 .ifPresent(paymentMethod::setTransactionDateVisanet);
 
+        paymentMethod.setTransactionVisaOrder(orderDto.getSchedules().getTransactionVisaOrder());
+
         orderCanonical.setPaymentMethod(paymentMethod);
 
         log.info("[END] convertEntityToOrderCanonical");
@@ -1404,6 +1415,8 @@ public class ObjectToMapper {
                         .build()
         );
         /* */
+                
+        orderCanonical.setGroupId(orderDto.getGroupId());
 
         return orderCanonical;
 
