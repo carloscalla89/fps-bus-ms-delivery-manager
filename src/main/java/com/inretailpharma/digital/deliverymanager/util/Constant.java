@@ -196,10 +196,10 @@ public interface Constant {
                 METHOD_CREATE, RetryDeliveryDispatcher.class),
 
         REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9,
-                METHOD_UPDATE, UpdateTracker.class),
+                METHOD_UPDATE, CancelOrder.class),
 
         CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9,
-                METHOD_UPDATE, UpdateTracker.class),
+                METHOD_UPDATE, CancelOrder.class),
 
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9,
                 METHOD_UPDATE, UpdateTracker.class),
@@ -700,6 +700,7 @@ public interface Constant {
     String METHOD_NONE = "NONE";
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
     String SOURCE_AGORA = "AGORA";
+    String CANCEL_CODE_POSU = "EXP";
 
 
     String ACTION_DELIVER_ORDER = "DELIVER_ORDER";
