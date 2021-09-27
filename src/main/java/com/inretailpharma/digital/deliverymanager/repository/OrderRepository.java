@@ -82,7 +82,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "inner join receipt_type rt on rt.order_fulfillment_id = o.id " +
             "inner join address_fulfillment af on af.order_fulfillment_id = o.id " +
             "where o.ecommerce_purchase_id = :ecommerceId " +
-            "group by o.ecommerce_purchase_id order by scheduled_time desc ",
+            "order by o.id desc limit 1  ",
             nativeQuery = true
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
