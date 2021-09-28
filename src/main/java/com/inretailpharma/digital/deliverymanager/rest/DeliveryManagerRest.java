@@ -1,7 +1,9 @@
 package com.inretailpharma.digital.deliverymanager.rest;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ServerResponseError;
+import com.inretailpharma.digital.deliverymanager.mangepartner.client.ManagePartnerClient;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +31,8 @@ public class DeliveryManagerRest {
 
     private DeliveryManagerFacade deliveryManagerFacade;
 
+    private ManagePartnerClient managePartnerClient;
+
     public DeliveryManagerRest(DeliveryManagerFacade deliveryManagerFacade) {
         this.deliveryManagerFacade = deliveryManagerFacade;
     }
@@ -40,6 +44,13 @@ public class DeliveryManagerRest {
 
         log.info("[START] endpoint updateStatus /order/{} - ecommerceId - action {}"
                 ,ecommerceId,action);
+
+        // Notify status to Manage-partner component.
+        Long ecommercePurchaseId = Long.parseLong(ecommerceId);
+        IOrderFulfillment order = deliveryManagerFacade.getOrderByEcommerceID(ecommercePurchaseId);
+        if (order != null && order.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)) {
+            managePartnerClient.notifyEvent(ecommerceId, action);
+        }
 
         return deliveryManagerFacade
                 .getUpdateOrder(action, ecommerceId)
