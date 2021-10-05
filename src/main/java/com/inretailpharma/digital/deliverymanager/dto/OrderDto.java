@@ -8,7 +8,6 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -89,7 +88,8 @@ public class OrderDto {
      * autor: Omni
      */
     private Long groupId;
-
+    private String saleChannel;
+    private String saleChannelType;
 
 
 }
