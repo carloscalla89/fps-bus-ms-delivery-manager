@@ -442,6 +442,8 @@ public class ObjectToMapper {
             client.setInkaclub(c.getHasInkaClub());
             client.setNotificationToken(c.getNotificationToken());
             client.setNewUserId(c.getNewUserId());
+            client.setReferralCode(c.getReferralCode());
+            client.setReferralMsg(c.getReferralMsg());
         });
 
         return client;
@@ -927,6 +929,8 @@ public class ObjectToMapper {
         clientInkatrackerCanonical.setUserId(clientCanonical.getUserId());
         clientInkatrackerCanonical.setJoinIdentifierId(clientCanonical.getNewUserId());
         clientInkatrackerCanonical.setNotificationToken(clientCanonical.getNotificationToken());
+        clientInkatrackerCanonical.setReferralCode(clientCanonical.getReferralCode());
+        clientInkatrackerCanonical.setReferralMsg(clientCanonical.getReferralMsg());
         return clientInkatrackerCanonical;
     }
 
@@ -1233,6 +1237,8 @@ public class ObjectToMapper {
             client.setLastName(r.getLastName());
             client.setUserId(r.getUserId());
             client.setNewUserId(r.getNewUserId());
+            client.setReferralCode(r.getReferralCode());
+            client.setReferralMsg(r.getReferralMsg());
         });
 
         orderCanonical.setClient(client);

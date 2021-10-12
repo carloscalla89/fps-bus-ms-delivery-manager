@@ -44,4 +44,10 @@ public class Client  implements Serializable {
     @Column(name="new_user_id")
     private String newUserId;
 
+    @Column(name="referral_code")
+    private String referralCode;
+
+    @Column(name="referral_msg")
+    private String referralMsg;
+
 }

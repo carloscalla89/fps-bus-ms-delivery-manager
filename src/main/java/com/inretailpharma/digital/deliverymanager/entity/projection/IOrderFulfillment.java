@@ -36,6 +36,8 @@ public interface IOrderFulfillment {
     String getNotificationToken();
     String getUserId();
     String getNewUserId();
+    String getReferralCode();
+    String getReferralMsg();
 
     String getCenterCode();
     String getCenterName();
