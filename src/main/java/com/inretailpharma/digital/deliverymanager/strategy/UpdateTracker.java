@@ -71,16 +71,10 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
 
         IOrderFulfillment iOrderFulfillment = getOrderLightByecommerceId(ecommerceId);
 
-        log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, serviceType:{}, serviceShortCode:{}, " +
-                        "classImplementTracker:{}, source:{}, channel:{}, sendNotificationByChannel:{}",
+        log.info("sendToUpdateOrder proxy: orderId:{}, ecommerceId:{}, action:{}, serviceType:{}",
                 iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), actionDto,
-                iOrderFulfillment.getServiceType(), iOrderFulfillment.getServiceTypeShortCode(),
-                iOrderFulfillment.getClassImplement(), iOrderFulfillment.getSource(), iOrderFulfillment.getServiceChannel(),
-                iOrderFulfillment.getSendNotificationByChannel());
+                iOrderFulfillment.getServiceType());
 
-        CancellationCodeReason codeReason = orderCancellationService.evaluateGetCancel(actionDto);
-
-        log.info("cancellationCodeReason:{}",codeReason);
 
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
                 actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
@@ -102,9 +96,9 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                         iOrderFulfillment.getEcommerceId(),
                                         iOrderFulfillment.getExternalId(),
                                         iOrderFulfillment.getStatusName(),
-                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
-                                        Optional.ofNullable(codeReason).map(CancellationCodeReason::getReason).orElse(null),
-                                        actionDto.getOrderCancelObservation(),
+                                        null,
+                                        null,
+                                        null,
                                         null
 
                                 )
@@ -114,8 +108,8 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                                                 iOrderFulfillment.getOrderId(),
                                                 iOrderFulfillment.getEcommerceId(),
                                                 iOrderFulfillment.getExternalId(),
-                                                Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
-                                                actionDto.getOrderCancelObservation(),
+                                                null,
+                                                null,
                                                 Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                                                 Constant.ClassesImplements.getByClass(utilClass.getClassImplementationToOrderExternalService(objectClass)).getTargetName(),
                                                 actionDto.getUpdatedBy(),
@@ -140,8 +134,8 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                             iOrderFulfillment.getOrderId(),
                             iOrderFulfillment.getEcommerceId(),
                             iOrderFulfillment.getExternalId(),
-                            Optional.ofNullable(codeReason).map(CancellationCodeReason::getCode).orElse(actionDto.getOrderCancelCode()),
-                            actionDto.getOrderCancelObservation(),
+                            null,
+                            null,
                             Optional.ofNullable(actionDto.getOrigin()).orElse(Constant.ORIGIN_UNIFIED_POS),
                             Constant.ClassesImplements.getByClass(utilClass.getClassToTracker()).getTargetName(),
                             actionDto.getUpdatedBy(),
