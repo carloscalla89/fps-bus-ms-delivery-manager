@@ -909,6 +909,7 @@ public class ObjectToMapper {
     }
 
     private ClientInkatrackerCanonical getFromtOrderCanonical(IOrderFulfillment clientCanonical) {
+        log.info("IOrderFulfillment - referral: {}", clientCanonical);
         ClientInkatrackerCanonical clientInkatrackerCanonical = new ClientInkatrackerCanonical();
         Optional.ofNullable(clientCanonical.getBirthDate()).ifPresent(r ->
                 clientInkatrackerCanonical.setBirthDate(DateUtils.getLocalDateFromStringDate(r).toEpochDay()));
