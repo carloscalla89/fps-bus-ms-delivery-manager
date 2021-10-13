@@ -700,7 +700,7 @@ public interface Constant {
     String METHOD_NONE = "NONE";
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
     String SOURCE_AGORA = "AGORA";
-    String CANCEL_CODE_POSU = "EXP";
+    String SOURCE_RAPPI = "RAPPI";
 
 
     String ACTION_DELIVER_ORDER = "DELIVER_ORDER";

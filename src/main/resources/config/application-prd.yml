@@ -130,3 +130,5 @@ external-service:
       uri: http://legacy-bridgeprd.backend.cindibyinkafarma.com/omni/v1.0.0/legacy/release-stock/
       connect-timeout: 30000
       read-timeout: 60000
+  manage-partner:
+    update-status: http://fps-wsmanagepartnerprd.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.*;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.strategy.IActionStrategy;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,4 +155,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                 );
     }
 
+    public IOrderFulfillment getOrderByEcommerceID(Long ecommercePurchaseId) {
+        return orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
+    }
 }
