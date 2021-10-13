@@ -23,6 +23,6 @@ public class ClientCanonical {
     private String notificationToken;
     private String newUserId;
     private String referralCode;
-    private String referralMsg;
+    private String referralMessage;
 
 }

@@ -48,6 +48,6 @@ public class Client  implements Serializable {
     private String referralCode;
 
     @Column(name="referral_msg")
-    private String referralMsg;
+    private String referralMessage;
 
 }
