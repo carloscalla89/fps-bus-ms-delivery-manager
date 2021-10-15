@@ -5,6 +5,7 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.errorhandling.ServerResponseError;
 import com.inretailpharma.digital.deliverymanager.mangepartner.client.ManagePartnerClient;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ public class DeliveryManagerRest {
 
     private DeliveryManagerFacade deliveryManagerFacade;
 
+    @Autowired
     private ManagePartnerClient managePartnerClient;
 
     public DeliveryManagerRest(DeliveryManagerFacade deliveryManagerFacade) {
