@@ -4,16 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.inretailpharma.digital.deliverymanager.adapter.*;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.IStoreAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
-import com.inretailpharma.digital.deliverymanager.adapter.PaymentAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
@@ -49,12 +46,15 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
     private PaymentAdapter paymentAdapter;
     
     private OrderExternalService stockService;
+
+    private ISellerCenterAdapter iSellerCenterAdapter;
     
     @Autowired
     public CancelOrder(OrderCancellationService orderCancellationService, IStoreAdapter iStoreAdapter,
-                         ApplicationContext context, @Qualifier("trackerAdapter")ITrackerAdapter iTrackerAdapter,
-                         IAuditAdapter iAuditAdapter, PaymentAdapter paymentAdapter,
-                         @Qualifier("stock")OrderExternalService stockService) {
+                       ApplicationContext context, @Qualifier("trackerAdapter")ITrackerAdapter iTrackerAdapter,
+                       IAuditAdapter iAuditAdapter, PaymentAdapter paymentAdapter,
+                       @Qualifier("stock")OrderExternalService stockService,
+                       ISellerCenterAdapter iSellerCenterAdapter) {
     	
         this.orderCancellationService = orderCancellationService;
         this.iStoreAdapter = iStoreAdapter;
@@ -63,6 +63,7 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
         this.iAuditAdapter = iAuditAdapter;
         this.paymentAdapter = paymentAdapter;
         this.stockService = stockService;
+        this.iSellerCenterAdapter = iSellerCenterAdapter;
     }
     
     @Override
@@ -103,6 +104,14 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
 
             return paymentAdapter.getfromOnlinePayment(iOrderFulfillment, actionDto);
 
+        }
+
+        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER)) {
+            iSellerCenterAdapter
+                    .updateStatusOrderSeller(ecommerceId, actionDto.getAction())
+                    .flatMap(orderCanonical -> getDataToSentAudit(orderCanonical, actionDto))
+                    .map(orderCanonical -> iAuditAdapter.updateAudit(orderCanonical, actionDto.getUpdatedBy()))
+                    .subscribe();
         }
 
         CancellationCodeReason codeReason = orderCancellationService.evaluateGetCancel(actionDto);

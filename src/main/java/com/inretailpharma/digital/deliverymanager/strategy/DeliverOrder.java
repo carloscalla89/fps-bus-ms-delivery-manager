@@ -8,6 +8,7 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusC
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.facade.FacadeAbstractUtil;
+import com.inretailpharma.digital.deliverymanager.mangepartner.client.ManagePartnerClient;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.UtilClass;
 import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
@@ -28,11 +29,14 @@ public class DeliverOrder extends FacadeAbstractUtil implements IActionStrategy{
     private ApplicationContext context;
     private IAuditAdapter iAuditAdapter;
     private ISellerCenterAdapter iSellerCenterAdapter;
+    private ManagePartnerClient managePartnerClient;
 
-    public DeliverOrder(ApplicationContext context, IAuditAdapter iAuditAdapter, ISellerCenterAdapter iSellerCenterAdapter) {
+    public DeliverOrder(ApplicationContext context, IAuditAdapter iAuditAdapter,
+                        ISellerCenterAdapter iSellerCenterAdapter, ManagePartnerClient managePartnerClient) {
         this.context = context;
         this.iAuditAdapter = iAuditAdapter;
         this.iSellerCenterAdapter = iSellerCenterAdapter;
+        this.managePartnerClient = managePartnerClient;
     }
 
     @Override
@@ -56,6 +60,18 @@ public class DeliverOrder extends FacadeAbstractUtil implements IActionStrategy{
         Function<List<OrderCanonical>, Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(actionDto, iOrderFulfillment);
 
+
+        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)) {
+            managePartnerClient.notifyEvent(ecommerceId.toString(), actionDto);
+        }
+
+        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER)) {
+            iSellerCenterAdapter
+                    .updateStatusOrderSeller(ecommerceId, actionDto.getAction())
+                    .flatMap(orderCanonical -> getDataToSentAudit(orderCanonical, actionDto))
+                    .map(orderCanonical -> iAuditAdapter.updateAudit(orderCanonical, actionDto.getUpdatedBy()))
+                    .subscribe();
+        }
 
         // validar si el source es de seller center para llamar al componente
 

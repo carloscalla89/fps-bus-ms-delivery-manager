@@ -6,15 +6,14 @@ import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.facade.FacadeAbstractUtil;
+import com.inretailpharma.digital.deliverymanager.mangepartner.client.ManagePartnerClient;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.UtilClass;
 import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -26,17 +25,16 @@ import java.util.function.Function;
 
 @Slf4j
 @Component
-public class PrepareOrder extends FacadeAbstractUtil implements IActionStrategy{
+public class PickerOrder extends FacadeAbstractUtil implements IActionStrategy{
 
     private ApplicationContext context;
     private IAuditAdapter iAuditAdapter;
-    private ISellerCenterAdapter iSellerCenterAdapter;
+    private ManagePartnerClient managePartnerClient;
 
-    @Autowired
-    public PrepareOrder(ApplicationContext context, IAuditAdapter iAuditAdapter, ISellerCenterAdapter iSellerCenterAdapter) {
+    public PickerOrder(ApplicationContext context, IAuditAdapter iAuditAdapter, ManagePartnerClient managePartnerClient) {
         this.context = context;
         this.iAuditAdapter = iAuditAdapter;
-        this.iSellerCenterAdapter = iSellerCenterAdapter;
+        this.managePartnerClient = managePartnerClient;
     }
 
     @Override
@@ -49,11 +47,14 @@ public class PrepareOrder extends FacadeAbstractUtil implements IActionStrategy{
 
     @Override
     public Mono<OrderCanonical> process(ActionDto actionDto, Long ecommerceId) {
-
         IOrderFulfillment iOrderFulfillment = getOrderLightByecommerceId(ecommerceId);
 
         log.info("prepareOrder update proxy: orderId:{}, ecommerceId:{}, action:{},",
                 iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), actionDto);
+
+        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)) {
+            managePartnerClient.notifyEvent(ecommerceId.toString(), actionDto);
+        }
 
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
                 actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
@@ -62,14 +63,10 @@ public class PrepareOrder extends FacadeAbstractUtil implements IActionStrategy{
                 responses -> processSendNotification(actionDto, iOrderFulfillment);
 
 
-        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER)) {
-            iSellerCenterAdapter
-                    .updateStatusOrderSeller(ecommerceId, actionDto.getAction())
-                    .flatMap(orderCanonical -> getDataToSentAudit(orderCanonical, actionDto))
-                    .map(orderCanonical -> iAuditAdapter.updateAudit(orderCanonical, actionDto.getUpdatedBy()))
-                    .subscribe();
-
+        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)) {
+            managePartnerClient.notifyEvent(ecommerceId.toString(), actionDto);
         }
+
 
         // validar si el source es de seller center para llamar al componente
 
@@ -157,7 +154,5 @@ public class PrepareOrder extends FacadeAbstractUtil implements IActionStrategy{
                                         actionDto.getOrderCancelCode()))
                 )
                 .single();
-
     }
-
 }

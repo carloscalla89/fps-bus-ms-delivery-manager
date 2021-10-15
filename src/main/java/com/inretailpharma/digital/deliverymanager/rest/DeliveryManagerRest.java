@@ -31,8 +31,6 @@ public class DeliveryManagerRest {
 
     private DeliveryManagerFacade deliveryManagerFacade;
 
-    private ManagePartnerClient managePartnerClient;
-
     public DeliveryManagerRest(DeliveryManagerFacade deliveryManagerFacade) {
         this.deliveryManagerFacade = deliveryManagerFacade;
     }
@@ -42,15 +40,9 @@ public class DeliveryManagerRest {
             @PathVariable(value = "ecommerceId") String ecommerceId,
             @RequestBody ActionDto action) {
 
+
         log.info("[START] endpoint updateStatus /order/{} - ecommerceId - action {}"
                 ,ecommerceId,action);
-
-        // Notify status to Manage-partner component.
-        Long ecommercePurchaseId = Long.parseLong(ecommerceId);
-        IOrderFulfillment order = deliveryManagerFacade.getOrderByEcommerceID(ecommercePurchaseId);
-        if (order != null && order.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)) {
-            managePartnerClient.notifyEvent(ecommerceId, action);
-        }
 
         return deliveryManagerFacade
                 .getUpdateOrder(action, ecommerceId)

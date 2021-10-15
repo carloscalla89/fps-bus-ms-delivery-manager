@@ -58,6 +58,16 @@ public class OnrouteOrder extends FacadeAbstractUtil implements IActionStrategy{
                 responses -> processSendNotification(actionDto, iOrderFulfillment);
 
 
+        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER)) {
+            iSellerCenterAdapter
+                    .updateStatusOrderSeller(ecommerceId, actionDto.getAction())
+                    .doOnNext(val -> log.info("result updateStatusOrderSeller seller onrouter:{}",val))
+                    .flatMap(orderCanonical -> getDataToSentAudit(orderCanonical, actionDto))
+                    .doOnNext(val -> log.info("result getDataToSentAudit seller onrouter:{}",val))
+                    .map(orderCanonical -> iAuditAdapter.updateAudit(orderCanonical, actionDto.getUpdatedBy()))
+                    .subscribe();
+        }
+
         // validar si el source es de seller center para llamar al componente
 
         return Flux

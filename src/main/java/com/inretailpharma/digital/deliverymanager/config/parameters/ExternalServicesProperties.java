@@ -89,9 +89,6 @@ public class ExternalServicesProperties {
 
     // ------------------------------------------------------
 
-    @Value("${external-service.dispatcher.retry-seller-center.uri}")
-    private String dispatcherRetrySellerCenterUri;
-
 
     // properties to inkatracker lite to update
     @Value("${external-service.inkatrackerlite.update-order.uri}")
@@ -173,10 +170,6 @@ public class ExternalServicesProperties {
     @Value("${external-service.fulfillment-center.get-center.read-timeout}")
     private String fulfillmentCenterGetCenterReadTimeOut;
 
-    // properties seller-center
-    @Value("${external-service.seller-center.add-controversy.uri}")
-    private String addControversyUri;
-    
     //online payment    
     //Liquidation
     @Value("${external-service.online-payment.liquidated.uri}")
@@ -261,5 +254,6 @@ public class ExternalServicesProperties {
     @Value("${external-service.legacy-bridge.release-stock.read-timeout}")
     private String legacyBridgeReleaseStockReadTimeout;
     
+
 
 }
