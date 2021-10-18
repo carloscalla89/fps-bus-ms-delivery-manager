@@ -85,15 +85,15 @@ external-service:
       read-timeout: 30000
   seller-center:
     host: http://uS-Seller-Center
-      services:
-        update-status:
-          uri: /order/statusOrder/{ecommerceId}/{statusCode}
-          connect-timeout: 15000
-          read-timeout: 30000
-        add-controversy:
-          uri: /sellercenter/orders/
-          connect-timeout: 10000
-          read-timeout: 120000
+    services:
+      update-status:
+        uri: /order/statusOrder/{ecommerceId}/{statusCode}
+        connect-timeout: 15000
+        read-timeout: 30000
+      add-controversy:
+        uri: /sellercenter/orders/
+        connect-timeout: 10000
+        read-timeout: 120000
 
   online-payment:
     liquidated:
