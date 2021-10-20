@@ -241,6 +241,10 @@ public class ObjectToMapper {
         		 Optional.ofNullable(orderCanonical.getOrderDetail())
         		 		.map(od -> od.getServiceCode()).orElse(null)
         );
+        
+        auditHistoryDto.setSaleChannel(orderCanonical.getSaleChannel());
+        auditHistoryDto.setSaleChannelType(orderCanonical.getSaleChannelType());;
+        
         return auditHistoryDto;
     }
 
@@ -1099,6 +1103,8 @@ public class ObjectToMapper {
         /** ************ **/
 
         orderFulfillment.setGroupId(orderDto.getGroupId());
+        orderFulfillment.setSaleChannel(orderDto.getSaleChannel());
+        orderFulfillment.setSaleChannelType(Optional.ofNullable(orderDto.getSaleChannelType()).orElse(Constant.DEFAULT_SALE_CHANNEL_TYPE));
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
         return orderFulfillment;
@@ -1419,6 +1425,8 @@ public class ObjectToMapper {
         /* */
                 
         orderCanonical.setGroupId(orderDto.getGroupId());
+        orderCanonical.setSaleChannel(orderDto.getSaleChannel());
+        orderCanonical.setSaleChannelType(Optional.ofNullable(orderDto.getSaleChannelType()).orElse(Constant.DEFAULT_SALE_CHANNEL_TYPE));
 
         return orderCanonical;
 

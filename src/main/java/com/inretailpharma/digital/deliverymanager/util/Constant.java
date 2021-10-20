@@ -701,7 +701,6 @@ public interface Constant {
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
     String SOURCE_AGORA = "AGORA";
     String SOURCE_RAPPI = "RAPPI";
-    String CANCEL_CODE_POSU = "EXP";
 
 
     String ACTION_DELIVER_ORDER = "DELIVER_ORDER";
@@ -717,6 +716,8 @@ public interface Constant {
 
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";
+    
+    String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
 
     enum DeliveryManagerStatus {
 

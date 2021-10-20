@@ -28,5 +28,8 @@ public class AuditHistoryDto {
     private String brand;
     private String deliveryType;
     private String sourceChannel;
+    
+    private String saleChannel;
+    private String saleChannelType;
 
 }
