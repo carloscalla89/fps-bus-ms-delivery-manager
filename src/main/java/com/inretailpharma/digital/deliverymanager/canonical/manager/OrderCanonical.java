@@ -156,5 +156,8 @@ public class OrderCanonical {
 
     private LiquidationCanonical liquidation;
     private Long groupId;
+    
+    private String saleChannel;
+    private String saleChannelType;
 
 }
