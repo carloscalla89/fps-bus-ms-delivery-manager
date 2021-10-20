@@ -716,6 +716,8 @@ public interface Constant {
 
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";
+    
+    String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
 
     enum DeliveryManagerStatus {
 
