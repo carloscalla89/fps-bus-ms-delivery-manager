@@ -123,6 +123,10 @@ external-service:
       uri: http://us-liquidation/omni/liquidation/v1.0.0/orders
       connect-timeout: 10000
       read-timeout: 120000
+    update-order-online:
+      uri: http://us-liquidation/omni/liquidation/v1.0.0/orders/dc
+      connect-timeout: 10000
+      read-timeout: 120000
   insink:
     get-order-callcenter:
       uri: http://insink-aws-prueba.backend.inkafarma.pe/get/order
