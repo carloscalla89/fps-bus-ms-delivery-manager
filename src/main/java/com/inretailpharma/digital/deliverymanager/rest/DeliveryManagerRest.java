@@ -25,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Arrays;
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/fulfillment")
 @Slf4j
@@ -51,7 +54,10 @@ public class DeliveryManagerRest {
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
         IOrderFulfillment order = deliveryManagerFacade.getOrderByEcommerceID(ecommercePurchaseId);
         if (order != null && order.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)) {
-            managePartnerClient.notifyEvent(ecommerceId, action);
+            List<String> orderStatuses = Arrays.asList(Constant.ORDER_STATUS_RAPPI);
+            if (orderStatuses.contains(action.getAction())) {
+                managePartnerClient.notifyEvent(ecommerceId, action);
+            }
         }
 
         return deliveryManagerFacade
