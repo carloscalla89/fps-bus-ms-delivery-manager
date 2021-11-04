@@ -47,6 +47,7 @@ public class DeliveryManagerRest {
             @PathVariable(value = "ecommerceId") String ecommerceId,
             @RequestBody ActionDto action) {
 
+
         log.info("[START] endpoint updateStatus /order/{} - ecommerceId - action {}"
                 ,ecommerceId,action);
 

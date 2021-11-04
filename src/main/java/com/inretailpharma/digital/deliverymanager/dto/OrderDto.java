@@ -8,7 +8,6 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -83,13 +82,15 @@ public class OrderDto {
     private BigDecimal totalWithPaymentMethod;
     private String paymentMethodCardType;
     private BigDecimal discountAppliedNoDP;
-    
+
     /**
      * Fecha: 26/07/2021
      * autor: Omni
      */
     private Long groupId;
+    private String saleChannel;
+    private String saleChannelType;
 
-
+    private boolean mixedOrder;
 
 }
