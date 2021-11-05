@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.apache.commons.lang3.StringUtils;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -198,9 +199,28 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
             }
 
         }
-        
-        log.info("Releasing stock for order {}", ecommerceId);
-        stockService.releaseStock(ecommerceId).subscribe();
+
+        String cancelCode = StringUtils.upperCase(StringUtils.trim(actionDto.getOrderCancelCode()));
+        log.info("Releasing stock for order {} - origin {} - cancelCode{}"
+                , ecommerceId, actionDto.getOrigin(), cancelCode);
+
+        if (actionDto.getOrigin() != null) {
+
+            stockService.releaseStock(ecommerceId).subscribe();
+
+        } else {
+
+            if (Constant.DU_CANCEL_CODE.equals(cancelCode)) {
+
+                stockService.releaseStock(ecommerceId).subscribe();
+
+            } else {
+
+                log.info("Origin null, wont release stock for order {}", ecommerceId);
+
+            }
+
+        }
 
         return Flux
                 .fromIterable(utilClass.getClassesToSend())
