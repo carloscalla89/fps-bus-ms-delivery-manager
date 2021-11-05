@@ -40,6 +40,7 @@ import com.inretailpharma.digital.deliverymanager.repository.ServiceTypeReposito
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @Service
@@ -157,6 +158,13 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 		log.info("CALL Repository--getOrderByOrderNumber:"+orderNumber);
 		return orderRepository.getOrderByOrderNumber(orderNumber);
 	}
+
+    @Override
+    public List<IOrderFulfillment> getOrder() {
+        log.info("CALL Repository--getOrder:" );
+        return orderRepository.getOrder();
+    }
+
 
     @Override
     public boolean updatePartialOrderHeader(OrderDto orderDto) {

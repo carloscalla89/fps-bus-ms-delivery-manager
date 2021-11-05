@@ -15,6 +15,8 @@ import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+import reactor.core.publisher.Flux;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -86,6 +88,21 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
+
+    //cabecera de orden
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
+            "o.scheduled_time as scheduledTime, os.type as statusName, s.center_code as centerCode, " +
+            "s.company_code as companyCode, st.source_channel as serviceChannel, st.short_code as serviceTypeShortCode, " +
+            "c.first_name as firstName,  c.document_number as documentNumber,  c.last_name as lastName " +
+            "from order_fulfillment o " +
+            "inner join client_fulfillment c on c.id = o.client_id " +
+            "inner join order_process_status s on o.id = s.order_fulfillment_id " +
+            "inner join order_status os on os.code = s.order_status_code " +
+            "inner join service_type st on st.code = s.service_type_code " +
+            "order by o.id desc limit 10",
+            nativeQuery = true
+    )
+    List<IOrderFulfillment> getOrder();
 
     @Query(value = "SELECT order_status_code as statusCode, liquidationStatus, liquidationStatusdetail " +
             "FROM order_fulfillment o " +

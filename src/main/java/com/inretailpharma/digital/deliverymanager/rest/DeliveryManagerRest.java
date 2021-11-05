@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.rest;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ServerResponseError;
@@ -21,6 +22,7 @@ import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -82,5 +84,12 @@ public class DeliveryManagerRest {
         		.doOnError(e -> log.info("error on response entity:"+e))
                 .doOnSuccess(r -> log.info("[END] endpoint /fulfillment/order/{orderNumber}"))
                 .subscribeOn(Schedulers.parallel());
+    }
+
+    @GetMapping(value = "/order",produces=MediaType.APPLICATION_JSON_VALUE)
+    public Flux<OrderCanonicalFulfitment> getOrder() {
+        log.info("[START] endpoint /fulfillment/order {}");
+        return deliveryManagerFacade.getOrder().subscribeOn(Schedulers.parallel());
+
     }
 }

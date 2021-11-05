@@ -18,6 +18,7 @@ import com.inretailpharma.digital.deliverymanager.entity.ServiceType;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+import reactor.core.publisher.Flux;
 
 public interface OrderRepositoryService {
 
@@ -45,6 +46,8 @@ public interface OrderRepositoryService {
     IOrderFulfillment getOnlyOrderStatusByecommerceId(Long ecommerceId);
 
     <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
+
+    List<IOrderFulfillment> getOrder();
 
     boolean updatePartialOrderHeader(OrderDto orderDto);
     boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment);

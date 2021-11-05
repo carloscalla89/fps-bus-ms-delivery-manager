@@ -1,9 +1,11 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.*;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.strategy.IActionStrategy;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
@@ -22,6 +24,7 @@ import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -34,6 +37,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     private LiquidationFacade liquidationFacade;
     private Map<Constant.ActionOrder, IActionStrategy> actionsProcessors;
     private ApplicationContext context;
+
 
     @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
@@ -112,6 +116,26 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                 .onErrorResume(e -> {
                     log.info("ERROR ON CALL ORDEN TRANSACTION");
                     throw new RuntimeException("Error on get order by orderNumber..." + e);
+                });
+    }
+
+    public Flux<OrderCanonicalFulfitment> getOrder() {
+        return Flux.fromIterable( orderTransaction.getOrder())
+                .flatMap(x -> {
+                    OrderCanonicalFulfitment orderCanonicalFulfitment = new OrderCanonicalFulfitment();
+                    orderCanonicalFulfitment.setOrderId(x.getOrderId());
+                    orderCanonicalFulfitment.setEcommerceId(x.getEcommerceId());
+                    orderCanonicalFulfitment.setLocalId(x.getCenterCode());
+                    orderCanonicalFulfitment.setServiceChannel(x.getServiceChannel());
+                    orderCanonicalFulfitment.setServiceTypeId(x.getServiceType());
+                    orderCanonicalFulfitment.setFechaPromesa(
+                            x.getScheduledTime().toLocalDate().toString()+" "+
+                                    x.getScheduledTime().toLocalTime());
+                    orderCanonicalFulfitment.setRazonSocial(
+                            x.getFirstName()+" "+x.getLastName()
+                    );
+                    orderCanonicalFulfitment.setDocumentoId(x.getDocumentNumber());
+                    return Flux.just(orderCanonicalFulfitment);
                 });
     }
 

@@ -31,6 +31,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -266,6 +267,10 @@ public class OrderTransaction {
 
     public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
         return orderRepositoryService.getOrderByOrderNumber(orderNumber);
+    }
+
+    public List<IOrderFulfillment> getOrder() {
+        return orderRepositoryService.getOrder();
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
