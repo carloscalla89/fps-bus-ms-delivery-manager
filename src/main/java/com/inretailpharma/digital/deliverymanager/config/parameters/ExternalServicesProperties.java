@@ -241,6 +241,16 @@ public class ExternalServicesProperties {
     @Value("${external-service.liquidation.update-order.read-timeout}")
     private String liquidationUpdateOrderReadTimeOut;
 
+    // endoint para actualizar una orden (en linea - bbr)
+    @Value("${external-service.liquidation.update-order-online.uri}")
+    private String liquidationUpdateOrderOnlineUri;
+
+    @Value("${external-service.liquidation.update-order-online.connect-timeout}")
+    private String liquidationUpdateOrderOnlineConnectTimeOut;
+
+    @Value("${external-service.liquidation.update-order-online.read-timeout}")
+    private String liquidationUpdateOrderOnlineReadTimeOut;
+
     // ********************************************
 
     // endoint para traer la orden desde el insink(call center)
