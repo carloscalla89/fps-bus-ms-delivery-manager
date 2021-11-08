@@ -701,6 +701,7 @@ public interface Constant {
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
     String SOURCE_AGORA = "AGORA";
     String SOURCE_RAPPI = "RAPPI";
+    String DU_CANCEL_CODE = "DU";
 
 
     String ACTION_DELIVER_ORDER = "DELIVER_ORDER";
