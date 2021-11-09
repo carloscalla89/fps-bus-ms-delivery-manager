@@ -87,14 +87,16 @@ external-service:
       connect-timeout: 15000
       read-timeout: 30000
   seller-center:
-    get-controversies:
-      uri: http://uS-Seller-Center/sellercenter/orders/
-      connect-timeout: 10000
-      read-timeout: 120000
-    add-controversy:
-      uri: http://uS-Seller-Center/sellercenter/orders/
-      connect-timeout: 10000
-      read-timeout: 120000
+    host: http://uS-Seller-Center
+    services:
+      update-status:
+        uri: /order/statusOrder/{ecommerceId}/{statusCode}
+        connect-timeout: 15000
+        read-timeout: 30000
+      add-controversy:
+        uri: /sellercenter/orders/
+        connect-timeout: 10000
+        read-timeout: 120000
   online-payment:
     liquidated:
       uri: https://api.inkafarma.pe/visa/confirmation

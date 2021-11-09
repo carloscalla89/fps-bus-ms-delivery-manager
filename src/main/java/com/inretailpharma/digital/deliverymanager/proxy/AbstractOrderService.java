@@ -133,6 +133,11 @@ public class AbstractOrderService implements OrderExternalService {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public Mono<Void> updateStatusOrderSeller(Long externalId, String status) {
+		throw new UnsupportedOperationException();
+	}
+
 
 	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, long readTimeOut) {
 		log.info("generateClientConnector, connectionTimeOut:{}, readTimeOut:{}",connectionTimeOut,readTimeOut);

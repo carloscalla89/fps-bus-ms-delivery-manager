@@ -94,6 +94,22 @@ public abstract class FacadeAbstractUtil {
         return objectToMapper.convertEntityOrderCancellationToCanonical(orderTransaction.getListCancelReason(appType, type));
     }
 
+    protected Mono<OrderCanonical> getDataToSentAudit(OrderCanonical orderCanonical, ActionDto actionDto) {
+
+        log.info("order:{}, target:{}, action:{}", orderCanonical.getEcommerceId(), orderCanonical.getTarget(),actionDto);
+
+        LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
+        orderCanonical.setUpdateBy(actionDto.getUpdatedBy());
+        orderCanonical.setSource(actionDto.getOrigin());
+        orderCanonical.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeWithFormat(localDateTime));
+
+        orderCanonical.getOrderStatus().setCancellationCode(actionDto.getOrderCancelCode());
+        orderCanonical.getOrderStatus().setCancellationObservation(actionDto.getOrderCancelObservation());
+
+        return Mono.just(orderCanonical);
+
+    }
+
     protected Mono<OrderCanonical> updateOrderInfulfillment(OrderCanonical orderCanonical, Long id, Long ecommerceId,
                                                             Long externalId, String orderCancelCode,
                                                             String orderCancelObservation, String source, String target,
