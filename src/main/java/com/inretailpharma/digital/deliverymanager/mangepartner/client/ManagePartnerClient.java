@@ -21,10 +21,10 @@ public class ManagePartnerClient {
 	
 	public ApiModelResponse notifyEvent(String proformaNumber, ActionDto action) {
 		String url = managePartnerUrl + proformaNumber;
-		log.info("[START] calling MP service: ",url);
-
+		log.info("[START] calling MP service: {}", url);
+		log.info("Endpoint MP notify event/{} - action {}", proformaNumber, action);
 		ApiModelResponse response = restTemplateUtil.create(ApiModelResponse.class, url, HttpMethod.POST, action).getGeneric();
-		log.info("[END] calling MP service: ",url);
+		log.info("[END] calling MP service.");
 		return response;
 	}
 
