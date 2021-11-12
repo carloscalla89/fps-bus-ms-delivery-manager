@@ -1473,6 +1473,7 @@ public class ObjectToMapper {
         orderCanonicalFulfitment.setServiceChannel(order.getServiceChannel());
         orderCanonicalFulfitment.setServiceTypeId(order.getServiceType());
         orderCanonicalFulfitment.setOrderStatus(order.getStatusName());
+        orderCanonicalFulfitment.setServiceTypeId(order.getServiceTypeShortCode());
         orderCanonicalFulfitment.setFechaPromesa(
             order.getScheduledTime().toLocalDate().toString() + " " +
                 order.getScheduledTime().toLocalTime());
