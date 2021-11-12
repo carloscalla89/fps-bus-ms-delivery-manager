@@ -1,6 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,19 +39,20 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     private LiquidationFacade liquidationFacade;
     private Map<Constant.ActionOrder, IActionStrategy> actionsProcessors;
     private ApplicationContext context;
+    private ObjectToMapper objectMapper;
 
 
     @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                                  LiquidationFacade liquidationFacade,
-                                 ApplicationContext context) {
+                                 ApplicationContext context,ObjectToMapper objectMapper) {
 
         this.orderTransaction = orderTransaction;
         this.iAuditAdapter = iAuditAdapter;
         this.liquidationFacade = liquidationFacade;
         this.context = context;
-
+        this.objectMapper = objectMapper;
         actionsProcessors = Arrays
                                 .stream(Constant.ActionOrder.values())
                                 .collect(Collectors.toMap(p -> p, p ->
@@ -119,25 +122,10 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                 });
     }
 
-    public Flux<OrderCanonicalFulfitment> getOrder() {
-        return Flux.fromIterable( orderTransaction.getOrder())
-                .flatMap(x -> {
-                    OrderCanonicalFulfitment orderCanonicalFulfitment = new OrderCanonicalFulfitment();
-                    orderCanonicalFulfitment.setOrderId(x.getOrderId());
-                    orderCanonicalFulfitment.setEcommerceId(x.getEcommerceId());
-                    orderCanonicalFulfitment.setLocalId(x.getCenterCode());
-                    orderCanonicalFulfitment.setServiceChannel(x.getServiceChannel());
-                    orderCanonicalFulfitment.setServiceTypeId(x.getServiceType());
-                    orderCanonicalFulfitment.setFechaPromesa(
-                            x.getScheduledTime().toLocalDate().toString()+" "+
-                                    x.getScheduledTime().toLocalTime());
-                    orderCanonicalFulfitment.setRazonSocial(
-                            x.getFirstName()+" "+x.getLastName()
-                    );
-                    orderCanonicalFulfitment.setDocumentoId(x.getDocumentNumber());
-                    return Flux.just(orderCanonicalFulfitment);
-                });
-    }
+  public Flux<OrderCanonicalFulfitment> getOrder() {
+    return Flux.fromIterable(orderTransaction.getOrder())
+        .flatMap(order -> Flux.just(objectMapper.getOrderInfo(order)));
+  }
 
     public Mono<OrderCanonical> getUpdatePartialOrder(OrderDto partialOrderDto) {
         log.info("[START] getUpdatePartialOrder:{}",partialOrderDto);
