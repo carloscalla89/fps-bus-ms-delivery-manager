@@ -1,8 +1,9 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.repository.custom.CustomQueryOrderInfo;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,18 +43,21 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     private ObjectToMapper objectMapper;
 
 
+
     @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                                  LiquidationFacade liquidationFacade,
+                                  CustomQueryOrderInfo orderQueryFilter,
                                  ApplicationContext context,ObjectToMapper objectMapper) {
 
-        this.orderTransaction = orderTransaction;
-        this.iAuditAdapter = iAuditAdapter;
-        this.liquidationFacade = liquidationFacade;
-        this.context = context;
-        this.objectMapper = objectMapper;
-        actionsProcessors = Arrays
+      this.orderTransaction = orderTransaction;
+      this.iAuditAdapter = iAuditAdapter;
+      this.liquidationFacade = liquidationFacade;
+      this.context = context;
+
+      this.objectMapper = objectMapper;
+      actionsProcessors = Arrays
                                 .stream(Constant.ActionOrder.values())
                                 .collect(Collectors.toMap(p -> p, p ->
                                         (IActionStrategy)this.context.getBean(p.getActionStrategyImplement())));
@@ -122,9 +126,8 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                 });
     }
 
-  public Flux<OrderCanonicalFulfitment> getOrder() {
-    return Flux.fromIterable(orderTransaction.getOrder())
-        .flatMap(order -> Flux.just(objectMapper.getOrderInfo(order)));
+  public Flux<OrderCanonicalFulfitment> getOrder(RequestFilterDTO filter) {
+    return Flux.fromIterable(orderTransaction.getOrder(filter));
   }
 
     public Mono<OrderCanonical> getUpdatePartialOrder(OrderDto partialOrderDto) {

@@ -193,7 +193,7 @@ public class ObjectToMapper {
                                                       List<IOrderItemFulfillment> itemFulfillments) {
 
         OrderCanonical orderCanonical = new OrderCanonical();
-        orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+        orderCanonical.setEcommerceId(Long.valueOf(String.valueOf(iOrderFulfillment.getEcommerceId())));
         orderCanonical.setExternalId(iOrderFulfillment.getExternalId());
         orderCanonical.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).orElse(null));
 
@@ -272,7 +272,7 @@ public class ObjectToMapper {
                                                                              String orderCancelCode, String orderCancelDescription) {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
-        orderInkatrackerCanonical.setOrderExternalId(iOrderFulfillment.getEcommerceId());
+        orderInkatrackerCanonical.setOrderExternalId(iOrderFulfillment.getEcommerceId().longValue());
         orderInkatrackerCanonical.setInkaDeliveryId(externalId);
         orderInkatrackerCanonical.setSource(iOrderFulfillment.getSource());
         orderInkatrackerCanonical.setCallSource(iOrderFulfillment.getSource());
@@ -1128,8 +1128,8 @@ public class ObjectToMapper {
         OrderCanonical orderCanonical = new OrderCanonical();
         Optional.ofNullable(iOrderFulfillment).ifPresent(o -> {
 
-            orderCanonical.setId(iOrderFulfillment.getOrderId());
-        	orderCanonical.setEcommerceId(o.getEcommerceId());
+            orderCanonical.setId(iOrderFulfillment.getOrderId().longValue());
+        	orderCanonical.setEcommerceId(o.getEcommerceId().longValue());
         	orderCanonical.setExternalId(o.getExternalId());
             orderCanonical.setPurchaseId(Optional.ofNullable(o.getPurchaseId()).orElse(null));
         	
@@ -1465,22 +1465,24 @@ public class ObjectToMapper {
 
     }
 
-    public OrderCanonicalFulfitment getOrderInfo(IOrderFulfillment order) {
-        OrderCanonicalFulfitment orderCanonicalFulfitment = new OrderCanonicalFulfitment();
-        orderCanonicalFulfitment.setOrderId(order.getOrderId());
-        orderCanonicalFulfitment.setEcommerceId(order.getEcommerceId());
-        orderCanonicalFulfitment.setLocalId(order.getCenterCode());
-        orderCanonicalFulfitment.setServiceChannel(order.getServiceChannel());
-        orderCanonicalFulfitment.setServiceTypeId(order.getServiceType());
-        orderCanonicalFulfitment.setOrderStatus(order.getStatusName());
-        orderCanonicalFulfitment.setServiceTypeId(order.getServiceTypeShortCode());
-        orderCanonicalFulfitment.setFechaPromesa(
-            order.getScheduledTime().toLocalDate().toString() + " " +
-                order.getScheduledTime().toLocalTime());
-        orderCanonicalFulfitment.setRazonSocial(
-            order.getFirstName() + " " + order.getLastName()
-        );
-        orderCanonicalFulfitment.setDocumentoId(order.getDocumentNumber());
-        return orderCanonicalFulfitment;
+    public List<OrderCanonicalFulfitment> getOrderInfo(List<IOrderFulfillment> orders) {
+        return orders.stream().parallel().map(order -> {
+            OrderCanonicalFulfitment orderCanonicalFulfitment = new OrderCanonicalFulfitment();
+            orderCanonicalFulfitment.setOrderId(order.getOrderId());
+            orderCanonicalFulfitment.setEcommerceId(order.getEcommerceId().longValue());
+            orderCanonicalFulfitment.setLocalId(order.getCenterCode());
+            orderCanonicalFulfitment.setServiceChannel(order.getServiceChannel());
+            orderCanonicalFulfitment.setServiceTypeId(order.getServiceType());
+            orderCanonicalFulfitment.setOrderStatus(order.getStatusName());
+            orderCanonicalFulfitment.setServiceTypeId(order.getServiceTypeShortCode());
+            orderCanonicalFulfitment.setPromiseDate(
+                order.getScheduledTime().toLocalDate().toString() + " " +
+                    order.getScheduledTime().toLocalTime());
+            orderCanonicalFulfitment.setBusinessName(
+                order.getFirstName() + " " + order.getLastName()
+            );
+            orderCanonicalFulfitment.setDocumentoId(order.getDocumentNumber());
+            return orderCanonicalFulfitment;
+        }).collect(Collectors.toList());
     }
 }

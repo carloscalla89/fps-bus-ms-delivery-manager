@@ -1,5 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
+import com.inretailpharma.digital.deliverymanager.dto.FiltersRqDTO;
+import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -269,8 +272,8 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderByOrderNumber(orderNumber);
     }
 
-    public List<IOrderFulfillment> getOrder() {
-        return orderRepositoryService.getOrder();
+    public List<OrderCanonicalFulfitment> getOrder(RequestFilterDTO filter) {
+        return orderRepositoryService.getOrder(filter);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)

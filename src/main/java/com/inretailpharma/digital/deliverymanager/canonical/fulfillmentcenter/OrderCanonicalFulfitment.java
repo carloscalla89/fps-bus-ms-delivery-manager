@@ -15,6 +15,6 @@ public class OrderCanonicalFulfitment {
     private Long ecommerceId;
     private String serviceTypeId;
     private String documentoId;
-    private String razonSocial;
-    private String fechaPromesa;
+    private String businessName;
+    private String promiseDate;
 }

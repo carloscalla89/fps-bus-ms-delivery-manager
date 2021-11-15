@@ -2,6 +2,8 @@ package com.inretailpharma.digital.deliverymanager.rest;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.dto.FiltersRqDTO;
+import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ServerResponseError;
 import com.inretailpharma.digital.deliverymanager.mangepartner.client.ManagePartnerClient;
@@ -87,9 +89,9 @@ public class DeliveryManagerRest {
     }
 
     @GetMapping(value = "/order",produces=MediaType.APPLICATION_JSON_VALUE)
-    public Flux<OrderCanonicalFulfitment> getOrder() {
+    public Flux<OrderCanonicalFulfitment> getOrder(@RequestBody RequestFilterDTO filter) {
         log.info("[START] endpoint /fulfillment/order {}");
-        return deliveryManagerFacade.getOrder().subscribeOn(Schedulers.parallel());
+        return deliveryManagerFacade.getOrder(filter).subscribeOn(Schedulers.parallel());
 
     }
 }
