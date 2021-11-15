@@ -3,11 +3,13 @@ package com.inretailpharma.digital.deliverymanager.rest;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.FiltersRqDTO;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ServerResponseError;
 import com.inretailpharma.digital.deliverymanager.mangepartner.client.ManagePartnerClient;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.Constant.OrderStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -88,10 +90,17 @@ public class DeliveryManagerRest {
                 .subscribeOn(Schedulers.parallel());
     }
 
-    @GetMapping(value = "/order",produces=MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/order",produces=MediaType.APPLICATION_JSON_VALUE)
     public Flux<OrderCanonicalFulfitment> getOrder(@RequestBody RequestFilterDTO filter) {
         log.info("[START] endpoint /fulfillment/order {}");
         return deliveryManagerFacade.getOrder(filter).subscribeOn(Schedulers.parallel());
 
     }
+
+  @GetMapping(value = "/orderStatus",produces=MediaType.APPLICATION_JSON_VALUE)
+  public Flux<OrderStatusDto> getOrderStatus() {
+    log.info("[START] endpoint /fulfillment/orderStatus {}");
+    return deliveryManagerFacade.getAllOrderStatus().subscribeOn(Schedulers.parallel());
+
+  }
 }

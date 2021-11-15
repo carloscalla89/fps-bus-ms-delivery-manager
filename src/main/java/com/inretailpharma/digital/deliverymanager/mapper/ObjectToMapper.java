@@ -28,6 +28,7 @@ import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.AddressDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.DrugstoreDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ItemDto;
@@ -63,6 +64,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.validator.GenericValidator;
@@ -1484,5 +1486,19 @@ public class ObjectToMapper {
             orderCanonicalFulfitment.setDocumentoId(order.getDocumentNumber());
             return orderCanonicalFulfitment;
         }).collect(Collectors.toList());
+    }
+
+    public List<OrderStatusDto> getOrderStatusDto(List<OrderStatus> orderStatus) {
+        if (CollectionUtils.isNotEmpty(orderStatus)) {
+            return orderStatus.stream().parallel().map(order -> {
+                OrderStatusDto orderDto = new OrderStatusDto();
+                orderDto.setCode(order.getCode());
+                orderDto.setDescription(order.getDescription());
+                orderDto.setType(order.getType());
+                return orderDto;
+            }).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+
     }
 }

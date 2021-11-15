@@ -12,10 +12,12 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonic
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
+import com.inretailpharma.digital.deliverymanager.service.OrderStatusService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
@@ -55,6 +57,9 @@ public abstract class FacadeAbstractUtil {
 
     @Autowired
     private LiquidationFacade liquidationFacade;
+
+    @Autowired
+    private OrderStatusService orderStatusService;
 
     protected List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup,
                                                             String statustype) {
@@ -348,4 +353,9 @@ public abstract class FacadeAbstractUtil {
                 .doOnSuccess(r -> log.info("[END] createOrder facade"));
     }
 
+    public Flux<OrderStatusDto> getAllOrderStatus() {
+
+        return Flux.fromIterable(orderStatusService.getAllOrderStatus());
+
+    }
 }
