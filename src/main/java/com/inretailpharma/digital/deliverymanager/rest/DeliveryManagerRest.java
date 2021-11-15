@@ -90,7 +90,7 @@ public class DeliveryManagerRest {
                 .subscribeOn(Schedulers.parallel());
     }
 
-    @PostMapping(value = "/order",produces=MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/orderinfo",produces=MediaType.APPLICATION_JSON_VALUE)
     public Flux<OrderCanonicalFulfitment> getOrder(@RequestBody RequestFilterDTO filter) {
         log.info("[START] endpoint /fulfillment/order {}");
         return deliveryManagerFacade.getOrder(filter).subscribeOn(Schedulers.parallel());
