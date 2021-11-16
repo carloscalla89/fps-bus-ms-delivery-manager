@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
 import com.inretailpharma.digital.deliverymanager.dto.PaymentMethodDto;
@@ -161,7 +162,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 	}
 
   @Override
-  public List<OrderCanonicalFulfitment> getOrder(RequestFilterDTO filter) {
+  public OrderCanonicalResponse getOrder(RequestFilterDTO filter) {
 
     return customQueryOrderInfo.getOrderInfo(filter);
 

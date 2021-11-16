@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.repository.custom.CustomQueryOrderInfo;
@@ -126,8 +127,8 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                 });
     }
 
-  public Flux<OrderCanonicalFulfitment> getOrder(RequestFilterDTO filter) {
-    return Flux.fromIterable(orderTransaction.getOrder(filter));
+  public OrderCanonicalResponse getOrder(RequestFilterDTO filter) {
+    return orderTransaction.getOrder(filter);
   }
 
     public Mono<OrderCanonical> getUpdatePartialOrder(OrderDto partialOrderDto) {

@@ -13,4 +13,14 @@ public class CustomSqlQuery {
               + "inner join order_status os on os.code = s.order_status_code  "
               + "inner join service_type st on st.code = s.service_type_code ");
 
+  public static final StringBuilder BASIC_QUERY_GET_ORDERINFO_COUNT = new StringBuilder()
+      .append(" select COUNT(o.id) as TOTAL "
+          + " from order_fulfillment o  "
+          + " inner join client_fulfillment c on c.id = o.client_id "
+          + " inner join order_process_status s on o.id = s.order_fulfillment_id  "
+          + " inner join order_status os on os.code = s.order_status_code "
+          + " inner join service_type st on st.code = s.service_type_code ");
+
+
+
 }

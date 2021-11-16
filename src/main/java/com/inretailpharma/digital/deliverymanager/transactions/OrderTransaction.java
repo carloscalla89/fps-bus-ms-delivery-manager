@@ -1,6 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
 import com.inretailpharma.digital.deliverymanager.dto.FiltersRqDTO;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import java.time.LocalDateTime;
@@ -272,7 +273,7 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderByOrderNumber(orderNumber);
     }
 
-    public List<OrderCanonicalFulfitment> getOrder(RequestFilterDTO filter) {
+    public OrderCanonicalResponse getOrder(RequestFilterDTO filter) {
         return orderRepositoryService.getOrder(filter);
     }
 
