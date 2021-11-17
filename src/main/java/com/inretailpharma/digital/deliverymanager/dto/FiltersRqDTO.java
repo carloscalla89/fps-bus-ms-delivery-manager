@@ -12,4 +12,5 @@ public class FiltersRqDTO {
   private String[] promiseDate;
   private String[] orderStatus;
   private String[] serviceChannel;
+  private String multipleField;
 }

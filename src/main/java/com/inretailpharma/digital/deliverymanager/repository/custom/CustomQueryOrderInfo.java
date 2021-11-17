@@ -34,6 +34,16 @@ public class CustomQueryOrderInfo {
       StringBuilder queryFilters = new StringBuilder();
       //queryFilters.append(basicQuery);
       queryFilters.append("where 1 = 1 ");
+
+      if(requestFilter.getFilter().getMultipleField() != null){
+        String queryFilter = "and ( o.ecommerce_purchase_id like '?%' or"
+            + " c.phone like '?%' or"
+            + " c.document_number like '?%')";
+
+
+        queryFilters.append(queryFilter.replace("?",requestFilter.getFilter().getMultipleField()));
+      }
+
       if (requestFilter.getFilter().getCompanyCode() != null) {
         String filters = getFiltersConcatenated(requestFilter.getFilter().getCompanyCode());
         queryFilters.append(" and s.company_code IN(")
@@ -103,7 +113,7 @@ public class CustomQueryOrderInfo {
   public OrderCanonicalResponse getOrderInfo(RequestFilterDTO filter) {
 
     String queryFilters = getQueryOrderInfo(filter);
-    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString().concat (queryFilters).toString();
+    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString().concat (queryFilters);
     String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString().concat(queryFilters);
 
     Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
