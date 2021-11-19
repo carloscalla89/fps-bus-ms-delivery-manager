@@ -135,7 +135,7 @@ public class CustomQueryOrderInfo {
       response.setEcommerceId(ecommerceId.longValue());
       Date promiseDate = (Date) data[3];
 
-      DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+      DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy hh:mm a");
       String strDate = dateFormat.format(promiseDate);
       response.setPromiseDate(strDate.toLowerCase());
       response.setOrderStatus(String.valueOf(data[4]));
