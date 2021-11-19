@@ -135,15 +135,15 @@ public class CustomQueryOrderInfo {
       response.setEcommerceId(ecommerceId.longValue());
       Date promiseDate = (Date) data[3];
 
-      DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+      DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
       String strDate = dateFormat.format(promiseDate);
-      response.setPromiseDate(strDate);
+      response.setPromiseDate(strDate.toLowerCase());
       response.setOrderStatus(String.valueOf(data[4]));
       response.setLocalId(String.valueOf(data[5]));
       response.setCompanyCode(String.valueOf(data[6]));
       response.setServiceChannel(String.valueOf(data[7]));
       response.setServiceTypeId(String.valueOf(data[8]));
-      response.setBusinessName(String.valueOf(data[9]));
+      response.setClient(String.valueOf(data[9]));
       response.setDocumentoId(String.valueOf(data[10]));
       return response;
     }).collect(Collectors.toList());

@@ -1480,7 +1480,7 @@ public class ObjectToMapper {
             orderCanonicalFulfitment.setPromiseDate(
                 order.getScheduledTime().toLocalDate().toString() + " " +
                     order.getScheduledTime().toLocalTime());
-            orderCanonicalFulfitment.setBusinessName(
+            orderCanonicalFulfitment.setClient(
                 order.getFirstName() + " " + order.getLastName()
             );
             orderCanonicalFulfitment.setDocumentoId(order.getDocumentNumber());
