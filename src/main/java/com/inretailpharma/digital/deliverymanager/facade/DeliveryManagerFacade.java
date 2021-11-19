@@ -2,14 +2,15 @@ package com.inretailpharma.digital.deliverymanager.facade;
 
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
+import com.inretailpharma.digital.deliverymanager.dto.OrderInfoConsolidated;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.repository.custom.CustomQueryOrderInfo;
+import com.inretailpharma.digital.deliverymanager.service.OrderInfoService;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.*;
-import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.strategy.IActionStrategy;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
@@ -28,7 +29,6 @@ import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -42,6 +42,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     private Map<Constant.ActionOrder, IActionStrategy> actionsProcessors;
     private ApplicationContext context;
     private ObjectToMapper objectMapper;
+    private OrderInfoService orderInfoService;
 
 
 
@@ -50,13 +51,14 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                                  @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                                  LiquidationFacade liquidationFacade,
                                   CustomQueryOrderInfo orderQueryFilter,
+                            OrderInfoService orderInfoService,
                                  ApplicationContext context,ObjectToMapper objectMapper) {
 
       this.orderTransaction = orderTransaction;
       this.iAuditAdapter = iAuditAdapter;
       this.liquidationFacade = liquidationFacade;
       this.context = context;
-
+      this.orderInfoService = orderInfoService;
       this.objectMapper = objectMapper;
       actionsProcessors = Arrays
                                 .stream(Constant.ActionOrder.values())
@@ -174,4 +176,9 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     public IOrderFulfillment getOrderByEcommerceID(Long ecommercePurchaseId) {
         return orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
     }
+
+  @Override
+  public Mono<OrderInfoConsolidated> getOrderInfoDetail(long ecommerceId) {
+    return orderInfoService.findOrderInfoClientByEcommerceId(ecommerceId);
+  }
 }

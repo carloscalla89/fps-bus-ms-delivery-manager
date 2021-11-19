@@ -9,14 +9,15 @@ import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderInfoConsolidated;
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
+import com.inretailpharma.digital.deliverymanager.service.OrderInfoService;
 import com.inretailpharma.digital.deliverymanager.service.OrderStatusService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -60,6 +61,8 @@ public abstract class FacadeAbstractUtil {
 
     @Autowired
     private OrderStatusService orderStatusService;
+
+    private OrderInfoService orderInfoService;
 
     protected List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup,
                                                             String statustype) {
@@ -357,5 +360,9 @@ public abstract class FacadeAbstractUtil {
 
         return Flux.fromIterable(orderStatusService.getAllOrderStatus());
 
+    }
+
+    public  Mono<OrderInfoConsolidated> getOrderInfoDetail(long ecommerceId){
+        return orderInfoService.findOrderInfoClientByEcommerceId(ecommerceId);
     }
 }
