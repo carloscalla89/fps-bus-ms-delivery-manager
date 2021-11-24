@@ -147,13 +147,13 @@ public class OrderInfoServiceImpl implements OrderInfoService {
   private OrderInfoAdditional getOrderInfoAdditional(IOrderInfoClient orderInfoProjection) {
 
     OrderInfoAdditional orderInfo = new OrderInfoAdditional();
-    orderInfo.setCancellationReason(orderInfoProjection.getCancelReason());
+    orderInfo.setCancellationReason(Optional.ofNullable(orderInfoProjection.getCancelReason()).orElse("-"));
     orderInfo.setEcommerceId(orderInfoProjection.getEcommerceId());
-    orderInfo.setLocalDescription(orderInfoProjection.getLocalCode());
-    orderInfo.setObservation(orderInfoProjection.getObservation());
-    orderInfo.setStockType(orderInfoProjection.getStockType());
-    orderInfo.setServiceType(orderInfoProjection.getServiceType());
-    orderInfo.setPurchaseId(orderInfoProjection.getPurcharseId());
+    orderInfo.setLocalDescription(Optional.ofNullable(orderInfoProjection.getLocalCode()).orElse("-"));
+    orderInfo.setObservation(Optional.ofNullable(orderInfoProjection.getObservation()).orElse("-"));
+    orderInfo.setStockType(Optional.ofNullable(orderInfoProjection.getStockType()).orElse("-"));
+    orderInfo.setServiceType(Optional.ofNullable(orderInfoProjection.getServiceType()).orElse("-"));
+    orderInfo.setPurchaseId(Optional.ofNullable(orderInfoProjection.getPurcharseId()).orElse("-"));
     orderInfo.setZoneDescription(orderInfoProjection.getZoneId());
     orderInfo.setOperator("-");
 
