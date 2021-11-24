@@ -2,6 +2,7 @@ package com.inretailpharma.digital.deliverymanager.service.impl;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.DetailProduct;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderInfo;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderInfoAdditional;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderInfoClient;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderInfoPaymentMethodDto;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderInfoProduct;
@@ -136,11 +137,28 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       orderInfoDto.setReference(Optional.ofNullable(orderInfoProjection.getReference()).orElse("-"));
       orderInfoDto.setPhone(orderInfoProjection.getPhone());
       orderInfoConsolidated.setOrderInfo(getOrderInfo(orderInfoProjection));
+      orderInfoConsolidated.setOrderInfoAdditional(getOrderInfoAdditional(orderInfoProjection));
       return orderInfoDto;
     }
     return null;
 
   }
+
+  private OrderInfoAdditional getOrderInfoAdditional(IOrderInfoClient orderInfoProjection) {
+
+    OrderInfoAdditional orderInfo = new OrderInfoAdditional();
+    orderInfo.setCancellationReason(orderInfoProjection.getCancelReason());
+    orderInfo.setEcommerceId(orderInfoProjection.getEcommerceId());
+    orderInfo.setLocalDescription(orderInfoProjection.getLocalCode());
+    orderInfo.setObservation(orderInfoProjection.getObservation());
+    orderInfo.setStockType(orderInfoProjection.getStockType());
+    orderInfo.setServiceType(orderInfoProjection.getServiceType());
+    orderInfo.setPurchaseId(orderInfoProjection.getPurcharseId());
+    orderInfo.setZoneDescription(orderInfoProjection.getZoneId());
+    orderInfo.setOperator("-");
+
+    return  orderInfo;
+}
 
 
 }

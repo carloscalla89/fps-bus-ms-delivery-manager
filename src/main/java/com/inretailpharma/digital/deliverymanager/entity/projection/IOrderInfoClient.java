@@ -36,4 +36,14 @@ public interface IOrderInfoClient {
 
   String getServiceType();
 
+  String getPurcharseId();
+
+  String getObservation();
+
+  String getCancelReason();
+
+  String getZoneId();
+
+  String getStockType();
+
 }
