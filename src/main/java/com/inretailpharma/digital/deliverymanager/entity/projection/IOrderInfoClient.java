@@ -34,4 +34,6 @@ public interface IOrderInfoClient {
 
   String getReference();
 
+  String getServiceType();
+
 }

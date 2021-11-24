@@ -12,10 +12,15 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoPr
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoProductDetail;
 import com.inretailpharma.digital.deliverymanager.repository.OrderRepository;
 import com.inretailpharma.digital.deliverymanager.service.OrderInfoService;
+import com.inretailpharma.digital.deliverymanager.util.Constant.DeliveryType;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -49,14 +54,34 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     orderInfo.setOrderType(orderInfoProjection.getOrderType());
     orderInfo.setScheduledTime(orderInfoProjection.getScheduledTime());
     orderInfo.setStatusName(orderInfoProjection.getStatusName());
-    orderInfo.setServiceTypeShortCode(orderInfoProjection.getServiceTypeShortCode());
+    orderInfo.setServiceTypeShortCode(DeliveryType.getByName(orderInfoProjection.getServiceTypeShortCode()).getDescription());
     orderInfo.setServiceChannel(orderInfoProjection.getServiceChannel());
+    orderInfo.setServiceType(getServiceType(orderInfoProjection.getServiceType()));
     return orderInfo;
+  }
+
+  private String getServiceType(String serviceType) {
+    List<String> services = Arrays.asList(serviceType.split("_"));
+    if (CollectionUtils.isNotEmpty(services)) {
+      if (services.stream().anyMatch(service -> service.equalsIgnoreCase("RET"))) {
+        return "RET_LITE";
+      } else {
+        if (services.get(0).equalsIgnoreCase("INKATRACKER") && services.get(1)
+            .equalsIgnoreCase("LITE")) {
+          return "RAD_LITE";
+        } else {
+          return "RAD_DC";
+        }
+      }
+    }
+
+    return StringUtils.EMPTY;
+
   }
 
   private OrderInfoProduct getOrderInfoProductByEcommerceId(long ecommerceId) {
     IOrderInfoProduct orderInfoProduct = orderRepository.getOrderInfoProductByEcommerceId(ecommerceId);
-    List<IOrderInfoProductDetail> orderInfoProductDetail = orderRepository.getOrderInfoProductDetailByOrderFulfillmentId(ecommerceId);
+    List<IOrderInfoProductDetail> orderInfoProductDetail = orderRepository.getOrderInfoProductDetailByOrderFulfillmentId(orderInfoProduct.getId());
     return getOrderInfoProduct(orderInfoProduct,orderInfoProductDetail);
   }
 
@@ -101,16 +126,20 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
   private OrderInfoClient getOrderInfoClientByEcommerceId(long ecommerceId, OrderInfoConsolidated orderInfoConsolidated) {
     IOrderInfoClient orderInfoProjection = orderRepository.getOrderInfoClientByEcommercerId(ecommerceId);
-    OrderInfoClient orderInfoDto = new OrderInfoClient();
-    orderInfoDto.setAddressClient(orderInfoProjection.getAddressClient());
-    orderInfoDto.setClientName(orderInfoProjection.getClientName());
-    orderInfoDto.setCoordinates(orderInfoProjection.getCoordinates());
-    orderInfoDto.setDocumentNumber(orderInfoProjection.getDocumentNumber());
-    orderInfoDto.setEmail(orderInfoProjection.getEmail());
-    orderInfoDto.setReference(orderInfoProjection.getReference());
-    orderInfoDto.setPhone(orderInfoProjection.getPhone());
-    orderInfoConsolidated.setOrderInfo(getOrderInfo(orderInfoProjection));
-    return orderInfoDto;
+    if(orderInfoProjection!=null){
+      OrderInfoClient orderInfoDto = new OrderInfoClient();
+      orderInfoDto.setAddressClient(orderInfoProjection.getAddressClient());
+      orderInfoDto.setClientName(orderInfoProjection.getClientName());
+      orderInfoDto.setCoordinates(orderInfoProjection.getCoordinates());
+      orderInfoDto.setDocumentNumber(orderInfoProjection.getDocumentNumber());
+      orderInfoDto.setEmail(orderInfoProjection.getEmail());
+      orderInfoDto.setReference(Optional.ofNullable(orderInfoProjection.getReference()).orElse("-"));
+      orderInfoDto.setPhone(orderInfoProjection.getPhone());
+      orderInfoConsolidated.setOrderInfo(getOrderInfo(orderInfoProjection));
+      return orderInfoDto;
+    }
+    return null;
+
   }
 
 

@@ -13,5 +13,6 @@ public class OrderInfo {
   private String scheduledTime;
   private String statusName;
   private String localCode;
+  private String serviceType;
 
 }

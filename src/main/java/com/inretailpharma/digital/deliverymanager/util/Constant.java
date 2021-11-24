@@ -2,10 +2,15 @@ package com.inretailpharma.digital.deliverymanager.util;
 
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
-import com.inretailpharma.digital.deliverymanager.strategy.*;
-import org.apache.commons.lang3.EnumUtils;
-
+import com.inretailpharma.digital.deliverymanager.strategy.CancelOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.FillOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.FillOrderCall;
+import com.inretailpharma.digital.deliverymanager.strategy.LiquidationOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.RetryDeliveryDispatcher;
+import com.inretailpharma.digital.deliverymanager.strategy.RetryTracker;
+import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
 import java.util.Optional;
+import org.apache.commons.lang3.EnumUtils;
 
 public interface Constant {
 
@@ -792,6 +797,31 @@ public interface Constant {
 
             return EnumUtils.getEnumList(StockType.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(M);
+        }
+
+    }
+
+
+    enum DeliveryType {
+        PROG("Programado"),
+        AM_PM("AM/PM"),
+        EXP("Express"),
+        RET("Retiro en tienda");
+
+        private String description;
+
+        public String getDescription() {
+            return description;
+        }
+
+        DeliveryType(String description) {
+            this.description = description;
+        }
+
+        public static DeliveryType getByName(String name) {
+
+            return EnumUtils.getEnumList(DeliveryType.class).stream()
+                .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(PROG);
         }
 
     }

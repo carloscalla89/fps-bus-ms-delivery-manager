@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoCl
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoPaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoProduct;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoProductDetail;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -359,9 +360,9 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select  "
         + "o.id as orderId, "
         + "o.ecommerce_purchase_id as ecommerceId, "
-        + "s.company_code as companyCode,  "
+        + "if(s.company_code='MF','Mifarma','Inkafarma')  as companyCode,  "
         + "st.source_channel as serviceChannel,  "
-        + "if(o.partial=1,'PEDIDO PARCIAL','PEDIDO COMPLETO') as orderType, "
+        + "if(o.partial=1,'Pedido Parcial','Pedido Completo') as orderType, "
         + "st.short_code as serviceTypeShortCode,   "
         + "o.scheduled_time as scheduledTime,  "
         + "os.type as statusName,  "
@@ -371,7 +372,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "c.phone, "
         + "c.email, "
         + "CONCAT(af.street,' ',af.number,', ',af.district) as direccion, "
-        + "CONCAT(af.latitude,', ',af.longitude) as coordinates "
+        + "CONCAT(af.latitude,', ',af.longitude) as coordinates, "
+        + "s.service_type_code as serviceType "
         + "from order_fulfillment o   "
         + "inner join client_fulfillment c on c.id = o.client_id  "
         + "inner join order_process_status s on o.id = s.order_fulfillment_id   "
@@ -399,7 +401,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         nativeQuery = true)
     IOrderInfoPaymentMethod getInfoPaymentMethod(@Param("ecommerceId")long ecommerceId);
 
-    @Query(value = "select total_cost totalImport,"
+    @Query(value = "select id,total_cost totalImport,"
         + "discount_applied totalDiscount,"
         + "delivery_cost deliveryAmount,"
         + "total_cost_no_discount totalImportWithOutDiscount "
@@ -408,15 +410,14 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     IOrderInfoProduct getOrderInfoProductByEcommerceId(@Param("ecommerceId")long ecommerceId);
 
 
+  @Query(value = "select product_code sku,"
+      + "name,"
+      + "short_description shortDescription,"
+      + "quantity,"
+      + "unit_price unitPrice,"
+      + "total_price totalPrice "
+      + "from order_fulfillment_item "
+      + "where order_fulfillment_id =:orderFulfillmentId", nativeQuery = true)
 
-    @Query(value = "select product_code sku,"
-        + "name,"
-        + "short_description shortDescription,"
-        + "quantity,"
-        + "unit_price unitPrice,"
-        + "total_price totalPrice "
-        + "from order_fulfillment_item "
-        + "where order_fulfillment_id =:fulfillmentId",nativeQuery = true)
-
-    List<IOrderInfoProductDetail> getOrderInfoProductDetailByOrderFulfillmentId(@Param("fulfillmentId")long fulfillmentId);
+    List<IOrderInfoProductDetail> getOrderInfoProductDetailByOrderFulfillmentId(@Param("orderFulfillmentId") BigInteger orderFulfillmentId);
 }
