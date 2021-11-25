@@ -13,5 +13,6 @@ public class OrderInfoClient {
   private String addressClient;
   private String coordinates;
   private String reference;
+  private String companyCode;
 
 }

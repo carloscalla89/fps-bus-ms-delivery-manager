@@ -378,7 +378,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "o.notes observation, "
         + "cr.client_reason cancelReason, "
         + "s.zone_id_billing zoneId, "
-        + "o.stockType "
+        + "o.stockType stockType "
         + "from order_fulfillment o   "
         + "inner join client_fulfillment c on c.id = o.client_id  "
         + "inner join order_process_status s on o.id = s.order_fulfillment_id   "

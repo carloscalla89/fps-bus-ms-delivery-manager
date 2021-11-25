@@ -1,5 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.entity.projection;
 
+import java.time.LocalDateTime;
+
 public interface IOrderInfoClient {
 
   Long getOrderId();
@@ -14,7 +16,7 @@ public interface IOrderInfoClient {
 
   String getServiceTypeShortCode();
 
-  String getScheduledTime();
+  LocalDateTime getScheduledTime();
 
   String getStatusName();
 

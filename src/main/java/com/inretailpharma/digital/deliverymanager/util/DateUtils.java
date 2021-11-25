@@ -17,6 +17,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     private static final String TIME_TEMPLATE_HOUR_MINUTE = "HH:mm";
     private static final String DATE_TEMPLATE = "yyyy-MM-dd";
     private static final String DATETIME_TEMPLATE = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATETIME_TEMPLATE_DDMMYY_AMPM = "dd-MM-yy hh:mm a";
     private static final String DATE_TEMPLATE_V2 = "dd-MM-yyyy";
 
     public static boolean validFormatDateTimeFormat(String dateTime) {
@@ -64,6 +65,10 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
         return LocalDateTime.parse(localDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME).toString();
 
+    }
+
+    public static String getLocalDateTimeWithFormatDDMMYY_AMPM(LocalDateTime localDateTime) {
+        return localDateTime.format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE_DDMMYY_AMPM));
     }
 
     public static LocalDateTime getLocalDateTimeFromStringWithFormat(String localDateTime) {

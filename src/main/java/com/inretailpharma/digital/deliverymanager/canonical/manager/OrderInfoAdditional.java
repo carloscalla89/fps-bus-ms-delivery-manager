@@ -10,8 +10,8 @@ public class OrderInfoAdditional {
   private String operator;
   private String observation;
   private String cancellationReason;
-  private String zoneDescription;
-  private String localDescription;
+  private String zoneId;
+  private String localCode;
   private String serviceType;
   private String stockType;
 

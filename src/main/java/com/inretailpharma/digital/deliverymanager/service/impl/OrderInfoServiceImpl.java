@@ -13,7 +13,13 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoPr
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoProductDetail;
 import com.inretailpharma.digital.deliverymanager.repository.OrderRepository;
 import com.inretailpharma.digital.deliverymanager.service.OrderInfoService;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.Constant.DeliveryType;
+import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -53,13 +59,18 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     orderInfo.setEcommerceId(orderInfoProjection.getEcommerceId());
     orderInfo.setLocalCode(orderInfoProjection.getLocalCode());
     orderInfo.setOrderType(orderInfoProjection.getOrderType());
-    orderInfo.setScheduledTime(orderInfoProjection.getScheduledTime());
+    orderInfo.setScheduledTime(DateUtils.getLocalDateTimeWithFormatDDMMYY_AMPM(orderInfoProjection.getScheduledTime()));
     orderInfo.setStatusName(orderInfoProjection.getStatusName());
     orderInfo.setServiceTypeShortCode(DeliveryType.getByName(orderInfoProjection.getServiceTypeShortCode()).getDescription());
     orderInfo.setServiceChannel(orderInfoProjection.getServiceChannel());
     orderInfo.setServiceType(getServiceType(orderInfoProjection.getServiceType()));
     return orderInfo;
   }
+
+
+
+
+
 
   private String getServiceType(String serviceType) {
     List<String> services = Arrays.asList(serviceType.split("_"));
@@ -82,8 +93,11 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
   private OrderInfoProduct getOrderInfoProductByEcommerceId(long ecommerceId) {
     IOrderInfoProduct orderInfoProduct = orderRepository.getOrderInfoProductByEcommerceId(ecommerceId);
-    List<IOrderInfoProductDetail> orderInfoProductDetail = orderRepository.getOrderInfoProductDetailByOrderFulfillmentId(orderInfoProduct.getId());
-    return getOrderInfoProduct(orderInfoProduct,orderInfoProductDetail);
+    if (orderInfoProduct != null) {
+      List<IOrderInfoProductDetail> orderInfoProductDetail = orderRepository.getOrderInfoProductDetailByOrderFulfillmentId(orderInfoProduct.getId());
+      return getOrderInfoProduct(orderInfoProduct, orderInfoProductDetail);
+    }
+    return null;
   }
 
   private OrderInfoProduct getOrderInfoProduct(IOrderInfoProduct orderInfoProduct, List<IOrderInfoProductDetail> orderInfoProductDetail) {
@@ -111,18 +125,23 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
   private OrderInfoPaymentMethodDto getOrderInfoPaymentMethodByEcommercerId(long ecommerceId) {
     IOrderInfoPaymentMethod orderInfoProjection = orderRepository.getInfoPaymentMethod(ecommerceId);
-    OrderInfoPaymentMethodDto oderInfoDto  = new OrderInfoPaymentMethodDto();
-    oderInfoDto.setCardBrand(orderInfoProjection.getCardBrand());
-    oderInfoDto.setLiquidationStatus(orderInfoProjection.getLiquidationStatus());
-    oderInfoDto.setCardNumber(orderInfoProjection.getCardNumber());
-    oderInfoDto.setChangeAmount(orderInfoProjection.getChangeAmount());
-    oderInfoDto.setCodAuthorization(orderInfoProjection.getCodAuthorization());
-    oderInfoDto.setFinancial(orderInfoProjection.getFinancial());
-    oderInfoDto.setPaymentGateway(orderInfoProjection.getPaymentGateway());
-    oderInfoDto.setServiceTypeCode(orderInfoProjection.getServiceTypeCode());
-    oderInfoDto.setPaymentType(orderInfoProjection.getPaymentType());
-    oderInfoDto.setPaymentDate(orderInfoProjection.getDateConfirmed());
-    return oderInfoDto;
+    if(orderInfoProjection!=null){
+      OrderInfoPaymentMethodDto oderInfoDto  = new OrderInfoPaymentMethodDto();
+      oderInfoDto.setCardBrand(orderInfoProjection.getCardBrand());
+      oderInfoDto.setLiquidationStatus(orderInfoProjection.getLiquidationStatus());
+      oderInfoDto.setCardNumber(orderInfoProjection.getCardNumber());
+      oderInfoDto.setChangeAmount(orderInfoProjection.getChangeAmount());
+      oderInfoDto.setCodAuthorization(orderInfoProjection.getCodAuthorization());
+      oderInfoDto.setFinancial(orderInfoProjection.getFinancial());
+      oderInfoDto.setPaymentGateway(orderInfoProjection.getPaymentGateway());
+      oderInfoDto.setServiceTypeCode(orderInfoProjection.getServiceTypeCode());
+      oderInfoDto.setPaymentType(orderInfoProjection.getPaymentType());
+      oderInfoDto.setPaymentDate(orderInfoProjection.getDateConfirmed());
+      return oderInfoDto;
+    }
+
+    return null;
+
   }
 
   private OrderInfoClient getOrderInfoClientByEcommerceId(long ecommerceId, OrderInfoConsolidated orderInfoConsolidated) {
@@ -136,6 +155,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       orderInfoDto.setEmail(orderInfoProjection.getEmail());
       orderInfoDto.setReference(Optional.ofNullable(orderInfoProjection.getReference()).orElse("-"));
       orderInfoDto.setPhone(orderInfoProjection.getPhone());
+      orderInfoDto.setCompanyCode(orderInfoProjection.getCompanyCode());
       orderInfoConsolidated.setOrderInfo(getOrderInfo(orderInfoProjection));
       orderInfoConsolidated.setOrderInfoAdditional(getOrderInfoAdditional(orderInfoProjection));
       return orderInfoDto;
@@ -149,16 +169,36 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     OrderInfoAdditional orderInfo = new OrderInfoAdditional();
     orderInfo.setCancellationReason(Optional.ofNullable(orderInfoProjection.getCancelReason()).orElse("-"));
     orderInfo.setEcommerceId(orderInfoProjection.getEcommerceId());
-    orderInfo.setLocalDescription(Optional.ofNullable(orderInfoProjection.getLocalCode()).orElse("-"));
+    orderInfo.setLocalCode(Optional.ofNullable(orderInfoProjection.getLocalCode()).orElse("-"));
     orderInfo.setObservation(Optional.ofNullable(orderInfoProjection.getObservation()).orElse("-"));
-    orderInfo.setStockType(Optional.ofNullable(orderInfoProjection.getStockType()).orElse("-"));
-    orderInfo.setServiceType(Optional.ofNullable(orderInfoProjection.getServiceType()).orElse("-"));
+    orderInfo.setStockType(Constant.StockType.getByCode(orderInfoProjection.getStockType()).getDescription());
+    orderInfo.setServiceType(getServiceTypeDescription(Optional.ofNullable(orderInfoProjection.getServiceType()).orElse("-")));
     orderInfo.setPurchaseId(Optional.ofNullable(orderInfoProjection.getPurcharseId()).orElse("-"));
-    orderInfo.setZoneDescription(orderInfoProjection.getZoneId());
+    orderInfo.setZoneId(orderInfoProjection.getZoneId());
     orderInfo.setOperator("-");
 
     return  orderInfo;
 }
+
+  private String getServiceTypeDescription(String serviceType) {
+    List<String> services = Arrays.asList(serviceType.split("_"));
+    if (CollectionUtils.isNotEmpty(services)) {
+      if (services.stream().anyMatch(service -> service.equalsIgnoreCase("RET"))) {
+        return "RET LITE";
+      } else {
+        if (services.get(0).equalsIgnoreCase("INKATRACKER") && services.get(1)
+            .equalsIgnoreCase("LITE")) {
+          return "Inkatracker Lite";
+        } else {
+          return "Inkatracker";
+        }
+      }
+    }
+
+    return StringUtils.EMPTY;
+  }
+
+
 
 
 }

@@ -789,6 +789,10 @@ public interface Constant {
 
         private String description;
 
+        public String getDescription() {
+            return description;
+        }
+
         StockType(String description) {
             this.description = description;
         }
