@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mysql://fulfillment.prd.internal:3306/prdfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
-    username: operaciones
-    password: Operaciones2020
+    username: us_deliveryManager
+    password: s1Cwn0BEqMZohxWo6a
   mvc:
     async:
       request-timeout: 240000
