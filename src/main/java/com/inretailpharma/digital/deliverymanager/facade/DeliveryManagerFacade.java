@@ -48,6 +48,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
         this.iAuditAdapter = iAuditAdapter;
         this.liquidationFacade = liquidationFacade;
         this.context = context;
+        this.orderExternalService = orderExternalService;
 
         actionsProcessors = Arrays
                                 .stream(Constant.ActionOrder.values())
