@@ -82,7 +82,7 @@ public class OrderDto {
     private BigDecimal totalWithPaymentMethod;
     private String paymentMethodCardType;
     private BigDecimal discountAppliedNoDP;
-    
+
     /**
      * Fecha: 26/07/2021
      * autor: Omni
@@ -91,5 +91,6 @@ public class OrderDto {
     private String saleChannel;
     private String saleChannelType;
 
+    private boolean mixedOrder;
 
 }

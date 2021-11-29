@@ -54,4 +54,6 @@ public interface OrderExternalService {
     Mono<Void> createOrderNewAudit(AuditHistoryDto auditHistoryDto);
     
     Mono<Void> releaseStock(Long externalId);
+
+    Mono<Void> updateStatusOrderSeller(Long externalId, String status);
 }

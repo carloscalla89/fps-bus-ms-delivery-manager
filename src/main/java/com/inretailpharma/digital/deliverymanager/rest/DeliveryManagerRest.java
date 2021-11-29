@@ -5,6 +5,7 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.errorhandling.ServerResponseError;
 import com.inretailpharma.digital.deliverymanager.mangepartner.client.ManagePartnerClient;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Arrays;
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/fulfillment")
 @Slf4j
@@ -31,6 +35,7 @@ public class DeliveryManagerRest {
 
     private DeliveryManagerFacade deliveryManagerFacade;
 
+    @Autowired
     private ManagePartnerClient managePartnerClient;
 
     public DeliveryManagerRest(DeliveryManagerFacade deliveryManagerFacade) {
@@ -42,6 +47,7 @@ public class DeliveryManagerRest {
             @PathVariable(value = "ecommerceId") String ecommerceId,
             @RequestBody ActionDto action) {
 
+
         log.info("[START] endpoint updateStatus /order/{} - ecommerceId - action {}"
                 ,ecommerceId,action);
 
@@ -49,7 +55,10 @@ public class DeliveryManagerRest {
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
         IOrderFulfillment order = deliveryManagerFacade.getOrderByEcommerceID(ecommercePurchaseId);
         if (order != null && order.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)) {
-            managePartnerClient.notifyEvent(ecommerceId, action);
+            List<String> orderStatuses = Arrays.asList(Constant.ORDER_STATUS_RAPPI);
+            if (orderStatuses.contains(action.getAction())) {
+                managePartnerClient.notifyEvent(ecommerceId, action);
+            }
         }
 
         return deliveryManagerFacade

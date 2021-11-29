@@ -136,4 +136,6 @@ public interface IOrderFulfillment {
      */
     String getLiquidationStatus();
     String getLiquidationStatusDetail();
+
+    boolean getMixedOrder();
 }
