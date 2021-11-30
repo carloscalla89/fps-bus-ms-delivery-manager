@@ -158,6 +158,15 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.order-tracker.update-order-status.uri}")
     private String orderTrackerUpdateOrderStatusUri;
+
+    @Value("${external-service.order-tracker.update-partial.uri}")
+    private String orderTrackerUpdatePartialUri;
+
+    @Value("${external-service.order-tracker.update-partial.connect-timeout}")
+    private String orderTrackerUpdatePartialConnectTimeout;
+
+    @Value("${external-service.order-tracker.update-partial.read-timeout}")
+    private String orderTrackerUpdatePartialReadTimeout;
     // ------------------------------------------------------
 
     // properties fulfillmentcenter
