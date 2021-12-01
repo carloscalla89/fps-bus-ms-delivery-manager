@@ -10,6 +10,7 @@ import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
@@ -56,4 +57,6 @@ public interface OrderExternalService {
     Mono<Void> releaseStock(Long externalId);
 
     Mono<Void> updateStatusOrderSeller(Long externalId, String status);
+
+    Mono<Void> updatePartial(OrderDto partialOrderDto);
 }

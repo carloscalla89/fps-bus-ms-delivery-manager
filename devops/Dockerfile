@@ -8,7 +8,7 @@ ENV LOG_LEVEL_BUSINESS=INFO
 ADD /newrelic/newrelic.jar  /usr/src/service
 ADD /newrelic/newrelic.yml  /usr/src/service
 
-ENV NEW_RELIC_APP_NAME="My Application"
+ENV NEW_RELIC_APP_NAME="Delivery Manager"
 ENV NEW_RELIC_LICENSE_KEY="license_key"
 ENV NEW_RELIC_LOG_FILE_NAME="STDOUT"
 

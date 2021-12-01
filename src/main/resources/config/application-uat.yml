@@ -78,6 +78,10 @@ external-service:
       uri: http://us-ordertracker/order
       connect-timeout: 10000
       read-timeout: 120000
+    update-partial:
+      uri: http://us-ordertracker/nvr/order/partial
+      connect-timeout: 10000
+      read-timeout: 120000
   fulfillment-center:
     get-center:
       uri: http://fulfillment-centeruat.backend.cindibyinkafarma.com/fulfillment/store/

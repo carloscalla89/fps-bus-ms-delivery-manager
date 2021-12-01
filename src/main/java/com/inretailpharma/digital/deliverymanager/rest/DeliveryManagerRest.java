@@ -5,6 +5,7 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.errorhandling.ServerResponseError;
 import com.inretailpharma.digital.deliverymanager.mangepartner.client.ManagePartnerClient;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -74,7 +75,7 @@ public class DeliveryManagerRest {
     @PostMapping("/order/partial/")
     public Mono<OrderCanonical> updatePartialOrder(@RequestBody OrderDto partialOrderDto) {
         log.info("[START] endpoint updatePartialOrder /order/partial/ - partialOrderDto: {}",
-                partialOrderDto);
+                ObjectUtil.objectToJson(partialOrderDto));
 
         return deliveryManagerFacade.getUpdatePartialOrder(partialOrderDto);
     }
