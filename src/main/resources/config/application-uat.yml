@@ -78,20 +78,27 @@ external-service:
       uri: http://us-ordertracker/order
       connect-timeout: 10000
       read-timeout: 120000
+    update-partial:
+      uri: http://us-ordertracker/nvr/order/partial
+      connect-timeout: 10000
+      read-timeout: 120000
   fulfillment-center:
     get-center:
       uri: http://fulfillment-centeruat.backend.cindibyinkafarma.com/fulfillment/store/
       connect-timeout: 15000
       read-timeout: 30000
   seller-center:
-    get-controversies:
-      uri: http://uS-Seller-Center/sellercenter/orders/
-      connect-timeout: 10000
-      read-timeout: 120000
-    add-controversy:
-      uri: http://uS-Seller-Center/sellercenter/orders/
-      connect-timeout: 10000
-      read-timeout: 120000l
+    host: http://uS-Seller-Center
+    services:
+      update-status:
+        uri: /order/statusOrder/{ecommerceId}/{statusCode}
+        connect-timeout: 15000
+        read-timeout: 30000
+      add-controversy:
+        uri: /sellercenter/orders/
+        connect-timeout: 10000
+        read-timeout: 120000
+
   online-payment:
     liquidated:
       uri: https://visauat.cindibyinkafarma.com/visa/confirmation
@@ -128,4 +135,4 @@ external-service:
       connect-timeout: 30000
       read-timeout: 60000
   manage-partner:
-    update-status: http://fps-wsmanagepartneruat.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/
+    update-status: http://fps-wsmanagepartneruat.backend.cindibyinkafarma.com/api/v1/managePartner/rappi/event/

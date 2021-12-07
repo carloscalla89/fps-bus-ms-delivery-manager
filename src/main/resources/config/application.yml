@@ -36,7 +36,3 @@ spring:
         dialect: org.hibernate.dialect.MySQL5Dialect
 logging:
   config: classpath:logging/logback.xml
-external-service:
-  dispatcher:
-    retry-seller-center:
-      uri: http://us-dd/seller-center-order

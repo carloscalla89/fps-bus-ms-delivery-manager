@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.strategy.IActionStrategy;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,17 +35,20 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     private LiquidationFacade liquidationFacade;
     private Map<Constant.ActionOrder, IActionStrategy> actionsProcessors;
     private ApplicationContext context;
+    private OrderExternalService orderExternalService;
 
     @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                                  LiquidationFacade liquidationFacade,
-                                 ApplicationContext context) {
+                                 ApplicationContext context,
+                                 @Qualifier("orderTracker") OrderExternalService orderExternalService) {
 
         this.orderTransaction = orderTransaction;
         this.iAuditAdapter = iAuditAdapter;
         this.liquidationFacade = liquidationFacade;
         this.context = context;
+        this.orderExternalService = orderExternalService;
 
         actionsProcessors = Arrays
                                 .stream(Constant.ActionOrder.values())
@@ -126,6 +130,8 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                     orderStatus.setCode(Constant.OrderStatus.PARTIAL_UPDATE_ORDER.getCode());
                     orderStatus.setName(Constant.OrderStatus.PARTIAL_UPDATE_ORDER.getCode());
                     order.setOrderStatus(orderStatus);
+
+                    orderExternalService.updatePartial(partialOrderDto).subscribe();
 
                     return Mono.just(order);
 

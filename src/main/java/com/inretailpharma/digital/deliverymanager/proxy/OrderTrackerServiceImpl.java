@@ -2,10 +2,12 @@ package com.inretailpharma.digital.deliverymanager.proxy;
 
 import java.util.ArrayList;
 
+import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.OrderInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.AssignedOrdersCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.ProjectedGroupCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.ordertracker.UnassignedCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -170,5 +172,40 @@ public class OrderTrackerServiceImpl extends AbstractOrderService  implements Or
 						orderCanonical.getEcommerceId(), orderStatusInkatracker.getOrderStatusError().name(),
 						actionDto.getOrderCancelCode(), actionDto.getOrderCancelObservation())
 				);
+	}
+
+	@Override
+	public Mono<Void> updatePartial(OrderDto partialOrderDto) {
+
+		log.info("[START] service to call api order-tracker to updatePartial - uri:{}, ecommerceId:{}",
+				externalServicesProperties.getOrderTrackerUpdatePartialUri(), partialOrderDto.getEcommercePurchaseId());
+
+		return WebClient
+				.builder()
+				.clientConnector(
+						generateClientConnector(
+								Integer.parseInt(externalServicesProperties.getOrderTrackerUpdatePartialConnectTimeout()),
+								Long.parseLong(externalServicesProperties.getOrderTrackerUpdatePartialReadTimeout())
+						)
+				)
+				.baseUrl(externalServicesProperties.getOrderTrackerUpdatePartialUri())
+				.build()
+				.post()
+				.body(Mono.just(partialOrderDto), OrderDto.class)
+				.exchange()
+				.flatMap(clientResponse -> clientResponse.bodyToMono(String.class))
+				.doOnSuccess((r) -> log.info("[END] service to call api order-tracker to updatePartial - ecommerceId:{},{}",
+						partialOrderDto.getEcommercePurchaseId(), r))
+				.switchIfEmpty(Mono.defer(() -> {
+					log.error("Error to call order-tracker to updatePartial - ecommerceId:{} - empty", partialOrderDto.getEcommercePurchaseId());
+					return Mono.empty();
+				}))
+				.onErrorResume(e -> {
+					e.printStackTrace();
+					log.error("Error to call order-tracker to updatePartial - ecommerceId:{} - error:{}", partialOrderDto.getEcommercePurchaseId(), e.getMessage());
+					return Mono.empty();
+				})
+				.then();
+
 	}
 }
