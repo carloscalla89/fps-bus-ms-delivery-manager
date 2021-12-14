@@ -17,4 +17,6 @@ public class ClientDto {
     private Integer anonimous;
     private String notificationToken;
     private String newUserId;
+    private String referralCode;
+    private String referralMessage;
 }

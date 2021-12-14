@@ -449,6 +449,8 @@ public class ObjectToMapper {
             client.setInkaclub(c.getHasInkaClub());
             client.setNotificationToken(c.getNotificationToken());
             client.setNewUserId(c.getNewUserId());
+            client.setReferralCode(c.getReferralCode());
+            client.setReferralMessage(c.getReferralMessage());
         });
 
         return client;
@@ -914,6 +916,7 @@ public class ObjectToMapper {
     }
 
     private ClientInkatrackerCanonical getFromtOrderCanonical(IOrderFulfillment clientCanonical) {
+        log.info("IOrderFulfillment - referral: {}", clientCanonical);
         ClientInkatrackerCanonical clientInkatrackerCanonical = new ClientInkatrackerCanonical();
         Optional.ofNullable(clientCanonical.getBirthDate()).ifPresent(r ->
                 clientInkatrackerCanonical.setBirthDate(DateUtils.getLocalDateFromStringDate(r).toEpochDay()));
@@ -934,6 +937,8 @@ public class ObjectToMapper {
         clientInkatrackerCanonical.setUserId(clientCanonical.getUserId());
         clientInkatrackerCanonical.setJoinIdentifierId(clientCanonical.getNewUserId());
         clientInkatrackerCanonical.setNotificationToken(clientCanonical.getNotificationToken());
+        clientInkatrackerCanonical.setReferralCode(clientCanonical.getReferralCode());
+        clientInkatrackerCanonical.setReferralMessage(clientCanonical.getReferralMessage());
         return clientInkatrackerCanonical;
     }
 
@@ -1247,6 +1252,8 @@ public class ObjectToMapper {
             client.setLastName(r.getLastName());
             client.setUserId(r.getUserId());
             client.setNewUserId(r.getNewUserId());
+            client.setReferralCode(r.getReferralCode());
+            client.setReferralMessage(r.getReferralMessage());
         });
 
         orderCanonical.setClient(client);
