@@ -16,9 +16,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 public class CustomQueryOrderInfo {
 
@@ -113,15 +116,22 @@ public class CustomQueryOrderInfo {
   public OrderCanonicalResponse getOrderInfo(RequestFilterDTO filter) {
 
     String queryFilters = getQueryOrderInfo(filter);
-    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString().concat (queryFilters);
-    String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString().concat(queryFilters);
+    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString();
+    log.info("queryFilters:{}",queryFilters);
+    String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString();
+
+    log.info("queryTotal:{}",queryTotal);
+    log.info("queryOrderInfo:{}",queryOrderInfo);
 
     Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
+    log.info("totalRecordsQuery:{}",totalRecordsQuery);
     BigInteger totalRecords = (BigInteger) totalRecordsQuery.getSingleResult();
+    log.info("totalRecords:{}",totalRecords);
 
     Query query = entityManager.createNativeQuery(queryOrderInfo);
     Integer page = Optional.ofNullable(filter.getPage()).orElse(1);
     Integer totalRows = Optional.ofNullable(filter.getRecords()).orElse(9);
+    log.info("totalRows:{}",totalRows);
     query.setFirstResult(page > 0 ? page - 1 : page);
     query.setMaxResults(totalRows);
     List<Object[]> result = query.getResultList();
