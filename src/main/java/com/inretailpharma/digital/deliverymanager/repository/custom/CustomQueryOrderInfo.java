@@ -116,8 +116,10 @@ public class CustomQueryOrderInfo {
   public OrderCanonicalResponse getOrderInfo(RequestFilterDTO filter) {
 
     String queryFilters = getQueryOrderInfo(filter);
+    //String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString().concat (queryFilters);
     String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString();
     log.info("queryFilters:{}",queryFilters);
+    //String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString().concat(queryFilters);
     String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString();
 
     log.info("queryTotal:{}",queryTotal);
