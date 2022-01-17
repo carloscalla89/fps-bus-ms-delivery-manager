@@ -2,9 +2,20 @@ package com.inretailpharma.digital.deliverymanager.util;
 
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
-import com.inretailpharma.digital.deliverymanager.strategy.*;
+import com.inretailpharma.digital.deliverymanager.strategy.CancelOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.DeliverOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.FillOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.FillOrderCall;
+import com.inretailpharma.digital.deliverymanager.strategy.LiquidationOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.OnrouteOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.PickerOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.PrepareOrder;
+import com.inretailpharma.digital.deliverymanager.strategy.RetryDeliveryDispatcher;
+import com.inretailpharma.digital.deliverymanager.strategy.RetryTracker;
+import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
 import org.apache.commons.lang3.EnumUtils;
 
+import javax.swing.*;
 import java.util.Optional;
 
 public interface Constant {
@@ -21,7 +32,6 @@ public interface Constant {
         }
 
         public static ClassesImplements getByClass(Class<?> classType) {
-
             return EnumUtils.getEnumList(ClassesImplements.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(classType.getSimpleName())).findFirst().orElse(NONE);
         }
@@ -46,20 +56,17 @@ public interface Constant {
         }
 
         public static CancellationStockDispatcher getByName(String name) {
-
             return EnumUtils.getEnumList(CancellationStockDispatcher.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(NONE);
         }
 
         public static String getDetailCancelStock(String name, String orderCancelDescription) {
-
             return EnumUtils.getEnumList(CancellationStockDispatcher.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().map(CancellationStockDispatcher::getReason)
                     .orElse(orderCancelDescription);
         }
 
         public static String getDetailCancelOrderForStock(String name, String orderCancelDescription, String detail) {
-
             return EnumUtils.getEnumList(CancellationStockDispatcher.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().map(res -> detail)
                     .orElse(orderCancelDescription);
@@ -92,7 +99,6 @@ public interface Constant {
         }
 
         public static StatusDispatcherResult getByName(String name) {
-
             return EnumUtils.getEnumList(StatusDispatcherResult.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(NONE);
         }
@@ -100,7 +106,7 @@ public interface Constant {
 
     enum TrackerImplementation {
         inkatrackerlite(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE", TARGET_LITE),
-        inkatracker(3, InkatrackerServiceImpl.class,"DELIVERY_CENTER", TARGET_TRACKER),
+        inkatracker(3, InkatrackerServiceImpl.class, "DELIVERY_CENTER", TARGET_TRACKER),
         NONE(4, InkatrackerLiteServiceImpl.class, "DRUGSTORE", null);
 
         private Integer id;
@@ -132,24 +138,24 @@ public interface Constant {
         }
 
         public static TrackerImplementation getClassImplement(String classImplement) {
-
             return EnumUtils.getEnumList(TrackerImplementation.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(classImplement)).findFirst().orElse(NONE);
         }
-
-
     }
 
     interface OrderTrackerResponseCode {
+
         String SUCCESS_CODE = "0";
         String ERROR_CODE = "1";
         String EMPTY_CODE = "2";
         String ASSIGN_SUCCESS_CODE = "A0";
         String ASSIGN_PARTIAL_CODE = "A1";
         String ASSIGN_ERROR_CODE = "A2";
+
     }
 
     interface ApplicationsParameters {
+
         String ACTIVATED_AUDIT_VALUE = "1";
         String ACTIVATED_AUDIT = "ACTIVATED_AUDIT";
 
@@ -162,10 +168,13 @@ public interface Constant {
         String DEFAULT_INTERVAL_TIME_BY_SERVICE_ = "DEFAULT_INTERVAL_TIME_BY_SERVICE_";
 
         String ENABLED_SEND_TO_LIQUIDATION = "ENABLED_SEND_TO_LIQUIDATION";
+
     }
 
     interface InsinkErrorCode {
+
         String CODE_ERROR_STOCK = "E-1";
+
     }
 
     enum Source {
@@ -178,84 +187,90 @@ public interface Constant {
     String DEFAULT_SC_PAYMENT_METHOD_VALUE = "Pago en línea";
 
     interface Receipt {
+
         String TICKET = "TICKET";
         String INVOICE = "INVOICE";
+
     }
 
     interface OnlinePayment {
+
         String LIQUIDETED = "LIQUIDETED";
         String CANCELLED = "CANCELLED";
+
     }
 
     enum ActionOrder {
 
-        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker",1,
+        ATTEMPT_TRACKER_CREATE(1, "reintento para enviar la orden a un tracker", 1,
                 METHOD_CREATE, RetryTracker.class),
 
-        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink",1,
+        ATTEMPT_INSINK_CREATE(2, "reintento para enviar la órden al insink", 1,
                 METHOD_CREATE, RetryDeliveryDispatcher.class),
 
-        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9,
+        REJECT_ORDER(4, "Acción para cambiar el estado de la orden como cancelada", 9,
                 METHOD_UPDATE, CancelOrder.class),
 
-        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada",9,
+        CANCEL_ORDER(4, "Acción para cambiar el estado de la orden como cancelada", 9,
                 METHOD_UPDATE, CancelOrder.class),
 
-        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9,
+        DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada", 9,
                 METHOD_UPDATE, DeliverOrder.class),
 
-        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger",5,
+        READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger", 5,
                 METHOD_UPDATE, UpdateTracker.class),
 
-        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada",3,
+        INVOICED_ORDER(4, "Acción para cambiar el estado de la orden a facturada", 3,
                 METHOD_UPDATE, UpdateTracker.class),
 
         // ========== nuevas actions que enviarán TI - 29-10-2020
         // =========================
-        READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING",5,
+        READY_FOR_BILLING(4, "Accion para cambiar el estado de la orden a READY_FOR_BILLING", 5,
                 METHOD_UPDATE, UpdateTracker.class),
 
-        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4,
+        PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO", 4,
                 METHOD_UPDATE, PickerOrder.class),
 
-        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5,
+        READY_TO_ASSIGN(22, "Acción para cambiar el estado de la orden a 'Listo para asignar'", 4,
+                METHOD_UPDATE, UpdateTracker.class),
+
+        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO", 5,
                 METHOD_UPDATE, PrepareOrder.class),
         // =================================================================================
-
-        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker",2,
+        ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker", 2,
                 METHOD_UPDATE, UpdateTracker.class),
 
         // =========== nuevos actions que se enviarán desde el order-tracker
-        ASSIGN_ORDER(4, "Acción para asignar órdenes",6,
+        ASSIGN_ORDER(4, "Acción para asignar órdenes", 6,
                 METHOD_UPDATE, UpdateTracker.class),
 
-        UNASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE, UpdateTracker.class),
+        UNASSIGN_ORDER(4, "Acción para asignar órdenes", 6, METHOD_UPDATE, UpdateTracker.class),
 
-        ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE",7,
+        ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE", 7,
                 METHOD_UPDATE, OnrouteOrder.class),
 
-        ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8,
+        ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED", 8,
                 METHOD_UPDATE, UpdateTracker.class),
 
-        SET_PARTIAL_ORDER(4, "Acción para actualizar una orden parcial",3,
+        SET_PARTIAL_ORDER(4, "Acción para actualizar una orden parcial", 3,
                 METHOD_UPDATE, UpdateTracker.class),
 
-        CHECKOUT_ORDER(4, "Acción para poner el estado checkout al inkatracker",8,
+        CHECKOUT_ORDER(4, "Acción para poner el estado checkout al inkatracker", 8,
                 METHOD_UPDATE, UpdateTracker.class),
 
-        FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden",0,
+        FILL_ORDER(5, "Accion para llenar data del ecommerce a una orden", 0,
                 METHOD_CREATE, FillOrder.class),
 
-        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago",10,
+        LIQUIDATED_ONLINE_PAYMENT(6, "Acción para informar la liquidacion del pago", 10,
                 METHOD_UPDATE, com.inretailpharma.digital.deliverymanager.strategy.OnlinePayment.class),
 
-        LIQUIDATE_ORDER(7,"Acción para enviar el estado al dominio de liquidacion", 11,
+        LIQUIDATE_ORDER(7, "Acción para enviar el estado al dominio de liquidacion", 11,
                 METHOD_UPDATE, LiquidationOrder.class),
 
-        FILL_ORDER_CALL(8, "Accion para llenar data de call center ",0,
+        FILL_ORDER_CALL(8, "Accion para llenar data de call center ", 0,
                 METHOD_CREATE, FillOrderCall.class),
 
-        NONE(0, "Not found status",0,METHOD_NONE, UpdateTracker.class);
+        NONE(0, "Not found status", 0, METHOD_NONE, UpdateTracker.class);
 
         private Integer code;
         private String description;
@@ -263,15 +278,13 @@ public interface Constant {
         private String method;
         private Class<?> actionStrategyImplement;
 
-        ActionOrder(Integer code, String description,int sequence, String method, Class actionStrategyImplement) {
+        ActionOrder(Integer code, String description, int sequence, String method, Class actionStrategyImplement) {
             this.code = code;
             this.description = description;
             this.sequence = sequence;
             this.method = method;
             this.actionStrategyImplement = actionStrategyImplement;
         }
-
-
 
         public Integer getCode() {
             return code;
@@ -290,7 +303,6 @@ public interface Constant {
         }
 
         public static ActionOrder getByName(String name) {
-
             return EnumUtils.getEnumList(ActionOrder.class).stream().filter(item -> item.name().equalsIgnoreCase(name))
                     .findFirst().orElse(NONE);
         }
@@ -299,6 +311,7 @@ public interface Constant {
             return actionStrategyImplement;
         }
     }
+
     enum OrderStatusTracker {
 
         ON_STORE_ORDER("ON_STORE_ORDER", "ON_STORE", OrderStatus.CONFIRMED_TRACKER, OrderStatus.ERROR_INSERT_TRACKER,
@@ -350,6 +363,9 @@ public interface Constant {
         PICKED_ORDER("PICKING_ORDER", "PICKING", OrderStatus.PICKED_ORDER, OrderStatus.ERROR_PICKED,
                 ActionOrder.PICK_ORDER.name()),
 
+        READY_TO_ASSIGN("READY_TO_ASSIGN", "READY_TO_ASSIGN",OrderStatus.READY_TO_ASSIGN,
+                OrderStatus.ERROR_READY_TO_ASSIGN, ActionOrder.READY_TO_ASSIGN.name()),
+
         PREPARED_ORDER("PREPARED_ORDER", "PREPARED", OrderStatus.PREPARED_ORDER, OrderStatus.ERROR_PREPARED,
                 ActionOrder.PREPARE_ORDER.name()),
 
@@ -372,7 +388,6 @@ public interface Constant {
         CHECKOUT_ORDER("CHECKOUT_ORDER", null, OrderStatus.CHECKOUT_ORDER,
                 OrderStatus.ERROR_CHECKOUT, ActionOrder.CHECKOUT_ORDER.name());
 
-
         private String trackerStatus;
         private String trackerLiteStatus;
         private OrderStatus orderStatus;
@@ -394,14 +409,10 @@ public interface Constant {
                     .filter(item -> item.actionName.equalsIgnoreCase(actionName))
                     .findFirst()
                     .map(res -> {
-
                         if (classImplementTracker.equalsIgnoreCase(TrackerImplementation.inkatracker.name())) {
                             return res.getTrackerStatus();
                         }
-
                         return res.getTrackerLiteStatus();
-
-
                     }).orElse(NOT_FOUND_ACTION.orderStatusError.getCode());
         }
 
@@ -437,17 +448,17 @@ public interface Constant {
 
     enum LiquidationStatus {
         // Estados satisfactorioS al enviar desde el DM al componente de liquidación o a la auditoria
-        PENDING("00",true,METHOD_CREATE), ERROR("02",true, METHOD_CREATE),
-        AUTOMATIC_CANCELLED("03",true, METHOD_CREATE), IN_PROCESS("04",true, METHOD_UPDATE),
+        PENDING("00", true, METHOD_CREATE), ERROR("02", true, METHOD_CREATE),
+        AUTOMATIC_CANCELLED("03", true, METHOD_CREATE), IN_PROCESS("04", true, METHOD_UPDATE),
         BILLED("05", true, METHOD_UPDATE), PARTIAL_BILLED("06", true, METHOD_UPDATE),
-        CANCELLED("07",true, METHOD_UPDATE), PENDING_LIQUIDATE("08",true, METHOD_UPDATE),
+        CANCELLED("07", true, METHOD_UPDATE), PENDING_LIQUIDATE("08", true, METHOD_UPDATE),
 
         // Estados de error al enviarse al componnte de liquidación
-        ERROR_PENDING("60",false, METHOD_CREATE), ERROR_ERROR("61", false, METHOD_CREATE),
+        ERROR_PENDING("60", false, METHOD_CREATE), ERROR_ERROR("61", false, METHOD_CREATE),
         ERROR_AUTOMATIC_CANCELLED("62", false, METHOD_CREATE), ERROR_IN_PROCESS("63", false, METHOD_UPDATE),
         ERROR_BILLED("64", false, METHOD_UPDATE), ERROR_PARTIAL_BILLED("65", false, METHOD_UPDATE),
-        ERROR_CANCELLED("66",false, METHOD_UPDATE), ERROR_PENDING_LIQUIDATE("67",false, METHOD_UPDATE),
-        NOT_FOUND_CODE("-1",false, METHOD_UPDATE),
+        ERROR_CANCELLED("66", false, METHOD_UPDATE), ERROR_PENDING_LIQUIDATE("67", false, METHOD_UPDATE),
+        NOT_FOUND_CODE("-1", false, METHOD_UPDATE),
 
         // Estados de error cuando falló algo al enviar al componente de liquidación
         ERROR_SENDING_CREATE_STATUS("68", false, METHOD_CREATE), ERROR_UPDATING_STATUS("69", false, METHOD_UPDATE);
@@ -486,7 +497,7 @@ public interface Constant {
             return EnumUtils
                     .getEnumList(LiquidationStatus.class)
                     .stream()
-                    .filter(item -> item.name().equalsIgnoreCase("ERROR_"+name))
+                    .filter(item -> item.name().equalsIgnoreCase("ERROR_" + name))
                     .findFirst().orElse(NOT_FOUND_CODE);
         }
 
@@ -497,22 +508,19 @@ public interface Constant {
                     .filter(item -> item.name().equalsIgnoreCase(name.substring("ERROR_".length())))
                     .findFirst().orElse(NOT_FOUND_CODE);
         }
-
     }
-
 
     enum OrderStatus {
 
         // ========== ERRORES =================================================================
         ERROR_INSERT_TRACKER("01", false), ERROR_INSERT_INKAVENTA("02", false),
-        ERROR_PICKED("04", false), ERROR_PREPARED("05", false),
+        ERROR_PICKED("04", false),ERROR_READY_TO_ASSIGN("23",false),
+        ERROR_PREPARED("05", false),
         ERROR_READY_FOR_PICKUP("05", false), ERROR_ASSIGNED("06", false),
         ERROR_ON_ROUTED("07", false), ERROR_ARRIVED("08", false),
         ERROR_DELIVERED("09", false), ERROR_CANCELLED("10", false),
-        ERROR_REJECTED("10", false), ERROR_CHECKOUT("42",false),
+        ERROR_REJECTED("10", false), ERROR_CHECKOUT("42", false),
         // ==================================================================================================
-
-
         INVOICED("40", true), ERROR_INVOICED("41", false),
 
         PARTIAL_UPDATE_ORDER("45", true), ERROR_PARTIAL_UPDATE("46", false),
@@ -523,11 +531,13 @@ public interface Constant {
 
         ASSIGNED("17", true),
 
+        READY_TO_ASSIGN("22", true),
+
         PICKED_ORDER("18", true), PREPARED_ORDER("19", true),
 
-        ON_ROUTED_ORDER("20",true), ARRIVED_ORDER("21",true),
+        ON_ROUTED_ORDER("20", true), ARRIVED_ORDER("21", true),
 
-        CHECKOUT_ORDER("22",true),
+        CHECKOUT_ORDER("22", true),
 
         DELIVERED_ORDER("12", true), READY_PICKUP_ORDER("13", true),
 
@@ -539,7 +549,7 @@ public interface Constant {
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("33", true),
 
         REJECTED_ORDER("34", true), // se cancela orden desde el pos unificado y/o otro cliente
-        REJECTED_ORDER_ONLINE_PAYMENT("35", true),  ORDER_FAILED("38", false),
+        REJECTED_ORDER_ONLINE_PAYMENT("35", true), ORDER_FAILED("38", false),
 
         // status cuando se llama al microservicio de visa - bbr
         LIQUIDATED_ONLINE_PAYMENT("43", true),
@@ -555,14 +565,12 @@ public interface Constant {
         EMPTY_RESULT_INKATRACKERLITE("-1", false), END_STATUS_RESULT("-1", false),
         EMPTY_RESULT_ORDERTRACKER("-1", false);
 
-
         private String code;
         private boolean isSuccess;
 
         OrderStatus(String code, boolean isSuccess) {
             this.code = code;
             this.isSuccess = isSuccess;
-
         }
 
         public static OrderStatus getByCode(String code) {
@@ -618,7 +626,6 @@ public interface Constant {
         private int valueInt;
 
         Logical(boolean value, String valueString, int valueInt) {
-
             this.value = value;
             this.valueString = valueString;
             this.valueInt = valueInt;
@@ -649,7 +656,7 @@ public interface Constant {
 
         public static Logical getByValueString(String valueString) {
             return EnumUtils.getEnumList(Logical.class).stream().filter(
-                    item -> Optional.ofNullable(valueString).orElse("0").equalsIgnoreCase(item.getValueString()))
+                            item -> Optional.ofNullable(valueString).orElse("0").equalsIgnoreCase(item.getValueString()))
                     .findFirst().orElse(N);
         }
     }
@@ -669,6 +676,7 @@ public interface Constant {
     String CHECKOUT_ORDER = "CHECKOUT_ORDER";
     String INVOICED_ORDER = "INVOICED_ORDER";
     String PICK_ORDER = "PICK_ORDER";
+    String READY_TO_ASSIGN = "READY_TO_ASSIGN";
     String PREPARE_ORDER = "PREPARE_ORDER";
     String ASSIGN_ORDER = "ASSIGN_ORDER";
     String ON_ROUTE_ORDER = "ON_ROUTE_ORDER";
@@ -682,7 +690,7 @@ public interface Constant {
     String ORIGIN_FARMADASHBOARD = "FARMADASHBOARD";
     String ORIGIN_INKATRACKER_WEB = "INKATRACKER_WEB";
     String ORIGIN_DCPROXY = "INKAPROXY";
-    String ORIGIN_TRACKER= "TRACKER";
+    String ORIGIN_TRACKER = "TRACKER";
     String ORIGIN_BBR = "BBR";
     String ORIGIN_UNIFIED_POS = "UNIFIED_POS";
     String ORIGIN_TASK = "TASK";
@@ -719,12 +727,12 @@ public interface Constant {
 
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";
-    
+
     String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
 
     enum DeliveryManagerStatus {
 
-        ORDER_FAILED("-01","ERROR_INSERT_DM"), NONE("-02","ERROR_NOT_IDENTIFIED");
+        ORDER_FAILED("-01", "ERROR_INSERT_DM"), NONE("-02", "ERROR_NOT_IDENTIFIED");
         private String code;
         private String status;
 
@@ -742,14 +750,13 @@ public interface Constant {
         }
 
         public static DeliveryManagerStatus getByName(String name) {
-
             return EnumUtils.getEnumList(DeliveryManagerStatus.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(NONE);
         }
-
     }
 
     interface SellerCenter {
+
         String BEAN_SERVICE_NAME = "sellerCenterService";
 
         enum ControversyTypes {
@@ -780,6 +787,7 @@ public interface Constant {
                 return description;
             }
         }
+
     }
 
     enum StockType {
@@ -792,10 +800,9 @@ public interface Constant {
         }
 
         public static StockType getByCode(String name) {
-
             return EnumUtils.getEnumList(StockType.class).stream()
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(M);
         }
-
     }
+
 }
