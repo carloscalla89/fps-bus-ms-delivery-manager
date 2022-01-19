@@ -117,13 +117,9 @@ public class CustomQueryOrderInfo {
 
     String queryFilters = getQueryOrderInfo(filter);
     String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString().concat (queryFilters);
-    //String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString();
+
     log.info("queryFilters:{}",queryFilters);
     String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString().concat(queryFilters);
-    //String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString();
-
-    log.info("queryTotal:{}",queryTotal);
-    log.info("queryOrderInfo:{}",queryOrderInfo);
 
     Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
     log.info("totalRecordsQuery:{}",totalRecordsQuery);
@@ -147,9 +143,9 @@ public class CustomQueryOrderInfo {
       response.setEcommerceId(ecommerceId.longValue());
       Date promiseDate = (Date) data[3];
 
-      DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy hh:mm a");
+      DateFormat dateFormat = new SimpleDateFormat("dd-MM-yy hh:mm a");
       String strDate = dateFormat.format(promiseDate);
-      response.setPromiseDate(strDate.toLowerCase());
+      response.setPromiseDate(strDate.toUpperCase());
       response.setOrderStatus(String.valueOf(data[4]));
       response.setLocalId(String.valueOf(data[5]));
       response.setCompanyCode(String.valueOf(data[6]));
@@ -157,6 +153,7 @@ public class CustomQueryOrderInfo {
       response.setServiceTypeId(String.valueOf(data[8]));
       response.setClient(String.valueOf(data[9]));
       response.setDocumentoId(String.valueOf(data[10]));
+      response.setStatusCode(String.valueOf(data[12]));
       return response;
     }).collect(Collectors.toList());
 
@@ -167,8 +164,6 @@ public class CustomQueryOrderInfo {
     response.setOrders(orders);
 
     return response;
-
-
   }
 
 

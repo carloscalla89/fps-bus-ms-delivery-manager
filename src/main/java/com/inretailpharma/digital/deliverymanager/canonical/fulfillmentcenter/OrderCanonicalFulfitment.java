@@ -7,14 +7,16 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderCanonicalFulfitment {
 
-    private String orderStatus;
-    private String localId;
-    private String companyCode;
-    private String serviceChannel;
-    private Long orderId;
-    private Long ecommerceId;
-    private String serviceTypeId;
-    private String documentoId;
-    private String client;
-    private String promiseDate;
+  private String orderStatus;
+  private String localId;
+  private String companyCode;
+  private String serviceChannel;
+  private Long orderId;
+  private Long ecommerceId;
+  private String serviceTypeId;
+  private String documentoId;
+  private String client;
+  private String promiseDate;
+  private String statusCode;
+
 }
