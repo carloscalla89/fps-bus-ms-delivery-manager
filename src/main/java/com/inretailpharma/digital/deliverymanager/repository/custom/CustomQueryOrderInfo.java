@@ -38,10 +38,17 @@ public class CustomQueryOrderInfo {
       //queryFilters.append(basicQuery);
       queryFilters.append("where 1 = 1 ");
 
-      if(requestFilter.getFilter().getMultipleField() != null){
-        String queryFilter = "and ( o.ecommerce_purchase_id like '?%' or"
-            + " c.phone like '?%' or"
-            + " c.document_number like '?%')";
+      if (requestFilter.getFilter().getMultipleField() != null) {
+
+        String queryFilter = "";
+        if (requestFilter.getFilter().getMultipleField().startsWith("99")) {
+          queryFilter = "and  o.ecommerce_purchase_id = '?'";
+        } else {
+          queryFilter = "and ( o.ecommerce_purchase_id like '?%' or"
+              + " c.phone like '?%' or"
+              + " c.document_number like '?%')";
+        }
+
 
 
         queryFilters.append(queryFilter.replace("?",requestFilter.getFilter().getMultipleField()));
