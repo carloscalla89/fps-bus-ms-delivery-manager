@@ -128,11 +128,11 @@ public class CustomQueryOrderInfo {
     log.info("queryFilters:{}",queryFilters);
     String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString().concat(queryFilters);
 
-    /*Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
+    Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
     log.info("totalRecordsQuery:{}",totalRecordsQuery);
     BigInteger totalRecords = (BigInteger) totalRecordsQuery.getSingleResult();
     log.info("totalRecords:{}",totalRecords);
-*/
+
     Query query = entityManager.createNativeQuery(queryOrderInfo);
     Integer page = Optional.ofNullable(filter.getPage()).orElse(1);
     Integer totalRows = Optional.ofNullable(filter.getRecords()).orElse(9);
@@ -165,7 +165,7 @@ public class CustomQueryOrderInfo {
     }).collect(Collectors.toList());
 
     OrderCanonicalResponse response = new OrderCanonicalResponse();
-    //response.setTotalRecords(totalRecords);
+    response.setTotalRecords(totalRecords);
     response.setPage(BigInteger.valueOf(page));
     response.setCurrentRecords(BigInteger.valueOf(orders.size()));
     response.setOrders(orders);
