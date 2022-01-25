@@ -231,7 +231,7 @@ public interface Constant {
         PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO", 4,
                 METHOD_UPDATE, PickerOrder.class),
 
-        READY_TO_ASSIGN(22, "Acción para cambiar el estado de la orden a 'Listo para asignar'", 4,
+        READY_TO_ASSIGN(23, "Acción para cambiar el estado de la orden a 'Listo para asignar'", 4,
                 METHOD_UPDATE, UpdateTracker.class),
 
         PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO", 5,
@@ -514,7 +514,7 @@ public interface Constant {
 
         // ========== ERRORES =================================================================
         ERROR_INSERT_TRACKER("01", false), ERROR_INSERT_INKAVENTA("02", false),
-        ERROR_PICKED("04", false),ERROR_READY_TO_ASSIGN("23",false),
+        ERROR_PICKED("04", false),ERROR_READY_TO_ASSIGN("24",false),
         ERROR_PREPARED("05", false),
         ERROR_READY_FOR_PICKUP("05", false), ERROR_ASSIGNED("06", false),
         ERROR_ON_ROUTED("07", false), ERROR_ARRIVED("08", false),
@@ -531,7 +531,7 @@ public interface Constant {
 
         ASSIGNED("17", true),
 
-        READY_TO_ASSIGN("22", true),
+        READY_TO_ASSIGN("23", true),
 
         PICKED_ORDER("18", true), PREPARED_ORDER("19", true),
 
