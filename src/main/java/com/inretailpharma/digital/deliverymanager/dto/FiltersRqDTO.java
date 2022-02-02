@@ -2,6 +2,8 @@ package com.inretailpharma.digital.deliverymanager.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class FiltersRqDTO {
 
@@ -12,5 +14,8 @@ public class FiltersRqDTO {
   private String[] promiseDate;
   private String[] orderStatus;
   private String[] serviceChannel;
-  private String multipleField;
+  //TODO: OMS
+  //private String multipleField;
+  private String filterType;
+  private String valueFilterType; //(1)N° pedido, (2)telefono o (3)documento
 }

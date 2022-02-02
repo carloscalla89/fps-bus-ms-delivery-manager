@@ -29,43 +29,60 @@ public class CustomQueryOrderInfo {
   EntityManager entityManager;
 
   private String getQueryOrderInfo(RequestFilterDTO requestFilter) {
+    boolean filterSixMonths = false;
+    boolean existsDateFilter = false;
+    StringBuilder queryFilters = new StringBuilder();
 
-    String basicQuery = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString();
     if (requestFilter.getFilter() == null) {
-      return basicQuery;
+      filterSixMonths = true;
+
+      queryFilters.append(" where 1 = 1 ");
+
+      if (requestFilter.getOrderStatusCodeAllowed() != null) {
+        StringBuilder queryInOrderStatusCodeAllowed = new StringBuilder();
+
+        queryInOrderStatusCodeAllowed.append(" and os.code in (");
+        for (String code: requestFilter.getOrderStatusCodeAllowed()) {
+          queryInOrderStatusCodeAllowed.append(code).append(",");
+        }
+        queryInOrderStatusCodeAllowed
+                .deleteCharAt(queryInOrderStatusCodeAllowed.lastIndexOf(","))
+                .append(") ");
+
+        queryFilters.append(queryInOrderStatusCodeAllowed.toString());
+      }
     } else {
-      StringBuilder queryFilters = new StringBuilder();
-      //queryFilters.append(basicQuery);
       queryFilters.append("where 1 = 1 ");
 
-      if (requestFilter.getFilter().getMultipleField() != null) {
-
+      //TODO: OMS
+      if (requestFilter.getFilter().getFilterType() != null && requestFilter.getFilter().getValueFilterType() != null) {
         String queryFilter = "";
-        if (requestFilter.getFilter().getMultipleField().startsWith("99")) {
-          queryFilter = "and  o.ecommerce_purchase_id = '?'";
+        if (requestFilter.getFilter().getFilterType().equalsIgnoreCase("1")) { //N° pedido
+          queryFilter = "and o.ecommerce_purchase_id = '?' ";
         } else {
-          queryFilter = "and ( o.ecommerce_purchase_id like '?%' or"
-              + " c.phone like '?%' or"
-              + " c.document_number like '?%')";
+          if (requestFilter.getFilter().getFilterType().equalsIgnoreCase("2")) {//telefono
+            filterSixMonths = true;
+            queryFilter = "and c.phone = '?' ";
+          } else {//documento
+            filterSixMonths = true;
+            queryFilter = "and c.document_number = '?' ";
+          }
         }
-
-
-
-        queryFilters.append(queryFilter.replace("?",requestFilter.getFilter().getMultipleField()));
+        queryFilters.append(queryFilter.replace("?",requestFilter.getFilter().getValueFilterType()));
       }
 
       if (requestFilter.getFilter().getCompanyCode() != null) {
+        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getCompanyCode());
         queryFilters.append(" and s.company_code IN(")
-            .append(filters)
-            .append(")");
+            .append(filters).append(") ");
       }
 
       if (requestFilter.getFilter().getLocalId() != null) {
+        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getLocalId());
         queryFilters.append(" and s.center_code IN(")
-            .append(filters)
-            .append(")");
+            .append(filters).append(") ");
       }
 
       if (requestFilter.getFilter().getEcommerceId() != null) {
@@ -74,45 +91,66 @@ public class CustomQueryOrderInfo {
             .append(filters).append(") ");
       }
       if (requestFilter.getFilter().getOrderStatus() != null) {
+        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getOrderStatus());
-        queryFilters.append(" and os.type IN(").append(filters)
-            .append(")");
+        queryFilters.append(" and os.type IN(")
+            .append(filters).append(") ");
       }
 
       if (requestFilter.getFilter().getPromiseDate() != null) {
+        existsDateFilter = true;
         LocalDate startDate = DateUtils
             .getLocalDateFromStringWithFormatV2(requestFilter.getFilter().getPromiseDate()[0]);
         LocalDate endDate = DateUtils
             .getLocalDateFromStringWithFormatV2(requestFilter.getFilter().getPromiseDate()[1]);
 
         queryFilters.append(" and Date(o.scheduled_time) BETWEEN ")
-            .append("'")
-            .append(startDate.toString())
-            .append("'")
+            .append("'").append(startDate.toString()).append("'")
             .append(" and ")
-            .append("'")
-            .append(endDate.toString())
-            .append("'");
-
+            .append("'").append(endDate.toString()).append("' ");
       }
 
       if (requestFilter.getFilter().getServiceChannel() != null) {
+        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getServiceChannel());
         queryFilters.append(" and st.source_channel IN(")
-            .append(filters)
-            .append(")");
+            .append(filters).append(") ");
       }
 
       if (requestFilter.getFilter().getServiceTypeId() != null) {
+        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getServiceTypeId());
         queryFilters.append(" and st.short_code IN(")
-            .append(filters)
-            .append(")");
+            .append(filters).append(") ");
       }
 
-      return queryFilters.toString();
+      if (requestFilter.getOrderStatusCodeAllowed() != null) {
+        StringBuilder queryInOrderStatusCodeAllowed = new StringBuilder();
+
+        queryInOrderStatusCodeAllowed.append(" and os.code in (");
+        for (String code: requestFilter.getOrderStatusCodeAllowed()) {
+          queryInOrderStatusCodeAllowed.append(code).append(",");
+        }
+        queryInOrderStatusCodeAllowed
+                .deleteCharAt(queryInOrderStatusCodeAllowed.lastIndexOf(","))
+                .append(") ");
+
+        queryFilters.append(queryInOrderStatusCodeAllowed.toString());
+      }
     }
 
+    if (!existsDateFilter && filterSixMonths) {
+      //Se filtra para obtener 6 meses atras
+      LocalDate endDate = LocalDate.now();
+      LocalDate startDate = endDate.minusMonths(6);
+
+      queryFilters.append(" and Date(o.scheduled_time) BETWEEN ")
+              .append("'").append(startDate.toString()).append("'")
+              .append(" and ")
+              .append("'").append(endDate.toString()).append("' ");
+    }
+
+    return queryFilters.toString();
   }
 
   public String getFiltersConcatenated(String[] filters) {
@@ -121,15 +159,21 @@ public class CustomQueryOrderInfo {
   }
 
   public OrderCanonicalResponse getOrderInfo(RequestFilterDTO filter) {
-
     String queryFilters = getQueryOrderInfo(filter);
-    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString().concat (queryFilters);
-
     log.info("queryFilters:{}",queryFilters);
-    String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString().concat(queryFilters);
+
+    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString()
+                          .concat(queryFilters);
+    log.info("queryTotal:{}",queryTotal);
+
+    String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString()
+                              .concat(queryFilters)
+                              .concat(CustomSqlQuery.BASIC_QUERY_ORDER_BY_DATE_DESC.toString());
+    log.info("queryOrderInfo: {}",queryOrderInfo);
 
     Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
     log.info("totalRecordsQuery:{}",totalRecordsQuery);
+
     BigInteger totalRecords = (BigInteger) totalRecordsQuery.getSingleResult();
     log.info("totalRecords:{}",totalRecords);
 
@@ -137,6 +181,7 @@ public class CustomQueryOrderInfo {
     Integer page = Optional.ofNullable(filter.getPage()).orElse(1);
     Integer totalRows = Optional.ofNullable(filter.getRecords()).orElse(9);
     log.info("totalRows:{}",totalRows);
+
     query.setFirstResult(page > 0 ? page - 1 : page);
     query.setMaxResults(totalRows);
     List<Object[]> result = query.getResultList();
