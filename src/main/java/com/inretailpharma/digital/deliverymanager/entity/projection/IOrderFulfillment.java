@@ -136,4 +136,6 @@ public interface IOrderFulfillment {
     String getLiquidationStatusDetail();
 
     boolean getMixedOrder();
+
+    Long getGroupId();
 }

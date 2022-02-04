@@ -13,4 +13,10 @@ public class StatusDto {
     private String cancellationCode;
     private String cancellationDescription;
     private String origin;
+
+    public StatusDto() {}
+
+    public StatusDto(String code) {
+        this.code = code;
+    }
 }

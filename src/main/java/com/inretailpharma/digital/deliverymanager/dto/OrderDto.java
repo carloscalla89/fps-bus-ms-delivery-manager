@@ -88,9 +88,11 @@ public class OrderDto {
      * autor: Omni
      */
     private Long groupId;
+
     private String saleChannel;
     private String saleChannelType;
 
     private boolean mixedOrder;
+
 
 }
