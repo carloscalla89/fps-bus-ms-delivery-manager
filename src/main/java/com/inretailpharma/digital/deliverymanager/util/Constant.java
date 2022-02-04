@@ -798,4 +798,9 @@ public interface Constant {
         }
 
     }
+
+    interface OnlineLiquidation {
+        String LIQUIDATE = "LIQUIDATE_ORDER";
+        String REFUND = "REFUND_ORDER";
+    }
 }

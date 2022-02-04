@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.adapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
@@ -18,36 +19,20 @@ import reactor.core.publisher.Mono;
 @Component
 public class PaymentAdapter implements IPaymentAdapter{
 
-    private OrderExternalService externalOnlinePaymentService;
-    private OrderTransaction orderTransaction;
+    private OrderExternalService liquidationService;
 
     @Autowired
-    public PaymentAdapter(@Qualifier("onlinePayment") OrderExternalService externalOnlinePaymentService,
-                          OrderTransaction orderTransaction) {
-        this.externalOnlinePaymentService = externalOnlinePaymentService;
-        this.orderTransaction = orderTransaction;
-
+    public PaymentAdapter(@Qualifier("liquidation") OrderExternalService liquidationService) {
+        this.liquidationService = liquidationService;
     }
 
     @Override
     public Mono<OrderCanonical> getfromOnlinePayment(IOrderFulfillment iOrderFulfillment, ActionDto actionDto) {
-        return externalOnlinePaymentService
-                .getResultfromOnlinePaymentExternalServices(iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getSource(),
-                        iOrderFulfillment.getServiceTypeShortCode(), iOrderFulfillment.getCompanyCode(), actionDto)
+
+        return liquidationService
+                .updateOrderToLiquidationOnline(String.valueOf(iOrderFulfillment.getEcommerceId()), new StatusDto(actionDto.getAction()))
                 .map(r -> {
                     log.info("[START] to update online payment order = {}", r);
-                    String onlinePaymentStatus = "";
-                    if(Constant.OrderStatus.SUCCESS_RESULT_ONLINE_PAYMENT.getCode().equals(r.getOrderStatus().getCode())) {
-                        Constant.OrderStatus status = Constant.OrderStatus.getByName(actionDto.getAction());
-                        OrderStatusCanonical paymentRsp = new OrderStatusCanonical();
-                        paymentRsp.setCode(status.getCode());
-                        paymentRsp.setName(status.name());
-                        r.setOrderStatus(paymentRsp);
-                        onlinePaymentStatus = actionDto.getAction().equalsIgnoreCase(Constant.CANCEL_ORDER) ?  Constant.OnlinePayment.CANCELLED:Constant.OnlinePayment.LIQUIDETED;
-                        log.info("[PROCESS] to update online payment order::{}, status::{}", iOrderFulfillment.getOrderId(), onlinePaymentStatus);
-                        orderTransaction.updateOrderOnlinePaymentStatusByExternalId(iOrderFulfillment.getOrderId(),onlinePaymentStatus);
-                    }
-                    log.info("[END] to update order");
                     return r;
                 });
     }

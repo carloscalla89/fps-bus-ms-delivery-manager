@@ -36,6 +36,7 @@ public interface OrderExternalService {
 
     Mono<OrderCanonical> createOrderToLiquidation(LiquidationDto liquidationDto);
     Mono<OrderCanonical> updateOrderToLiquidation(String ecommerceId, StatusDto statusDto);
+    Mono<OrderCanonical> updateOrderToLiquidationOnline(String ecommerceId, StatusDto statusDto);
 
     Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical);
     Mono<String> unassignOrders(UnassignedCanonical unassignedCanonical);
