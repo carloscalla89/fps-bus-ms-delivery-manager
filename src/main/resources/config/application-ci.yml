@@ -123,6 +123,10 @@ external-service:
       uri: http://us-liquidation/omni/liquidation/v1.0.0/orders
       connect-timeout: 10000
       read-timeout: 120000
+    update-order-online:
+      uri: http://us-liquidation/omni/liquidation/v1.0.0/orders/dc
+      connect-timeout: 10000
+      read-timeout: 120000
   insink:
     get-order-callcenter:
       uri: http://insink-aws-prueba.backend.inkafarma.pe/get/order
@@ -133,3 +137,5 @@ external-service:
       uri: http://legacy-bridgeci01.backend.cindibyinkafarma.com/omni/v1.0.0/legacy/release-stock/
       connect-timeout: 30000
       read-timeout: 60000
+  manage-partner:
+    update-status: http://fps-wsmanagepartneruat.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/

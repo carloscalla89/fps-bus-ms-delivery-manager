@@ -81,6 +81,11 @@ public class AbstractOrderService implements OrderExternalService {
 	}
 
 	@Override
+	public Mono<OrderCanonical> updateOrderToLiquidationOnline(String ecommerceId, StatusDto statusDto) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public Mono<AssignedOrdersCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
 		throw new UnsupportedOperationException();
 	}
