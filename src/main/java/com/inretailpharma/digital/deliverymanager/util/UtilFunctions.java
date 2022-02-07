@@ -94,7 +94,8 @@ public class UtilFunctions {
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED_TRACKER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.CHECKOUT_ORDER.name())
                                 || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
-                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.READY_PICKUP_ORDER.name())) {
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.READY_PICKUP_ORDER.name())
+                                || firstDigitalStatus.equalsIgnoreCase(Constant.OrderStatus.READY_TO_ASSIGN.name())) {
 
                             statusDto.setCode(Constant.LIQUIDATION_STATUS_CANCELLED_CODE);
                             statusDto.setName(Constant.LIQUIDATION_STATUS_CANCELLED);
