@@ -364,4 +364,12 @@ public abstract class FacadeAbstractUtil {
                 .doOnSuccess(r -> log.info("[END] createOrder facade"));
     }
 
+    protected Mono<String> updateVoucher(Long ecommerceId, boolean voucher){
+        return Mono.fromCallable(() -> orderTransaction.updateVoucher(ecommerceId, voucher))
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    log.error("Error updateVoucher - ecommerceId:{} - error:{}", ecommerceId, e.getMessage());
+                    return Mono.just(Constant.ERROR_PROCESS);
+                });
+    }
 }

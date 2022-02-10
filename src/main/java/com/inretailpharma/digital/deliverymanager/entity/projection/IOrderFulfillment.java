@@ -138,4 +138,6 @@ public interface IOrderFulfillment {
     boolean getMixedOrder();
 
     Long getGroupId();
+
+    boolean getVoucher();
 }
