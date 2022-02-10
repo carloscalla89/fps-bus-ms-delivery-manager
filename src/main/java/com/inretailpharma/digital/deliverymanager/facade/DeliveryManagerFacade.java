@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
+import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.strategy.IActionStrategy;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,29 +42,32 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     private LiquidationFacade liquidationFacade;
     private Map<Constant.ActionOrder, IActionStrategy> actionsProcessors;
     private ApplicationContext context;
+    private OrderExternalService orderExternalService;
     private ObjectToMapper objectMapper;
     private OrderInfoService orderInfoService;
-
-
 
     @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                                  LiquidationFacade liquidationFacade,
-                                  CustomQueryOrderInfo orderQueryFilter,
-                            OrderInfoService orderInfoService,
-                                 ApplicationContext context,ObjectToMapper objectMapper) {
+                                 CustomQueryOrderInfo orderQueryFilter,
+                                 OrderInfoService orderInfoService,
+                                 ApplicationContext context,
+                                 @Qualifier("orderTracker") OrderExternalService orderExternalService,
+                                 ObjectToMapper objectMapper) {
 
-      this.orderTransaction = orderTransaction;
-      this.iAuditAdapter = iAuditAdapter;
-      this.liquidationFacade = liquidationFacade;
-      this.context = context;
-      this.orderInfoService = orderInfoService;
-      this.objectMapper = objectMapper;
-      actionsProcessors = Arrays
-                                .stream(Constant.ActionOrder.values())
-                                .collect(Collectors.toMap(p -> p, p ->
-                                        (IActionStrategy)this.context.getBean(p.getActionStrategyImplement())));
+        this.orderTransaction = orderTransaction;
+        this.iAuditAdapter = iAuditAdapter;
+        this.liquidationFacade = liquidationFacade;
+        this.context = context;
+        this.orderExternalService = orderExternalService;
+        this.orderInfoService = orderInfoService;
+        this.objectMapper = objectMapper;
+
+        actionsProcessors = Arrays
+                .stream(Constant.ActionOrder.values())
+                .collect(Collectors.toMap(p -> p, p ->
+                        (IActionStrategy)this.context.getBean(p.getActionStrategyImplement())));
     }
 
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
@@ -144,6 +148,8 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                     orderStatus.setCode(Constant.OrderStatus.PARTIAL_UPDATE_ORDER.getCode());
                     orderStatus.setName(Constant.OrderStatus.PARTIAL_UPDATE_ORDER.getCode());
                     order.setOrderStatus(orderStatus);
+
+                    orderExternalService.updatePartial(partialOrderDto).subscribe();
 
                     return Mono.just(order);
 

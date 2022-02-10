@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:mysql://fulfillment.prd.internal:3306/prdfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
-    username: operaciones
-    password: Operaciones2020
+    username: us_deliveryManager
+    password: s1Cwn0BEqMZohxWo6a
   mvc:
     async:
       request-timeout: 240000
@@ -118,6 +118,10 @@ external-service:
       read-timeout: 120000
     update-order:
       uri: http://us-liquidation/omni/liquidation/v1.0.0/orders
+      connect-timeout: 10000
+      read-timeout: 120000
+    update-order-online:
+      uri: http://us-liquidation/omni/liquidation/v1.0.0/orders/dc
       connect-timeout: 10000
       read-timeout: 120000
       

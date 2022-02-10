@@ -2,13 +2,8 @@ package com.inretailpharma.digital.deliverymanager.util;
 
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
-import com.inretailpharma.digital.deliverymanager.strategy.CancelOrder;
-import com.inretailpharma.digital.deliverymanager.strategy.FillOrder;
-import com.inretailpharma.digital.deliverymanager.strategy.FillOrderCall;
-import com.inretailpharma.digital.deliverymanager.strategy.LiquidationOrder;
-import com.inretailpharma.digital.deliverymanager.strategy.RetryDeliveryDispatcher;
-import com.inretailpharma.digital.deliverymanager.strategy.RetryTracker;
-import com.inretailpharma.digital.deliverymanager.strategy.UpdateTracker;
+import com.inretailpharma.digital.deliverymanager.strategy.*;
+
 import java.util.Optional;
 import org.apache.commons.lang3.EnumUtils;
 
@@ -207,7 +202,7 @@ public interface Constant {
                 METHOD_UPDATE, CancelOrder.class),
 
         DELIVER_ORDER(4, "Acción para cambiar el estado de la orden como entregada",9,
-                METHOD_UPDATE, UpdateTracker.class),
+                METHOD_UPDATE, DeliverOrder.class),
 
         READY_PICKUP_ORDER(4, "Acción para cambiar el estado de la orden como lista para recoger",5,
                 METHOD_UPDATE, UpdateTracker.class),
@@ -221,10 +216,10 @@ public interface Constant {
                 METHOD_UPDATE, UpdateTracker.class),
 
         PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4,
-                METHOD_UPDATE, UpdateTracker.class),
+                METHOD_UPDATE, PickerOrder.class),
 
         PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5,
-                METHOD_UPDATE, UpdateTracker.class),
+                METHOD_UPDATE, PrepareOrder.class),
         // =================================================================================
 
         ON_STORE_ORDER(4, "actualizar el BILLING ID(número de pedido diario) a un tracker",2,
@@ -237,7 +232,7 @@ public interface Constant {
         UNASSIGN_ORDER(4, "Acción para asignar órdenes",6, METHOD_UPDATE, UpdateTracker.class),
 
         ON_ROUTE_ORDER(4, "Acción para CAMBIAR  al estado ON_ROUTE",7,
-                METHOD_UPDATE, UpdateTracker.class),
+                METHOD_UPDATE, OnrouteOrder.class),
 
         ARRIVAL_ORDER(4, "Acción para asignar al estado ARRIVED",8,
                 METHOD_UPDATE, UpdateTracker.class),
@@ -698,6 +693,7 @@ public interface Constant {
     String TARGET_ORDER_TRACKER = "ORDER_TRACKER";
     String TARGET_LIQUIDATION = "LIQUIDATION";
     String TARGET_INSINK = "INSINK";
+    String TARGET_SELLER = "SELLER";
     String UPDATED_BY_INIT = "INIT";
     String UPDATED_BY_INKATRACKER_WEB = "INKATRACKER_WEB";
     String METHOD_UPDATE = "UPDATE";
@@ -706,7 +702,9 @@ public interface Constant {
     String TASK_LAMBDA_UPDATED_BY = "LAMBDA";
     String SOURCE_AGORA = "AGORA";
     String SOURCE_RAPPI = "RAPPI";
-
+    String SOURCE_SELLER_CENTER = "SC";
+    String[] ORDER_STATUS_RAPPI = {"CONFIRMED_TRACKER", "READY_PICKUP_ORDER", "PICK_ORDER", "CANCEL_ORDER"};
+    String DU_CANCEL_CODE = "DU";
 
     String ACTION_DELIVER_ORDER = "DELIVER_ORDER";
     String ACTION_CANCEL_ORDER = "CANCEL_ORDER";
@@ -805,6 +803,10 @@ public interface Constant {
 
     }
 
+    interface OnlineLiquidation {
+        String LIQUIDATE = "LIQUIDATE_ORDER";
+        String REFUND = "REFUND_ORDER";
+    }
 
     enum DeliveryType {
         PROG("Programado"),
@@ -825,7 +827,7 @@ public interface Constant {
         public static DeliveryType getByName(String name) {
 
             return EnumUtils.getEnumList(DeliveryType.class).stream()
-                .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(PROG);
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(PROG);
         }
 
     }

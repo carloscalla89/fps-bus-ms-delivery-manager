@@ -4,15 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
-import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusOnlineDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Slf4j
 @Component("liquidation")
@@ -100,6 +100,57 @@ public class LiquidationServiceImpl extends AbstractOrderService implements Orde
                 .doOnError(e -> {
                     e.printStackTrace();
                     log.error("Error updating in us-liquidation:{}",e.getMessage());
+                })
+                .onErrorResume(e -> mapResponseFromTargetWithErrorOrEmpty(
+                        Long.parseLong(ecommerceId), statusDto, e.getMessage())
+                );
+    }
+
+    @Override
+    public Mono<OrderCanonical> updateOrderToLiquidationOnline(String ecommerceId, StatusDto statusDto) {
+
+        try {
+            log.info("[START] updateOrderToLiquidationOnline: uri:{},ecommerceId:{}, actionDto:{}",
+                    externalServicesProperties.getLiquidationUpdateOrderOnlineUri(),ecommerceId,
+                    new ObjectMapper().writeValueAsString(statusDto));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        String liquidationAction = Constant.OnlineLiquidation.LIQUIDATE;
+
+                if (Constant.CANCEL_ORDER.equals(statusDto.getCode())) {
+            liquidationAction = Constant.OnlineLiquidation.REFUND;
+        }
+
+        StatusOnlineDto statusOnlineDto = new StatusOnlineDto(liquidationAction);
+
+        return WebClient
+                .builder()
+                .clientConnector(
+                        generateClientConnector(
+                                Integer.parseInt(externalServicesProperties.getLiquidationUpdateOrderOnlineConnectTimeOut()),
+                                Long.parseLong(externalServicesProperties.getLiquidationUpdateOrderOnlineReadTimeOut())
+                        )
+                )
+                .baseUrl(externalServicesProperties.getLiquidationUpdateOrderOnlineUri())
+                .build()
+                .patch()
+                .uri(builder ->
+                        builder
+                                .path("/{ecommerceId}")
+                                .build(ecommerceId))
+                .body(Mono.just(statusOnlineDto), StatusOnlineDto.class)
+                .exchange()
+                .flatMap(clientResponse -> mapResponseFromTargetLiquidation(clientResponse, Long.parseLong(ecommerceId), statusDto)
+                )
+                .doOnSuccess(s -> log.info("Response is Success in update online liquidation :{}",s))
+                .switchIfEmpty(Mono.defer(() -> mapResponseFromTargetWithErrorOrEmpty(
+                        Long.parseLong(ecommerceId), statusDto, "La respuesta al servicio es vacía"))
+                )
+                .doOnError(e -> {
+                    e.printStackTrace();
+                    log.error("Error updating online in us-liquidation:{}",e.getMessage());
                 })
                 .onErrorResume(e -> mapResponseFromTargetWithErrorOrEmpty(
                         Long.parseLong(ecommerceId), statusDto, e.getMessage())

@@ -72,4 +72,7 @@ public class OrderInkatrackerCanonical {
     private Double totalWithPaymentMethod;
     private String paymentMethodCardType;
 
+    private boolean mixedOrder;
+    private Long groupId;
+
 }

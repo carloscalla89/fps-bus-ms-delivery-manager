@@ -24,6 +24,4 @@ public class CustomSqlQuery {
           + " inner join order_status os on os.code = s.order_status_code "
           + " inner join service_type st on st.code = s.service_type_code ");
 
-  public static final StringBuilder BASIC_QUERY_IN_CONDITION_ORDER_STATUS_ALLOWED = new StringBuilder()
-          .append(" and os.code in (?)");
 }

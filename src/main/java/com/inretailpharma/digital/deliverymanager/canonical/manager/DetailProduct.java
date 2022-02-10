@@ -10,6 +10,7 @@ public class DetailProduct {
   private BigDecimal unitPrice;
   private BigDecimal totalPrice;
   private String name;
-  private String shortDescription;
-
+  //private String shortDescription;
+  //TODO: OMS
+  private String presentationDescription;
 }

@@ -8,5 +8,7 @@ public interface IOrderInfoProductDetail {
    BigDecimal getUnitPrice();
    BigDecimal getTotalPrice();
    String getName();
-   String getShortDescription();
+   //String getShortDescription();
+   //TODO: OMS
+   String getPresentationDescription();
 }

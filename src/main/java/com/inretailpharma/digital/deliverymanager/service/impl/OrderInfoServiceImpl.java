@@ -110,7 +110,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       DetailProduct detailProduct = new DetailProduct();
       detailProduct.setName(orderDetailEntity.getName());
       detailProduct.setQuantity(orderDetailEntity.getQuantity());
-      detailProduct.setShortDescription(orderDetailEntity.getShortDescription());
+      //TODO: OMS
+      detailProduct.setPresentationDescription(orderDetailEntity.getPresentationDescription());
       detailProduct.setSku(orderDetailEntity.getSku());
       detailProduct.setTotalPrice(orderDetailEntity.getTotalPrice());
       detailProduct.setUnitPrice(orderDetailEntity.getUnitPrice());

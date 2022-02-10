@@ -444,6 +444,9 @@ public class ObjectToMapper {
         }
         /** ********************* **/
 
+        orderInkatrackerCanonical.setMixedOrder(iOrderFulfillment.getMixedOrder());
+        orderInkatrackerCanonical.setGroupId(iOrderFulfillment.getGroupId());
+
         return orderInkatrackerCanonical;
     }
 
@@ -1117,8 +1120,13 @@ public class ObjectToMapper {
         /** ************ **/
 
         orderFulfillment.setGroupId(orderDto.getGroupId());
+
         orderFulfillment.setSaleChannel(orderDto.getSaleChannel());
         orderFulfillment.setSaleChannelType(Optional.ofNullable(orderDto.getSaleChannelType()).orElse(Constant.DEFAULT_SALE_CHANNEL_TYPE));
+
+        orderFulfillment.setMixedOrder(orderDto.isMixedOrder());
+        orderFulfillment.setGroupId(orderDto.getGroupId());
+
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
         return orderFulfillment;
