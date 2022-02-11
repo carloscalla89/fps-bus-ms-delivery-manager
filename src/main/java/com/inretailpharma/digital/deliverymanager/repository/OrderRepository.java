@@ -371,7 +371,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "c.document_number as documentNumber,   "
         + "c.phone, "
         + "c.email, "
-        + "CONCAT(af.street,' ',af.number,', ',af.district) as direccion, "
+        + "CONCAT(af.street,' ',af.number,', ',af.district) as addressClient, "
         + "CONCAT(af.latitude,', ',af.longitude) as coordinates, "
         + "s.service_type_code as serviceType, "
         + "o.purchase_number purcharseId, "
