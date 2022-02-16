@@ -203,7 +203,7 @@ public class CustomQueryOrderInfo {
       response.setCompanyCode(String.valueOf(data[6]));
       response.setServiceChannel(String.valueOf(data[7]));
       response.setServiceTypeId(String.valueOf(data[8]));
-      response.setClient(String.valueOf(data[9]));
+      response.setClient(String.valueOf(data[9]).concat(" ").concat(String.valueOf(data[11])));
       response.setDocumentoId(String.valueOf(data[10]));
       response.setStatusCode(String.valueOf(data[12]));
       return response;
