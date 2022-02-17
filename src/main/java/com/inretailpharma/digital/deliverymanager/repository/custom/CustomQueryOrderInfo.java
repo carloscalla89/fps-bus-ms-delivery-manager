@@ -31,6 +31,7 @@ public class CustomQueryOrderInfo {
   private String getQueryOrderInfo(RequestFilterDTO requestFilter) {
     boolean filterSixMonths = false;
     boolean existsDateFilter = false;
+    boolean existsStatusFilter = false;
     StringBuilder queryFilters = new StringBuilder();
 
     if (requestFilter.getFilter() == null) {
@@ -92,8 +93,9 @@ public class CustomQueryOrderInfo {
       }
       if (requestFilter.getFilter().getOrderStatus() != null) {
         filterSixMonths = true;
+        existsStatusFilter = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getOrderStatus());
-        queryFilters.append(" and os.type IN(")
+        queryFilters.append(" and os.code IN(")
             .append(filters).append(") ");
       }
 
@@ -124,7 +126,7 @@ public class CustomQueryOrderInfo {
             .append(filters).append(") ");
       }
 
-      if (requestFilter.getOrderStatusCodeAllowed() != null) {
+      if (!existsStatusFilter && requestFilter.getOrderStatusCodeAllowed() != null) {
         StringBuilder queryInOrderStatusCodeAllowed = new StringBuilder();
 
         queryInOrderStatusCodeAllowed.append(" and os.code in (");
@@ -154,7 +156,14 @@ public class CustomQueryOrderInfo {
   }
 
   public String getFiltersConcatenated(String[] filters) {
-    return Arrays.stream(filters).map(a -> "'".concat(a).concat("'"))
+    return Arrays.stream(filters)
+            .map(a -> {
+              if(a.split(",").length>1) {
+                return getFiltersConcatenated(a.split(","));
+              } else {
+                return "'".concat(a).concat("'");
+              }
+            })
         .collect(Collectors.joining(","));
   }
 
