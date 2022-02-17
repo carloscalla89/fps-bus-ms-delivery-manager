@@ -372,7 +372,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "c.phone, "
         + "c.email, "
         + "CONCAT(af.street,' ',af.number,', ',af.district) as addressClient, "
-        + "CONCAT(af.latitude,', ',af.longitude) as coordinates, "
+        + "CONCAT(if(af.latitude=0,null,af.latitude),', ',if(af.longitude=0,null,af.longitude)) as coordinates, "
         + "s.service_type_code as serviceType, "
         + "o.purchase_number purcharseId, "
         + "o.notes observation, "
@@ -385,8 +385,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "inner join order_status os on os.code = s.order_status_code   "
         + "inner join service_type st on st.code = s.service_type_code "
         + "inner join address_fulfillment af on af.order_fulfillment_id = o.id "
-        + "left join cancellation_code_reason cr on cr.code = s.cancellation_code "
-        + "WHERE ecommerce_purchase_id = :ecommerceId",
+        + "left join (select distinct code, client_reason from cancellation_code_reason) cr on cr.code = s.cancellation_code "
+        + "WHERE o.ecommerce_purchase_id = :ecommerceId",
         nativeQuery = true)
     IOrderInfoClient getOrderInfoClientByEcommercerId(@Param("ecommerceId")long ecommerceId);
 

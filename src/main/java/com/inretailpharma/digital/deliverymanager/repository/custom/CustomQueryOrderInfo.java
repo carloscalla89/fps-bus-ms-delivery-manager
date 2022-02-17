@@ -3,6 +3,7 @@ package com.inretailpharma.digital.deliverymanager.repository.custom;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import com.inretailpharma.digital.deliverymanager.util.sql.CustomSqlQuery;
 import java.math.BigInteger;
@@ -29,43 +30,43 @@ public class CustomQueryOrderInfo {
   EntityManager entityManager;
 
   private String getQueryOrderInfo(RequestFilterDTO requestFilter) {
-    boolean filterSixMonths = false;
+    int timeLimitFilter = 0;
+    boolean timeUnlimited = false;
     boolean existsDateFilter = false;
     boolean existsStatusFilter = false;
     StringBuilder queryFilters = new StringBuilder();
 
     if (requestFilter.getFilter() == null) {
-      filterSixMonths = true;
+      timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_GRID;
 
       queryFilters.append(" where 1 = 1 ");
 
       if (requestFilter.getOrderStatusCodeAllowed() != null) {
         StringBuilder queryInOrderStatusCodeAllowed = new StringBuilder();
-
-        queryInOrderStatusCodeAllowed.append(" and os.code in (");
-        for (String code: requestFilter.getOrderStatusCodeAllowed()) {
-          queryInOrderStatusCodeAllowed.append(code).append(",");
-        }
         queryInOrderStatusCodeAllowed
-                .deleteCharAt(queryInOrderStatusCodeAllowed.lastIndexOf(","))
+                .append(" and os.code in (")
+                .append(getFiltersConcatenated(
+                          requestFilter
+                            .getOrderStatusCodeAllowed()
+                            .toArray(new String[0])))
                 .append(") ");
 
         queryFilters.append(queryInOrderStatusCodeAllowed.toString());
       }
     } else {
+      timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_OTHER;
       queryFilters.append("where 1 = 1 ");
 
       //TODO: OMS
       if (requestFilter.getFilter().getFilterType() != null && requestFilter.getFilter().getValueFilterType() != null) {
         String queryFilter = "";
-        if (requestFilter.getFilter().getFilterType().equalsIgnoreCase("1")) { //N° pedido
+        if (requestFilter.getFilter().getFilterType().equalsIgnoreCase(Constant.FilterOption.FIND_ORDER_NUMBER)) { //N° pedido
+          timeUnlimited = true;
           queryFilter = "and o.ecommerce_purchase_id = '?' ";
         } else {
-          if (requestFilter.getFilter().getFilterType().equalsIgnoreCase("2")) {//telefono
-            filterSixMonths = true;
+          if (requestFilter.getFilter().getFilterType().equalsIgnoreCase(Constant.FilterOption.FIND_TELEPHONE_NUMBER)) {//telefono
             queryFilter = "and c.phone = '?' ";
           } else {//documento
-            filterSixMonths = true;
             queryFilter = "and c.document_number = '?' ";
           }
         }
@@ -73,14 +74,12 @@ public class CustomQueryOrderInfo {
       }
 
       if (requestFilter.getFilter().getCompanyCode() != null) {
-        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getCompanyCode());
         queryFilters.append(" and s.company_code IN(")
             .append(filters).append(") ");
       }
 
       if (requestFilter.getFilter().getLocalId() != null) {
-        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getLocalId());
         queryFilters.append(" and s.center_code IN(")
             .append(filters).append(") ");
@@ -92,7 +91,6 @@ public class CustomQueryOrderInfo {
             .append(filters).append(") ");
       }
       if (requestFilter.getFilter().getOrderStatus() != null) {
-        filterSixMonths = true;
         existsStatusFilter = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getOrderStatus());
         queryFilters.append(" and os.code IN(")
@@ -113,14 +111,12 @@ public class CustomQueryOrderInfo {
       }
 
       if (requestFilter.getFilter().getServiceChannel() != null) {
-        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getServiceChannel());
         queryFilters.append(" and st.source_channel IN(")
             .append(filters).append(") ");
       }
 
       if (requestFilter.getFilter().getServiceTypeId() != null) {
-        filterSixMonths = true;
         String filters = getFiltersConcatenated(requestFilter.getFilter().getServiceTypeId());
         queryFilters.append(" and st.short_code IN(")
             .append(filters).append(") ");
@@ -128,23 +124,21 @@ public class CustomQueryOrderInfo {
 
       if (!existsStatusFilter && requestFilter.getOrderStatusCodeAllowed() != null) {
         StringBuilder queryInOrderStatusCodeAllowed = new StringBuilder();
-
-        queryInOrderStatusCodeAllowed.append(" and os.code in (");
-        for (String code: requestFilter.getOrderStatusCodeAllowed()) {
-          queryInOrderStatusCodeAllowed.append(code).append(",");
-        }
         queryInOrderStatusCodeAllowed
-                .deleteCharAt(queryInOrderStatusCodeAllowed.lastIndexOf(","))
+                .append(" and os.code in (")
+                .append(getFiltersConcatenated(
+                        requestFilter
+                                .getOrderStatusCodeAllowed()
+                                .toArray(new String[0])))
                 .append(") ");
 
         queryFilters.append(queryInOrderStatusCodeAllowed.toString());
       }
     }
 
-    if (!existsDateFilter && filterSixMonths) {
-      //Se filtra para obtener 6 meses atras
+    if (!timeUnlimited && !existsDateFilter) {
       LocalDate endDate = LocalDate.now();
-      LocalDate startDate = endDate.minusMonths(6);
+      LocalDate startDate = endDate.minusMonths(timeLimitFilter);
 
       queryFilters.append(" and Date(o.scheduled_time) BETWEEN ")
               .append("'").append(startDate.toString()).append("'")

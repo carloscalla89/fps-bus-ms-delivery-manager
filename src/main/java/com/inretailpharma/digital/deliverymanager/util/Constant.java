@@ -831,4 +831,15 @@ public interface Constant {
         }
 
     }
+
+    interface TimeLimitFilterDate {
+        int TIME_LIMIT_GRID = 1;
+        int TIME_LIMIT_OTHER = 6;
+    }
+
+    interface FilterOption {
+        String FIND_ORDER_NUMBER = "1";
+        String FIND_TELEPHONE_NUMBER = "2";
+        String FIND_DOCUMENT_NUMBER = "3";
+    }
 }
