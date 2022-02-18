@@ -14,7 +14,7 @@ public class CustomSqlQuery {
               + "inner join service_type st on st.code = s.service_type_code ");
 
   public static final StringBuilder BASIC_QUERY_ORDER_BY_DATE_DESC = new StringBuilder()
-          .append(" order by o.scheduled_time DESC");
+          .append(" order by o.scheduled_time DESC, o.ecommerce_purchase_id DESC");
 
   public static final StringBuilder BASIC_QUERY_GET_ORDERINFO_COUNT = new StringBuilder()
       .append(" select COUNT(o.id) as TOTAL "

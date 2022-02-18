@@ -357,7 +357,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                                       @Param("order_fulfillment_id") Long order_fulfillment_id);
 
 
-    @Query(value = "select  "
+    @Query(value = "SELECT  "
         + "o.id as orderId, "
         + "o.ecommerce_purchase_id as ecommerceId, "
         + "if(s.company_code='MF','Mifarma','Inkafarma')  as companyCode,  "
@@ -379,14 +379,18 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "cr.client_reason cancelReason, "
         + "s.zone_id_billing zoneId, "
         + "o.stockType stockType "
-        + "from order_fulfillment o   "
-        + "inner join client_fulfillment c on c.id = o.client_id  "
-        + "inner join order_process_status s on o.id = s.order_fulfillment_id   "
-        + "inner join order_status os on os.code = s.order_status_code   "
-        + "inner join service_type st on st.code = s.service_type_code "
-        + "inner join address_fulfillment af on af.order_fulfillment_id = o.id "
-        + "left join (select distinct code, client_reason from cancellation_code_reason) cr on cr.code = s.cancellation_code "
-        + "WHERE o.ecommerce_purchase_id = :ecommerceId",
+        + "FROM order_fulfillment o   "
+        + "INNER JOIN client_fulfillment c ON c.id = o.client_id  "
+        + "INNER JOIN order_process_status s ON o.id = s.order_fulfillment_id   "
+        + "INNER JOIN order_status os ON os.code = s.order_status_code   "
+        + "INNER JOIN service_type st ON st.code = s.service_type_code "
+        + "INNER JOIN address_fulfillment af ON af.order_fulfillment_id = o.id "
+        + "LEFT JOIN (SELECT DISTINCT code, client_reason "
+        + "             FROM cancellation_code_reason "
+        + "             WHERE client_reason is not null "
+        + "               AND char_length(client_reason) > 0) cr ON cr.code = s.cancellation_code "
+        + "WHERE o.ecommerce_purchase_id = :ecommerceId "
+        + "LIMIT 1",
         nativeQuery = true)
     IOrderInfoClient getOrderInfoClientByEcommercerId(@Param("ecommerceId")long ecommerceId);
 

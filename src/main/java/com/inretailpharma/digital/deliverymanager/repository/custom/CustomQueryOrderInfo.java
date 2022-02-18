@@ -184,8 +184,7 @@ public class CustomQueryOrderInfo {
     Integer page = Optional.ofNullable(filter.getPage()).orElse(1);
     Integer totalRows = Optional.ofNullable(filter.getRecords()).orElse(9);
     log.info("totalRows:{}",totalRows);
-
-    query.setFirstResult(page > 0 ? page - 1 : page);
+    query.setFirstResult(page > 0 ? (page-1)*totalRows : page);
     query.setMaxResults(totalRows);
     List<Object[]> result = query.getResultList();
 
