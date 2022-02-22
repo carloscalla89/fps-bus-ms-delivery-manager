@@ -48,4 +48,7 @@ public interface IOrderInfoClient {
 
   String getStockType();
 
+  //TODO: OMS
+  String getRuc();
+  String getCompanyName();
 }

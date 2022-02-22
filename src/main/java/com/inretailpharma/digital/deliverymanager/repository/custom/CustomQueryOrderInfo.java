@@ -87,7 +87,7 @@ public class CustomQueryOrderInfo {
 
       if (requestFilter.getFilter().getEcommerceId() != null) {
         String filters = getFiltersConcatenated(requestFilter.getFilter().getEcommerceId());
-        queryFilters.append(" and  o.ecommerce_purchase_id IN( ")
+        queryFilters.append(" and o.ecommerce_purchase_id IN( ")
             .append(filters).append(") ");
       }
       if (requestFilter.getFilter().getOrderStatus() != null) {
@@ -149,6 +149,53 @@ public class CustomQueryOrderInfo {
     return queryFilters.toString();
   }
 
+  private String getQueryOrderCriteria(RequestFilterDTO requestFilter) {
+    StringBuilder queryCriteria = new StringBuilder();
+
+    if (requestFilter.getOrderCriteria() == null) {
+      queryCriteria.append(CustomSqlQuery.BASIC_QUERY_ORDER_BY_DATE_AND_ORDER_NUMBER_DESC.toString());
+    } else {
+      queryCriteria.append(" order by ");
+      switch (requestFilter.getOrderCriteria().getColumn()) {
+        case Constant.OrderCriteriaColumn.ORDER_CRITERIA_ECOMMERCE_ID: {
+          queryCriteria.append(" o.ecommerce_purchase_id ? ");
+          break;
+        }
+        case Constant.OrderCriteriaColumn.ORDER_CRITERIA_STORE: {
+          queryCriteria.append(" s.center_code ? ");
+          break;
+        }
+        case Constant.OrderCriteriaColumn.ORDER_CRITERIA_CHANNEL: {
+          queryCriteria.append(" st.source_channel ? ");
+          break;
+        }
+        case Constant.OrderCriteriaColumn.ORDER_CRITERIA_SERVICE_TYPE: {
+          queryCriteria.append(" st.short_code ? ");
+          break;
+        }
+        case Constant.OrderCriteriaColumn.ORDER_CRITERIA_DATE: {
+          queryCriteria.append(" o.scheduled_time ? ");
+          break;
+        }
+        case Constant.OrderCriteriaColumn.ORDER_CRITERIA_CLIENT: {
+          queryCriteria.append(" c.first_name ? ");
+          break;
+        }
+        case Constant.OrderCriteriaColumn.ORDER_CRITERIA_DOCUMENT: {
+          queryCriteria.append(" c.document_number ? ");
+          break;
+        }
+        case Constant.OrderCriteriaColumn.ORDER_CRITERIA_STATUS: {
+          queryCriteria.append(" os.code ? ");
+          break;
+        }
+      }
+      queryCriteria.replace(queryCriteria.toString().indexOf("?"),queryCriteria.toString().indexOf("?")+1,Constant.OrderCriteria.getByCode(requestFilter.getOrderCriteria().getOrder()).getOrder());
+      //queryCriteria.toString().replace("?",Constant.OrderCriteria.getByCode(requestFilter.getCriteria().getOrder()).getOrder());
+    }
+    return queryCriteria.toString();
+  }
+
   public String getFiltersConcatenated(String[] filters) {
     return Arrays.stream(filters)
             .map(a -> {
@@ -165,13 +212,17 @@ public class CustomQueryOrderInfo {
     String queryFilters = getQueryOrderInfo(filter);
     log.info("queryFilters:{}",queryFilters);
 
+    String queryCriterias = getQueryOrderCriteria(filter);
+    log.info("queryCriterias:{}",queryCriterias);
+
     String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString()
                           .concat(queryFilters);
     log.info("queryTotal:{}",queryTotal);
 
     String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString()
                               .concat(queryFilters)
-                              .concat(CustomSqlQuery.BASIC_QUERY_ORDER_BY_DATE_DESC.toString());
+                              .concat(queryCriterias);
+                              //.concat(CustomSqlQuery.BASIC_QUERY_ORDER_BY_DATE_AND_ORDER_NUMBER_DESC.toString());
     log.info("queryOrderInfo: {}",queryOrderInfo);
 
     Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);

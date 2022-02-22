@@ -13,7 +13,7 @@ public class CustomSqlQuery {
               + "inner join order_status os on os.code = s.order_status_code  "
               + "inner join service_type st on st.code = s.service_type_code ");
 
-  public static final StringBuilder BASIC_QUERY_ORDER_BY_DATE_DESC = new StringBuilder()
+  public static final StringBuilder BASIC_QUERY_ORDER_BY_DATE_AND_ORDER_NUMBER_DESC = new StringBuilder()
           .append(" order by o.scheduled_time DESC, o.ecommerce_purchase_id DESC");
 
   public static final StringBuilder BASIC_QUERY_GET_ORDERINFO_COUNT = new StringBuilder()

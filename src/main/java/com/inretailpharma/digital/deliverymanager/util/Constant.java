@@ -842,4 +842,36 @@ public interface Constant {
         String FIND_TELEPHONE_NUMBER = "2";
         String FIND_DOCUMENT_NUMBER = "3";
     }
+
+    interface OrderCriteriaColumn {
+        String ORDER_CRITERIA_ECOMMERCE_ID = "1";
+        String ORDER_CRITERIA_STORE = "2";
+        String ORDER_CRITERIA_CHANNEL = "3";
+        String ORDER_CRITERIA_SERVICE_TYPE = "4";
+        String ORDER_CRITERIA_DATE = "5";
+        String ORDER_CRITERIA_CLIENT = "6";
+        String ORDER_CRITERIA_DOCUMENT = "7";
+        String ORDER_CRITERIA_STATUS = "8";
+    }
+
+    enum OrderCriteria {
+        A("ASC"), D("DESC");
+
+        private String order;
+
+        public String getOrder() {
+            return order;
+        }
+
+        OrderCriteria(String order) {
+            this.order = order;
+        }
+
+        public static OrderCriteria getByCode(String name) {
+
+            return EnumUtils.getEnumList(OrderCriteria.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(D);
+        }
+
+    }
 }

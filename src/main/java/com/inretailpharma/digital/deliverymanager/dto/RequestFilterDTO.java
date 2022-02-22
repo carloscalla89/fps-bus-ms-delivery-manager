@@ -12,4 +12,5 @@ public class RequestFilterDTO {
   private Integer records;
   //TODO: OMS
   private List<String> orderStatusCodeAllowed;
+  private CriteriasRqDTO orderCriteria;
 }

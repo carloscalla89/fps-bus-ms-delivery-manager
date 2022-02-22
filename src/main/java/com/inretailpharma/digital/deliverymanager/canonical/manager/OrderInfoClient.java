@@ -14,5 +14,7 @@ public class OrderInfoClient {
   private String coordinates;
   private String reference;
   private String companyCode;
-
+  //TODO: OMS
+  private String ruc;
+  private String companyName;
 }

@@ -157,6 +157,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       orderInfoDto.setReference(Optional.ofNullable(orderInfoProjection.getReference()).orElse("-"));
       orderInfoDto.setPhone(orderInfoProjection.getPhone());
       orderInfoDto.setCompanyCode(orderInfoProjection.getCompanyCode());
+      orderInfoDto.setRuc(orderInfoProjection.getRuc());
+      orderInfoDto.setCompanyName(orderInfoProjection.getCompanyName());
       orderInfoConsolidated.setOrderInfo(getOrderInfo(orderInfoProjection));
       orderInfoConsolidated.setOrderInfoAdditional(getOrderInfoAdditional(orderInfoProjection));
       return orderInfoDto;
