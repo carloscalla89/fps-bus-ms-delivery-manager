@@ -45,8 +45,4 @@ public class OrderInfoRest {
     log.info("[START] endpoint /order/detail/client");
     return deliveryManagerFacade.getOrderInfoDetail(ecommerceId);
   }
-
-
-
-
 }

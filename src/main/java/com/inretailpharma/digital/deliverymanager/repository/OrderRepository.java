@@ -356,18 +356,19 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
                                       @Param("liquidationStatusDetail") String liquidationStatusDetail,
                                       @Param("order_fulfillment_id") Long order_fulfillment_id);
 
-    @Query(value = "SELECT  "
+    @Query(value = "SELECT "
         + "o.id as orderId, "
         + "o.ecommerce_purchase_id as ecommerceId, "
-        + "if(s.company_code='MF','Mifarma','Inkafarma')  as companyCode,  "
-        + "st.source_channel as serviceChannel,  "
+        + "o.external_channel_id as ecommerceIdCall, "
+        + "if(s.company_code='MF','Mifarma','Inkafarma') as companyCode, "
+        + "st.source_channel as serviceChannel, "
         + "if(o.partial=1,'Pedido Parcial','Pedido Completo') as orderType, "
-        + "st.short_code as serviceTypeShortCode,   "
-        + "o.scheduled_time as scheduledTime,  "
-        + "os.type as statusName,  "
-        + "s.center_code as localCode,   "
-        + "CONCAT(c.first_name,' ',c.last_name) as clientName,   "
-        + "c.document_number as documentNumber,   "
+        + "st.short_code as serviceTypeShortCode, "
+        + "o.scheduled_time as scheduledTime, "
+        + "os.type as statusName, "
+        + "s.center_code as localCode, "
+        + "CONCAT(c.first_name,' ',c.last_name) as clientName, "
+        + "c.document_number as documentNumber, "
         + "c.phone, "
         + "c.email, "
         + "CONCAT(af.street,' ',af.number,', ',af.district) as addressClient, "
@@ -381,13 +382,13 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "cr.client_reason cancelReason, "
         + "s.zone_id_billing zoneId, "
         + "o.stockType stockType "
-        + "FROM order_fulfillment o   "
-        + "INNER JOIN client_fulfillment c ON c.id = o.client_id  "
-        + "INNER JOIN order_process_status s ON o.id = s.order_fulfillment_id   "
-        + "INNER JOIN order_status os ON os.code = s.order_status_code   "
+        + "FROM order_fulfillment o "
+        + "INNER JOIN client_fulfillment c ON c.id = o.client_id "
+        + "INNER JOIN order_process_status s ON o.id = s.order_fulfillment_id "
+        + "INNER JOIN order_status os ON os.code = s.order_status_code "
         + "INNER JOIN service_type st ON st.code = s.service_type_code "
         + "INNER JOIN address_fulfillment af ON af.order_fulfillment_id = o.id "
-        + "INNER JOIN receipt_type rt on rt.order_fulfillment_id = o.id "
+        + "INNER JOIN receipt_type rt ON rt.order_fulfillment_id = o.id "
         + "LEFT JOIN (SELECT DISTINCT code, client_reason "
         + "             FROM cancellation_code_reason "
         + "             WHERE client_reason is not null "
@@ -398,7 +399,6 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     IOrderInfoClient getOrderInfoClientByEcommercerId(@Param("ecommerceId")long ecommerceId);
 
 
-    //@Query(value = "select if(payment_type = 'CASH','Pago efectivo','Pago online') as paymentType, "
     @Query(value = "select p.payment_type as paymentType, "
         + "o.purchase_number transactionId,"
         + "p.card_provider paymentGateway,"
@@ -411,8 +411,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "left join payment_method p on o.id = p.order_fulfillment_id "
         + "left join order_process_status ops on ops.order_fulfillment_id =  o .id "
         + "left join card_provider cp on cp.id = p.card_provider_id "
-        + "WHERE o.ecommerce_purchase_id =:ecommerceId",
-        nativeQuery = true)
+        + "WHERE o.ecommerce_purchase_id =:ecommerceId", nativeQuery = true)
     IOrderInfoPaymentMethod getInfoPaymentMethod(@Param("ecommerceId")long ecommerceId);
 
     @Query(value = "select id,total_cost totalImport,"
