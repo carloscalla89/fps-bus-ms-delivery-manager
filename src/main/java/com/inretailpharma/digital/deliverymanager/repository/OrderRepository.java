@@ -151,7 +151,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "st.class_implement as classImplement, st.short_code as serviceTypeShortCode, " +
             "c.first_name as firstName, c.phone, c.document_number as documentNumber, c.email, c.last_name as lastName, " +
             "pm.payment_type as paymentType, pm.transaction_date_visanet as transactionDateVisanet, " +
-            "pm.change_amount as changeAmount, pm.card_provider_code as cardProviderCode " +
+            "pm.change_amount as changeAmount, pm.card_provider_code as cardProviderCode, o.voucher " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -334,4 +334,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     void updateLiquidationStatusOrder(@Param("liquidationStatus") String liquidationStatus,
                                       @Param("liquidationStatusDetail") String liquidationStatusDetail,
                                       @Param("order_fulfillment_id") Long order_fulfillment_id);
+
+    @Modifying
+    @Query(value = "update order_fulfillment set voucher = :voucher where ecommerce_purchase_id = :ecommerceId", nativeQuery = true)
+    void updateVoucherByEcommerceId(@Param("ecommerceId") Long ecommerceId, @Param("voucher") Boolean voucher);
 }

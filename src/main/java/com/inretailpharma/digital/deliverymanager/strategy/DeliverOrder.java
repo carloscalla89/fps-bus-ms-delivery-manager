@@ -73,6 +73,10 @@ public class DeliverOrder extends FacadeAbstractUtil implements IActionStrategy{
                     .subscribe();
         }
 
+        if (Constant.PICKUP.equalsIgnoreCase(iOrderFulfillment.getServiceType())) {
+            this.updateVoucher(ecommerceId, true).subscribe();
+        }
+
         // validar si el source es de seller center para llamar al componente
 
         return Flux
