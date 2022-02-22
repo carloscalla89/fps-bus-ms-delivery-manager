@@ -240,4 +240,9 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     public void updateOnlinePaymentStatusByOrderId(Long orderId, String onlinePaymentStatus) {
         orderRepository.updateOnlinePaymentStatusByOrderId(orderId, onlinePaymentStatus);
     }
+
+    @Override
+    public void updateVoucherByEcommerceId(Long ecommerceId, boolean voucher) {
+        orderRepository.updateVoucherByEcommerceId(ecommerceId, voucher);
+    }
 }

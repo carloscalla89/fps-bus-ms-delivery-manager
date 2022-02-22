@@ -255,6 +255,9 @@ public interface Constant {
         FILL_ORDER_CALL(8, "Accion para llenar data de call center ",0,
                 METHOD_CREATE, FillOrderCall.class),
 
+        BILL_ORDER(4, "Acción para informar el boleteo de una orden", 3,
+                METHOD_UPDATE, BillOrder.class),
+
         NONE(0, "Not found status",0,METHOD_NONE, UpdateTracker.class);
 
         private Integer code;
@@ -553,8 +556,9 @@ public interface Constant {
         EMPTY_RESULT_INKATRACKER("-1", false),
 
         EMPTY_RESULT_INKATRACKERLITE("-1", false), END_STATUS_RESULT("-1", false),
-        EMPTY_RESULT_ORDERTRACKER("-1", false);
+        EMPTY_RESULT_ORDERTRACKER("-1", false),
 
+        BILLED_ORDER("47", true);
 
         private String code;
         private boolean isSuccess;

@@ -373,12 +373,19 @@ public abstract class FacadeAbstractUtil {
     }
 
     public Flux<OrderStatusDto> getAllOrderStatus() {
-
         return Flux.fromIterable(orderStatusService.getAllOrderStatus());
-
     }
 
     public  Mono<OrderInfoConsolidated> getOrderInfoDetail(long ecommerceId){
         return orderInfoService.findOrderInfoClientByEcommerceId(ecommerceId);
+    }
+
+    protected Mono<String> updateVoucher(Long ecommerceId, boolean voucher){
+        return Mono.fromCallable(() -> orderTransaction.updateVoucher(ecommerceId, voucher))
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    log.error("Error updateVoucher - ecommerceId:{} - error:{}", ecommerceId, e.getMessage());
+                    return Mono.just(Constant.ERROR_PROCESS);
+                });
     }
 }

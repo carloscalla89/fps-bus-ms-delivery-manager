@@ -71,6 +71,11 @@ public class PrepareOrder extends FacadeAbstractUtil implements IActionStrategy{
 
         }
 
+        if (utilClass.getClassImplementTracker()
+                .equalsIgnoreCase(Constant.TrackerImplementation.inkatrackerlite.name())){
+            updateVoucher(ecommerceId, true).subscribe();
+        }
+
         // validar si el source es de seller center para llamar al componente
 
         return Flux

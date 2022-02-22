@@ -143,7 +143,7 @@ external-service:
       read-timeout: 60000
   legacy-bridge:
     release-stock:
-      uri: http://localhost:8036/omni/v1.0.0/legacy/release-stock/
+      uri: http://legacy-bridgeci02.backend.cindibyinkafarma.com/omni/v1.0.0/legacy/release-stock/
       connect-timeout: 30000
       read-timeout: 60000
   manage-partner:
