@@ -398,7 +398,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     IOrderInfoClient getOrderInfoClientByEcommercerId(@Param("ecommerceId")long ecommerceId);
 
 
-    @Query(value = "select if(payment_type = 'CASH','Pago efectivo','Pago online') as paymentType, "
+    //@Query(value = "select if(payment_type = 'CASH','Pago efectivo','Pago online') as paymentType, "
+    @Query(value = "select p.payment_type as paymentType, "
         + "o.purchase_number transactionId,"
         + "p.card_provider paymentGateway,"
         + "p.change_amount changeAmount,"

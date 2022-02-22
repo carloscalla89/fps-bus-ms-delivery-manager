@@ -136,7 +136,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       oderInfoDto.setFinancial(orderInfoProjection.getFinancial());
       oderInfoDto.setPaymentGateway(orderInfoProjection.getPaymentGateway());
       oderInfoDto.setServiceTypeCode(orderInfoProjection.getServiceTypeCode());
-      oderInfoDto.setPaymentType(orderInfoProjection.getPaymentType());
+      oderInfoDto.setPaymentType(Constant.PaymentType.getByCode(orderInfoProjection.getPaymentType()).getPaymentTypeDescription());
       oderInfoDto.setPaymentDate(orderInfoProjection.getDateConfirmed());
       return oderInfoDto;
     }

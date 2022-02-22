@@ -878,4 +878,25 @@ public interface Constant {
         }
 
     }
+
+    enum PaymentType {
+        CARD("Pago con POS"), CASH("Pago efectivo"), CASH_DOLAR("Pago efectivo"), ONLINE_PAYMENT("Pago en linea");
+
+        private String paymentTypeDescription;
+
+        public String getPaymentTypeDescription() {
+            return paymentTypeDescription;
+        }
+
+        PaymentType(String paymentTypeDescription) {
+            this.paymentTypeDescription = paymentTypeDescription;
+        }
+
+        public static PaymentType getByCode(String name) {
+
+            return EnumUtils.getEnumList(PaymentType.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(CASH);
+        }
+
+    }
 }
