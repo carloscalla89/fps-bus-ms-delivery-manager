@@ -122,4 +122,6 @@ public class OrderFulfillment extends OrderEntity<Long> {
 
     private boolean mixedOrder;
 
+    private boolean voucher;
+
 }

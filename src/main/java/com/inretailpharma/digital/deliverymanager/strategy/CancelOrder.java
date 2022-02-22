@@ -209,27 +209,15 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
 
         }
 
-        String cancelCode = StringUtils.upperCase(StringUtils.trim(actionDto.getOrderCancelCode()));
-        log.info("Releasing stock for order {} - origin {} - cancelCode{}"
-                , ecommerceId, actionDto.getOrigin(), cancelCode);
+        var cancelCode = StringUtils.upperCase(StringUtils.trim(actionDto.getOrderCancelCode()));
+        var requiresRelease = !iOrderFulfillment.getVoucher() &&
+                (actionDto.getOrigin() != null ||
+                        (actionDto.getOrigin() == null && Constant.DU_CANCEL_CODE.equals(cancelCode)));
 
-        if (actionDto.getOrigin() != null) {
+        log.info("[RELEASE STOCK] order {} - origin {} - cancelCode {} - voucher {} - requiresRelease {}"
+                , ecommerceId, actionDto.getOrigin(), cancelCode, iOrderFulfillment.getVoucher(), requiresRelease);
 
-            stockService.releaseStock(ecommerceId).subscribe();
-
-        } else {
-
-            if (Constant.DU_CANCEL_CODE.equals(cancelCode)) {
-
-                stockService.releaseStock(ecommerceId).subscribe();
-
-            } else {
-
-                log.info("Origin null, wont release stock for order {}", ecommerceId);
-
-            }
-
-        }
+        if (requiresRelease) { stockService.releaseStock(ecommerceId).subscribe(); }
 
         return Flux
                 .fromIterable(utilClass.getClassesToSend())
