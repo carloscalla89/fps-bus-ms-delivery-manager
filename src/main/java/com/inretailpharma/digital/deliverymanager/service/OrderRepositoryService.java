@@ -52,4 +52,6 @@ public interface OrderRepositoryService {
     void updatePaymentMethod(OrderDto partialOrderDto, Long orderFulfillmentId);
 
     void updateOnlinePaymentStatusByOrderId(Long orderId, String onlinePaymentStatus);
+
+    void updateVoucherByEcommerceId(Long ecommerceId, boolean voucher);
 }

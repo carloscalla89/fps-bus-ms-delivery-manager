@@ -309,4 +309,10 @@ public class OrderTransaction {
                 .map(val -> objectMapper.mapLiquidationStatusByEntity(val))
                 .orElse(LiquidationCanonical.builder().enabled(false).build());
     }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public String updateVoucher(Long ecommerceId, boolean voucher) {
+        orderRepositoryService.updateVoucherByEcommerceId(ecommerceId, voucher);
+        return Constant.SUCCESS;
+    }
 }

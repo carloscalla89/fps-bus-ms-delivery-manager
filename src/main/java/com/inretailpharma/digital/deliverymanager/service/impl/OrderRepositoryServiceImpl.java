@@ -29,15 +29,12 @@ import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
 import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
 import com.inretailpharma.digital.deliverymanager.entity.ServiceType;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 import com.inretailpharma.digital.deliverymanager.repository.ClientRepository;
 import com.inretailpharma.digital.deliverymanager.repository.OrderRepository;
 import com.inretailpharma.digital.deliverymanager.repository.OrderStatusRepository;
 import com.inretailpharma.digital.deliverymanager.repository.ServiceLocalOrderRepository;
 import com.inretailpharma.digital.deliverymanager.repository.ServiceTypeRepository;
-import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -229,5 +226,10 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     @Override
     public void updateOnlinePaymentStatusByOrderId(Long orderId, String onlinePaymentStatus) {
         orderRepository.updateOnlinePaymentStatusByOrderId(orderId, onlinePaymentStatus);
+    }
+
+    @Override
+    public void updateVoucherByEcommerceId(Long ecommerceId, boolean voucher) {
+        orderRepository.updateVoucherByEcommerceId(ecommerceId, voucher);
     }
 }
