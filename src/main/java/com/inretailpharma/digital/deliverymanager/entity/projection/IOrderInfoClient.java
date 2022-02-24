@@ -51,4 +51,5 @@ public interface IOrderInfoClient {
   //TODO: OMS
   String getRuc();
   String getCompanyName();
+  Long getEcommerceIdCall();
 }

@@ -222,7 +222,6 @@ public class CustomQueryOrderInfo {
     String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString()
                               .concat(queryFilters)
                               .concat(queryCriterias);
-                              //.concat(CustomSqlQuery.BASIC_QUERY_ORDER_BY_DATE_AND_ORDER_NUMBER_DESC.toString());
     log.info("queryOrderInfo: {}",queryOrderInfo);
 
     Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);

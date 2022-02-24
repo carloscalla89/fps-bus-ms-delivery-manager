@@ -14,5 +14,6 @@ public class OrderInfo {
   private String statusName;
   private String localCode;
   private String serviceType;
-
+  //TODO: OMS
+  private Long ecommerceIdCall;
 }

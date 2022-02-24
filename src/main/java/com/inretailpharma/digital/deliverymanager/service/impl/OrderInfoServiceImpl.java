@@ -57,6 +57,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     orderInfo.setOrderId(orderInfoProjection.getOrderId());
     orderInfo.setCompanyCode(orderInfoProjection.getCompanyCode());
     orderInfo.setEcommerceId(orderInfoProjection.getEcommerceId());
+    orderInfo.setEcommerceIdCall(orderInfoProjection.getEcommerceIdCall());
     orderInfo.setLocalCode(orderInfoProjection.getLocalCode());
     orderInfo.setOrderType(orderInfoProjection.getOrderType());
     orderInfo.setScheduledTime(DateUtils.getLocalDateTimeWithFormatDDMMYY_AMPM(orderInfoProjection.getScheduledTime()));
