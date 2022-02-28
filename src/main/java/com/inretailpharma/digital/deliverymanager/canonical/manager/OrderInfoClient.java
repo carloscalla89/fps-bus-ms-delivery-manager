@@ -7,7 +7,7 @@ public class OrderInfoClient {
 
 
   private String clientName;
-  private Long documentNumber;
+  private String documentNumber;
   private String phone;
   private String email;
   private String addressClient;

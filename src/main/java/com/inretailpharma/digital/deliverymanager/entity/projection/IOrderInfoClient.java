@@ -24,7 +24,7 @@ public interface IOrderInfoClient {
 
   String getClientName();
 
-  Long getDocumentNumber();
+  String getDocumentNumber();
 
   String getPhone();
 
