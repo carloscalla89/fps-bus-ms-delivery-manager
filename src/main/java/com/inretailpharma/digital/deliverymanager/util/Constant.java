@@ -880,7 +880,10 @@ public interface Constant {
     }
 
     enum PaymentType {
-        CARD("Pago con POS"), CASH("Pago efectivo"), CASH_DOLAR("Pago efectivo"), ONLINE_PAYMENT("Pago en linea");
+        CARD("Pago con POS"),
+        CASH("Pago efectivo"),
+        CASH_DOLAR("Pago efectivo"),
+        ONLINE_PAYMENT("Pago en linea");
 
         private String paymentTypeDescription;
 

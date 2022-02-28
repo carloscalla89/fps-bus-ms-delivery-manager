@@ -128,18 +128,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
   private OrderInfoPaymentMethodDto getOrderInfoPaymentMethodByEcommercerId(long ecommerceId) {
     IOrderInfoPaymentMethod orderInfoProjection = orderRepository.getInfoPaymentMethod(ecommerceId);
     if(orderInfoProjection!=null){
-      OrderInfoPaymentMethodDto oderInfoDto  = new OrderInfoPaymentMethodDto();
-      oderInfoDto.setCardBrand(orderInfoProjection.getCardBrand());
-      oderInfoDto.setLiquidationStatus(orderInfoProjection.getLiquidationStatus());
-      oderInfoDto.setCardNumber(orderInfoProjection.getCardNumber());
-      oderInfoDto.setChangeAmount(orderInfoProjection.getChangeAmount());
-      oderInfoDto.setCodAuthorization(orderInfoProjection.getCodAuthorization());
-      oderInfoDto.setFinancial(orderInfoProjection.getFinancial());
-      oderInfoDto.setPaymentGateway(orderInfoProjection.getPaymentGateway());
-      oderInfoDto.setServiceTypeCode(orderInfoProjection.getServiceTypeCode());
-      oderInfoDto.setPaymentType(Constant.PaymentType.getByCode(orderInfoProjection.getPaymentType()).getPaymentTypeDescription());
-      oderInfoDto.setPaymentDate(orderInfoProjection.getDateConfirmed());
-      return oderInfoDto;
+      OrderInfoPaymentMethodDto orderInfoDto  = new OrderInfoPaymentMethodDto();
+      orderInfoDto.setCardBrand(orderInfoProjection.getCardBrand());
+      orderInfoDto.setLiquidationStatus(orderInfoProjection.getLiquidationStatus());
+      orderInfoDto.setCardNumber(orderInfoProjection.getCardNumber());
+      orderInfoDto.setChangeAmount(orderInfoProjection.getChangeAmount());
+      orderInfoDto.setCodAuthorization(orderInfoProjection.getCodAuthorization());
+      orderInfoDto.setFinancial(orderInfoProjection.getFinancial());
+      orderInfoDto.setPaymentGateway(orderInfoProjection.getPaymentGateway());
+      orderInfoDto.setServiceTypeCode(orderInfoProjection.getServiceTypeCode());
+      orderInfoDto.setPaymentType(Constant.PaymentType.getByCode(orderInfoProjection.getPaymentType()).getPaymentTypeDescription());
+      orderInfoDto.setPaymentDate(orderInfoProjection.getDateConfirmed());
+      orderInfoDto.setTransactionId(orderInfoProjection.getTransactionId());
+      return orderInfoDto;
     }
 
     return null;

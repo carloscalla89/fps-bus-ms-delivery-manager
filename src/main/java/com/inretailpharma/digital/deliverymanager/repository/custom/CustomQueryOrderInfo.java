@@ -62,7 +62,7 @@ public class CustomQueryOrderInfo {
         String queryFilter = "";
         if (requestFilter.getFilter().getFilterType().equalsIgnoreCase(Constant.FilterOption.FIND_ORDER_NUMBER)) { //N° pedido
           timeUnlimited = true;
-          queryFilter = "and o.ecommerce_purchase_id = '?' ";
+          queryFilter = "and (o.ecommerce_purchase_id = '?' or o.external_channel_id = '?') ";
         } else {
           if (requestFilter.getFilter().getFilterType().equalsIgnoreCase(Constant.FilterOption.FIND_TELEPHONE_NUMBER)) {//telefono
             queryFilter = "and c.phone = '?' ";
@@ -162,36 +162,35 @@ public class CustomQueryOrderInfo {
           break;
         }
         case Constant.OrderCriteriaColumn.ORDER_CRITERIA_STORE: {
-          queryCriteria.append(" s.center_code ? ");
+          queryCriteria.append(" s.center_code ?, o.ecommerce_purchase_id desc ");
           break;
         }
         case Constant.OrderCriteriaColumn.ORDER_CRITERIA_CHANNEL: {
-          queryCriteria.append(" st.source_channel ? ");
+          queryCriteria.append(" st.source_channel ?, o.ecommerce_purchase_id desc ");
           break;
         }
         case Constant.OrderCriteriaColumn.ORDER_CRITERIA_SERVICE_TYPE: {
-          queryCriteria.append(" st.short_code ? ");
+          queryCriteria.append(" st.short_code ?, o.ecommerce_purchase_id desc ");
           break;
         }
         case Constant.OrderCriteriaColumn.ORDER_CRITERIA_DATE: {
-          queryCriteria.append(" o.scheduled_time ? ");
+          queryCriteria.append(" o.scheduled_time ?, o.ecommerce_purchase_id desc ");
           break;
         }
         case Constant.OrderCriteriaColumn.ORDER_CRITERIA_CLIENT: {
-          queryCriteria.append(" c.first_name ? ");
+          queryCriteria.append(" c.first_name ?, o.ecommerce_purchase_id desc ");
           break;
         }
         case Constant.OrderCriteriaColumn.ORDER_CRITERIA_DOCUMENT: {
-          queryCriteria.append(" c.document_number ? ");
+          queryCriteria.append(" c.document_number ?, o.ecommerce_purchase_id desc ");
           break;
         }
         case Constant.OrderCriteriaColumn.ORDER_CRITERIA_STATUS: {
-          queryCriteria.append(" os.code ? ");
+          queryCriteria.append(" os.code ?, o.ecommerce_purchase_id desc ");
           break;
         }
       }
       queryCriteria.replace(queryCriteria.toString().indexOf("?"),queryCriteria.toString().indexOf("?")+1,Constant.OrderCriteria.getByCode(requestFilter.getOrderCriteria().getOrder()).getOrder());
-      //queryCriteria.toString().replace("?",Constant.OrderCriteria.getByCode(requestFilter.getCriteria().getOrder()).getOrder());
     }
     return queryCriteria.toString();
   }
