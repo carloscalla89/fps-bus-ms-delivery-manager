@@ -186,7 +186,7 @@ public class CustomQueryOrderInfo {
           break;
         }
         case Constant.OrderCriteriaColumn.ORDER_CRITERIA_STATUS: {
-          queryCriteria.append(" os.code ?, o.ecommerce_purchase_id desc ");
+          queryCriteria.append(" os.orderViewEsp ?, o.ecommerce_purchase_id desc ");
           break;
         }
       }
