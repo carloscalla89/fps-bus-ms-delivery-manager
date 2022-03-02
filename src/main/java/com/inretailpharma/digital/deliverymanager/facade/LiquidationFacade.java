@@ -27,9 +27,7 @@ public class LiquidationFacade extends FacadeAbstractUtil {
     }
 
     public Mono<OrderCanonical> create(OrderCanonical orderCanonical, OrderCanonical completeOrder) {
-
         if (getValueBoolenOfParameter()) {
-
             return Mono
                     .just(orderCanonical)
                     .flatMap(order -> Mono.just(getLiquidationStatusByDigitalStatusCode(order.getOrderStatus().getCode())))
@@ -38,74 +36,56 @@ public class LiquidationFacade extends FacadeAbstractUtil {
                     .flatMap(result -> iLiquidationAdapter
                             .createOrder(completeOrder, result)
                             .flatMap(resultOrder -> {
-
                                 orderTransaction.updateLiquidationStatusOrder(
                                         resultOrder.getLiquidation().getStatus(), resultOrder.getLiquidation().getDetail(), orderCanonical.getId()
                                 );
-
                                 return Mono.just(resultOrder);
                             })
                     )
                     .defaultIfEmpty(orderCanonical);
-
         } else {
             return Mono.just(orderCanonical);
         }
-
     }
 
     public Mono<OrderCanonical> evaluateUpdate(OrderCanonical orderCanonical, ActionDto actionDto) {
-
         if (getValueBoolenOfParameter() && !actionDto.getAction().equalsIgnoreCase(Constant.ActionOrder.LIQUIDATE_ORDER.name())) {
-
-            return Mono
-                    .just(orderCanonical)
+            return Mono.just(orderCanonical)
                     .flatMap(order -> Mono.just(getLiquidationStatusByDigitalStatusCode(order.getOrderStatus().getCode())))
                     .defaultIfEmpty(LiquidationCanonical.builder().enabled(false).build())
                     .filter(LiquidationCanonical::getEnabled)
                     .flatMap(result -> {
-                        log.info("evaluateUpdate liquidation result:{}",result);
+                        log.info("evaluateUpdate liquidation result:{}", result);
                         if (result.getStatus() == null) {
-
                             StatusDto liquidationStatus = UtilFunctions.processLiquidationStatus.process(
                                     result.getStatus(), orderCanonical.getOrderStatus().getFirstStatusName(),
                                     actionDto.getAction(), orderCanonical.getOrderStatus().getCancellationCode(), orderCanonical.getOrderDetail().getServiceType());
-
                             result.setCode(liquidationStatus.getCode());
                             result.setStatus(liquidationStatus.getName());
                         }
-
                         return Mono.just(result);
                     })
-                    .flatMap(result ->
-                            iLiquidationAdapter
-                                    .updateOrder(orderCanonical, result)
-                                    .flatMap(resultOrder -> {
-
-                                        orderTransaction.updateLiquidationStatusOrder(
-                                                resultOrder.getLiquidation().getStatus(), resultOrder.getLiquidation().getDetail(), orderCanonical.getId()
-                                        );
-
-                                        return Mono.just(resultOrder);
-                                    })
+                    .flatMap(result -> iLiquidationAdapter.updateOrder(orderCanonical, result)
+                            .flatMap(resultOrder -> {
+                                orderTransaction.updateLiquidationStatusOrder(
+                                        resultOrder.getLiquidation().getStatus(), resultOrder.getLiquidation().getDetail(), orderCanonical.getId()
+                                );
+                                return Mono.just(resultOrder);
+                            })
                     )
                     .defaultIfEmpty(orderCanonical)
                     .onErrorResume(e -> {
                         e.printStackTrace();
-                        log.error("Error in process transaction status liquidation:{}, order:{}",e.getMessage(), orderCanonical);
-
+                        log.error("Error in process transaction status liquidation:{}, order:{}", e.getMessage(), orderCanonical);
                         return Mono.just(orderCanonical);
-
                     });
-
         } else {
-
             return Mono.just(orderCanonical);
         }
-
     }
 
     private boolean getValueBoolenOfParameter() {
         return getValueBoolenOfParameter(Constant.ApplicationsParameters.ENABLED_SEND_TO_LIQUIDATION);
     }
+
 }

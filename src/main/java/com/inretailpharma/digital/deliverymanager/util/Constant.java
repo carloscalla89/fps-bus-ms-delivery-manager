@@ -218,7 +218,10 @@ public interface Constant {
         PICK_ORDER(4, "Acción para cambiar el estado de la orden a PICKEADO",4,
                 METHOD_UPDATE, PickerOrder.class),
 
-        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO",5,
+        READY_TO_ASSIGN(23, "Acción para cambiar el estado de la orden a 'Listo para asignar'", 4,
+                METHOD_UPDATE, UpdateTracker.class),
+
+        PREPARE_ORDER(4, "Acción para cambiar el estado de la orden a PREPADO", 5,
                 METHOD_UPDATE, PrepareOrder.class),
         // =================================================================================
 
@@ -352,6 +355,9 @@ public interface Constant {
 
         PICKED_ORDER("PICKING_ORDER", "PICKING", OrderStatus.PICKED_ORDER, OrderStatus.ERROR_PICKED,
                 ActionOrder.PICK_ORDER.name()),
+
+        READY_TO_ASSIGN("READY_TO_ASSIGN", "READY_TO_ASSIGN",OrderStatus.READY_TO_ASSIGN,
+                OrderStatus.ERROR_READY_TO_ASSIGN, ActionOrder.READY_TO_ASSIGN.name()),
 
         PREPARED_ORDER("PREPARED_ORDER", "PREPARED", OrderStatus.PREPARED_ORDER, OrderStatus.ERROR_PREPARED,
                 ActionOrder.PREPARE_ORDER.name()),
@@ -508,7 +514,8 @@ public interface Constant {
 
         // ========== ERRORES =================================================================
         ERROR_INSERT_TRACKER("01", false), ERROR_INSERT_INKAVENTA("02", false),
-        ERROR_PICKED("04", false), ERROR_PREPARED("05", false),
+        ERROR_PICKED("04", false),ERROR_READY_TO_ASSIGN("24",false),
+        ERROR_PREPARED("05", false),
         ERROR_READY_FOR_PICKUP("05", false), ERROR_ASSIGNED("06", false),
         ERROR_ON_ROUTED("07", false), ERROR_ARRIVED("08", false),
         ERROR_DELIVERED("09", false), ERROR_CANCELLED("10", false),
@@ -525,6 +532,8 @@ public interface Constant {
         CONFIRMED("15", true), CONFIRMED_TRACKER("16", true),
 
         ASSIGNED("17", true),
+
+        READY_TO_ASSIGN("23", true),
 
         PICKED_ORDER("18", true), PREPARED_ORDER("19", true),
 
@@ -673,6 +682,7 @@ public interface Constant {
     String CHECKOUT_ORDER = "CHECKOUT_ORDER";
     String INVOICED_ORDER = "INVOICED_ORDER";
     String PICK_ORDER = "PICK_ORDER";
+    String READY_TO_ASSIGN = "READY_TO_ASSIGN";
     String PREPARE_ORDER = "PREPARE_ORDER";
     String ASSIGN_ORDER = "ASSIGN_ORDER";
     String ON_ROUTE_ORDER = "ON_ROUTE_ORDER";
