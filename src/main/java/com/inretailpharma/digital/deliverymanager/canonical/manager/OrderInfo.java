@@ -16,4 +16,5 @@ public class OrderInfo {
   private String serviceType;
   //TODO: OMS
   private Long ecommerceIdCall;
+  private String source;
 }

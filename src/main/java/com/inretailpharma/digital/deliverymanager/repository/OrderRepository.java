@@ -362,6 +362,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "o.external_channel_id as ecommerceIdCall, "
         + "if(s.company_code='MF','Mifarma','Inkafarma') as companyCode, "
         + "st.source_channel as serviceChannel, "
+        + "o.source as source, "
         + "if(o.partial=1,'Pedido Parcial','Pedido Completo') as orderType, "
         + "st.short_code as serviceTypeShortCode, "
         + "o.scheduled_time as scheduledTime, "

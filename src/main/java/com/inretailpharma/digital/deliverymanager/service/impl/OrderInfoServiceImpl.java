@@ -64,6 +64,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     orderInfo.setStatusName(orderInfoProjection.getStatusName());
     orderInfo.setServiceTypeShortCode(DeliveryType.getByName(orderInfoProjection.getServiceTypeShortCode()).getDescription());
     orderInfo.setServiceChannel(orderInfoProjection.getServiceChannel());
+    orderInfo.setSource(orderInfoProjection.getSource());
     orderInfo.setServiceType(getServiceType(orderInfoProjection.getServiceType()));
     return orderInfo;
   }

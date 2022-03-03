@@ -52,4 +52,5 @@ public interface IOrderInfoClient {
   String getRuc();
   String getCompanyName();
   Long getEcommerceIdCall();
+  String getSource();
 }
