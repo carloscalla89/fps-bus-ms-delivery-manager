@@ -23,7 +23,7 @@ public class SellerCenterServiceImpl extends AbstractOrderService implements Ord
 	
 	@Override
 	public Mono<String> addControversy(ControversyRequestDto controversyRequestDto, Long ecommerceId) {
-		String uri = externalServicesProperties.getServicesAddControversyUri() + ecommerceId + "/controversies";
+		String uri = externalServicesProperties.getHost() + externalServicesProperties.getServicesAddControversyUri() + ecommerceId + "/controversies";
 		
 		log.info("[START] call to SellerCenter - add controversy - uri:{} - body:{}", uri, controversyRequestDto);
     	
