@@ -88,7 +88,7 @@ external-service:
       connect-timeout: 15000
       read-timeout: 30000
   seller-center:
-    host: http://uS-Seller-Center
+    host: http://sellercenteruat.backend.cindibyinkafarma.com
     services:
       update-status:
         uri: /order/statusOrder/{ecommerceId}/{statusCode}
