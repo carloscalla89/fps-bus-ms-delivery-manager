@@ -137,13 +137,10 @@ public class CustomQueryOrderInfo {
     }
 
     if (!timeUnlimited && !existsDateFilter) {
-      LocalDate endDate = LocalDate.now();
-      LocalDate startDate = endDate.minusMonths(timeLimitFilter);
+      LocalDate startDate = LocalDate.now().minusMonths(timeLimitFilter);
 
-      queryFilters.append(" and Date(o.scheduled_time) BETWEEN ")
-              .append("'").append(startDate.toString()).append("'")
-              .append(" and ")
-              .append("'").append(endDate.toString()).append("' ");
+      queryFilters.append(" and Date(o.scheduled_time) >= ")
+              .append("'").append(startDate.toString()).append("' ");
     }
 
     return queryFilters.toString();

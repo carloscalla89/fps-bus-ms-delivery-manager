@@ -27,11 +27,9 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
 
     public InkatrackerLiteServiceImpl(ExternalServicesProperties externalServicesProperties,
                                       ObjectToMapper objectToMapper) {
-
         this.externalServicesProperties = externalServicesProperties;
         this.objectToMapper = objectToMapper;
     }
-
 
     @Override
     public Mono<OrderCanonical> sendOrderToTracker(IOrderFulfillment iOrderFulfillment,
@@ -40,21 +38,17 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                                    Long externalId, String statusDetail, String statusName,
                                                    String orderCancelCode, String orderCancelDescription,
                                                    String orderCancelObservation) {
-
         return Mono
                 .just(objectToMapper.convertOrderToOrderInkatrackerCanonical(iOrderFulfillment, itemFulfillments,
                         storeCenterCanonical, externalId, statusName, statusDetail, orderCancelCode, orderCancelDescription)
                 )
                 .flatMap(b -> {
                     try {
-
                         log.info("Order prepared to send inkatracker lite:{}", new ObjectMapper().writeValueAsString(b));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
-
-                    log.info("url inkatracker-lite:{}",externalServicesProperties.getInkatrackerLiteCreateOrderUri());
-
+                    log.info("url inkatracker-lite:{}", externalServicesProperties.getInkatrackerLiteCreateOrderUri());
                     return WebClient
                             .builder()
                             .clientConnector(
@@ -72,7 +66,7 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                                     clientResponse, iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(),
                                     externalId, statusName, orderCancelCode, orderCancelObservation, statusDetail)
                             )
-                            .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite:{}",s))
+                            .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite:{}", s))
                             .defaultIfEmpty(
                                     new OrderCanonical(
                                             iOrderFulfillment.getOrderId(),
@@ -85,30 +79,23 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                             )
                             .doOnError(e -> {
                                 e.printStackTrace();
-                                log.error("Error in inkatracker-lite:{}",e.getMessage());
+                                log.error("Error in inkatracker-lite:{}", e.getMessage());
                             })
                             .onErrorResume(e -> mapResponseErrorWhenTheOrderIsCreated(e, iOrderFulfillment.getOrderId(),
                                     iOrderFulfillment.getEcommerceId(), iOrderFulfillment.getStatusCode(),
                                     orderCancelCode, orderCancelObservation)
                             );
-
-                }).doOnSuccess((f) ->  log.info("[END] Create Order To Tracker lite- orderCanonical:{}",f));
-
+                }).doOnSuccess((f) -> log.info("[END] Create Order To Tracker lite- orderCanonical:{}", f));
     }
-
 
     @Override
     public Mono<OrderCanonical> getResultfromExternalServices(Long ecommerceId, ActionDto actionDto, String company,
                                                               String serviceType, String cancelDescription) {
         log.info("[START] connect inkatracker-lite   - ecommerceId:{} - actionOrder:{}",
                 ecommerceId, actionDto.getAction());
-
         Constant.OrderStatusTracker orderStatusInkatracker = Constant.OrderStatusTracker.getByActionName(actionDto.getAction());
-
-        log.info("url inkatracket-lite:{}",externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
-
-        return WebClient
-                .builder()
+        log.info("url inkatracket-lite:{}", externalServicesProperties.getInkatrackerLiteUpdateOrderUri());
+        return WebClient.builder()
                 .clientConnector(
                         generateClientConnector(
                                 Integer.parseInt(externalServicesProperties.getInkatrackerLiteUpdateOrderConnectTimeOut()),
@@ -119,28 +106,30 @@ public class InkatrackerLiteServiceImpl extends AbstractOrderService implements 
                 .build()
                 .patch()
                 .uri(builder ->
-                        builder
-                                .path("/{orderExternalId}")
-                                .queryParam("action",orderStatusInkatracker.getTrackerLiteStatus())
-                                .queryParam("idCancellationReason",actionDto.getOrderCancelCode())
-                                .queryParam("cancelDescription",cancelDescription)
-                                .queryParam("origin",actionDto.getOrigin())
-                                .queryParam("observation",actionDto.getOrderCancelObservation())
-                                .queryParam("motorizedId",actionDto.getMotorizedId())
-                                .queryParam("updateBy",actionDto.getUpdatedBy())
+                        builder.path("/{orderExternalId}")
+                                .queryParam("action", orderStatusInkatracker.getTrackerLiteStatus())
+                                .queryParam("idCancellationReason", actionDto.getOrderCancelCode())
+                                .queryParam("cancelDescription", cancelDescription)
+                                .queryParam("origin", actionDto.getOrigin())
+                                .queryParam("observation", actionDto.getOrderCancelObservation())
+                                .queryParam("motorizedId", actionDto.getMotorizedId())
+                                .queryParam("updateBy", actionDto.getUpdatedBy())
                                 .build(ecommerceId))
                 .exchange()
-                .flatMap(clientResponse -> mapResponseFromUpdateTracker(clientResponse, ecommerceId, orderStatusInkatracker))
-                .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite Update:{}",s))
+                .flatMap(clientResponse -> mapResponseFromUpdateTracker(
+                        clientResponse, ecommerceId, orderStatusInkatracker)
+                )
+                .doOnSuccess(s -> log.info("Response is Success in inkatracker-lite Update:{}", s))
                 .defaultIfEmpty(
                         new OrderCanonical(
                                 ecommerceId,
                                 Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.getCode(),
-                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name())
+                                Constant.OrderStatus.EMPTY_RESULT_INKATRACKERLITE.name()
+                        )
                 )
                 .doOnError(e -> {
                     e.printStackTrace();
-                    log.error("Error in inkatracker-lite when its sent to update:{}",e.getMessage());
+                    log.error("Error in inkatracker-lite when its sent to update:{}", e.getMessage());
                 })
                 .onErrorResume(e -> mapResponseErrorFromTracker(e, ecommerceId,
                         ecommerceId, orderStatusInkatracker.getOrderStatusError().name(),
