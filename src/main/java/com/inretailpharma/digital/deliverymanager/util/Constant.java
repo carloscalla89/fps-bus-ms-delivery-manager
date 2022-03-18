@@ -776,8 +776,9 @@ public interface Constant {
             EC("EC", "Error de cliente"),
             PI("PI", "Primer despacho infructuoso"),
             DI("DI", "Despacho infructuoso"),
-            CS("CS", "Cancelado por el seller");
-
+            CS("CS", "Cancelado por el seller"),
+        	CP("CP", "Cerrado - procede");
+        	
             private String type;
             private String description;
 

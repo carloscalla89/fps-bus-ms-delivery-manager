@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -49,6 +50,9 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
     private OrderExternalService stockService;
 
     private ISellerCenterAdapter iSellerCenterAdapter;
+    
+    @Value("${controversy.type}")
+    private String controversyType;
     
     @Autowired
     public CancelOrder(OrderCancellationService orderCancellationService, IStoreAdapter iStoreAdapter,
@@ -139,8 +143,9 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
                 ControversyRequestDto controversyRequestDto = new ControversyRequestDto();
                 controversyRequestDto.setDate(DateUtils.getLocalDateTimeNow());
                 controversyRequestDto.setText(actionDto.getOrderCancelObservation() != null ? actionDto.getOrderCancelObservation() : "");
-                controversyRequestDto.setType(Constant.SellerCenter.ControversyTypes.CT.getType());
-
+                controversyRequestDto.setControversyStatus(Constant.SellerCenter.ControversyTypes.CP.getType());
+                controversyRequestDto.setMonto(null); //Opcional, si es un reembolso pueden colocar aqui el monto como informativo
+                controversyRequestDto.setType(controversyType);
                 sellerCenterService.addControversy(controversyRequestDto, iOrderFulfillment.getEcommerceId()).subscribe();
 
                 log.info("[END] add controversy");
