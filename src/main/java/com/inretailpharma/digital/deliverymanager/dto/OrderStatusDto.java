@@ -7,6 +7,7 @@ import lombok.Data;
 public class OrderStatusDto {
 
     private String code;
+    private String type;
     private String description;
 
 }

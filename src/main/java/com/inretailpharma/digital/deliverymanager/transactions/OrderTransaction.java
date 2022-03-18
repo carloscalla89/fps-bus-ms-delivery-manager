@@ -1,5 +1,9 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
+import com.inretailpharma.digital.deliverymanager.dto.FiltersRqDTO;
+import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +35,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import reactor.core.publisher.Flux;
 
 @Slf4j
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -266,6 +271,10 @@ public class OrderTransaction {
 
     public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
         return orderRepositoryService.getOrderByOrderNumber(orderNumber);
+    }
+
+    public OrderCanonicalResponse getOrder(RequestFilterDTO filter) {
+        return orderRepositoryService.getOrder(filter);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)

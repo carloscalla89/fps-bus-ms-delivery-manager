@@ -1,17 +1,19 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
 import com.inretailpharma.digital.deliverymanager.dto.PaymentMethodDto;
-import com.inretailpharma.digital.deliverymanager.entity.*;
+import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
-import com.inretailpharma.digital.deliverymanager.repository.*;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.repository.custom.CustomQueryOrderInfo;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,8 +38,6 @@ import com.inretailpharma.digital.deliverymanager.repository.OrderStatusReposito
 import com.inretailpharma.digital.deliverymanager.repository.ServiceLocalOrderRepository;
 import com.inretailpharma.digital.deliverymanager.repository.ServiceTypeRepository;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
 public class OrderRepositoryServiceImpl implements OrderRepositoryService {
@@ -47,17 +47,23 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     private OrderStatusRepository orderStatusRepository;
     private ServiceLocalOrderRepository serviceLocalOrderRepository;
     private ClientRepository clientRepository;
+    private CustomQueryOrderInfo customQueryOrderInfo;
+    private ObjectToMapper objectMapper;
 
     public OrderRepositoryServiceImpl(OrderRepository orderRepository,
-                                      ServiceTypeRepository serviceTypeRepository,
-                                      OrderStatusRepository orderStatusRepository,
-                                      ServiceLocalOrderRepository serviceLocalOrderRepository,
-                                      ClientRepository clientRepository) {
+        ServiceTypeRepository serviceTypeRepository,
+        OrderStatusRepository orderStatusRepository,
+        ServiceLocalOrderRepository serviceLocalOrderRepository,
+        CustomQueryOrderInfo customQueryOrderInfo,
+        ObjectToMapper objectMapper,
+        ClientRepository clientRepository) {
+        this.customQueryOrderInfo = customQueryOrderInfo;
         this.orderRepository = orderRepository;
         this.serviceTypeRepository = serviceTypeRepository;
         this.orderStatusRepository = orderStatusRepository;
         this.serviceLocalOrderRepository = serviceLocalOrderRepository;
         this.clientRepository = clientRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -154,6 +160,13 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 		log.info("CALL Repository--getOrderByOrderNumber:"+orderNumber);
 		return orderRepository.getOrderByOrderNumber(orderNumber);
 	}
+
+  @Override
+  public OrderCanonicalResponse getOrder(RequestFilterDTO filter) {
+
+    return customQueryOrderInfo.getOrderInfo(filter);
+
+  }
 
     @Override
     public boolean updatePartialOrderHeader(OrderDto orderDto) {

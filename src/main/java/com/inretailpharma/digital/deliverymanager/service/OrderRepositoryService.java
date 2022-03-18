@@ -1,7 +1,10 @@
 package com.inretailpharma.digital.deliverymanager.service;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
+import com.inretailpharma.digital.deliverymanager.dto.FiltersRqDTO;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.entity.*;
+import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 
@@ -15,8 +18,6 @@ import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
 import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
 import com.inretailpharma.digital.deliverymanager.entity.ServiceType;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 
 public interface OrderRepositoryService {
@@ -45,6 +46,8 @@ public interface OrderRepositoryService {
     IOrderFulfillment getOnlyOrderStatusByecommerceId(Long ecommerceId);
 
     <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
+
+    OrderCanonicalResponse getOrder(RequestFilterDTO filter);
 
     boolean updatePartialOrderHeader(OrderDto orderDto);
     boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment);
