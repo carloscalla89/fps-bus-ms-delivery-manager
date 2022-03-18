@@ -5,9 +5,9 @@ spring:
     password: Operaciones2020
 external-service:
   audit:
-    create-order: http://us-audit/audit/order
-    create-order-history-audit: http://us-audit/audit/order/history
-    update-order-history-audit: http://us-audit/audit/order/history
+    create-order: http://audituat.backend.cindibyinkafarma.com/audit/order
+    create-order-history-audit: http://audituat.backend.cindibyinkafarma.com/audit/order/history
+    update-order-history-audit: http://audituat.backend.cindibyinkafarma.com/audit/order/history
     connect-timeout: 10000
     read-timeout: 10000
   dispatcher:
@@ -88,7 +88,7 @@ external-service:
       connect-timeout: 15000
       read-timeout: 30000
   seller-center:
-    host: http://uS-Seller-Center
+    host: http://sellercenteruat.backend.cindibyinkafarma.com
     services:
       update-status:
         uri: /order/statusOrder/{ecommerceId}/{statusCode}

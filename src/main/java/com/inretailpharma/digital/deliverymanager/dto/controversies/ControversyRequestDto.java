@@ -8,5 +8,7 @@ public class ControversyRequestDto {
     private String date;
     private String text;
     private String type;
+    private Double monto;
+    private String controversyStatus;
     private List<CommentRequestDto> comments;
 }
