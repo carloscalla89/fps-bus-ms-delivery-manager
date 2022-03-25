@@ -106,7 +106,9 @@ public class ObjectToMapper {
         statusDto.setCancellationDescription(orderCanonical.getOrderStatus().getCancellationDescription());
         statusDto.setOrigin(Constant.ORIGIN_DELIVERY_MANAGER);
         statusDto.setTotalCost(orderCanonical.getTotalAmount());
-        statusDto.setChangeAmount(orderCanonical.getPaymentMethod().getChangeAmount());
+        if (orderCanonical.getPaymentMethod() != null) {
+            statusDto.setChangeAmount(orderCanonical.getPaymentMethod().getChangeAmount());
+        }
         return statusDto;
     }
 
