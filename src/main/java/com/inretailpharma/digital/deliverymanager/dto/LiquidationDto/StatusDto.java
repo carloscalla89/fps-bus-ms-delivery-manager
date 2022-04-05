@@ -3,6 +3,8 @@ package com.inretailpharma.digital.deliverymanager.dto.LiquidationDto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class StatusDto {
     //@NotBlank(message = "status.code may not be blank")
@@ -13,6 +15,8 @@ public class StatusDto {
     private String cancellationCode;
     private String cancellationDescription;
     private String origin;
+    private BigDecimal totalCost;
+    private BigDecimal changeAmount;
 
     public StatusDto() {}
 
