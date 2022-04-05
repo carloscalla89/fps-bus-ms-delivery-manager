@@ -5,8 +5,8 @@ RUN chmod 777 /setup.sh
 ENV LOG_LEVEL_SYSTEM=ERROR
 ENV LOG_LEVEL_BUSINESS=INFO
 
-ADD /newrelic/newrelic.jar  /usr/src/service
-ADD /newrelic/newrelic.yml  /usr/src/service
+ADD ./devops/newrelic/newrelic.jar /usr/src/service/newrelic.jar
+ADD ./devops/newrelic/newrelic.yml /usr/src/service/newrelic.yml
 
 ENV NEW_RELIC_APP_NAME="Delivery Manager"
 ENV NEW_RELIC_LICENSE_KEY="license_key"
