@@ -400,18 +400,18 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     IOrderInfoClient getOrderInfoClientByEcommercerId(@Param("ecommerceId")long ecommerceId);
 
 
-    @Query(value = "select p.payment_type as paymentType, "
-        + "o.purchase_number transactionId,"
-        + "p.card_provider paymentGateway,"
-        + "p.change_amount changeAmount,"
-        + "ops.liquidationStatus liquidationStatus,"
-        + "o.confirmed_order dateConfirmed,"
-        + "cp.name cardBrand,"
-        + "ops.service_type_code serviceTypeCode "
-        + "from order_fulfillment o  "
+    @Query(value = "select p.payment_type as paymentType,"
+        + "o.purchase_number as transactionId,"
+        + "if(p.payment_type = 'CASH','CASH',cpc.description) as paymentGateway,"
+        + "p.change_amount as changeAmount,"
+        + "o.confirmed_order as dateConfirmed,"
+        + "cp.name as cardBrand,"
+        + "ops.service_type_code as serviceTypeCode "
+        + "from order_fulfillment o "
         + "left join payment_method p on o.id = p.order_fulfillment_id "
-        + "left join order_process_status ops on ops.order_fulfillment_id =  o .id "
-        + "left join card_provider cp on cp.id = p.card_provider_id "
+        + "left join order_process_status ops on ops.order_fulfillment_id =  o.id "
+        + "left join card_provider cp on cp.card_providerid = p.card_provider_id "
+        + "left join card_provider_commercial cpc on cpc.card_commercial_code = p.provider_card_commercial_code "
         + "WHERE o.ecommerce_purchase_id =:ecommerceId", nativeQuery = true)
     IOrderInfoPaymentMethod getInfoPaymentMethod(@Param("ecommerceId")long ecommerceId);
 
