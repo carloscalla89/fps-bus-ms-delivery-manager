@@ -13,4 +13,6 @@ public class DetailProduct {
   //private String shortDescription;
   //TODO: OMS
   private String presentationDescription;
+  private BigDecimal totalPriceAllPaymentMethod;
+  private BigDecimal totalPriceTOH;
 }

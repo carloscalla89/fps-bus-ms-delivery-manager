@@ -107,6 +107,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     orderInfo.setDeliveryAmount(orderInfoProduct.getDeliveryAmount());
     orderInfo.setTotalDiscount(orderInfoProduct.getTotalDiscount());
     orderInfo.setTotalImport(orderInfoProduct.getTotalImport());
+    orderInfo.setTotalImportTOH(orderInfoProduct.getTotalImportTOH());
     orderInfo.setTotalImportWithOutDiscount(orderInfoProduct.getTotalImportWithOutDiscount());
     List<DetailProduct> detail = orderInfoProductDetail.stream().map(orderDetailEntity -> {
       DetailProduct detailProduct = new DetailProduct();
@@ -116,6 +117,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       detailProduct.setPresentationDescription(orderDetailEntity.getPresentationDescription());
       detailProduct.setSku(orderDetailEntity.getSku());
       detailProduct.setTotalPrice(orderDetailEntity.getTotalPrice());
+      detailProduct.setTotalPriceAllPaymentMethod(orderDetailEntity.getTotalPriceAllPaymentMethod());
+      detailProduct.setTotalPriceTOH(orderDetailEntity.getTotalPriceTOH());
       detailProduct.setUnitPrice(orderDetailEntity.getUnitPrice());
       return detailProduct;
     }).collect(Collectors.toList());

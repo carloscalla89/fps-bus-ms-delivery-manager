@@ -9,6 +9,7 @@ public interface IOrderInfoProduct {
 
    BigInteger getId();
    BigDecimal getTotalImport();
+   BigDecimal getTotalImportTOH();
    BigDecimal getTotalDiscount();
    BigDecimal getDeliveryAmount();
    BigDecimal getTotalImportWithOutDiscount();

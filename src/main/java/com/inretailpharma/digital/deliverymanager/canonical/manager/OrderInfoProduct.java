@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class OrderInfoProduct {
   private BigDecimal totalImport;
+  private BigDecimal totalImportTOH;
   private BigDecimal totalDiscount;
   private BigDecimal deliveryAmount;
   private BigDecimal totalImportWithOutDiscount;

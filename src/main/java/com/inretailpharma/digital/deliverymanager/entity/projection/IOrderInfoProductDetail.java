@@ -11,4 +11,6 @@ public interface IOrderInfoProductDetail {
    //String getShortDescription();
    //TODO: OMS
    String getPresentationDescription();
+   BigDecimal getTotalPriceAllPaymentMethod();
+   BigDecimal getTotalPriceTOH();
 }

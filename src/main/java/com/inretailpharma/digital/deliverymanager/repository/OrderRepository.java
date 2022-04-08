@@ -416,22 +416,25 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "LIMIT 1", nativeQuery = true)
     IOrderInfoPaymentMethod getInfoPaymentMethod(@Param("ecommerceId")long ecommerceId);
 
-    @Query(value = "select id,total_cost as totalImport,"
-        + "discountAppliedNoDP as totalDiscount,"
-        + "delivery_cost as deliveryAmount,"
-        + "subTotalWithNoSpecificPaymentMethod as totalImportWithOutDiscount "
-        + "from order_fulfillment "
-        + "where ecommerce_purchase_id= :ecommerceId",nativeQuery = true)
+    @Query(value = "select id, subTotalWithNoSpecificPaymentMethod as totalImportWithOutDiscount, " +
+            "delivery_cost as deliveryAmount, " +
+            "discountAppliedNoDP as totalDiscount, " +
+            "totalWithNoSpecificPaymentMethod as totalImport, " +
+            "totalWithPaymentMethod as totalImportTOH " +
+            "from order_fulfillment " +
+            "where ecommerce_purchase_id= :ecommerceId",nativeQuery = true)
     IOrderInfoProduct getOrderInfoProductByEcommerceId(@Param("ecommerceId")long ecommerceId);
 
-  @Query(value = "select product_code sku,"
-      + "name,"
-      + "presentation_description presentationDescription,"
-      + "quantity,"
-      + "unit_price unitPrice,"
-      + "total_price totalPrice "
-      + "from order_fulfillment_item "
-      + "where order_fulfillment_id =:orderFulfillmentId", nativeQuery = true)
+  @Query(value = "select product_code as sku, " +
+          "name, " +
+          "presentation_description as presentationDescription, " +
+          "quantity, " +
+          "unit_price as unitPrice, " +
+          "totalPriceList as totalPrice, " +
+          "totalPriceAllPaymentMethod, " +
+          "totalPriceWithpaymentMethod as totalPriceTOH " +
+          "from order_fulfillment_item " +
+          "where order_fulfillment_id =:orderFulfillmentId", nativeQuery = true)
     List<IOrderInfoProductDetail> getOrderInfoProductDetailByOrderFulfillmentId(@Param("orderFulfillmentId") BigInteger orderFulfillmentId);
 
     @Modifying
