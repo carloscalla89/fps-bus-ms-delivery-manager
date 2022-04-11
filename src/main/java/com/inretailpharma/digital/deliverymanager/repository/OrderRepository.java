@@ -416,13 +416,14 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "LIMIT 1", nativeQuery = true)
     IOrderInfoPaymentMethod getInfoPaymentMethod(@Param("ecommerceId")long ecommerceId);
 
-    @Query(value = "select id, subTotalWithNoSpecificPaymentMethod as totalImportWithOutDiscount, " +
+    @Query(value = "select id, " +
+            "coalesce(subTotalWithNoSpecificPaymentMethod,total_cost_no_discount,0) as totalImportWithOutDiscount, " +
             "delivery_cost as deliveryAmount, " +
-            "discountAppliedNoDP as totalDiscount, " +
-            "totalWithNoSpecificPaymentMethod as totalImport, " +
-            "totalWithPaymentMethod as totalImportTOH " +
+            "coalesce(discountAppliedNoDP,discount_applied,0) as totalDiscount, " +
+            "coalesce(totalWithNoSpecificPaymentMethod,total_cost,0) as totalImport, " +
+            "coalesce(totalWithPaymentMethod,0) as totalImportTOH " +
             "from order_fulfillment " +
-            "where ecommerce_purchase_id= :ecommerceId",nativeQuery = true)
+            "where ecommerce_purchase_id = :ecommerceId",nativeQuery = true)
     IOrderInfoProduct getOrderInfoProductByEcommerceId(@Param("ecommerceId")long ecommerceId);
 
   @Query(value = "select product_code as sku, " +
@@ -430,11 +431,11 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
           "presentation_description as presentationDescription, " +
           "quantity, " +
           "unit_price as unitPrice, " +
-          "totalPriceList as totalPrice, " +
-          "totalPriceAllPaymentMethod, " +
-          "totalPriceWithpaymentMethod as totalPriceTOH " +
+          "coalesce(totalPriceList,total_price,0) as totalPrice, " +
+          "coalesce(totalPriceAllPaymentMethod,0) as totalPriceAllPaymentMethod, " +
+          "coalesce(totalPriceWithpaymentMethod,0) as totalPriceTOH " +
           "from order_fulfillment_item " +
-          "where order_fulfillment_id =:orderFulfillmentId", nativeQuery = true)
+          "where order_fulfillment_id = :orderFulfillmentId", nativeQuery = true)
     List<IOrderInfoProductDetail> getOrderInfoProductDetailByOrderFulfillmentId(@Param("orderFulfillmentId") BigInteger orderFulfillmentId);
 
     @Modifying
