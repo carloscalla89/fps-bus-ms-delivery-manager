@@ -405,7 +405,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "if(p.payment_type = 'CASH','CASH',cpc.description) as paymentGateway," +
             "p.change_amount as changeAmount," +
             "o.confirmed_order as dateConfirmed," +
-            "cp.name as cardBrand," +
+            "if(p.payment_type = 'CASH',null,cp.name) cardBrand, " +
             "ops.service_type_code as serviceTypeCode " +
             "from order_fulfillment o " +
             "left join payment_method p on o.id = p.order_fulfillment_id " +
