@@ -148,9 +148,9 @@ public class CustomQueryOrderInfo {
 
   private String getQueryOrderById(RequestFilterDTO requestFilter) {
     StringBuilder queryFilters = new StringBuilder();
-    String idEcomerce = getFiltersConcatenated(requestFilter.getListEcomerce().toArray(new String[0]));
-    queryFilters.append(" where o.ecommerce_purchase_id IN(")
-            .append(idEcomerce).append(") ");
+    String orderId = getFiltersConcatenated(requestFilter.getListEcomerce().toArray(new String[0]));
+    queryFilters.append(" where o.id IN(")
+            .append(orderId).append(") ");
     return queryFilters.toString();
   }
 
@@ -279,14 +279,9 @@ public class CustomQueryOrderInfo {
     String queryFilters = getQueryOrderById(filter);
     log.info("queryFilters:{}",queryFilters);
 
-    String queryCriterias = getQueryOrderCriteria(filter);
-    log.info("queryCriterias:{}",queryCriterias);
-
     String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString()
-            .concat(queryFilters)
-            .concat(queryCriterias);
+            .concat(queryFilters);
     log.info("queryOrderInfo: {}",queryOrderInfo);
-
     Query query = entityManager.createNativeQuery(queryOrderInfo);
     List<Object[]> result = query.getResultList();
     List<OrderCanonicalFulfitment> orders = result.stream().parallel().map(data -> {
