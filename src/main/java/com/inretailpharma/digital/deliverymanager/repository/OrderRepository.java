@@ -394,7 +394,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
         + "             FROM cancellation_code_reason "
         + "             WHERE client_reason is not null "
         + "               AND char_length(client_reason) > 0) cr ON cr.code = s.cancellation_code "
-        + "WHERE o.ecommerce_purchase_id = :ecommerceId "
+        + "WHERE o.id = (select max(o1.id) from order_fulfillment o1 where o1.ecommerce_purchase_id = :ecommerceId) "
         + "LIMIT 1",
         nativeQuery = true)
     IOrderInfoClient getOrderInfoClientByEcommercerId(@Param("ecommerceId")long ecommerceId);
@@ -405,14 +405,14 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "if(p.payment_type = 'CASH','CASH',cpc.description) as paymentGateway," +
             "p.change_amount as changeAmount," +
             "o.confirmed_order as dateConfirmed," +
-            "cp.name as cardBrand," +
+            "if(p.payment_type = 'CASH',null,cp.name) cardBrand, " +
             "ops.service_type_code as serviceTypeCode " +
             "from order_fulfillment o " +
             "left join payment_method p on o.id = p.order_fulfillment_id " +
             "left join order_process_status ops on ops.order_fulfillment_id =  o.id " +
             "left join card_provider cp on cp.card_providerid = p.card_provider_id " +
             "left join card_provider_commercial cpc on cpc.card_commercial_code = p.provider_card_commercial_code " +
-            "WHERE o.ecommerce_purchase_id =:ecommerceId " +
+            "WHERE o.id = (select max(o1.id) from order_fulfillment o1 where o1.ecommerce_purchase_id = :ecommerceId) " +
             "LIMIT 1", nativeQuery = true)
     IOrderInfoPaymentMethod getInfoPaymentMethod(@Param("ecommerceId")long ecommerceId);
 
@@ -423,7 +423,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "coalesce(totalWithNoSpecificPaymentMethod,total_cost,0) as totalImport, " +
             "coalesce(totalWithPaymentMethod,0) as totalImportTOH " +
             "from order_fulfillment " +
-            "where ecommerce_purchase_id = :ecommerceId",nativeQuery = true)
+            "where id = (select max(o1.id) from order_fulfillment o1 where o1.ecommerce_purchase_id = :ecommerceId) ",nativeQuery = true)
     IOrderInfoProduct getOrderInfoProductByEcommerceId(@Param("ecommerceId")long ecommerceId);
 
   @Query(value = "select product_code as sku, " +
