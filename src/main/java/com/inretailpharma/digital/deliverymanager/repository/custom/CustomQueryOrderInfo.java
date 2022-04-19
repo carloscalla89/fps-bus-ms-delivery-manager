@@ -6,6 +6,12 @@ import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import com.inretailpharma.digital.deliverymanager.util.sql.CustomSqlQuery;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,12 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
@@ -146,6 +146,14 @@ public class CustomQueryOrderInfo {
     return queryFilters.toString();
   }
 
+  private String getQueryOrderById(RequestFilterDTO requestFilter) {
+    StringBuilder queryFilters = new StringBuilder();
+    String idEcomerce = getFiltersConcatenated(requestFilter.getListEcomerce().toArray(new String[0]));
+    queryFilters.append(" where o.ecommerce_purchase_id IN(")
+            .append(idEcomerce).append(") ");
+    return queryFilters.toString();
+  }
+
   private String getQueryOrderCriteria(RequestFilterDTO requestFilter) {
     StringBuilder queryCriteria = new StringBuilder();
 
@@ -266,5 +274,50 @@ public class CustomQueryOrderInfo {
     return response;
   }
 
+  public OrderCanonicalResponse getListOrderById(RequestFilterDTO filter) {
+    log.info("=====Enpezando a buscar las ordenes por Ids=====");
+    String queryFilters = getQueryOrderById(filter);
+    log.info("queryFilters:{}",queryFilters);
+
+    String queryCriterias = getQueryOrderCriteria(filter);
+    log.info("queryCriterias:{}",queryCriterias);
+
+    String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString()
+            .concat(queryFilters)
+            .concat(queryCriterias);
+    log.info("queryOrderInfo: {}",queryOrderInfo);
+
+    Query query = entityManager.createNativeQuery(queryOrderInfo);
+    List<Object[]> result = query.getResultList();
+    List<OrderCanonicalFulfitment> orders = result.stream().parallel().map(data -> {
+      OrderCanonicalFulfitment response = new OrderCanonicalFulfitment();
+      BigInteger orderId = (BigInteger) data[0];
+      response.setOrderId(orderId.longValue());
+
+      BigInteger ecommerceId = (BigInteger) data[1];
+      response.setEcommerceId(ecommerceId.longValue());
+      Date promiseDate = (Date) data[3];
+
+      DateFormat dateFormat = new SimpleDateFormat("dd-MM-yy hh:mm a");
+      String strDate = dateFormat.format(promiseDate);
+      response.setPromiseDate(strDate.toUpperCase());
+      response.setOrderStatus(String.valueOf(data[4]));
+      response.setLocalId(String.valueOf(data[5]));
+      response.setCompanyCode(String.valueOf(data[6]));
+      response.setServiceChannel(String.valueOf(data[7]));
+      response.setServiceTypeId(String.valueOf(data[8]));
+      response.setClient(String.valueOf(data[9]).concat(" ").concat(String.valueOf(data[11])));
+      response.setDocumentoId(String.valueOf(data[10]));
+      response.setStatusCode(String.valueOf(data[12]));
+      return response;
+    }).collect(Collectors.toList());
+    OrderCanonicalResponse response = new OrderCanonicalResponse();
+    response.setTotalRecords(BigInteger.valueOf(0));
+    response.setPage(BigInteger.valueOf(0));
+    response.setCurrentRecords(BigInteger.valueOf(orders.size()));
+    response.setOrders(orders);
+
+    return response;
+  }
 
 }

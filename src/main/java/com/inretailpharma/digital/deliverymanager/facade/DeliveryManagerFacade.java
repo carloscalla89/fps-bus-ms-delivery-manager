@@ -121,6 +121,10 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
         return orderTransaction.getOrder(filter);
     }
 
+    public OrderCanonicalResponse getListOrderById(RequestFilterDTO filter) {
+        return orderTransaction.getListOrderById(filter);
+    }
+
     public Mono<OrderCanonical> getUpdatePartialOrder(OrderDto partialOrderDto) {
         log.info("[START] getUpdatePartialOrder:{}", partialOrderDto);
         return Mono

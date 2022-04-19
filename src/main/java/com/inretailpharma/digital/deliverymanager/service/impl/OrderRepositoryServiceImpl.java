@@ -1,14 +1,16 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
-import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
 import com.inretailpharma.digital.deliverymanager.dto.PaymentMethodDto;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
+import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
+import com.inretailpharma.digital.deliverymanager.repository.*;
 import com.inretailpharma.digital.deliverymanager.repository.custom.CustomQueryOrderInfo;
 import com.inretailpharma.digital.deliverymanager.service.OrderRepositoryService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -18,25 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-
-import com.inretailpharma.digital.deliverymanager.entity.Client;
-import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
-import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
-import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
-import com.inretailpharma.digital.deliverymanager.entity.ServiceType;
-import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
-import com.inretailpharma.digital.deliverymanager.repository.ClientRepository;
-import com.inretailpharma.digital.deliverymanager.repository.OrderRepository;
-import com.inretailpharma.digital.deliverymanager.repository.OrderStatusRepository;
-import com.inretailpharma.digital.deliverymanager.repository.ServiceLocalOrderRepository;
-import com.inretailpharma.digital.deliverymanager.repository.ServiceTypeRepository;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -167,6 +151,10 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     return customQueryOrderInfo.getOrderInfo(filter);
 
   }
+
+    public OrderCanonicalResponse getListOrderById(RequestFilterDTO filter) {
+        return customQueryOrderInfo.getListOrderById(filter);
+    }
 
     @Override
     public boolean updatePartialOrderHeader(OrderDto orderDto) {

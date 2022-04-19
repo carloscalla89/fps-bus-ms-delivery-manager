@@ -11,6 +11,7 @@ public class RequestFilterDTO {
   private Integer page;
   private Integer records;
   //TODO: OMS
+  private List<String> listEcomerce;
   private List<String> orderStatusCodeAllowed;
   private CriteriasRqDTO orderCriteria;
 }

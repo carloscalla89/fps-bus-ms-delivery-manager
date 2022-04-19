@@ -25,24 +25,30 @@ import reactor.core.scheduler.Schedulers;
 @AllArgsConstructor
 public class OrderInfoRest {
 
-  private DeliveryManagerFacade deliveryManagerFacade;
+    private DeliveryManagerFacade deliveryManagerFacade;
 
-  @PostMapping(value = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
-  public OrderCanonicalResponse getOrder(@RequestBody RequestFilterDTO filter) {
-    log.info("[START] endpoint /fulfillment/order {}");
-    return deliveryManagerFacade.getOrder(filter);
-  }
+    @PostMapping(value = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
+    public OrderCanonicalResponse getOrder(@RequestBody RequestFilterDTO filter) {
+        log.info("[START] endpoint /fulfillment/order {}");
+        return deliveryManagerFacade.getOrder(filter);
+    }
 
-  @GetMapping(value = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Flux<OrderStatusDto> getOrderStatus() {
-    log.info("[START] endpoint /fulfillment/orderStatus {}");
-    return deliveryManagerFacade.getAllOrderStatus().subscribeOn(Schedulers.parallel());
+    @PostMapping(value = "/selected", produces = MediaType.APPLICATION_JSON_VALUE)
+    public OrderCanonicalResponse getListOrderById(@RequestBody RequestFilterDTO filter) {
+        log.info("[START] endpoint /fulfillment/ [order selected] {}");
+        return deliveryManagerFacade.getListOrderById(filter);
+    }
 
-  }
+    @GetMapping(value = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Flux<OrderStatusDto> getOrderStatus() {
+        log.info("[START] endpoint /fulfillment/orderStatus {}");
+        return deliveryManagerFacade.getAllOrderStatus().subscribeOn(Schedulers.parallel());
 
-  @GetMapping(value = "/detail/{ecommerceId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<OrderInfoConsolidated> getOrderInfoClient(@PathVariable(value = "ecommerceId") long ecommerceId) {
-    log.info("[START] endpoint /order/detail/client");
-    return deliveryManagerFacade.getOrderInfoDetail(ecommerceId);
-  }
+    }
+
+    @GetMapping(value = "/detail/{ecommerceId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<OrderInfoConsolidated> getOrderInfoClient(@PathVariable(value = "ecommerceId") long ecommerceId) {
+        log.info("[START] endpoint /order/detail/client");
+        return deliveryManagerFacade.getOrderInfoDetail(ecommerceId);
+    }
 }
