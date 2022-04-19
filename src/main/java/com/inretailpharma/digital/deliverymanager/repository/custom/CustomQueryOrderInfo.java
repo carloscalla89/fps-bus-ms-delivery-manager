@@ -39,7 +39,7 @@ public class CustomQueryOrderInfo {
     if (requestFilter.getFilter() == null) {
       timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_GRID;
 
-      queryFilters.append(" where 1 = 1 ");
+      queryFilters.append(" where o.id in (select max(of1.id) from order_fulfillment of1 group by of1.ecommerce_purchase_id) ");
 
       if (requestFilter.getOrderStatusCodeAllowed() != null) {
         StringBuilder queryInOrderStatusCodeAllowed = new StringBuilder();
@@ -55,7 +55,7 @@ public class CustomQueryOrderInfo {
       }
     } else {
       timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_OTHER;
-      queryFilters.append("where 1 = 1 ");
+      queryFilters.append("where o.id in (select max(of1.id) from order_fulfillment of1 group by of1.ecommerce_purchase_id) ");
 
       //TODO: OMS
       if (requestFilter.getFilter().getFilterType() != null && requestFilter.getFilter().getValueFilterType() != null) {
