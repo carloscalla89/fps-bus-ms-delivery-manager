@@ -1,6 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.service;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
+import com.inretailpharma.digital.deliverymanager.dto.FilterOrderDTO;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.entity.*;
@@ -42,7 +44,7 @@ public interface OrderRepositoryService {
 
     OrderCanonicalResponse getOrder(RequestFilterDTO filter);
 
-    OrderCanonicalResponse getListOrderById(RequestFilterDTO filter);
+    OrdersSelectedResponse getListOrderById(FilterOrderDTO filter);
 
     boolean updatePartialOrderHeader(OrderDto orderDto);
     boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment);

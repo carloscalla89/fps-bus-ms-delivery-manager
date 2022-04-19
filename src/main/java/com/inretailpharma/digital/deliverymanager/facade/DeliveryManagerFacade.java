@@ -1,8 +1,8 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
-import com.inretailpharma.digital.deliverymanager.dto.OrderInfoConsolidated;
-import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
+import com.inretailpharma.digital.deliverymanager.dto.*;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.repository.custom.CustomQueryOrderInfo;
 import com.inretailpharma.digital.deliverymanager.service.OrderInfoService;
@@ -19,8 +19,6 @@ import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -121,7 +119,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
         return orderTransaction.getOrder(filter);
     }
 
-    public OrderCanonicalResponse getListOrderById(RequestFilterDTO filter) {
+    public OrdersSelectedResponse getListOrderById(FilterOrderDTO filter) {
         return orderTransaction.getListOrderById(filter);
     }
 

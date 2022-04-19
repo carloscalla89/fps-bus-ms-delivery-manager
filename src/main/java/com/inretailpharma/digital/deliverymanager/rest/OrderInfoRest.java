@@ -2,6 +2,8 @@ package com.inretailpharma.digital.deliverymanager.rest;
 
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
+import com.inretailpharma.digital.deliverymanager.dto.FilterOrderDTO;
 import com.inretailpharma.digital.deliverymanager.dto.OrderInfoConsolidated;
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
@@ -34,8 +36,9 @@ public class OrderInfoRest {
     }
 
     @PostMapping(value = "/selected", produces = MediaType.APPLICATION_JSON_VALUE)
-    public OrderCanonicalResponse getListOrderById(@RequestBody RequestFilterDTO filter) {
+    public OrdersSelectedResponse getListOrderById(@RequestBody FilterOrderDTO filter) {
         log.info("[START] endpoint /fulfillment/ [order selected] {}");
+
         return deliveryManagerFacade.getListOrderById(filter);
     }
 

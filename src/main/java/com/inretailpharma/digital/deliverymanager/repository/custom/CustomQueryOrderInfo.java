@@ -2,6 +2,8 @@ package com.inretailpharma.digital.deliverymanager.repository.custom;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
+import com.inretailpharma.digital.deliverymanager.dto.FilterOrderDTO;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
@@ -146,9 +148,9 @@ public class CustomQueryOrderInfo {
     return queryFilters.toString();
   }
 
-  private String getQueryOrderById(RequestFilterDTO requestFilter) {
+  private String getQueryOrderById(FilterOrderDTO requestFilter) {
     StringBuilder queryFilters = new StringBuilder();
-    String orderId = getFiltersConcatenated(requestFilter.getListEcomerce().toArray(new String[0]));
+    String orderId = getFiltersConcatenated(requestFilter.getListOrderIds().toArray(new String[0]));
     queryFilters.append(" where o.id IN(")
             .append(orderId).append(") ");
     return queryFilters.toString();
@@ -274,7 +276,7 @@ public class CustomQueryOrderInfo {
     return response;
   }
 
-  public OrderCanonicalResponse getListOrderById(RequestFilterDTO filter) {
+  public OrdersSelectedResponse getListOrderById(FilterOrderDTO filter) {
     log.info("=====Enpezando a buscar las ordenes por Ids=====");
     String queryFilters = getQueryOrderById(filter);
     log.info("queryFilters:{}",queryFilters);
@@ -306,10 +308,7 @@ public class CustomQueryOrderInfo {
       response.setStatusCode(String.valueOf(data[12]));
       return response;
     }).collect(Collectors.toList());
-    OrderCanonicalResponse response = new OrderCanonicalResponse();
-    response.setTotalRecords(BigInteger.valueOf(0));
-    response.setPage(BigInteger.valueOf(0));
-    response.setCurrentRecords(BigInteger.valueOf(orders.size()));
+    OrdersSelectedResponse response = new OrdersSelectedResponse();
     response.setOrders(orders);
 
     return response;

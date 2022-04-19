@@ -1,9 +1,11 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.FilterOrderDTO;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
@@ -268,7 +270,7 @@ public class OrderTransaction {
         return orderRepositoryService.getOrder(filter);
     }
 
-    public OrderCanonicalResponse getListOrderById(RequestFilterDTO filter) {
+    public OrdersSelectedResponse getListOrderById(FilterOrderDTO filter) {
         return orderRepositoryService.getListOrderById(filter);
     }
 
