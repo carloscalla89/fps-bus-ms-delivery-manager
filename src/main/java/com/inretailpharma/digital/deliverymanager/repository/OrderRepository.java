@@ -400,6 +400,49 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     IOrderInfoClient getOrderInfoClientByEcommercerId(@Param("ecommerceId")long ecommerceId);
 
 
+    @Query(value = "SELECT "
+            + "o.id as orderId, "
+            + "o.ecommerce_purchase_id as ecommerceId, "
+            + "o.external_channel_id as ecommerceIdCall, "
+            + "if(s.company_code='MF','Mifarma','Inkafarma') as companyCode, "
+            + "st.source_channel as serviceChannel, "
+            + "o.source as source, "
+            + "if(o.partial=1,'Pedido Parcial','Pedido Completo') as orderType, "
+            + "st.short_code as serviceTypeShortCode, "
+            + "o.scheduled_time as scheduledTime, "
+            + "os.type as statusName, "
+            + "s.center_code as localCode, "
+            + "CONCAT(c.first_name,' ',c.last_name) as clientName, "
+            + "c.document_number as documentNumber, "
+            + "c.phone, "
+            + "c.email, "
+            + "CONCAT(af.street,' ',af.number,', ',af.district) as addressClient, "
+            + "CONCAT(if(af.latitude=0,null,af.latitude),', ',if(af.longitude=0,null,af.longitude)) as coordinates, "
+            + "af.notes as reference, "
+            + "rt.ruc, "
+            + "rt.company_name as companyName, "
+            + "s.service_type_code as serviceType, "
+            + "o.purchase_number purcharseId, "
+            + "o.notes observation, "
+            + "cr.client_reason cancelReason, "
+            + "s.zone_id_billing zoneId, "
+            + "o.stockType stockType "
+            + "FROM order_fulfillment o "
+            + "INNER JOIN client_fulfillment c ON c.id = o.client_id "
+            + "INNER JOIN order_process_status s ON o.id = s.order_fulfillment_id "
+            + "INNER JOIN order_status os ON os.code = s.order_status_code "
+            + "INNER JOIN service_type st ON st.code = s.service_type_code "
+            + "INNER JOIN address_fulfillment af ON af.order_fulfillment_id = o.id "
+            + "INNER JOIN receipt_type rt ON rt.order_fulfillment_id = o.id "
+            + "LEFT JOIN (SELECT DISTINCT code, client_reason "
+            + "             FROM cancellation_code_reason "
+            + "             WHERE client_reason is not null "
+            + "               AND char_length(client_reason) > 0) cr ON cr.code = s.cancellation_code "
+            + "WHERE o.id = (select max(o1.id) from order_fulfillment o1 where o.id in(:orderId)) "
+            + "LIMIT 1",
+            nativeQuery = true)
+    List<IOrderInfoClient> getOrderHeaderDetails(@Param("orderId") List<String> orderId);
+
     @Query(value = "select p.payment_type as paymentType," +
             "o.purchase_number as transactionId," +
             "if(p.payment_type = 'CASH','CASH',cpc.description) as paymentGateway," +

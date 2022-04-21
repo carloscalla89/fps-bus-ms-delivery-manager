@@ -53,4 +53,6 @@ public interface IOrderInfoClient {
   String getCompanyName();
   Long getEcommerceIdCall();
   String getSource();
+
+  String getStatusCode();
 }

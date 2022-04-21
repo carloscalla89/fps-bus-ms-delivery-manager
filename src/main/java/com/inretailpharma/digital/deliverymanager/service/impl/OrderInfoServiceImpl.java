@@ -1,5 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
 import com.inretailpharma.digital.deliverymanager.dto.OrderInfoConsolidated;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoClient;
@@ -18,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +35,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
   @Override
   public Mono<OrderInfoConsolidated> findOrderInfoClientByEcommerceId(long ecommerceId) {
-
+    /*analisis del detalle*/
     OrderInfoConsolidated orderInfoConsolidated = new OrderInfoConsolidated();
     OrderInfoClient orderInfoClient = getOrderInfoClientByEcommerceId(ecommerceId,orderInfoConsolidated);
     OrderInfoPaymentMethodDto orderInfoPaymentMethod = getOrderInfoPaymentMethodByEcommercerId(ecommerceId);
@@ -41,7 +44,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     orderInfoConsolidated.setPaymentMethodDto(orderInfoPaymentMethod);
     orderInfoConsolidated.setProductDetail(orderInfoProduct);
     return  Mono.justOrEmpty(orderInfoConsolidated);
-
   }
 
   private OrderInfo getOrderInfo(IOrderInfoClient orderInfoProjection) {
@@ -60,11 +62,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     orderInfo.setServiceType(getServiceType(orderInfoProjection.getServiceType()));
     return orderInfo;
   }
-
-
-
-
-
 
   private String getServiceType(String serviceType) {
     List<String> services = Arrays.asList(serviceType.split("_"));
@@ -138,9 +135,65 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       orderInfoDto.setTransactionId(orderInfoProjection.getTransactionId());
       return orderInfoDto;
     }
-
     return null;
+  }
 
+  private OrdersSelectedResponse getOrderHeaderDetails(List<String> orderIds, OrderInfoConsolidated orderInfoConsolidated) {
+    List<IOrderInfoClient>  listOrders = orderRepository.getOrderHeaderDetails(orderIds);
+    List<OrderHeaderDetail> listOrderDetails=new ArrayList<>();
+    if(listOrders!=null){
+      List<OrderHeaderDetail> orders = listOrders.stream().parallel().map(item -> {
+        OrderHeaderDetail order = new OrderHeaderDetail();
+        order.setAddressClient(item.getAddressClient());
+        order.setClientName(item.getClientName());
+        order.setCoordinates(item.getCoordinates());
+        order.setDocumentNumber(item.getDocumentNumber());
+        order.setEmail(item.getEmail());
+        order.setReference(Optional.ofNullable(item.getReference()).orElse("-"));
+        order.setPhone(item.getPhone());
+        order.setCompanyCode(item.getCompanyCode());
+        order.setRuc(item.getRuc());
+        order.setCompanyName(item.getCompanyName());
+        order.setOrderId(item.getOrderId());
+        order.setCompanyCode(item.getCompanyCode());
+        order.setEcommerceId(item.getEcommerceId());
+        order.setEcommerceIdCall(item.getEcommerceIdCall());
+        order.setLocalCode(item.getLocalCode());
+        order.setOrderType(item.getOrderType());
+        order.setScheduledTime(DateUtils.getLocalDateTimeWithFormatDDMMYY_AMPM(item.getScheduledTime()));
+        order.setStatusName(item.getStatusName());
+        order.setServiceTypeShortCode(DeliveryType.getByName(item.getServiceTypeShortCode()).getDescription());
+        order.setServiceChannel(item.getServiceChannel());
+        order.setSource(item.getSource());
+        order.setServiceType(getServiceType(item.getServiceType()));
+        //orderInfoConsolidated.setOrderInfo(getOrderInfo(orderInfoProjection));
+        order.setCancelReason(Optional.ofNullable(item.getCancelReason()).orElse("-"));
+        //order.setEcommerceId(orderInfoProjection.getEcommerceId());
+        order.setLocalCode(Optional.ofNullable(item.getLocalCode()).orElse("-"));
+        order.setObservation(Optional.ofNullable(item.getObservation()).orElse("-"));
+        order.setStockType(Constant.StockType.getByCode(item.getStockType()).getDescription());
+        order.setServiceType(getServiceTypeDescription(Optional.ofNullable(item.getServiceType()).orElse("-")));
+        order.setPurcharseId(Optional.ofNullable(item.getPurcharseId()).orElse("-"));
+        order.setZoneId(item.getZoneId());
+        //order.setOperator("-");
+        return order;
+      }).collect(Collectors.toList());
+      OrdersSelectedResponse response=new OrdersSelectedResponse();
+      response.setListOrder(orders);
+      return response;
+    }
+    return null;
+  }
+
+  public OrderInfoConsolidated infoAditionalOrders(long ecommerceId) {
+    OrderInfoConsolidated orderInfoConsolidated = new OrderInfoConsolidated();
+    //OrderInfoClient orderInfoClient = getOrderInfoClientByEcommerceId(ecommerceId,orderInfoConsolidated);
+    OrderInfoPaymentMethodDto orderInfoPaymentMethod = getOrderInfoPaymentMethodByEcommercerId(ecommerceId);
+    OrderInfoProduct orderInfoProduct = getOrderInfoProductByEcommerceId(ecommerceId);
+    //orderInfoConsolidated.setOrderInfoClient(orderInfoClient);
+    orderInfoConsolidated.setPaymentMethodDto(orderInfoPaymentMethod);
+    orderInfoConsolidated.setProductDetail(orderInfoProduct);
+    return  orderInfoConsolidated;
   }
 
   private OrderInfoClient getOrderInfoClientByEcommerceId(long ecommerceId, OrderInfoConsolidated orderInfoConsolidated) {
@@ -162,7 +215,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       return orderInfoDto;
     }
     return null;
-
   }
 
   private OrderInfoAdditional getOrderInfoAdditional(IOrderInfoClient orderInfoProjection) {
@@ -177,7 +229,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     orderInfo.setPurchaseId(Optional.ofNullable(orderInfoProjection.getPurcharseId()).orElse("-"));
     orderInfo.setZoneId(orderInfoProjection.getZoneId());
     orderInfo.setOperator("-");
-
     return  orderInfo;
 }
 

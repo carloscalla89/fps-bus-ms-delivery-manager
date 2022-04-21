@@ -42,6 +42,13 @@ public class OrderInfoRest {
         return deliveryManagerFacade.getListOrderById(filter);
     }
 
+    @PostMapping(value = "/selected", produces = MediaType.APPLICATION_JSON_VALUE)
+    public OrdersSelectedResponse getListOrderDetails(@RequestBody FilterOrderDTO filter) {
+        log.info("[START] endpoint /fulfillment/ [order selected] {}");
+
+        return deliveryManagerFacade.getListOrderById(filter);
+    }
+
     @GetMapping(value = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
     public Flux<OrderStatusDto> getOrderStatus() {
         log.info("[START] endpoint /fulfillment/orderStatus {}");
