@@ -138,9 +138,12 @@ public class CustomQueryOrderInfo {
 
     if (!timeUnlimited && !existsDateFilter) {
       LocalDate startDate = LocalDate.now().minusMonths(timeLimitFilter);
+      LocalDate endDate = LocalDate.now().plusDays(Constant.TimeLimitFilterDate.TIME_PLUS_FUTURE_DAYS);
 
-      queryFilters.append(" and Date(o.scheduled_time) >= ")
-              .append("'").append(startDate.toString()).append("' ");
+      queryFilters.append(" and Date(o.scheduled_time) BETWEEN ")
+              .append("'").append(startDate.toString()).append("'")
+              .append(" and ")
+              .append("'").append(endDate.toString()).append("' ");
     }
 
     return queryFilters.toString();
@@ -206,33 +209,26 @@ public class CustomQueryOrderInfo {
 
   public OrderCanonicalResponse getOrderInfo(RequestFilterDTO filter) {
     String queryFilters = getQueryOrderInfo(filter);
-    log.info("queryFilters:{}",queryFilters);
-
     String queryCriterias = getQueryOrderCriteria(filter);
-    log.info("queryCriterias:{}",queryCriterias);
-
-    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString()
-                          .concat(queryFilters);
-    log.info("queryTotal:{}",queryTotal);
 
     String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString()
                               .concat(queryFilters)
                               .concat(queryCriterias);
     log.info("queryOrderInfo: {}",queryOrderInfo);
 
-    Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
-    log.info("totalRecordsQuery:{}",totalRecordsQuery);
-
-    BigInteger totalRecords = (BigInteger) totalRecordsQuery.getSingleResult();
-    log.info("totalRecords:{}",totalRecords);
-
     Query query = entityManager.createNativeQuery(queryOrderInfo);
+
     Integer page = Optional.ofNullable(filter.getPage()).orElse(1);
-    Integer totalRows = Optional.ofNullable(filter.getRecords()).orElse(9);
-    log.info("totalRows:{}",totalRows);
-    query.setFirstResult(page > 0 ? (page-1)*totalRows : page);
-    query.setMaxResults(totalRows);
-    List<Object[]> result = query.getResultList();
+    Integer totalRowsXPage = Optional.ofNullable(filter.getRecords()).orElse(9);
+
+    List<Object[]> resultTotal = query.getResultList();
+
+    Integer totalRows = resultTotal.size();
+    log.info("totalRows: {} - page: {} - totalRowsXPage: {}",totalRows,page,totalRowsXPage);
+
+    List<Object[]> result = resultTotal.subList(
+            ((page-1)*totalRowsXPage),
+            (page*totalRowsXPage>totalRows?totalRows:page*totalRowsXPage));
 
     List<OrderCanonicalFulfitment> orders = result.stream().parallel().map(data -> {
       OrderCanonicalFulfitment response = new OrderCanonicalFulfitment();
@@ -258,7 +254,8 @@ public class CustomQueryOrderInfo {
     }).collect(Collectors.toList());
 
     OrderCanonicalResponse response = new OrderCanonicalResponse();
-    response.setTotalRecords(totalRecords);
+    //response.setTotalRecords(totalRecords);
+    response.setTotalRecords(BigInteger.valueOf(totalRows));
     response.setPage(BigInteger.valueOf(page));
     response.setCurrentRecords(BigInteger.valueOf(orders.size()));
     response.setOrders(orders);
