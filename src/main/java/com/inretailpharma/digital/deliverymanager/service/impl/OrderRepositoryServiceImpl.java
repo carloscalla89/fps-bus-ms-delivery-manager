@@ -15,6 +15,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -143,12 +144,10 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 		return orderRepository.getOrderByOrderNumber(orderNumber);
 	}
 
-  @Override
-  public OrderCanonicalResponse getOrder(RequestFilterDTO filter) {
-
-    return customQueryOrderInfo.getOrderInfo(filter);
-
-  }
+    @Override
+    public Mono<OrderCanonicalResponse> getOrder(RequestFilterDTO filter) {
+        return customQueryOrderInfo.getOrderInfo(filter);
+    }
 
     public OrdersSelectedResponse getListOrderById(FilterOrderDTO filter) {
         return customQueryOrderInfo.getListOrderById(filter);

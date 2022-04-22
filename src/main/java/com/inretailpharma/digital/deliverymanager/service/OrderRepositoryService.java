@@ -9,6 +9,7 @@ import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,7 +43,7 @@ public interface OrderRepositoryService {
 
     <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber);
 
-    OrderCanonicalResponse getOrder(RequestFilterDTO filter);
+    Mono<OrderCanonicalResponse> getOrder(RequestFilterDTO filter);
 
     OrdersSelectedResponse getListOrderById(FilterOrderDTO filter);
 
