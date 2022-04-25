@@ -132,7 +132,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         return order;
       }).collect(Collectors.toList());
       OrdersSelectedResponse response=new OrdersSelectedResponse();
-      response.setListOrder(orders);
+      response.setOrders(orders);
       return response;
     }
     return null;

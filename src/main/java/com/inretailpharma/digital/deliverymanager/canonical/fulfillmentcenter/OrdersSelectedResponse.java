@@ -8,6 +8,6 @@ import java.util.List;
 
 @Data
 public class OrdersSelectedResponse {
-    private List<OrderHeaderDetail> listOrder;
+    private List<OrderHeaderDetail> orders;
 
 }
