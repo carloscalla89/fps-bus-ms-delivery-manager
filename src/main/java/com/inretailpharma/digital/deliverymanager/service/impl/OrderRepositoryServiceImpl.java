@@ -15,6 +15,7 @@ import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,12 +34,12 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     private ObjectToMapper objectMapper;
 
     public OrderRepositoryServiceImpl(OrderRepository orderRepository,
-                                      ServiceTypeRepository serviceTypeRepository,
-                                      OrderStatusRepository orderStatusRepository,
-                                      ServiceLocalOrderRepository serviceLocalOrderRepository,
-                                      CustomQueryOrderInfo customQueryOrderInfo,
-                                      ObjectToMapper objectMapper,
-                                      ClientRepository clientRepository) {
+        ServiceTypeRepository serviceTypeRepository,
+        OrderStatusRepository orderStatusRepository,
+        ServiceLocalOrderRepository serviceLocalOrderRepository,
+        CustomQueryOrderInfo customQueryOrderInfo,
+        ObjectToMapper objectMapper,
+        ClientRepository clientRepository) {
         this.customQueryOrderInfo = customQueryOrderInfo;
         this.orderRepository = orderRepository;
         this.serviceTypeRepository = serviceTypeRepository;
@@ -72,7 +73,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     @Override
     public List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode,
                                                          Integer maxDayPickup, String statustype) {
-        return orderRepository.getListOrdersToCancel(serviceType, maxDayPickup, companyCode,
+        return orderRepository.getListOrdersToCancel(serviceType, maxDayPickup,companyCode,
                 new HashSet<>(Arrays.asList(statustype.split(",")))
         );
     }
@@ -94,13 +95,13 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
 
     @Override
     public List<IOrderFulfillment> getOrderLightByecommercesIds(Set<Long> ecommercesIds) {
-        log.info("repository:{}", ecommercesIds);
+        log.info("repository:{}",ecommercesIds);
         return orderRepository.getOrderLightByecommercesIds(ecommercesIds);
     }
 
     @Override
     public List<IOrderFulfillment> getOrdersByEcommerceIds(Set<Long> ecommercesIds) {
-        log.info("repository:{}", ecommercesIds);
+        log.info("repository:{}",ecommercesIds);
         return orderRepository.getOrdersByEcommerceIds(ecommercesIds);
     }
 
@@ -138,46 +139,44 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
-        log.info("CALL Repository--getOrderByOrderNumber:" + orderNumber);
-        return orderRepository.getOrderByOrderNumber(orderNumber);
-    }
+	public <T> Optional<IOrderResponseFulfillment> getOrderByOrderNumber(Long orderNumber) {
+		log.info("CALL Repository--getOrderByOrderNumber:"+orderNumber);
+		return orderRepository.getOrderByOrderNumber(orderNumber);
+	}
 
     @Override
-    public OrderCanonicalResponse getOrder(RequestFilterDTO filter) {
-
+    public Mono<OrderCanonicalResponse> getOrder(RequestFilterDTO filter) {
         return customQueryOrderInfo.getOrderInfo(filter);
-
     }
 
     @Override
     public boolean updatePartialOrderHeader(OrderDto orderDto) {
         BigDecimal totalCost = orderDto.getTotalCost();
         BigDecimal bigDecimal = orderDto.getDeliveryCost();
-        LocalDateTime dateLastUpdated = DateUtils.getLocalDateTimeObjectNow();
+        LocalDateTime dateLastUpdated =  DateUtils.getLocalDateTimeObjectNow();
         Long externalPurchaseId = orderDto.getEcommercePurchaseId();
 
-        orderRepository.updatePartialOrder(totalCost, bigDecimal, dateLastUpdated, externalPurchaseId, true,
-                orderDto.getDiscountApplied(), orderDto.getSubTotalCost(), orderDto.getTotalCostNoDiscount(),
-                orderDto.getDiscountAppliedNoDP(), orderDto.getSubTotalWithNoSpecificPaymentMethod(),
-                orderDto.getTotalWithNoSpecificPaymentMethod(), orderDto.getTotalWithPaymentMethod());
-        log.info("The order {} header was updated sucessfully", externalPurchaseId);
-        return true;
+         orderRepository.updatePartialOrder(totalCost,bigDecimal,dateLastUpdated,externalPurchaseId,true,
+                 orderDto.getDiscountApplied(),orderDto.getSubTotalCost(),orderDto.getTotalCostNoDiscount(),
+                 orderDto.getDiscountAppliedNoDP(),orderDto.getSubTotalWithNoSpecificPaymentMethod(),
+                 orderDto.getTotalWithNoSpecificPaymentMethod(),orderDto.getTotalWithPaymentMethod());
+         log.info("The order {} header was updated sucessfully",externalPurchaseId);
+         return true;
     }
 
     @Override
     public boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment) {
 
         for (IOrderItemFulfillment itemOriginal : iOrderItemFulfillment) {
-            OrderItemDto itemDto = orderDto.getOrderItem().stream().filter(dto -> !dto.isRemoved()).filter(dto -> dto.getProductCode()
+            OrderItemDto itemDto = orderDto.getOrderItem().stream().filter(dto-> !dto.isRemoved()) .filter(dto -> dto.getProductCode()
                     .equals(itemOriginal.getProductCode())).findFirst().orElse(null);
             if (itemDto == null) {
                 log.info("The item {} of the order {} is removed because it does not exist in the list to update",
-                        itemOriginal.getProductCode(), orderDto.getEcommercePurchaseId());
+                        itemOriginal.getProductCode(),orderDto.getEcommercePurchaseId());
 
                 deleteItemRetired(itemOriginal.getProductCode(), iOrderItemFulfillment.get(0).getOrderFulfillmentId());
             } else {
-                if (itemDto.isEdited()) {
+                if(itemDto.isEdited()){
                     Long orderFulfillmentId = itemOriginal.getOrderFulfillmentId();
                     String productCode = itemOriginal.getProductCode();
                     Integer quantity = itemDto.getQuantity();
@@ -185,15 +184,15 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
                     BigDecimal unitPrice = itemDto.getUnitPrice();
                     BigDecimal totalPrice = itemDto.getTotalPrice();
                     Integer presentationID = itemDto.getPresentationId();
-                    Integer quantityUnits = itemDto.getQuantityUnits();
+                    Integer quantityUnits= itemDto.getQuantityUnits();
 
                     Constant.Logical fractionated = Constant.Logical.parse(itemDto.getFractionated());
                     String presentationDescription = itemDto.getPresentationDescription();
-                    orderRepository.updateItemsPartialOrder(quantity, quantityPresentation, unitPrice, totalPrice, fractionated.name(),
-                            orderFulfillmentId, quantityUnits, productCode, presentationDescription, presentationID,
-                            itemDto.getFractionalDiscount(), itemDto.getPriceList(), itemDto.getPriceAllPaymentMethod(),
-                            itemDto.getPriceWithpaymentMethod(), itemDto.getTotalPriceList(), itemDto.getTotalPriceAllPaymentMethod(),
-                            itemDto.getTotalPriceWithpaymentMethod(), itemDto.getPromotionalDiscount());
+                    orderRepository.updateItemsPartialOrder(quantity, quantityPresentation,unitPrice, totalPrice, fractionated.name(),
+                            orderFulfillmentId,quantityUnits, productCode,presentationDescription,presentationID,
+                            itemDto.getFractionalDiscount(),itemDto.getPriceList(),itemDto.getPriceAllPaymentMethod(),
+                            itemDto.getPriceWithpaymentMethod(),itemDto.getTotalPriceList(),itemDto.getTotalPriceAllPaymentMethod(),
+                            itemDto.getTotalPriceWithpaymentMethod(),itemDto.getPromotionalDiscount());
                 }
             }
         }
@@ -201,9 +200,9 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     }
 
     @Override
-    public boolean deleteItemRetired(String itemsId, Long orderFulfillmentId) {
-        log.info("Deleting itemId: {} from orderId: {}", itemsId, orderFulfillmentId);
-        orderRepository.deleteItemRetired(itemsId, orderFulfillmentId);
+    public boolean deleteItemRetired(String itemsId,Long  orderFulfillmentId) {
+        log.info("Deleting itemId: {} from orderId: {}",itemsId,orderFulfillmentId);
+        orderRepository.deleteItemRetired(itemsId,orderFulfillmentId);
 
         return true;
     }
@@ -214,7 +213,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         BigDecimal paidAmount = paymentMethod.getPaidAmount();
         BigDecimal changeAmount = paymentMethod.getChangeAmount();
         Long orderId = partialOrderDto.getEcommercePurchaseId();
-        orderRepository.updatePaymentMethod(paidAmount, changeAmount, "Parcial", orderFulfillmentId);
+        orderRepository.updatePaymentMethod(paidAmount,changeAmount,"Parcial",orderFulfillmentId);
         log.info("PaymentMethod updated succesfully");
     }
 

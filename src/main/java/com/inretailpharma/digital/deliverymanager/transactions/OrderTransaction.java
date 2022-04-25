@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -266,7 +267,7 @@ public class OrderTransaction {
         return orderRepositoryService.getOrderByOrderNumber(orderNumber);
     }
 
-    public OrderCanonicalResponse getOrder(RequestFilterDTO filter) {
+    public Mono<OrderCanonicalResponse> getOrder(RequestFilterDTO filter) {
         return orderRepositoryService.getOrder(filter);
     }
 
