@@ -65,6 +65,9 @@ public class OrderInfoServiceImpl implements OrderInfoService {
   }
 
   private OrderHeaderDetail llenarDatosOrder(IOrderInfoClient item){
+    /*
+    response.setLocalId(String.valueOf(data[5]));
+    */
     OrderHeaderDetail order = new OrderHeaderDetail();
     order.setAddressClient(item.getAddressClient());
     order.setClientName(item.getClientName());
@@ -82,6 +85,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     order.setEcommerceIdCall(item.getEcommerceIdCall());
     order.setLocalCode(item.getLocalCode());
     order.setOrderType(item.getOrderType());
+
+    order.setClient(item.getClientName());
+    order.setDocumentoId(item.getDocumentNumber());
+    order.setLocalId(item.getLocalCode());
 
     order.setScheduledTime(item.getScheduledTime());
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yy hh:mm a");
@@ -112,7 +119,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     log.info("[START ] getOrderHeaderDetails:{} ");
     log.info("[id Orders ] getOrderHeaderDetails:{} ",filter.getListOrderIds());
     List<IOrderInfoClient>  listOrders = orderRepository.getOrderHeaderDetails(filter.getListOrderIds());
-    log.info("size listOrder:{} ",listOrders.size());
     if(listOrders!=null){
       List<OrderHeaderDetail> orders = listOrders.stream().parallel().map(item -> {
         OrderHeaderDetail order = llenarDatosOrder(item);
