@@ -36,24 +36,15 @@ public class OrderInfoRest {
     }
 
     @PostMapping(value = "/selected", produces = MediaType.APPLICATION_JSON_VALUE)
-    public OrdersSelectedResponse getListOrderById(@RequestBody FilterOrderDTO filter) {
-        log.info("[START] endpoint /fulfillment/ [order selected] {}");
-
-        return deliveryManagerFacade.getListOrderById(filter);
-    }
-
-    @PostMapping(value = "/selected", produces = MediaType.APPLICATION_JSON_VALUE)
     public OrdersSelectedResponse getListOrderDetails(@RequestBody FilterOrderDTO filter) {
         log.info("[START] endpoint /fulfillment/ [order selected] {}");
-
-        return deliveryManagerFacade.getListOrderById(filter);
+        return deliveryManagerFacade.getOrderDetail(filter);
     }
 
     @GetMapping(value = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
     public Flux<OrderStatusDto> getOrderStatus() {
         log.info("[START] endpoint /fulfillment/orderStatus {}");
         return deliveryManagerFacade.getAllOrderStatus().subscribeOn(Schedulers.parallel());
-
     }
 
     @GetMapping(value = "/detail/{ecommerceId}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -270,10 +270,6 @@ public class OrderTransaction {
         return orderRepositoryService.getOrder(filter);
     }
 
-    public OrdersSelectedResponse getListOrderById(FilterOrderDTO filter) {
-        return orderRepositoryService.getListOrderById(filter);
-    }
-
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
     public OrderCanonical updatePartialOrder(OrderDto partialOrderDto) {
         IOrderFulfillment iOrderFulfillment = getOrderByecommerceId(partialOrderDto.getEcommercePurchaseId());

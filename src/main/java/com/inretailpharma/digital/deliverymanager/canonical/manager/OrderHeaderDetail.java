@@ -1,11 +1,18 @@
 package com.inretailpharma.digital.deliverymanager.canonical.manager;
 
+import com.inretailpharma.digital.deliverymanager.dto.OderDetailOut;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
 public class OrderHeaderDetail {
+    private String orderStatus;
+    private String localId;
+    private String serviceTypeId;
+    private String documentoId;
+    private String client;
+    private String promiseDate;
     private Long orderId;
     private Long ecommerceId;
     private Long ecommerceIdCall;
@@ -14,8 +21,9 @@ public class OrderHeaderDetail {
     private String source;
     private String orderType;
     private String serviceTypeShortCode;
-    private String scheduledTime;
+    private LocalDateTime scheduledTime;
     private String statusName;
+    private String statusCode;
     private String localCode;
     private String clientName;
     private String documentNumber;
@@ -32,4 +40,7 @@ public class OrderHeaderDetail {
     private String cancelReason;
     private String zoneId;
     private String stockType;
+    private OderDetailOut oderDetailOut;
+    //private OrderInfoConsolidated orderInfoConsolidated;
+
 }

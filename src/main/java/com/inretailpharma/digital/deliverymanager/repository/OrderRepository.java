@@ -411,6 +411,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             + "st.short_code as serviceTypeShortCode, "
             + "o.scheduled_time as scheduledTime, "
             + "os.type as statusName, "
+            + "os.code as statusCode, "
             + "s.center_code as localCode, "
             + "CONCAT(c.first_name,' ',c.last_name) as clientName, "
             + "c.document_number as documentNumber, "
@@ -438,8 +439,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             + "             FROM cancellation_code_reason "
             + "             WHERE client_reason is not null "
             + "               AND char_length(client_reason) > 0) cr ON cr.code = s.cancellation_code "
-            + "WHERE o.id = (select max(o1.id) from order_fulfillment o1 where o.id in(:orderId)) "
-            + "LIMIT 1",
+            + "WHERE o.id in(:orderId) ",
             nativeQuery = true)
     List<IOrderInfoClient> getOrderHeaderDetails(@Param("orderId") List<String> orderId);
 

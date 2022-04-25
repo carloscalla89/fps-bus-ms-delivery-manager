@@ -1,8 +1,9 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
-import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
+import com.inretailpharma.digital.deliverymanager.dto.FilterOrderDTO;
+import com.inretailpharma.digital.deliverymanager.dto.OderDetailOut;
 import com.inretailpharma.digital.deliverymanager.dto.OrderInfoConsolidated;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoClient;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoPaymentMethod;
@@ -20,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +64,130 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     return orderInfo;
   }
 
+  private OrderHeaderDetail llenarDatosOrder(IOrderInfoClient item){
+    OrderHeaderDetail order = new OrderHeaderDetail();
+    order.setAddressClient(item.getAddressClient());
+    order.setClientName(item.getClientName());
+    order.setCoordinates(item.getCoordinates());
+    order.setDocumentNumber(item.getDocumentNumber());
+    order.setEmail(item.getEmail());
+    order.setReference(Optional.ofNullable(item.getReference()).orElse("-"));
+    order.setPhone(item.getPhone());
+    order.setCompanyCode(item.getCompanyCode());
+    order.setRuc(item.getRuc());
+    order.setCompanyName(item.getCompanyName());
+    order.setOrderId(item.getOrderId());
+    order.setCompanyCode(item.getCompanyCode());
+    order.setEcommerceId(item.getEcommerceId());
+    order.setEcommerceIdCall(item.getEcommerceIdCall());
+    order.setLocalCode(item.getLocalCode());
+    order.setOrderType(item.getOrderType());
+
+    order.setScheduledTime(item.getScheduledTime());
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yy hh:mm a");
+    order.setPromiseDate(item.getScheduledTime().format(dtf));
+    order.setStatusName(item.getStatusName());
+    order.setStatusCode(item.getStatusCode());
+    order.setOrderStatus(item.getStatusName());
+    order.setServiceTypeShortCode(DeliveryType.getByName(item.getServiceTypeShortCode()).getDescription());
+    order.setServiceChannel(item.getServiceChannel());
+    order.setSource(item.getSource());
+    //order.setServiceType(item.getServiceType());
+    order.setServiceTypeId(item.getServiceTypeShortCode());
+    //orderInfoConsolidated.setOrderInfo(getOrderInfo(orderInfoProjection));
+    order.setCancelReason(Optional.ofNullable(item.getCancelReason()).orElse("-"));
+    //order.setEcommerceId(orderInfoProjection.getEcommerceId());
+    order.setLocalCode(Optional.ofNullable(item.getLocalCode()).orElse("-"));
+    order.setObservation(Optional.ofNullable(item.getObservation()).orElse("-"));
+    order.setStockType(Constant.StockType.getByCode(item.getStockType()).getDescription());
+    order.setServiceType(Optional.ofNullable(item.getServiceType()).orElse("-"));
+    //order.setServiceType(getServiceTypeDescription(Optional.ofNullable(item.getServiceType()).orElse("-")));
+    order.setPurcharseId(Optional.ofNullable(item.getPurcharseId()).orElse("-"));
+    order.setZoneId(item.getZoneId());
+    return order;
+  }
+
+  @Override
+  public OrdersSelectedResponse getOrderHeaderDetails(FilterOrderDTO filter) {
+    log.info("[START ] getOrderHeaderDetails:{} ");
+    log.info("[id Orders ] getOrderHeaderDetails:{} ",filter.getListOrderIds());
+    List<IOrderInfoClient>  listOrders = orderRepository.getOrderHeaderDetails(filter.getListOrderIds());
+    log.info("size listOrder:{} ",listOrders.size());
+    if(listOrders!=null){
+      List<OrderHeaderDetail> orders = listOrders.stream().parallel().map(item -> {
+        OrderHeaderDetail order = llenarDatosOrder(item);
+        OrderInfoConsolidated consolidated=new OrderInfoConsolidated();
+        consolidated.setOrderInfo(getOrderInfoDetail(order));
+        consolidated.setOrderInfoAdditional(getOrderInfoAdd(order));
+        OrderInfoClient orderInfoClient = getInfoCliente(order);
+        OrderInfoPaymentMethodDto orderInfoPaymentMethod = getOrderInfoPaymentMethodByEcommercerId(order.getEcommerceId());
+        OrderInfoProduct orderInfoProduct = getOrderInfoProductByEcommerceId(order.getEcommerceId());
+        consolidated.setOrderInfoClient(orderInfoClient);
+        consolidated.setPaymentMethodDto(orderInfoPaymentMethod);
+        consolidated.setProductDetail(orderInfoProduct);
+        OderDetailOut out=new OderDetailOut();
+        out.setOrderInfoConsolidated(consolidated);
+        order.setOderDetailOut(out);
+        //log.info(" iterando :{} ",item.getEcommerceId());
+        return order;
+      }).collect(Collectors.toList());
+      OrdersSelectedResponse response=new OrdersSelectedResponse();
+      response.setListOrder(orders);
+      return response;
+    }
+    return null;
+  }
+
+  private OrderInfoClient getInfoCliente(OrderHeaderDetail orderInfoProjection) {
+      OrderInfoClient orderInfoDto = new OrderInfoClient();
+      orderInfoDto.setAddressClient(orderInfoProjection.getAddressClient());
+      orderInfoDto.setClientName(orderInfoProjection.getClientName());
+      orderInfoDto.setCoordinates(orderInfoProjection.getCoordinates());
+      orderInfoDto.setDocumentNumber(orderInfoProjection.getDocumentNumber());
+      orderInfoDto.setEmail(orderInfoProjection.getEmail());
+      orderInfoDto.setReference(Optional.ofNullable(orderInfoProjection.getReference()).orElse("-"));
+      orderInfoDto.setPhone(orderInfoProjection.getPhone());
+      orderInfoDto.setCompanyCode(orderInfoProjection.getCompanyCode());
+      orderInfoDto.setRuc(orderInfoProjection.getRuc());
+      orderInfoDto.setCompanyName(orderInfoProjection.getCompanyName());
+      //orderInfoConsolidated.setOrderInfo(getOrderInfoDetail(orderInfoProjection));
+      //orderInfoConsolidated.setOrderInfoAdditional(getOrderInfoAdd(orderInfoProjection));
+      return orderInfoDto;
+  }
+
+  private OrderInfo getOrderInfoDetail(OrderHeaderDetail orderInfoProjection) {
+    OrderInfo orderInfo = new OrderInfo();
+    orderInfo.setOrderId(orderInfoProjection.getOrderId());
+    orderInfo.setCompanyCode(orderInfoProjection.getCompanyCode());
+    orderInfo.setEcommerceId(orderInfoProjection.getEcommerceId());
+    orderInfo.setEcommerceIdCall(orderInfoProjection.getEcommerceIdCall());
+    orderInfo.setLocalCode(orderInfoProjection.getLocalCode());
+    orderInfo.setOrderType(orderInfoProjection.getOrderType());
+    orderInfo.setScheduledTime(DateUtils.getLocalDateTimeWithFormatDDMMYY_AMPM(orderInfoProjection.getScheduledTime()));
+    orderInfo.setStatusName(orderInfoProjection.getStatusName());
+    orderInfo.setServiceTypeShortCode(DeliveryType.getByName(orderInfoProjection.getServiceTypeShortCode()).getDescription());
+    orderInfo.setServiceChannel(orderInfoProjection.getServiceChannel());
+    orderInfo.setSource(orderInfoProjection.getSource());
+    orderInfo.setServiceType(getServiceType(orderInfoProjection.getServiceType()));
+    return orderInfo;
+  }
+
+  private OrderInfoAdditional getOrderInfoAdd(OrderHeaderDetail orderInfoProjection) {
+    OrderInfoAdditional orderInfo = new OrderInfoAdditional();
+    orderInfo.setCancellationReason(Optional.ofNullable(orderInfoProjection.getCancelReason()).orElse("-"));
+    orderInfo.setEcommerceId(orderInfoProjection.getEcommerceId());
+    orderInfo.setLocalCode(Optional.ofNullable(orderInfoProjection.getLocalCode()).orElse("-"));
+    orderInfo.setObservation(Optional.ofNullable(orderInfoProjection.getObservation()).orElse("-"));
+    orderInfo.setStockType(Constant.StockType.getByCode(orderInfoProjection.getStockType()).getDescription());
+    orderInfo.setServiceType(getServiceTypeDescription(Optional.ofNullable(orderInfoProjection.getServiceType()).orElse("-")));
+    orderInfo.setPurchaseId(Optional.ofNullable(orderInfoProjection.getPurcharseId()).orElse("-"));
+    orderInfo.setZoneId(orderInfoProjection.getZoneId());
+    orderInfo.setOperator("-");
+    return  orderInfo;
+  }
+
   private String getServiceType(String serviceType) {
+    log.info("Order Service Type: {} "+serviceType);
     List<String> services = Arrays.asList(serviceType.split("_"));
     if (CollectionUtils.isNotEmpty(services)) {
       if (services.stream().anyMatch(service -> service.equalsIgnoreCase("RET"))) {
@@ -77,9 +201,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         }
       }
     }
-
     return StringUtils.EMPTY;
-
   }
 
   private OrderInfoProduct getOrderInfoProductByEcommerceId(long ecommerceId) {
@@ -134,53 +256,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       orderInfoDto.setPaymentDate(orderInfoProjection.getDateConfirmed());
       orderInfoDto.setTransactionId(orderInfoProjection.getTransactionId());
       return orderInfoDto;
-    }
-    return null;
-  }
-
-  private OrdersSelectedResponse getOrderHeaderDetails(List<String> orderIds, OrderInfoConsolidated orderInfoConsolidated) {
-    List<IOrderInfoClient>  listOrders = orderRepository.getOrderHeaderDetails(orderIds);
-    List<OrderHeaderDetail> listOrderDetails=new ArrayList<>();
-    if(listOrders!=null){
-      List<OrderHeaderDetail> orders = listOrders.stream().parallel().map(item -> {
-        OrderHeaderDetail order = new OrderHeaderDetail();
-        order.setAddressClient(item.getAddressClient());
-        order.setClientName(item.getClientName());
-        order.setCoordinates(item.getCoordinates());
-        order.setDocumentNumber(item.getDocumentNumber());
-        order.setEmail(item.getEmail());
-        order.setReference(Optional.ofNullable(item.getReference()).orElse("-"));
-        order.setPhone(item.getPhone());
-        order.setCompanyCode(item.getCompanyCode());
-        order.setRuc(item.getRuc());
-        order.setCompanyName(item.getCompanyName());
-        order.setOrderId(item.getOrderId());
-        order.setCompanyCode(item.getCompanyCode());
-        order.setEcommerceId(item.getEcommerceId());
-        order.setEcommerceIdCall(item.getEcommerceIdCall());
-        order.setLocalCode(item.getLocalCode());
-        order.setOrderType(item.getOrderType());
-        order.setScheduledTime(DateUtils.getLocalDateTimeWithFormatDDMMYY_AMPM(item.getScheduledTime()));
-        order.setStatusName(item.getStatusName());
-        order.setServiceTypeShortCode(DeliveryType.getByName(item.getServiceTypeShortCode()).getDescription());
-        order.setServiceChannel(item.getServiceChannel());
-        order.setSource(item.getSource());
-        order.setServiceType(getServiceType(item.getServiceType()));
-        //orderInfoConsolidated.setOrderInfo(getOrderInfo(orderInfoProjection));
-        order.setCancelReason(Optional.ofNullable(item.getCancelReason()).orElse("-"));
-        //order.setEcommerceId(orderInfoProjection.getEcommerceId());
-        order.setLocalCode(Optional.ofNullable(item.getLocalCode()).orElse("-"));
-        order.setObservation(Optional.ofNullable(item.getObservation()).orElse("-"));
-        order.setStockType(Constant.StockType.getByCode(item.getStockType()).getDescription());
-        order.setServiceType(getServiceTypeDescription(Optional.ofNullable(item.getServiceType()).orElse("-")));
-        order.setPurcharseId(Optional.ofNullable(item.getPurcharseId()).orElse("-"));
-        order.setZoneId(item.getZoneId());
-        //order.setOperator("-");
-        return order;
-      }).collect(Collectors.toList());
-      OrdersSelectedResponse response=new OrdersSelectedResponse();
-      response.setListOrder(orders);
-      return response;
     }
     return null;
   }

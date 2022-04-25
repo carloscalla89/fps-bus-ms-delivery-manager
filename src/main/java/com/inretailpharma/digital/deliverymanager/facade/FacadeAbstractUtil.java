@@ -6,13 +6,11 @@ import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.INotificationAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.IStoreAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderInfoConsolidated;
-import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
+import com.inretailpharma.digital.deliverymanager.dto.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.CustomException;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
@@ -378,6 +376,10 @@ public abstract class FacadeAbstractUtil {
 
     public  Mono<OrderInfoConsolidated> getOrderInfoDetail(long ecommerceId){
         return orderInfoService.findOrderInfoClientByEcommerceId(ecommerceId);
+    }
+
+    public OrdersSelectedResponse getOrderDetail(FilterOrderDTO filter){
+        return orderInfoService.getOrderHeaderDetails(filter);
     }
 
     protected Mono<String> updateVoucher(Long ecommerceId, boolean voucher){

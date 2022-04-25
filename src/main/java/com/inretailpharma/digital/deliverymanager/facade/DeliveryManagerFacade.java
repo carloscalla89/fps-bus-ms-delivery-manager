@@ -119,10 +119,6 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
         return orderTransaction.getOrder(filter);
     }
 
-    public OrdersSelectedResponse getListOrderById(FilterOrderDTO filter) {
-        return orderTransaction.getListOrderById(filter);
-    }
-
     public Mono<OrderCanonical> getUpdatePartialOrder(OrderDto partialOrderDto) {
         log.info("[START] getUpdatePartialOrder:{}", partialOrderDto);
         return Mono
@@ -163,4 +159,10 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     public Mono<OrderInfoConsolidated> getOrderInfoDetail(long ecommerceId) {
         return orderInfoService.findOrderInfoClientByEcommerceId(ecommerceId);
     }
+
+    @Override
+    public OrdersSelectedResponse getOrderDetail(FilterOrderDTO filter) {
+        return orderInfoService.getOrderHeaderDetails(filter);
+    }
+
 }

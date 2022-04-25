@@ -15,4 +15,5 @@ public class OrderInfoConsolidated {
   private OrderInfoAdditional orderInfoAdditional;
   private OrderInfoPaymentMethodDto paymentMethodDto;
   private OrderInfoProduct productDetail;
+
 }

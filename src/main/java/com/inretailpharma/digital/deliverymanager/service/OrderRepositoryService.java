@@ -44,8 +44,6 @@ public interface OrderRepositoryService {
 
     OrderCanonicalResponse getOrder(RequestFilterDTO filter);
 
-    OrdersSelectedResponse getListOrderById(FilterOrderDTO filter);
-
     boolean updatePartialOrderHeader(OrderDto orderDto);
     boolean updatePartialOrderDetail(OrderDto orderDto, List<IOrderItemFulfillment> iOrderItemFulfillment);
     boolean deleteItemRetired(String itemId, Long orderFulFillmentId);
