@@ -8,6 +8,7 @@ import java.util.List;
 
 @Data
 public class OrdersSelectedResponse {
+    private List<OrderCanonicalFulfitment> orders;
     private List<OrderHeaderDetail> listOrder;
 
 }
