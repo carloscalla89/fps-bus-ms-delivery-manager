@@ -65,9 +65,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
   }
 
   private OrderHeaderDetail llenarDatosOrder(IOrderInfoClient item){
-    /*
-    response.setLocalId(String.valueOf(data[5]));
-    */
     OrderHeaderDetail order = new OrderHeaderDetail();
     order.setAddressClient(item.getAddressClient());
     order.setClientName(item.getClientName());
@@ -111,6 +108,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     //order.setServiceType(getServiceTypeDescription(Optional.ofNullable(item.getServiceType()).orElse("-")));
     order.setPurcharseId(Optional.ofNullable(item.getPurcharseId()).orElse("-"));
     order.setZoneId(item.getZoneId());
+    order.setZoneId(Optional.ofNullable(item.getZoneId()).orElse("-"));
     return order;
   }
 
@@ -251,7 +249,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     if(orderInfoProjection!=null){
       OrderInfoPaymentMethodDto orderInfoDto  = new OrderInfoPaymentMethodDto();
       orderInfoDto.setCardBrand(orderInfoProjection.getCardBrand());
-      orderInfoDto.setLiquidationStatus(orderInfoProjection.getLiquidationStatus());
+      orderInfoDto.setLiquidationStatus(Optional.ofNullable(orderInfoProjection.getLiquidacionStatus()).orElse("-"));
       orderInfoDto.setCardNumber(orderInfoProjection.getCardNumber());
       orderInfoDto.setChangeAmount(orderInfoProjection.getChangeAmount());
       orderInfoDto.setCodAuthorization(orderInfoProjection.getCodAuthorization());
@@ -264,17 +262,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       return orderInfoDto;
     }
     return null;
-  }
-
-  public OrderInfoConsolidated infoAditionalOrders(long ecommerceId) {
-    OrderInfoConsolidated orderInfoConsolidated = new OrderInfoConsolidated();
-    //OrderInfoClient orderInfoClient = getOrderInfoClientByEcommerceId(ecommerceId,orderInfoConsolidated);
-    OrderInfoPaymentMethodDto orderInfoPaymentMethod = getOrderInfoPaymentMethodByEcommercerId(ecommerceId);
-    OrderInfoProduct orderInfoProduct = getOrderInfoProductByEcommerceId(ecommerceId);
-    //orderInfoConsolidated.setOrderInfoClient(orderInfoClient);
-    orderInfoConsolidated.setPaymentMethodDto(orderInfoPaymentMethod);
-    orderInfoConsolidated.setProductDetail(orderInfoProduct);
-    return  orderInfoConsolidated;
   }
 
   private OrderInfoClient getOrderInfoClientByEcommerceId(long ecommerceId, OrderInfoConsolidated orderInfoConsolidated) {

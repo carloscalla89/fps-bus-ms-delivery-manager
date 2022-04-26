@@ -439,7 +439,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             + "             FROM cancellation_code_reason "
             + "             WHERE client_reason is not null "
             + "               AND char_length(client_reason) > 0) cr ON cr.code = s.cancellation_code "
-            + "WHERE o.id in(:orderId) ",
+            + "WHERE o.id in(:orderId) order by o.scheduled_time DESC, o.ecommerce_purchase_id desc",
             nativeQuery = true)
     List<IOrderInfoClient> getOrderHeaderDetails(@Param("orderId") List<String> orderId);
 
@@ -449,7 +449,8 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "p.change_amount as changeAmount," +
             "o.confirmed_order as dateConfirmed," +
             "if(p.payment_type = 'CASH',null,cp.name) cardBrand, " +
-            "ops.service_type_code as serviceTypeCode " +
+            "ops.service_type_code as serviceTypeCode, " +
+            "ops.liquidationStatus as liquidacionStatus " +
             "from order_fulfillment o " +
             "left join payment_method p on o.id = p.order_fulfillment_id " +
             "left join order_process_status ops on ops.order_fulfillment_id =  o.id " +

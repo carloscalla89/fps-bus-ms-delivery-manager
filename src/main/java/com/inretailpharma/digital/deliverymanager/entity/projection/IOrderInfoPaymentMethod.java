@@ -28,4 +28,6 @@ public interface IOrderInfoPaymentMethod {
 
   String getServiceTypeCode();
 
+  String getLiquidacionStatus();
+
 }
