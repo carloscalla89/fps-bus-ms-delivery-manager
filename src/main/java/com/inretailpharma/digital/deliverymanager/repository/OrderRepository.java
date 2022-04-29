@@ -463,12 +463,16 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Query(value = "select id, " +
             "coalesce(subTotalWithNoSpecificPaymentMethod,total_cost_no_discount,0) as totalImportWithOutDiscount, " +
             "delivery_cost as deliveryAmount, " +
-            "coalesce(discountAppliedNoDP,discount_applied,0) as totalDiscount, " +
             "coalesce(totalWithNoSpecificPaymentMethod,total_cost,0) as totalImport, " +
             "coalesce(totalWithPaymentMethod,0) as totalImportTOH " +
             "from order_fulfillment " +
             "where id = (select max(o1.id) from order_fulfillment o1 where o1.ecommerce_purchase_id = :ecommerceId) ",nativeQuery = true)
     IOrderInfoProduct getOrderInfoProductByEcommerceId(@Param("ecommerceId")long ecommerceId);
+
+    @Query(value = "select sum(coalesce(fractional_discount,0)) as totalDiscount " +
+            "from order_fulfillment_item ofi " +
+            "where ofi.order_fulfillment_id = :orderId",nativeQuery = true)
+    BigDecimal getOrderInfoProductDiscountByOrderId(@Param("orderId")BigInteger orderId);
 
   @Query(value = "select product_code as sku, " +
           "name, " +

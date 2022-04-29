@@ -14,86 +14,86 @@ spring:
       request-timeout: 240000
 external-service:
   audit:
-    create-order: http://audituat.backend.cindibyinkafarma.com/audit/order
-    create-order-history-audit: http://audituat.backend.cindibyinkafarma.com/audit/order/history
-    update-order-history-audit: http://audituat.backend.cindibyinkafarma.com/audit/order/history
+    create-order: http://auditqa02.backend.cindibyinkafarma.com/audit/order
+    create-order-history-audit: http://auditqa02.backend.cindibyinkafarma.com/audit/order/history
+    update-order-history-audit: http://auditqa02.backend.cindibyinkafarma.com/audit/order/history
     connect-timeout: 10000
     read-timeout: 10000
   dispatcher:
     insink-tracker:
-      uri: http://dduat.backend.cindibyinkafarma.com/order/insink-tracker
-      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/insink-tracker
+      uri: http://ddqa02.backend.cindibyinkafarma.com/order/insink-tracker
+      uri-mifarma: http://ddmfqa02.backend.cindibyinkafarma.com/order/insink-tracker
       connect-timeout: 30000
       read-timeout: 60000
     tracker:
-      uri: http://dduat.backend.cindibyinkafarma.com/order/tracker
-      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/tracker
+      uri: http://ddqa02.backend.cindibyinkafarma.com/order/tracker
+      uri-mifarma: http://ddmfqa02.backend.cindibyinkafarma.com/order/tracker
       connect-timeout: 30000
       read-timeout: 60000
     legacy-system:
-      uri: http://dduat.backend.cindibyinkafarma.com/order/legacy-system
-      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/legacy-system
+      uri: http://ddqa02.backend.cindibyinkafarma.com/order/legacy-system
+      uri-mifarma: http://ddmfqa02.backend.cindibyinkafarma.com/order/legacy-system
       connect-timeout: 30000
       read-timeout: 60000
     order-ecommerce:
-      uri: http://dduat.backend.cindibyinkafarma.com/order/ecommerce
-      uri-mifarma: http://ddmfuat.backend.cindibyinkafarma.com/order/ecommerce
+      uri: http://ddqa02.backend.cindibyinkafarma.com/order/ecommerce
+      uri-mifarma: http://ddmfqa02.backend.cindibyinkafarma.com/order/ecommerce
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker-lite:
     create-order:
-      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/orders/create
+      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/v2/unattended-orders
+      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/v2/unattended-orders
       connect-timeout: 30000
       read-timeout: 60000
     update-onlinepayment-status-order:
-      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
+      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   inkatracker:
     create-order:
-      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/orders/create
+      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/orders/create
+      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-status-order:
-      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/orders
+      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/nvr/orders
       connect-timeout: 30000
       read-timeout: 60000
     update-onlinepayment-status-order:
-      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
+      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   order-tracker:
     create-order:
-      uri: http://inkatrackerliteuat.backend.cindibyinkafarma.com/order
+      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/order
       connect-timeout: 10000
       read-timeout: 120000
     assign-orders:
-      uri: http://ordertrackeruat.backend.cindibyinkafarma.com/orders/status/assigned
+      uri: http://ordertrackerqa02.backend.cindibyinkafarma.com/orders/status/assigned
       connect-timeout: 10000
       read-timeout: 120000
     unassign-orders:
-      uri: http://ordertrackeruat.backend.cindibyinkafarma.com/orders/status/unassigned
+      uri: http://ordertrackerqa02.backend.cindibyinkafarma.com/orders/status/unassigned
       connect-timeout: 10000
       read-timeout: 120000
     update-order-status:
-      uri: http://ordertrackeruat.backend.cindibyinkafarma.com/order
+      uri: http://ordertrackerqa02.backend.cindibyinkafarma.com/order
       connect-timeout: 10000
       read-timeout: 120000
     update-partial:
-      uri: http://ordertrackeruat.backend.cindibyinkafarma.com/nvr/order/partial
+      uri: http://ordertrackerqa02.backend.cindibyinkafarma.com/nvr/order/partial
       connect-timeout: 10000
       read-timeout: 120000
   fulfillment-center:
     get-center:
-      uri: http://fulfillment-centeruat.backend.cindibyinkafarma.com/fulfillment/store/
+      uri: http://fulfillment-centerqa02.backend.cindibyinkafarma.com/fulfillment/store/
       connect-timeout: 15000
       read-timeout: 30000
   seller-center:
@@ -109,13 +109,13 @@ external-service:
         read-timeout: 120000
   online-payment:
     liquidated:
-      uri: https://visauat.cindibyinkafarma.com/visa/confirmation
-      uri-mifa: https://visamfuat.cindibyinkafarma.com/visa/confirmation
+      uri: https://visaqa02.cindibyinkafarma.com/visa/confirmation
+      uri-mifa: https://visamfqa02.cindibyinkafarma.com/visa/confirmation
       connect-timeout: 10000
       read-timeout: 120000
     rejected:
-      uri: https://visauat.cindibyinkafarma.com/visa/rejected
-      uri-mifa: https://visamfuat.cindibyinkafarma.com/visa/rejected
+      uri: https://visaqa02.cindibyinkafarma.com/visa/rejected
+      uri-mifa: https://visamfqa02.cindibyinkafarma.com/visa/rejected
       connect-timeout: 10000
       read-timeout: 120000
   notification-lambda:
@@ -125,15 +125,15 @@ external-service:
       read-timeout: 120000
   liquidation:
     create-order:
-      uri: http://liquidationuat.backend.cindibyinkafarma.com/omni/liquidation/v1.0.0/orders
+      uri: http://liquidationqa02.backend.cindibyinkafarma.com/omni/liquidation/v1.0.0/orders
       connect-timeout: 10000
       read-timeout: 120000
     update-order:
-      uri: http://liquidationuat.backend.cindibyinkafarma.com/omni/liquidation/v1.0.0/orders
+      uri: http://liquidationqa02.backend.cindibyinkafarma.com/omni/liquidation/v1.0.0/orders
       connect-timeout: 10000
       read-timeout: 120000
     update-order-online:
-      uri: http://liquidationuat.backend.cindibyinkafarma.com/omni/liquidation/v1.0.0/orders/dc
+      uri: http://liquidationqa02.backend.cindibyinkafarma.com/omni/liquidation/v1.0.0/orders/dc
       connect-timeout: 10000
       read-timeout: 120000
   insink:
@@ -147,4 +147,4 @@ external-service:
       connect-timeout: 30000
       read-timeout: 60000
   manage-partner:
-    update-status: http://fps-wsmanagepartneruat.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/
+    update-status: http://fps-wsmanagepartnerqa02.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/
