@@ -469,19 +469,16 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "where id = (select max(o1.id) from order_fulfillment o1 where o1.ecommerce_purchase_id = :ecommerceId) ",nativeQuery = true)
     IOrderInfoProduct getOrderInfoProductByEcommerceId(@Param("ecommerceId")long ecommerceId);
 
-    @Query(value = "select sum(coalesce(fractional_discount,0)) as totalDiscount " +
-            "from order_fulfillment_item ofi " +
-            "where ofi.order_fulfillment_id = :orderId",nativeQuery = true)
-    BigDecimal getOrderInfoProductDiscountByOrderId(@Param("orderId")BigInteger orderId);
-
-  @Query(value = "select product_code as sku, " +
+    @Query(value = "select product_code as sku, " +
           "name, " +
           "presentation_description as presentationDescription, " +
           "quantity, " +
           "unit_price as unitPrice, " +
           "coalesce(totalPriceList,total_price,0) as totalPrice, " +
           "coalesce(totalPriceAllPaymentMethod,0) as totalPriceAllPaymentMethod, " +
-          "coalesce(totalPriceWithpaymentMethod,0) as totalPriceTOH " +
+          "coalesce(totalPriceWithpaymentMethod,0) as totalPriceTOH," +
+          "coalesce(fractional_discount,0) as fractionalDiscount," +
+          "coalesce(promotionalDiscount,0) as promotionalDiscount " +
           "from order_fulfillment_item " +
           "where order_fulfillment_id = :orderFulfillmentId", nativeQuery = true)
     List<IOrderInfoProductDetail> getOrderInfoProductDetailByOrderFulfillmentId(@Param("orderFulfillmentId") BigInteger orderFulfillmentId);

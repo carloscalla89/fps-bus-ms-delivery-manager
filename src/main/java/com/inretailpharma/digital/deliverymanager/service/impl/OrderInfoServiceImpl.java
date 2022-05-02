@@ -43,9 +43,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     OrderInfoClient orderInfoClient = getOrderInfoClientByEcommerceId(ecommerceId,orderInfoConsolidated);
     OrderInfoPaymentMethodDto orderInfoPaymentMethod = getOrderInfoPaymentMethodByEcommercerId(ecommerceId);
     OrderInfoProduct orderInfoProduct = getOrderInfoProductByEcommerceId(ecommerceId);
-    if(orderInfoProduct != null) {
-      orderInfoProduct.setTotalDiscount(getOrderInfoProductDiscountByOrderId(orderInfoProduct.getId()));
-    }
     orderInfoConsolidated.setOrderInfoClient(orderInfoClient);
     orderInfoConsolidated.setPaymentMethodDto(orderInfoPaymentMethod);
     orderInfoConsolidated.setProductDetail(orderInfoProduct);
@@ -222,19 +219,11 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     return null;
   }
 
-  private BigDecimal getOrderInfoProductDiscountByOrderId(BigInteger orderId) {
-    BigDecimal totalDiscount = orderRepository.getOrderInfoProductDiscountByOrderId(orderId);
-    if (totalDiscount != null) {
-      return totalDiscount;
-    }
-    return new BigDecimal(0);
-  }
-
   private OrderInfoProduct getOrderInfoProduct(IOrderInfoProduct orderInfoProduct, List<IOrderInfoProductDetail> orderInfoProductDetail) {
     OrderInfoProduct orderInfo = new OrderInfoProduct();
     orderInfo.setId(orderInfoProduct.getId());
     orderInfo.setDeliveryAmount(orderInfoProduct.getDeliveryAmount());
-    //orderInfo.setTotalDiscount(orderInfoProduct.getTotalDiscount());
+    orderInfo.setTotalDiscount(new BigDecimal(0));
     orderInfo.setTotalImport(orderInfoProduct.getTotalImport());
     orderInfo.setTotalImportTOH(orderInfoProduct.getTotalImportTOH());
     orderInfo.setTotalImportWithOutDiscount(orderInfoProduct.getTotalImportWithOutDiscount());
@@ -249,6 +238,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
       detailProduct.setTotalPriceAllPaymentMethod(orderDetailEntity.getTotalPriceAllPaymentMethod());
       detailProduct.setTotalPriceTOH(orderDetailEntity.getTotalPriceTOH());
       detailProduct.setUnitPrice(orderDetailEntity.getUnitPrice());
+      orderInfo.setTotalDiscount(orderInfo.getTotalDiscount().add(orderDetailEntity.getFractionalDiscount().add(orderDetailEntity.getPromotionalDiscount())));
       return detailProduct;
     }).collect(Collectors.toList());
 

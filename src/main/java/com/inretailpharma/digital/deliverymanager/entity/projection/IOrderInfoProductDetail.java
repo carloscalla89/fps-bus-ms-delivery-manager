@@ -13,4 +13,6 @@ public interface IOrderInfoProductDetail {
    String getPresentationDescription();
    BigDecimal getTotalPriceAllPaymentMethod();
    BigDecimal getTotalPriceTOH();
+   BigDecimal getFractionalDiscount();
+   BigDecimal getPromotionalDiscount();
 }
