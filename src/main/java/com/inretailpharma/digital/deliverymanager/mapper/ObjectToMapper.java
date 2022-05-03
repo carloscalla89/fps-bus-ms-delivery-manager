@@ -676,6 +676,7 @@ public class ObjectToMapper {
             serviceLocalOrder.setPickupFullName(p.getFullName());
             serviceLocalOrder.setPickupEmail(p.getEmail());
             serviceLocalOrder.setPickupUserId(p.getUserId());
+            serviceLocalOrder.setPickupPhone(p.getPhone());
         });
 
         return serviceLocalOrder;
