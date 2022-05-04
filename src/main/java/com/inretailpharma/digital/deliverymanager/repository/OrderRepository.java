@@ -1,5 +1,10 @@
 package com.inretailpharma.digital.deliverymanager.repository;
 
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoClient;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoPaymentMethod;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoProduct;
+import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderInfoProductDetail;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,6 +20,7 @@ import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -86,6 +92,21 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             nativeQuery = true
     )
     List<IOrderFulfillment> getOrderByecommerceId(@Param("ecommerceId") Long ecommerceId);
+
+    //cabecera de orden
+    @Query(value = "select o.id as orderId, o.ecommerce_purchase_id as ecommerceId, o.source, " +
+            "o.scheduled_time as scheduledTime, os.type as statusName, s.center_code as centerCode, " +
+            "s.company_code as companyCode, st.source_channel as serviceChannel, st.short_code as serviceTypeShortCode, " +
+            "c.first_name as firstName,  c.document_number as documentNumber,  c.last_name as lastName " +
+            "from order_fulfillment o " +
+            "inner join client_fulfillment c on c.id = o.client_id " +
+            "inner join order_process_status s on o.id = s.order_fulfillment_id " +
+            "inner join order_status os on os.code = s.order_status_code " +
+            "inner join service_type st on st.code = s.service_type_code " +
+            "order by o.id desc limit 10",
+            nativeQuery = true
+    )
+    List<IOrderFulfillment> getOrder();
 
     @Query(value = "SELECT order_status_code as statusCode, liquidationStatus, liquidationStatusdetail " +
             "FROM order_fulfillment o " +
@@ -334,6 +355,133 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     void updateLiquidationStatusOrder(@Param("liquidationStatus") String liquidationStatus,
                                       @Param("liquidationStatusDetail") String liquidationStatusDetail,
                                       @Param("order_fulfillment_id") Long order_fulfillment_id);
+
+    @Query(value = "SELECT "
+        + "o.id as orderId, "
+        + "o.ecommerce_purchase_id as ecommerceId, "
+        + "o.external_channel_id as ecommerceIdCall, "
+        + "if(s.company_code='MF','Mifarma','Inkafarma') as companyCode, "
+        + "st.source_channel as serviceChannel, "
+        + "o.source as source, "
+        + "if(o.partial=1,'Pedido Parcial','Pedido Completo') as orderType, "
+        + "st.short_code as serviceTypeShortCode, "
+        + "o.scheduled_time as scheduledTime, "
+        + "os.type as statusName, "
+        + "s.center_code as localCode, "
+        + "CONCAT(c.first_name,' ',c.last_name) as clientName, "
+        + "c.document_number as documentNumber, "
+        + "c.phone, "
+        + "c.email, "
+        + "CONCAT(af.street,' ',af.number,', ',af.district) as addressClient, "
+        + "CONCAT(if(af.latitude=0,null,af.latitude),', ',if(af.longitude=0,null,af.longitude)) as coordinates, "
+        + "af.notes as reference, "
+        + "rt.ruc, "
+        + "rt.company_name as companyName, "
+        + "s.service_type_code as serviceType, "
+        + "o.purchase_number purcharseId, "
+        + "o.notes observation, "
+        + "cr.client_reason cancelReason, "
+        + "s.zone_id_billing zoneId, "
+        + "o.stockType stockType "
+        + "FROM order_fulfillment o "
+        + "INNER JOIN client_fulfillment c ON c.id = o.client_id "
+        + "INNER JOIN order_process_status s ON o.id = s.order_fulfillment_id "
+        + "INNER JOIN order_status os ON os.code = s.order_status_code "
+        + "INNER JOIN service_type st ON st.code = s.service_type_code "
+        + "INNER JOIN address_fulfillment af ON af.order_fulfillment_id = o.id "
+        + "INNER JOIN receipt_type rt ON rt.order_fulfillment_id = o.id "
+        + "LEFT JOIN (SELECT DISTINCT code, client_reason "
+        + "             FROM cancellation_code_reason "
+        + "             WHERE client_reason is not null "
+        + "               AND char_length(client_reason) > 0) cr ON cr.code = s.cancellation_code "
+        + "WHERE o.id = (select max(o1.id) from order_fulfillment o1 where o1.ecommerce_purchase_id = :ecommerceId) "
+        + "LIMIT 1",
+        nativeQuery = true)
+    IOrderInfoClient getOrderInfoClientByEcommercerId(@Param("ecommerceId")long ecommerceId);
+
+
+    @Query(value = "SELECT "
+            + "o.id as orderId, "
+            + "o.ecommerce_purchase_id as ecommerceId, "
+            + "o.external_channel_id as ecommerceIdCall, "
+            + "if(s.company_code='MF','Mifarma','Inkafarma') as companyCode, "
+            + "st.source_channel as serviceChannel, "
+            + "o.source as source, "
+            + "if(o.partial=1,'Pedido Parcial','Pedido Completo') as orderType, "
+            + "st.short_code as serviceTypeShortCode, "
+            + "o.scheduled_time as scheduledTime, "
+            + "os.type as statusName, "
+            + "os.code as statusCode, "
+            + "s.center_code as localCode, "
+            + "CONCAT(c.first_name,' ',c.last_name) as clientName, "
+            + "c.document_number as documentNumber, "
+            + "c.phone, "
+            + "c.email, "
+            + "CONCAT(af.street,' ',af.number,', ',af.district) as addressClient, "
+            + "CONCAT(if(af.latitude=0,null,af.latitude),', ',if(af.longitude=0,null,af.longitude)) as coordinates, "
+            + "af.notes as reference, "
+            + "rt.ruc, "
+            + "rt.company_name as companyName, "
+            + "s.service_type_code as serviceType, "
+            + "o.purchase_number purcharseId, "
+            + "o.notes observation, "
+            + "cr.client_reason cancelReason, "
+            + "s.zone_id_billing zoneId, "
+            + "o.stockType stockType "
+            + "FROM order_fulfillment o "
+            + "INNER JOIN client_fulfillment c ON c.id = o.client_id "
+            + "INNER JOIN order_process_status s ON o.id = s.order_fulfillment_id "
+            + "INNER JOIN order_status os ON os.code = s.order_status_code "
+            + "INNER JOIN service_type st ON st.code = s.service_type_code "
+            + "INNER JOIN address_fulfillment af ON af.order_fulfillment_id = o.id "
+            + "INNER JOIN receipt_type rt ON rt.order_fulfillment_id = o.id "
+            + "LEFT JOIN (SELECT DISTINCT code, client_reason "
+            + "             FROM cancellation_code_reason "
+            + "             WHERE client_reason is not null "
+            + "               AND char_length(client_reason) > 0) cr ON cr.code = s.cancellation_code "
+            + "WHERE o.id in(:orderId) order by o.scheduled_time DESC, o.ecommerce_purchase_id desc",
+            nativeQuery = true)
+    List<IOrderInfoClient> getOrderHeaderDetails(@Param("orderId") List<String> orderId);
+
+    @Query(value = "select p.payment_type as paymentType," +
+            "o.purchase_number as transactionId," +
+            "if(p.payment_type = 'CASH','CASH',cpc.description) as paymentGateway," +
+            "p.change_amount as changeAmount," +
+            "o.confirmed_order as dateConfirmed," +
+            "if(p.payment_type = 'CASH',null,cp.name) cardBrand, " +
+            "ops.service_type_code as serviceTypeCode, " +
+            "ops.liquidationStatus as liquidacionStatus " +
+            "from order_fulfillment o " +
+            "left join payment_method p on o.id = p.order_fulfillment_id " +
+            "left join order_process_status ops on ops.order_fulfillment_id =  o.id " +
+            "left join card_provider cp on cp.card_providerid = p.card_provider_id " +
+            "left join card_provider_commercial cpc on cpc.card_commercial_code = p.provider_card_commercial_code " +
+            "WHERE o.id = (select max(o1.id) from order_fulfillment o1 where o1.ecommerce_purchase_id = :ecommerceId) " +
+            "LIMIT 1", nativeQuery = true)
+    IOrderInfoPaymentMethod getInfoPaymentMethod(@Param("ecommerceId")long ecommerceId);
+
+    @Query(value = "select id, " +
+            "coalesce(subTotalWithNoSpecificPaymentMethod,total_cost_no_discount,0) as totalImportWithOutDiscount, " +
+            "delivery_cost as deliveryAmount, " +
+            "coalesce(totalWithNoSpecificPaymentMethod,total_cost,0) as totalImport, " +
+            "coalesce(totalWithPaymentMethod,0) as totalImportTOH " +
+            "from order_fulfillment " +
+            "where id = (select max(o1.id) from order_fulfillment o1 where o1.ecommerce_purchase_id = :ecommerceId) ",nativeQuery = true)
+    IOrderInfoProduct getOrderInfoProductByEcommerceId(@Param("ecommerceId")long ecommerceId);
+
+    @Query(value = "select product_code as sku, " +
+          "name, " +
+          "presentation_description as presentationDescription, " +
+          "quantity, " +
+          "unit_price as unitPrice, " +
+          "coalesce(totalPriceList,total_price,0) as totalPrice, " +
+          "coalesce(totalPriceAllPaymentMethod,0) as totalPriceAllPaymentMethod, " +
+          "coalesce(totalPriceWithpaymentMethod,0) as totalPriceTOH," +
+          "coalesce(fractional_discount,0) as fractionalDiscount," +
+          "coalesce(promotionalDiscount,0) as promotionalDiscount " +
+          "from order_fulfillment_item " +
+          "where order_fulfillment_id = :orderFulfillmentId", nativeQuery = true)
+    List<IOrderInfoProductDetail> getOrderInfoProductDetailByOrderFulfillmentId(@Param("orderFulfillmentId") BigInteger orderFulfillmentId);
 
     @Modifying
     @Query(value = "update order_fulfillment set voucher = :voucher where ecommerce_purchase_id = :ecommerceId", nativeQuery = true)

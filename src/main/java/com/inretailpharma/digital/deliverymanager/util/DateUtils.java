@@ -17,6 +17,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     private static final String TIME_TEMPLATE_HOUR_MINUTE = "HH:mm";
     private static final String DATE_TEMPLATE = "yyyy-MM-dd";
     private static final String DATETIME_TEMPLATE = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATETIME_TEMPLATE_DDMMYY_AMPM = "dd-MM-yy hh:mm a";
+    private static final String DATE_TEMPLATE_V2 = "dd-MM-yyyy";
 
     public static boolean validFormatDateTimeFormat(String dateTime) {
 
@@ -65,8 +67,16 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     }
 
+    public static String getLocalDateTimeWithFormatDDMMYY_AMPM(LocalDateTime localDateTime) {
+        return localDateTime.format(DateTimeFormatter.ofPattern(DATETIME_TEMPLATE_DDMMYY_AMPM));
+    }
+
     public static LocalDateTime getLocalDateTimeFromStringWithFormat(String localDateTime) {
         return LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
+    }
+
+    public static LocalDate getLocalDateFromStringWithFormatV2(String localDateTime) {
+        return LocalDate.parse(localDateTime, DateTimeFormatter.ofPattern(DATE_TEMPLATE_V2));
     }
 
     public static LocalDateTime getLocalDateTimeObjectNow() {
@@ -84,6 +94,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static LocalDate getLocalDateFromStringDate(String localDate) {
         return LocalDate.parse(localDate, DateTimeFormatter.ofPattern(DATE_TEMPLATE));
     }
+
+
     
     public static Long getCurrentDateMillis() {
     	return System.currentTimeMillis();
