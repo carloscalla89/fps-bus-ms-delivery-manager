@@ -1,8 +1,10 @@
 package com.inretailpharma.digital.deliverymanager.service.impl;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
-import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
-import com.inretailpharma.digital.deliverymanager.dto.*;
+import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderItemDto;
+import com.inretailpharma.digital.deliverymanager.dto.PaymentMethodDto;
+import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
 import com.inretailpharma.digital.deliverymanager.entity.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
@@ -225,5 +227,14 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
     @Override
     public void updateVoucherByEcommerceId(Long ecommerceId, boolean voucher) {
         orderRepository.updateVoucherByEcommerceId(ecommerceId, voucher);
+    }
+
+    @Override
+    public void updateOrderPickupByEcommerceId(OrderDto orderDto) {
+        Long ecommerceId = orderDto.getEcommercePurchaseId();
+        Integer idPickUp = orderDto.getIdPickUp();
+        String dniPickUP = orderDto.getDniPickUp();
+        LocalDateTime datePickUp = orderDto.getDatePickUp();
+        orderRepository.updateOrderPickupByEcommerceId(ecommerceId,idPickUp, dniPickUP, datePickUp);
     }
 }

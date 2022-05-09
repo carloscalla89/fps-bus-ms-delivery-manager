@@ -1,11 +1,9 @@
 package com.inretailpharma.digital.deliverymanager.transactions;
 
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
-import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.FilterOrderDTO;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.RequestFilterDTO;
@@ -317,5 +315,17 @@ public class OrderTransaction {
     public String updateVoucher(Long ecommerceId, boolean voucher) {
         orderRepositoryService.updateVoucherByEcommerceId(ecommerceId, voucher);
         return Constant.SUCCESS;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
+    public OrderCanonical updateOrderPickup(OrderDto orderDto) {
+
+        orderRepositoryService.updateOrderPickupByEcommerceId(orderDto);
+
+        OrderCanonical orderCanonical = new OrderCanonical();
+        orderCanonical.setEcommerceId(orderDto.getEcommercePurchaseId());
+
+        log.info("The order {} was updated sucessfully ", orderDto.getEcommercePurchaseId());
+        return orderCanonical;
     }
 }
