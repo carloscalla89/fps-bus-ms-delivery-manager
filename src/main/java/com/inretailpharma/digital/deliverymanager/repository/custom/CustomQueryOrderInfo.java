@@ -57,7 +57,7 @@ public class CustomQueryOrderInfo {
     boolean existsStatusFilter = false;
     StringBuilder queryFilters = new StringBuilder();
 
-    if (flagType == 0) { // query count
+    if (flagType == Constant.QueryType.QUERY_TYPE_COUNT) { // query count
       queryFilters.append(" where 1 = 1 ");
     } else { // query info
       queryFilters.append(" where o.id = (select max(of1.id) from order_fulfillment of1 where of1.ecommerce_purchase_id = o.ecommerce_purchase_id) ");
@@ -240,21 +240,16 @@ public class CustomQueryOrderInfo {
   }
 
   public Mono<OrderCanonicalResponse> getOrderInfo(RequestFilterDTO filter) {
-    String queryFiltersCount = getQueryOrderFilter(filter,0);
-    log.info("queryFilters:{}", queryFiltersCount);
-
-    String queryFiltersInfo = getQueryOrderFilter(filter,1);
-    log.info("queryFilters:{}", queryFiltersInfo);
-
+    String queryFiltersCount = getQueryOrderFilter(filter,Constant.QueryType.QUERY_TYPE_COUNT);
+    String queryFiltersInfo = getQueryOrderFilter(filter,Constant.QueryType.QUERY_TYPE_SELECT);
     String queryOrderCriterias = getQueryOrderCriteria(filter);
-    log.info("queryOrderCriterias:{}", queryOrderCriterias);
 
-    String queryTotal = "select count(1) from (?) as total"
+    String queryTotal = CustomSqlQuery.WRAPPER_QUERY_ORDERINFO_COUNT
                           .replace("?",
                                   getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString(),
                                           filter)
                           .concat(queryFiltersCount));
-    log.info("queryTotal:{}", queryTotal);
+    log.info("queryTotal: {}", queryTotal);
 
     String queryOrderInfo = getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString(),filter)
                               .concat(queryFiltersInfo)

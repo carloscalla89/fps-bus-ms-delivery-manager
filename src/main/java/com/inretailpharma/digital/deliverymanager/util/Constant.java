@@ -849,7 +849,7 @@ public interface Constant {
 
     interface TimeLimitFilterDate {
         int TIME_LIMIT_GRID = 1;
-        int TIME_LIMIT_OTHER = 6;
+        int TIME_LIMIT_OTHER = 3;
         int TIME_PLUS_FUTURE_DAYS = 10;
     }
 
@@ -913,5 +913,10 @@ public interface Constant {
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(CASH);
         }
 
+    }
+
+    interface QueryType {
+        int QUERY_TYPE_COUNT = 0;
+        int QUERY_TYPE_SELECT = 1;
     }
 }
