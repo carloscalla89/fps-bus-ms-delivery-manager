@@ -567,7 +567,11 @@ public interface Constant {
         EMPTY_RESULT_INKATRACKERLITE("-1", false), END_STATUS_RESULT("-1", false),
         EMPTY_RESULT_ORDERTRACKER("-1", false),
 
-        BILLED_ORDER("47", true);
+        BILLED_ORDER("47", true),
+
+        UPDATE_PICKER_SUCCESS("48", true),
+
+        UPDATE_PICKER_ERROR("49", false);
 
         private String code;
         private boolean isSuccess;

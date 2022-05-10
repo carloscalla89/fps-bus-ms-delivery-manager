@@ -486,4 +486,15 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
     @Modifying
     @Query(value = "update order_fulfillment set voucher = :voucher where ecommerce_purchase_id = :ecommerceId", nativeQuery = true)
     void updateVoucherByEcommerceId(@Param("ecommerceId") Long ecommerceId, @Param("voucher") Boolean voucher);
+
+    @Modifying
+    @Query(value = "update order_fulfillment set id_pick_up = :idPickUp, " +
+            " dni_pick_up = :dniPickUP, date_pick_up = :datePickUp  " +
+            " where ecommerce_purchase_id = :ecommerceId", nativeQuery = true)
+    void updateOrderPickupByEcommerceId(
+            @Param("ecommerceId") Long ecommerceId,
+            @Param("idPickUp") Integer idPickUp ,
+            @Param("dniPickUP") String dniPickUP,
+            @Param("datePickUp") LocalDateTime datePickUp);
+
 }
