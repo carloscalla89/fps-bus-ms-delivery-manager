@@ -32,17 +32,39 @@ public class CustomQueryOrderInfo {
   @Autowired
   EntityManager entityManager;
 
-  private String getQueryOrderInfo(RequestFilterDTO requestFilter) {
+  private String getQueryOrderInfo(String query, RequestFilterDTO requestFilter) {
+    if (requestFilter.getFilter() != null &&
+            (requestFilter.getFilter().getServiceChannel() != null ||
+                    requestFilter.getFilter().getServiceTypeId() != null)) {
+      return query
+              .concat(" inner join service_type st on st.code = s.service_type_code ");
+    }
+    if (requestFilter.getOrderCriteria() != null &&
+            (requestFilter.getOrderCriteria().getColumn()
+                    .equalsIgnoreCase(Constant.OrderCriteriaColumn.ORDER_CRITERIA_CHANNEL) ||
+              requestFilter.getOrderCriteria().getColumn()
+                    .equalsIgnoreCase(Constant.OrderCriteriaColumn.ORDER_CRITERIA_SERVICE_TYPE))) {
+      return query
+              .concat(" inner join service_type st on st.code = s.service_type_code ");
+    }
+    return query;
+  }
+
+  private String getQueryOrderFilter(RequestFilterDTO requestFilter, int flagType) {
     int timeLimitFilter = 0;
     boolean timeUnlimited = false;
     boolean existsDateFilter = false;
     boolean existsStatusFilter = false;
     StringBuilder queryFilters = new StringBuilder();
 
+    if (flagType == 0) { // query count
+      queryFilters.append(" where 1 = 1 ");
+    } else { // query info
+      queryFilters.append(" where o.id = (select max(of1.id) from order_fulfillment of1 where of1.ecommerce_purchase_id = o.ecommerce_purchase_id) ");
+    }
+
     if (requestFilter.getFilter() == null) {
       timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_GRID;
-
-      queryFilters.append(" where o.id in (select max(of1.id) from order_fulfillment of1 group by of1.ecommerce_purchase_id) ");
 
       if (requestFilter.getOrderStatusCodeAllowed() != null) {
         StringBuilder queryInOrderStatusCodeAllowed = new StringBuilder();
@@ -58,7 +80,6 @@ public class CustomQueryOrderInfo {
       }
     } else {
       timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_OTHER;
-      queryFilters.append("where o.id in (select max(of1.id) from order_fulfillment of1 group by of1.ecommerce_purchase_id) ");
 
       //TODO: OMS
       if (requestFilter.getFilter().getFilterType() != null && requestFilter.getFilter().getValueFilterType() != null) {
@@ -219,23 +240,28 @@ public class CustomQueryOrderInfo {
   }
 
   public Mono<OrderCanonicalResponse> getOrderInfo(RequestFilterDTO filter) {
-    String queryFilters = getQueryOrderInfo(filter);
-    log.info("queryFilters:{}", queryFilters);
+    String queryFiltersCount = getQueryOrderFilter(filter,0);
+    log.info("queryFilters:{}", queryFiltersCount);
 
-    String queryCriterias = getQueryOrderCriteria(filter);
-    log.info("queryCriterias:{}", queryCriterias);
+    String queryFiltersInfo = getQueryOrderFilter(filter,1);
+    log.info("queryFilters:{}", queryFiltersInfo);
 
-    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString()
-            .concat(queryFilters);
+    String queryOrderCriterias = getQueryOrderCriteria(filter);
+    log.info("queryOrderCriterias:{}", queryOrderCriterias);
+
+    String queryTotal = "select count(1) from (?) as total"
+                          .replace("?",
+                                  getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString(),
+                                          filter)
+                          .concat(queryFiltersCount));
     log.info("queryTotal:{}", queryTotal);
 
-    String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString()
-            .concat(queryFilters)
-            .concat(queryCriterias);
+    String queryOrderInfo = getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString(),filter)
+                              .concat(queryFiltersInfo)
+                              .concat(queryOrderCriterias);
     log.info("queryOrderInfo: {}", queryOrderInfo);
 
     Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
-    log.info("totalRecordsQuery:{}", totalRecordsQuery);
 
     Query query = entityManager.createNativeQuery(queryOrderInfo);
     Integer page = Optional.ofNullable(filter.getPage()).orElse(1);
