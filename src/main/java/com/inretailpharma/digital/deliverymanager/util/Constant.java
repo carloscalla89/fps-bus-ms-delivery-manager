@@ -914,9 +914,4 @@ public interface Constant {
         }
 
     }
-
-    interface QueryType {
-        int QUERY_TYPE_COUNT = 0;
-        int QUERY_TYPE_SELECT = 1;
-    }
 }

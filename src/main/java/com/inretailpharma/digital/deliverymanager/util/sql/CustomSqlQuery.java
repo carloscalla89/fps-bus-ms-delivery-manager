@@ -25,11 +25,9 @@ public class CustomSqlQuery {
           .append(" order by o.scheduled_time DESC, o.ecommerce_purchase_id DESC");
 
   public static final StringBuilder BASIC_QUERY_GET_ORDERINFO_COUNT = new StringBuilder()
-          .append(" select max(o.id) as id " +
+          .append(" select count(o.id) " +
                   " from order_fulfillment o " +
                   " inner join client_fulfillment c on c.id = o.client_id " +
                   " inner join order_process_status s on o.id = s.order_fulfillment_id " +
                   " inner join order_status os on os.code = s.order_status_code ");
-
-  public static final String WRAPPER_QUERY_ORDERINFO_COUNT = "select count(id) from (?) as total";
 }

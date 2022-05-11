@@ -50,18 +50,14 @@ public class CustomQueryOrderInfo {
     return query;
   }
 
-  private String getQueryOrderFilter(RequestFilterDTO requestFilter, int flagType) {
+  private String getQueryOrderFilter(RequestFilterDTO requestFilter) {
     int timeLimitFilter = 0;
     boolean timeUnlimited = false;
     boolean existsDateFilter = false;
     boolean existsStatusFilter = false;
     StringBuilder queryFilters = new StringBuilder();
 
-    if (flagType == Constant.QueryType.QUERY_TYPE_COUNT) { // query count
-      queryFilters.append(" where 1 = 1 ");
-    } else { // query info
-      queryFilters.append(" where o.id = (select max(of1.id) from order_fulfillment of1 where of1.ecommerce_purchase_id = o.ecommerce_purchase_id) ");
-    }
+    queryFilters.append(" where o.source <> 'AGORA' ");
 
     if (requestFilter.getFilter() == null) {
       timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_GRID;
@@ -240,19 +236,16 @@ public class CustomQueryOrderInfo {
   }
 
   public Mono<OrderCanonicalResponse> getOrderInfo(RequestFilterDTO filter) {
-    String queryFiltersCount = getQueryOrderFilter(filter,Constant.QueryType.QUERY_TYPE_COUNT);
-    String queryFiltersInfo = getQueryOrderFilter(filter,Constant.QueryType.QUERY_TYPE_SELECT);
+    String queryFilters = getQueryOrderFilter(filter);
     String queryOrderCriterias = getQueryOrderCriteria(filter);
 
-    String queryTotal = CustomSqlQuery.WRAPPER_QUERY_ORDERINFO_COUNT
-                          .replace("?",
-                                  getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString(),
+    String queryTotal = getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString(),
                                           filter)
-                          .concat(queryFiltersCount));
+                          .concat(queryFilters);
     log.info("queryTotal: {}", queryTotal);
 
     String queryOrderInfo = getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString(),filter)
-                              .concat(queryFiltersInfo)
+                              .concat(queryFilters)
                               .concat(queryOrderCriterias);
     log.info("queryOrderInfo: {}", queryOrderInfo);
 
