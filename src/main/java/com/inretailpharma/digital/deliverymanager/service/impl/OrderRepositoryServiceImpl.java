@@ -234,7 +234,7 @@ public class OrderRepositoryServiceImpl implements OrderRepositoryService {
         Long ecommerceId = orderDto.getEcommercePurchaseId();
         Integer idPickUp = orderDto.getIdPickUp();
         String dniPickUP = orderDto.getDniPickUp();
-        LocalDateTime datePickUp = orderDto.getDatePickUp();
-        orderRepository.updateOrderPickupByEcommerceId(ecommerceId,idPickUp, dniPickUP, datePickUp);
+        LocalDateTime localDateTime = DateUtils.getLocalDateTimeByInputString(orderDto.getDatePickUp());
+        orderRepository.updateOrderPickupByEcommerceId(ecommerceId,idPickUp, dniPickUP, localDateTime);
     }
 }

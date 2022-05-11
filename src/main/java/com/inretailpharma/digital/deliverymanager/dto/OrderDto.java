@@ -97,5 +97,5 @@ public class OrderDto {
 
     private Integer idPickUp;
     private String dniPickUp;
-    private LocalDateTime datePickUp;
+    private String datePickUp;
 }
