@@ -853,7 +853,7 @@ public interface Constant {
 
     interface TimeLimitFilterDate {
         int TIME_LIMIT_GRID = 1;
-        int TIME_LIMIT_OTHER = 6;
+        int TIME_LIMIT_OTHER = 3;
         int TIME_PLUS_FUTURE_DAYS = 10;
     }
 

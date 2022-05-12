@@ -32,17 +32,35 @@ public class CustomQueryOrderInfo {
   @Autowired
   EntityManager entityManager;
 
-  private String getQueryOrderInfo(RequestFilterDTO requestFilter) {
+  private String getQueryOrderInfo(String query, RequestFilterDTO requestFilter) {
+    if (requestFilter.getFilter() != null &&
+            (requestFilter.getFilter().getServiceChannel() != null ||
+                    requestFilter.getFilter().getServiceTypeId() != null)) {
+      return query
+              .concat(" inner join service_type st on st.code = s.service_type_code ");
+    }
+    if (requestFilter.getOrderCriteria() != null &&
+            (requestFilter.getOrderCriteria().getColumn()
+                    .equalsIgnoreCase(Constant.OrderCriteriaColumn.ORDER_CRITERIA_CHANNEL) ||
+              requestFilter.getOrderCriteria().getColumn()
+                    .equalsIgnoreCase(Constant.OrderCriteriaColumn.ORDER_CRITERIA_SERVICE_TYPE))) {
+      return query
+              .concat(" inner join service_type st on st.code = s.service_type_code ");
+    }
+    return query;
+  }
+
+  private String getQueryOrderFilter(RequestFilterDTO requestFilter) {
     int timeLimitFilter = 0;
     boolean timeUnlimited = false;
     boolean existsDateFilter = false;
     boolean existsStatusFilter = false;
     StringBuilder queryFilters = new StringBuilder();
 
+    queryFilters.append(" where o.source <> 'AGORA' ");
+
     if (requestFilter.getFilter() == null) {
       timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_GRID;
-
-      queryFilters.append(" where o.id in (select max(of1.id) from order_fulfillment of1 group by of1.ecommerce_purchase_id) ");
 
       if (requestFilter.getOrderStatusCodeAllowed() != null) {
         StringBuilder queryInOrderStatusCodeAllowed = new StringBuilder();
@@ -58,7 +76,6 @@ public class CustomQueryOrderInfo {
       }
     } else {
       timeLimitFilter = Constant.TimeLimitFilterDate.TIME_LIMIT_OTHER;
-      queryFilters.append("where o.id in (select max(of1.id) from order_fulfillment of1 group by of1.ecommerce_purchase_id) ");
 
       //TODO: OMS
       if (requestFilter.getFilter().getFilterType() != null && requestFilter.getFilter().getValueFilterType() != null) {
@@ -219,23 +236,20 @@ public class CustomQueryOrderInfo {
   }
 
   public Mono<OrderCanonicalResponse> getOrderInfo(RequestFilterDTO filter) {
-    String queryFilters = getQueryOrderInfo(filter);
-    log.info("queryFilters:{}", queryFilters);
+    String queryFilters = getQueryOrderFilter(filter);
+    String queryOrderCriterias = getQueryOrderCriteria(filter);
 
-    String queryCriterias = getQueryOrderCriteria(filter);
-    log.info("queryCriterias:{}", queryCriterias);
+    String queryTotal = getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString(),
+                                          filter)
+                          .concat(queryFilters);
+    log.info("queryTotal: {}", queryTotal);
 
-    String queryTotal = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO_COUNT.toString()
-            .concat(queryFilters);
-    log.info("queryTotal:{}", queryTotal);
-
-    String queryOrderInfo = CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString()
-            .concat(queryFilters)
-            .concat(queryCriterias);
+    String queryOrderInfo = getQueryOrderInfo(CustomSqlQuery.BASIC_QUERY_GET_ORDERINFO.toString(),filter)
+                              .concat(queryFilters)
+                              .concat(queryOrderCriterias);
     log.info("queryOrderInfo: {}", queryOrderInfo);
 
     Query totalRecordsQuery = entityManager.createNativeQuery(queryTotal);
-    log.info("totalRecordsQuery:{}", totalRecordsQuery);
 
     Query query = entityManager.createNativeQuery(queryOrderInfo);
     Integer page = Optional.ofNullable(filter.getPage()).orElse(1);
