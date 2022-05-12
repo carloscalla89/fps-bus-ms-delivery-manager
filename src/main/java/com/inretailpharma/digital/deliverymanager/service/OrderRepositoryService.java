@@ -53,4 +53,6 @@ public interface OrderRepositoryService {
     void updateOnlinePaymentStatusByOrderId(Long orderId, String onlinePaymentStatus);
 
     void updateVoucherByEcommerceId(Long ecommerceId, boolean voucher);
+
+    void updateOrderPickupByEcommerceId(OrderDto orderDto);
 }
