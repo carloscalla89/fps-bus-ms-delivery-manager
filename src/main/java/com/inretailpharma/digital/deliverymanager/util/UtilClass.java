@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Slf4j
@@ -97,8 +98,9 @@ public class UtilClass {
                             || orderStatusName.equalsIgnoreCase(Constant.OrderStatus.CONFIRMED.name())
                             || orderStatusName.equalsIgnoreCase(Constant.OrderStatus.PICKED_ORDER.name())
                             || orderStatusName.equalsIgnoreCase(Constant.OrderStatus.CHECKOUT_ORDER.name())
-                            || Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)) {
-                        // aquí entra cuando la orden se entrega o rechaza desde el omnidelivery
+                            || Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)
+                            || Constant.ORIGIN_UNIFIED_POS.equalsIgnoreCase(Optional.ofNullable(origin).orElse(Constant.ORIGIN_UNIFIED_POS))) {
+                        // aquí entra cuando la orden se entrega o rechaza desde el omnidelivery o posu
                         // se cancela desde el pos unificado y la orden no se ha pickeado aún
                         classList.add(TrackerAdapter.class);
                     } else {

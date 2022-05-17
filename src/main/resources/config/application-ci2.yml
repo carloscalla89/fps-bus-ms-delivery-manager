@@ -9,6 +9,16 @@ spring:
   mvc:
     async:
       request-timeout: 240000
+  cloud:
+    gcp:
+      project-id: fp-ci-poc
+      credentials:
+        location: classpath:gcp/ci/fp-ci-poc-4ddfd380689b.json
+    stream:
+      bindings:
+        channel:
+          destination: orderStatus.omni.topic
+          group: group
 external-service:
   audit:
     create-order: http://us-audit/audit/order
