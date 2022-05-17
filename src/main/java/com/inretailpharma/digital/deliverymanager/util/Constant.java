@@ -3,9 +3,9 @@ package com.inretailpharma.digital.deliverymanager.util;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceImpl;
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
 import com.inretailpharma.digital.deliverymanager.strategy.*;
-import org.apache.commons.lang3.EnumUtils;
 
 import java.util.Optional;
+import org.apache.commons.lang3.EnumUtils;
 
 public interface Constant {
 
@@ -802,6 +802,10 @@ public interface Constant {
 
         private String description;
 
+        public String getDescription() {
+            return description;
+        }
+
         StockType(String description) {
             this.description = description;
         }
@@ -817,5 +821,97 @@ public interface Constant {
     interface OnlineLiquidation {
         String LIQUIDATE = "LIQUIDATE_ORDER";
         String REFUND = "REFUND_ORDER";
+    }
+
+    enum DeliveryType {
+        PROG("Programado"),
+        AM_PM("AM/PM"),
+        EXP("Express"),
+        RET("Retiro en tienda");
+
+        private String description;
+
+        public String getDescription() {
+            return description;
+        }
+
+        DeliveryType(String description) {
+            this.description = description;
+        }
+
+        public static DeliveryType getByName(String name) {
+
+            return EnumUtils.getEnumList(DeliveryType.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(PROG);
+        }
+
+    }
+
+    interface TimeLimitFilterDate {
+        int TIME_LIMIT_GRID = 1;
+        int TIME_LIMIT_OTHER = 3;
+        int TIME_PLUS_FUTURE_DAYS = 10;
+    }
+
+    interface FilterOption {
+        String FIND_ORDER_NUMBER = "1";
+        String FIND_TELEPHONE_NUMBER = "2";
+        String FIND_DOCUMENT_NUMBER = "3";
+    }
+
+    interface OrderCriteriaColumn {
+        String ORDER_CRITERIA_ECOMMERCE_ID = "1";
+        String ORDER_CRITERIA_STORE = "2";
+        String ORDER_CRITERIA_CHANNEL = "3";
+        String ORDER_CRITERIA_SERVICE_TYPE = "4";
+        String ORDER_CRITERIA_DATE = "5";
+        String ORDER_CRITERIA_CLIENT = "6";
+        String ORDER_CRITERIA_DOCUMENT = "7";
+        String ORDER_CRITERIA_STATUS = "8";
+    }
+
+    enum OrderCriteria {
+        A("ASC"), D("DESC");
+
+        private String order;
+
+        public String getOrder() {
+            return order;
+        }
+
+        OrderCriteria(String order) {
+            this.order = order;
+        }
+
+        public static OrderCriteria getByCode(String name) {
+
+            return EnumUtils.getEnumList(OrderCriteria.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(D);
+        }
+
+    }
+
+    enum PaymentType {
+        CARD("Pago con POS"),
+        CASH("Pago efectivo"),
+        CASH_DOLAR("Pago efectivo"),
+        ONLINE_PAYMENT("Pago en linea");
+
+        private String paymentTypeDescription;
+
+        public String getPaymentTypeDescription() {
+            return paymentTypeDescription;
+        }
+
+        PaymentType(String paymentTypeDescription) {
+            this.paymentTypeDescription = paymentTypeDescription;
+        }
+
+        public static PaymentType getByCode(String name) {
+
+            return EnumUtils.getEnumList(PaymentType.class).stream()
+                    .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(CASH);
+        }
+
     }
 }

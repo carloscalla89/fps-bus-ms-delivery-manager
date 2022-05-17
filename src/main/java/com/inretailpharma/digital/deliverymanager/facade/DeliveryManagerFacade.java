@@ -1,14 +1,18 @@
 package com.inretailpharma.digital.deliverymanager.facade;
 
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalResponse;
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderResponseCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.*;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderResponseFulfillment;
+import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.repository.custom.CustomQueryOrderInfo;
+import com.inretailpharma.digital.deliverymanager.service.OrderInfoService;
 import com.inretailpharma.digital.deliverymanager.strategy.IActionStrategy;
 import com.inretailpharma.digital.deliverymanager.transactions.OrderTransaction;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
@@ -35,21 +39,30 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     private Map<Constant.ActionOrder, IActionStrategy> actionsProcessors;
     private ApplicationContext context;
     private OrderExternalService orderExternalService;
+    private ObjectToMapper objectMapper;
+    private OrderInfoService orderInfoService;
 
     @Autowired
     public DeliveryManagerFacade(OrderTransaction orderTransaction,
                                  @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                                  LiquidationFacade liquidationFacade,
+                                 CustomQueryOrderInfo orderQueryFilter,
+                                 OrderInfoService orderInfoService,
                                  ApplicationContext context,
-                                 @Qualifier("orderTracker") OrderExternalService orderExternalService) {
+                                 @Qualifier("orderTracker") OrderExternalService orderExternalService,
+                                 ObjectToMapper objectMapper) {
         this.orderTransaction = orderTransaction;
         this.iAuditAdapter = iAuditAdapter;
         this.liquidationFacade = liquidationFacade;
         this.context = context;
         this.orderExternalService = orderExternalService;
-        actionsProcessors = Arrays.stream(Constant.ActionOrder.values())
+        this.orderInfoService = orderInfoService;
+        this.objectMapper = objectMapper;
+
+        actionsProcessors = Arrays
+                .stream(Constant.ActionOrder.values())
                 .collect(Collectors.toMap(p -> p, p ->
-                        (IActionStrategy) this.context.getBean(p.getActionStrategyImplement())));
+                        (IActionStrategy)this.context.getBean(p.getActionStrategyImplement())));
     }
 
     public Mono<OrderCanonical> createOrder(OrderDto orderDto) {
@@ -103,6 +116,10 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                 });
     }
 
+    public Mono<OrderCanonicalResponse> getOrder(RequestFilterDTO filter) {
+        return orderTransaction.getOrder(filter);
+    }
+
     public Mono<OrderCanonical> getUpdatePartialOrder(OrderDto partialOrderDto) {
         log.info("[START] getUpdatePartialOrder:{}", partialOrderDto);
         return Mono
@@ -137,6 +154,16 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
 
     public IOrderFulfillment getOrderByEcommerceID(Long ecommercePurchaseId) {
         return orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
+    }
+
+    @Override
+    public Mono<OrderInfoConsolidated> getOrderInfoDetail(long ecommerceId) {
+        return orderInfoService.findOrderInfoClientByEcommerceId(ecommerceId);
+    }
+
+    @Override
+    public OrdersSelectedResponse getOrderDetail(FilterOrderDTO filter) {
+        return orderInfoService.getOrderHeaderDetails(filter);
     }
 
 }
