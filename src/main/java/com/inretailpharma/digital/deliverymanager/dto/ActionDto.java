@@ -9,6 +9,7 @@ import java.util.List;
 @Builder
 public class ActionDto {
 
+    private long ecommerceId;
     private String action;
     private String companyCode;
     private OrderStatusDto orderStatusDto;
