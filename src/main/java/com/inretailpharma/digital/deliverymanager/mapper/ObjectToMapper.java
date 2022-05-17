@@ -1,27 +1,7 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.*;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
-import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
-import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
-import com.inretailpharma.digital.deliverymanager.dto.ecommerce.*;
-import com.inretailpharma.digital.deliverymanager.entity.*;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.validator.GenericValidator;
-import org.springframework.stereotype.Component;
-
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ClientInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.DrugstoreCanonical;
@@ -34,22 +14,61 @@ import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.Previous
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ReceiptInkatrackerCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ScheduledCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.ZoneTrackerCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.AddressCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.CancellationCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ClientCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.LiquidationCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderDetailCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
+import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.AddressDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.DrugstoreDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ItemDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.PaymentDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.PaymentMethodDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ReceiptDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ReceiptTypeDto;
+import com.inretailpharma.digital.deliverymanager.dto.ecommerce.UserDto;
 import com.inretailpharma.digital.deliverymanager.entity.Address;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
 import com.inretailpharma.digital.deliverymanager.entity.Client;
 import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.OrderFulfillmentItem;
+import com.inretailpharma.digital.deliverymanager.entity.OrderStatus;
 import com.inretailpharma.digital.deliverymanager.entity.OrderWrapperResponse;
 import com.inretailpharma.digital.deliverymanager.entity.PaymentMethod;
 import com.inretailpharma.digital.deliverymanager.entity.ReceiptType;
 import com.inretailpharma.digital.deliverymanager.entity.ServiceLocalOrder;
+import com.inretailpharma.digital.deliverymanager.entity.ServiceType;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
-
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.validator.GenericValidator;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -179,7 +198,7 @@ public class ObjectToMapper {
                                                       List<IOrderItemFulfillment> itemFulfillments) {
 
         OrderCanonical orderCanonical = new OrderCanonical();
-        orderCanonical.setEcommerceId(iOrderFulfillment.getEcommerceId());
+        orderCanonical.setEcommerceId(Long.valueOf(String.valueOf(iOrderFulfillment.getEcommerceId())));
         orderCanonical.setExternalId(iOrderFulfillment.getExternalId());
         orderCanonical.setPurchaseId(Optional.ofNullable(iOrderFulfillment.getPurchaseId()).orElse(null));
 
@@ -258,7 +277,7 @@ public class ObjectToMapper {
                                                                              String orderCancelCode, String orderCancelDescription) {
 
         OrderInkatrackerCanonical orderInkatrackerCanonical = new OrderInkatrackerCanonical();
-        orderInkatrackerCanonical.setOrderExternalId(iOrderFulfillment.getEcommerceId());
+        orderInkatrackerCanonical.setOrderExternalId(iOrderFulfillment.getEcommerceId().longValue());
         orderInkatrackerCanonical.setInkaDeliveryId(externalId);
         orderInkatrackerCanonical.setSource(iOrderFulfillment.getSource());
         orderInkatrackerCanonical.setCallSource(iOrderFulfillment.getSource());
@@ -1122,8 +1141,8 @@ public class ObjectToMapper {
         OrderCanonical orderCanonical = new OrderCanonical();
         Optional.ofNullable(iOrderFulfillment).ifPresent(o -> {
 
-            orderCanonical.setId(iOrderFulfillment.getOrderId());
-        	orderCanonical.setEcommerceId(o.getEcommerceId());
+            orderCanonical.setId(iOrderFulfillment.getOrderId().longValue());
+        	orderCanonical.setEcommerceId(o.getEcommerceId().longValue());
         	orderCanonical.setExternalId(o.getExternalId());
             orderCanonical.setPurchaseId(Optional.ofNullable(o.getPurchaseId()).orElse(null));
         	
@@ -1456,6 +1475,41 @@ public class ObjectToMapper {
                 .code(orderStatus.getLiquidationCode())
                 .status(orderStatus.getLiquidationStatus())
                 .build();
+
+    }
+
+    public List<OrderCanonicalFulfitment> getOrderInfo(List<IOrderFulfillment> orders) {
+        return orders.stream().parallel().map(order -> {
+            OrderCanonicalFulfitment orderCanonicalFulfitment = new OrderCanonicalFulfitment();
+            orderCanonicalFulfitment.setOrderId(order.getOrderId());
+            orderCanonicalFulfitment.setEcommerceId(order.getEcommerceId().longValue());
+            orderCanonicalFulfitment.setLocalId(order.getCenterCode());
+            orderCanonicalFulfitment.setServiceChannel(order.getServiceChannel());
+            orderCanonicalFulfitment.setServiceTypeId(order.getServiceType());
+            orderCanonicalFulfitment.setOrderStatus(order.getStatusName());
+            orderCanonicalFulfitment.setServiceTypeId(order.getServiceTypeShortCode());
+            orderCanonicalFulfitment.setPromiseDate(
+                order.getScheduledTime().toLocalDate().toString() + " " +
+                    order.getScheduledTime().toLocalTime());
+            orderCanonicalFulfitment.setClient(
+                order.getFirstName() + " " + order.getLastName()
+            );
+            orderCanonicalFulfitment.setDocumentoId(order.getDocumentNumber());
+            return orderCanonicalFulfitment;
+        }).collect(Collectors.toList());
+    }
+
+    public List<OrderStatusDto> getOrderStatusDto(List<OrderStatus> orderStatus) {
+        if (CollectionUtils.isNotEmpty(orderStatus)) {
+            return orderStatus.stream().parallel().map(order -> {
+                OrderStatusDto orderDto = new OrderStatusDto();
+                orderDto.setCode(order.getCode());
+                orderDto.setDescription(order.getDescription());
+                orderDto.setType(order.getType());
+                return orderDto;
+            }).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
 
     }
 }
