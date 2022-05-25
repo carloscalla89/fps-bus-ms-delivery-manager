@@ -3,6 +3,16 @@ spring:
     url: jdbc:mysql://qa02fulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/qa02fulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
     username: operaciones
     password: Operaciones2020.
+  cloud:
+    gcp:
+      project-id: fp-serverless-qa-project
+      credentials:
+        location: classpath:gcp/qa/fp-serverless-qa-project-84aa081dd49c.json
+    stream:
+      bindings:
+        channel:
+          destination: orderStatus.omni.topic
+          group: deliverymanager
 external-service:
   audit:
     create-order: http://us-audit/audit/order

@@ -18,7 +18,7 @@ spring:
       bindings:
         channel:
           destination: orderStatus.omni.topic
-          group: group
+          group: deliverymanager
 external-service:
   audit:
     create-order: http://us-audit/audit/order

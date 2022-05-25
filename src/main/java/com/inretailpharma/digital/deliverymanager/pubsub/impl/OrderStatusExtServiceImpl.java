@@ -6,17 +6,18 @@ import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
 import com.inretailpharma.digital.deliverymanager.facade.DeliveryManagerFacade;
 import com.inretailpharma.digital.deliverymanager.pubsub.OrderStatusService;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import reactor.core.publisher.Mono;
 
 @Slf4j
 @EnableBinding(OrderStatusService.class)
-public class OrderStatusServiceImpl {
+public class OrderStatusExtServiceImpl {
 
     private DeliveryManagerFacade deliveryManagerFacade;
 
-    public OrderStatusServiceImpl(DeliveryManagerFacade deliveryManagerFacade) {
+    public OrderStatusExtServiceImpl(DeliveryManagerFacade deliveryManagerFacade) {
         this.deliveryManagerFacade = deliveryManagerFacade;
     }
 
