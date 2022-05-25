@@ -20,8 +20,8 @@ spring:
     stream:
       bindings:
         channel:
-          destination: orderStatus.omni.topic
-          group: group
+          destination: orderStatus.local.omni.topic
+          group: deliverymanager
 external-service:
   audit:
     create-order: http://auditqa02.backend.cindibyinkafarma.com/audit/order

@@ -3,6 +3,16 @@ spring:
     url: jdbc:mysql://uatfulfillment.c4rjguxjh6uc.us-east-1.rds.amazonaws.com:3306/uatfulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
     username: operaciones
     password: Operaciones2020
+  cloud:
+    gcp:
+      project-id: fp-serverless-uat-project
+      credentials:
+        location: classpath:gcp/uat/fp-serverless-uat-project-89a171267e90.json
+    stream:
+      bindings:
+        channel:
+          destination: orderStatus.omni.topic
+          group: deliverymanager
 external-service:
   audit:
     create-order: http://audituat.backend.cindibyinkafarma.com/audit/order
