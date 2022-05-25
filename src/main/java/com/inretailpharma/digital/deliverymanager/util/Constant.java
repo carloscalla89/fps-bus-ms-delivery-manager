@@ -733,6 +733,7 @@ public interface Constant {
 
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";
+    String MANAGE_PARTNER_ORIGIN = "MANAGE_PARTNER";
     
     String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
 
