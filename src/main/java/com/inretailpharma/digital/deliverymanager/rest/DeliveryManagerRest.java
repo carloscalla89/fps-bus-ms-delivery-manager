@@ -49,7 +49,7 @@ public class DeliveryManagerRest {
         // Notify status to Manage-partner component.
         Long ecommercePurchaseId = Long.parseLong(ecommerceId);
         IOrderFulfillment order = deliveryManagerFacade.getOrderByEcommerceID(ecommercePurchaseId);
-        if (order != null && order.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)) {
+        if (notifyOrderToExternalClient(order, action)) {
             List<String> orderStatuses = Arrays.asList(Constant.ORDER_STATUS_RAPPI);
             if (orderStatuses.contains(action.getAction())) {
                 managePartnerClient.notifyEvent(ecommerceId, action);
@@ -61,6 +61,11 @@ public class DeliveryManagerRest {
                         .body(r))
                 .doOnSuccess(r -> log.info("[END] endpoint updateStatus /order/{}", ecommerceId))
                 .subscribeOn(Schedulers.parallel());
+    }
+
+    private boolean notifyOrderToExternalClient(IOrderFulfillment order, ActionDto action) {
+        return order != null && order.getSource().equalsIgnoreCase(Constant.SOURCE_RAPPI)
+                && !Constant.MANAGE_PARTNER_ORIGIN.equals(action.getAction());
     }
 
     @PostMapping("/order/partial/")
