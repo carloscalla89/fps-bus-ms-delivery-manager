@@ -489,7 +489,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
 
     @Modifying
     @Query(value = "update order_fulfillment set id_pick_up = :idPickUp, " +
-            " dni_pick_up = :dniPickUP, date_pick_up = :datePickUp  " +
+            " document_pick_up = :dniPickUP, date_pick_up = :datePickUp  " +
             " where ecommerce_purchase_id = :ecommerceId", nativeQuery = true)
     void updateOrderPickupByEcommerceId(
             @Param("ecommerceId") Long ecommerceId,
