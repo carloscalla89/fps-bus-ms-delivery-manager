@@ -139,4 +139,4 @@ external-service:
       connect-timeout: 30000
       read-timeout: 60000
   manage-partner:
-    update-status: http://fps-wsmanagepartneruat.backend.cindibyinkafarma.com/api/v1/managePartner/rappi/event/
+    update-status: http://fps-wsmanagepartneruat.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/
