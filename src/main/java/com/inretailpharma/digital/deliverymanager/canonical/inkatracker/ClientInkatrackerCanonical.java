@@ -16,4 +16,6 @@ public class ClientInkatrackerCanonical {
     private String hasInkaClub;
     private String notificationToken;
     private String isAnonymous;
+    private String referralCode;
+    private String referralMessage;
 }
