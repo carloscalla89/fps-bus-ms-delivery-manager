@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.ISellerCenterAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
@@ -41,16 +42,19 @@ public class TrackerFacade extends FacadeAbstractUtil{
     private IAuditAdapter iAuditAdapter;
 
     private UpdateTracker updateTracker;
-
+    private ISellerCenterAdapter iSellerCenterAdapter;
+    
     @Autowired
     public TrackerFacade(@Qualifier("orderTrackerAdapter") ITrackerAdapter iOrderTrackerAdapter,
                          @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                          OrderCancellationService orderCancellationService,
-                         @Qualifier("updateTracker") UpdateTracker updateTracker) {
+                         @Qualifier("updateTracker") UpdateTracker updateTracker,
+                         ISellerCenterAdapter iSellerCenterAdapter) {
         this.iOrderTrackerAdapter = iOrderTrackerAdapter;
         this.iAuditAdapter = iAuditAdapter;
         this.orderCancellationService = orderCancellationService;
         this.updateTracker = updateTracker;
+        this.iSellerCenterAdapter = iSellerCenterAdapter;
     }
 
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
@@ -245,6 +249,39 @@ public class TrackerFacade extends FacadeAbstractUtil{
 
                     return Flux
                             .fromIterable(orderSynchronizeDto.getHistory())
+                            .flatMap(orderStatus -> {
+                         	
+                            	if(iorder.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER) &&
+                            			(Constant.ActionOrder.DELIVER_ORDER.name().equalsIgnoreCase(orderStatus.getAction()) ||
+                                		Constant.ActionOrder.ON_ROUTE_ORDER.name().equalsIgnoreCase(orderStatus.getAction()))) {
+                  	
+                                		 log.info("Update in Seller order: {}, status: {}", iorder.getEcommerceId(), orderStatus.getAction());
+                                		 
+                                		 ActionDto actionDto = ActionDto
+                                                 .builder()
+                                                 .action(orderStatus.getAction())
+                                                 .origin(orderSynchronizeDto.getOrigin())
+                                                 .orderCancelCode(orderStatus.getOrderCancelCode())
+                                                 .orderCancelObservation(orderStatus.getOrderCancelObservation())
+                                                 .motorizedId(orderStatus.getMotorizedId())
+                                                 .updatedBy(orderStatus.getUpdatedBy())
+                                                 .actionDate(orderStatus.getActionDate())
+                                                 .build();
+                                		 
+                                         iSellerCenterAdapter
+                                                 .updateStatusOrderSeller(iorder.getEcommerceId(), actionDto.getAction())
+                                                 .flatMap(orderCanonical -> getDataToSentAudit(orderCanonical, actionDto))
+                                                 .map(orderCanonical -> iAuditAdapter.updateAudit(orderCanonical, actionDto.getUpdatedBy())).subscribe();
+                                         
+                                         try {
+											Thread.sleep(2000);
+										} catch (InterruptedException ex) {
+											log.error("Update in Seller order: "+ iorder.getEcommerceId() +"error" + ex.getMessage() );
+										}	
+                                }
+                            	
+                            	return Mono.just(orderStatus);
+                            })
                             .reduce((previous,current) ->  {
 
                                 if (Constant.ActionOrder.getByName(current.getAction()).getSequence()
