@@ -237,7 +237,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                         .stream()
                         .map(OrderSynchronizeDto::getEcommerceId)
                         .collect(Collectors.toSet()));
-
+     
         return Flux
                 .fromIterable(iOrdersFulfillment)
                 .flatMap(iorder -> {
@@ -246,42 +246,15 @@ public class TrackerFacade extends FacadeAbstractUtil{
                             .filter(o -> o.getEcommerceId().equals(iorder.getEcommerceId()))
                             .findFirst()
                             .get();
-
+                    
+                    if (iorder.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER)) {
+                    	iSellerCenterAdapter
+                        .updateListStatusOrderSeller(iorder.getEcommerceId(), orderSynchronizeDto.getHistory())
+                        .subscribe();
+                    }
+              
                     return Flux
-                            .fromIterable(orderSynchronizeDto.getHistory())
-                            .flatMap(orderStatus -> {
-                         	
-                            	if(iorder.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER) &&
-                            			(Constant.ActionOrder.DELIVER_ORDER.name().equalsIgnoreCase(orderStatus.getAction()) ||
-                                		Constant.ActionOrder.ON_ROUTE_ORDER.name().equalsIgnoreCase(orderStatus.getAction()))) {
-                  	
-                                		 log.info("Update in Seller order: {}, status: {}", iorder.getEcommerceId(), orderStatus.getAction());
-                                		 
-                                		 ActionDto actionDto = ActionDto
-                                                 .builder()
-                                                 .action(orderStatus.getAction())
-                                                 .origin(orderSynchronizeDto.getOrigin())
-                                                 .orderCancelCode(orderStatus.getOrderCancelCode())
-                                                 .orderCancelObservation(orderStatus.getOrderCancelObservation())
-                                                 .motorizedId(orderStatus.getMotorizedId())
-                                                 .updatedBy(orderStatus.getUpdatedBy())
-                                                 .actionDate(orderStatus.getActionDate())
-                                                 .build();
-                                		 
-                                         iSellerCenterAdapter
-                                                 .updateStatusOrderSeller(iorder.getEcommerceId(), actionDto.getAction())
-                                                 .flatMap(orderCanonical -> getDataToSentAudit(orderCanonical, actionDto))
-                                                 .map(orderCanonical -> iAuditAdapter.updateAudit(orderCanonical, actionDto.getUpdatedBy())).subscribe();
-                                         
-                                         try {
-											Thread.sleep(2000);
-										} catch (InterruptedException ex) {
-											log.error("Update in Seller order: "+ iorder.getEcommerceId() +"error" + ex.getMessage() );
-										}	
-                                }
-                            	
-                            	return Mono.just(orderStatus);
-                            })
+                    		.fromIterable(orderSynchronizeDto.getHistory())
                             .reduce((previous,current) ->  {
 
                                 if (Constant.ActionOrder.getByName(current.getAction()).getSequence()
@@ -294,7 +267,6 @@ public class TrackerFacade extends FacadeAbstractUtil{
 
                             })
                             .flatMap(statusLast -> {
-
                                 // Se envía el último estado para que se registre en la DB fulfillment y su tracker
 
                                 ActionDto actionDto = ActionDto

@@ -46,19 +46,19 @@ external-service:
       read-timeout: 60000
   inkatracker:
     create-order:
-      uri: http://inkatrackeruat.backend.cindibyinkafarma.com/nvr/orders/create
+      uri: http://us-inkatracker/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-order:
-      uri: http://inkatrackeruat.backend.cindibyinkafarma.com/nvr/orders/create
+      uri: http://us-inkatracker/nvr/orders/create
       connect-timeout: 30000
       read-timeout: 60000
     update-status-order:
-      uri: http://inkatrackeruat.backend.cindibyinkafarma.com/nvr/orders
+      uri: http://us-inkatracker/nvr/orders
       connect-timeout: 30000
       read-timeout: 60000
     update-onlinepayment-status-order:
-      uri: http://inkatrackeruat.backend.cindibyinkafarma.com/nvr/onlinepayment/orders
+      uri: http://us-inkatracker/nvr/onlinepayment/orders
       connect-timeout: 30000
       read-timeout: 60000
   order-tracker:
