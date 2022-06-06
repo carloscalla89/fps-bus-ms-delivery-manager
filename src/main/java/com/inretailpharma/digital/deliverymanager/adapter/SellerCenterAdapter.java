@@ -1,22 +1,18 @@
 package com.inretailpharma.digital.deliverymanager.adapter;
 
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
-import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
-import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalSellerCenterProperties;
-import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
-import com.inretailpharma.digital.deliverymanager.dto.HistorySynchronizedDto;
-import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
-import com.inretailpharma.digital.deliverymanager.util.Constant;
-import com.inretailpharma.digital.deliverymanager.util.DateUtils;
-
-import lombok.extern.slf4j.Slf4j;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.HistorySynchronizedDto;
+import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.util.Constant;
+
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -73,23 +69,6 @@ public class SellerCenterAdapter extends AdapterAbstractUtil implements ISellerC
 			sellerCenterExternalService.updateStatusOrderSeller(ecommerceId, listStatus).subscribe();
 			log.info("[END] updateListStatusOrderSeller");
 		}
-
-		return Mono.just(orderCanonical);
-
-	}
-
-	protected Mono<OrderCanonical> getDataToSentAudit(OrderCanonical orderCanonical, ActionDto actionDto) {
-
-		log.info("order:{}, target:{}, action:{}", orderCanonical.getEcommerceId(), orderCanonical.getTarget(),
-				actionDto);
-
-		LocalDateTime localDateTime = DateUtils.getLocalDateTimeObjectNow();
-		orderCanonical.setUpdateBy(actionDto.getUpdatedBy());
-		orderCanonical.setSource(actionDto.getOrigin());
-		orderCanonical.getOrderStatus().setStatusDate(DateUtils.getLocalDateTimeWithFormat(localDateTime));
-
-		orderCanonical.getOrderStatus().setCancellationCode(actionDto.getOrderCancelCode());
-		orderCanonical.getOrderStatus().setCancellationObservation(actionDto.getOrderCancelObservation());
 
 		return Mono.just(orderCanonical);
 
