@@ -735,6 +735,8 @@ public interface Constant {
     String VALUE_ZERO_STRING = "0";
     
     String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
+    String ERROR_UPDATE_CODE = "36";
+    
 
     enum DeliveryManagerStatus {
 
