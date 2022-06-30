@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.ISellerCenterAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.OrderTrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
@@ -41,16 +42,19 @@ public class TrackerFacade extends FacadeAbstractUtil{
     private IAuditAdapter iAuditAdapter;
 
     private UpdateTracker updateTracker;
-
+    private ISellerCenterAdapter iSellerCenterAdapter;
+    
     @Autowired
     public TrackerFacade(@Qualifier("orderTrackerAdapter") ITrackerAdapter iOrderTrackerAdapter,
                          @Qualifier("auditAdapter") IAuditAdapter iAuditAdapter,
                          OrderCancellationService orderCancellationService,
-                         @Qualifier("updateTracker") UpdateTracker updateTracker) {
+                         @Qualifier("updateTracker") UpdateTracker updateTracker,
+                         ISellerCenterAdapter iSellerCenterAdapter) {
         this.iOrderTrackerAdapter = iOrderTrackerAdapter;
         this.iAuditAdapter = iAuditAdapter;
         this.orderCancellationService = orderCancellationService;
         this.updateTracker = updateTracker;
+        this.iSellerCenterAdapter = iSellerCenterAdapter;
     }
 
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
@@ -233,7 +237,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                         .stream()
                         .map(OrderSynchronizeDto::getEcommerceId)
                         .collect(Collectors.toSet()));
-
+     
         return Flux
                 .fromIterable(iOrdersFulfillment)
                 .flatMap(iorder -> {
@@ -242,9 +246,15 @@ public class TrackerFacade extends FacadeAbstractUtil{
                             .filter(o -> o.getEcommerceId().equals(iorder.getEcommerceId()))
                             .findFirst()
                             .get();
-
+                    
+                    if (iorder.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER)) {
+                    	iSellerCenterAdapter
+                        .updateListStatusOrderSeller(iorder.getEcommerceId(), orderSynchronizeDto.getHistory())
+                        .subscribe();
+                    }
+              
                     return Flux
-                            .fromIterable(orderSynchronizeDto.getHistory())
+                    		.fromIterable(orderSynchronizeDto.getHistory())
                             .reduce((previous,current) ->  {
 
                                 if (Constant.ActionOrder.getByName(current.getAction()).getSequence()
@@ -257,7 +267,6 @@ public class TrackerFacade extends FacadeAbstractUtil{
 
                             })
                             .flatMap(statusLast -> {
-
                                 // Se envía el último estado para que se registre en la DB fulfillment y su tracker
 
                                 ActionDto actionDto = ActionDto
