@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    gcp:
+      pubsub.enabled: true
+      project-id: fp-serverless-uat-project
+      credentials:
+        location: classpath:gcp/uat/fp-serverless-uat-project-89a171267e90.json
+    stream:
+      bindings:
+        channel:
+          destination: orderStatus.omni.topic
+          group: deliverymanager
+  
+management.health.pubsub.enabled: true
