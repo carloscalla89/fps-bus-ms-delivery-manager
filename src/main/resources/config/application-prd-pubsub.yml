@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    gcp:
+      pubsub.enabled: true
+      project-id: fp-serverless-prd-project
+      credentials:
+        location: classpath:gcp/prd/fp-serverless-prd-project-aa3039b013df.json
+    stream:
+      bindings:
+        channel:
+          destination: orderStatus.omni.topic
+          group: deliverymanager
+  
+management.health.pubsub.enabled: true
+
