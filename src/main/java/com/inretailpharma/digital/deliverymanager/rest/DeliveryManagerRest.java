@@ -55,7 +55,7 @@ public class DeliveryManagerRest {
                 managePartnerClient.notifyEvent(ecommerceId, action);
             }
         }
-        return deliveryManagerFacade.getUpdateOrder(action, ecommerceId)
+        return deliveryManagerFacade.getUpdateOrder(action, ecommerceId, true)
                 .map(r -> ResponseEntity.status(HttpStatus.OK)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(r))

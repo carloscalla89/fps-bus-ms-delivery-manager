@@ -740,6 +740,8 @@ public interface Constant {
     String MANAGE_PARTNER_ORIGIN = "MANAGE_PARTNER";
     
     String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
+    String ERROR_UPDATE_CODE = "36";
+    
 
     enum DeliveryManagerStatus {
 

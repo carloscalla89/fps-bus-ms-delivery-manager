@@ -70,7 +70,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
         return createOrderFulfillment(orderDto);
     }
 
-    public Mono<OrderCanonical> getUpdateOrder(ActionDto actionDto, String ecommerceId) {
+    public Mono<OrderCanonical> getUpdateOrder(ActionDto actionDto, String ecommerceId, boolean notifyExternalLiquidation) {
         log.info("[START] getUpdateOrder action:{}", actionDto);
         IActionStrategy actionStrategy = actionsProcessors.get(Constant.ActionOrder.getByName(actionDto.getAction()));
         if (actionStrategy == null) {
@@ -87,7 +87,7 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
         return Mono.fromCallable(() ->
                         actionStrategy.evaluate(actionDto, ecommerceId)
                                 .flatMap(response ->
-                                        liquidationFacade.evaluateUpdate(response, actionDto))
+                                        liquidationFacade.evaluateUpdate(response, actionDto, notifyExternalLiquidation))
                                 .subscribeOn(Schedulers.boundedElastic()))
                 .flatMap(val -> val);
     }
@@ -149,7 +149,8 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                         order,
                         ActionDto.builder()
                                 .origin(Constant.ORIGIN_INKATRACKER_WEB)
-                                .action(Constant.ActionOrder.SET_PARTIAL_ORDER.name()).build())
+                                .action(Constant.ActionOrder.SET_PARTIAL_ORDER.name()).build(),
+                        true)
                 );
     }
 

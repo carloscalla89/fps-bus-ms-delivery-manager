@@ -78,7 +78,7 @@ public class CancellationFacade extends FacadeAbstractUtil{
                                                 .build();
 
                     return deliveryManagerFacade
-                            .getUpdateOrder(actionDto, r.getEcommerceId().toString())
+                            .getUpdateOrder(actionDto, r.getEcommerceId().toString(), true)
                             .defaultIfEmpty(
                                     new OrderCanonical(
                                             r.getEcommerceId(),
