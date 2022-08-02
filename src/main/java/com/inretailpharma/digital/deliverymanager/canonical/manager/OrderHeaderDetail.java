@@ -15,7 +15,7 @@ public class OrderHeaderDetail {
     private String promiseDate;
     private Long orderId;
     private Long ecommerceId;
-    private Long ecommerceIdCall;
+    private String ecommerceIdCall;
     private String companyCode;
     private String serviceChannel;
     private String source;
