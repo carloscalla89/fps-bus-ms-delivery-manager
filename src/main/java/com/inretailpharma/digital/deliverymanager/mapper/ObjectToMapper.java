@@ -1154,6 +1154,7 @@ public class ObjectToMapper {
         	orderCanonical.setTotalAmount(o.getTotalCost());
         	orderCanonical.setDeliveryCost(o.getDeliveryCost());
         	
+        	orderCanonical.setCompanyCode(o.getCompanyCode());
         	orderCanonical.setCompany(o.getCompanyName());
         	orderCanonical.setLocalCode(o.getCenterCode());
         	orderCanonical.setLocal(o.getCenterName());
