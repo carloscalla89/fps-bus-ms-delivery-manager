@@ -779,7 +779,8 @@ public class ObjectToMapper {
         if (status != null && (status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER.name())
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT.name())
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
-                || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name()))) {
+                || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name()))
+                || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_BLACK_LIST.name()) ) {
 
 
             /** inkatracker **/
