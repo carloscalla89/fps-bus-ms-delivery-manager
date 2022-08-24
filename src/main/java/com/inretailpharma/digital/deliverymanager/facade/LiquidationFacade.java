@@ -48,7 +48,7 @@ public class LiquidationFacade extends FacadeAbstractUtil {
         }
     }
 
-    public Mono<OrderCanonical> evaluateUpdate(OrderCanonical orderCanonical, ActionDto actionDto) {
+    public Mono<OrderCanonical> evaluateUpdate(OrderCanonical orderCanonical, ActionDto actionDto, boolean notifyExternal) {
         if (getValueBoolenOfParameter() && !actionDto.getAction().equalsIgnoreCase(Constant.ActionOrder.LIQUIDATE_ORDER.name())) {
             return Mono.just(orderCanonical)
                     .flatMap(order -> Mono.just(getLiquidationStatusByDigitalStatusCode(order.getOrderStatus().getCode())))
@@ -65,14 +65,25 @@ public class LiquidationFacade extends FacadeAbstractUtil {
                         }
                         return Mono.just(result);
                     })
-                    .flatMap(result -> iLiquidationAdapter.updateOrder(orderCanonical, result)
-                            .flatMap(resultOrder -> {
-                                orderTransaction.updateLiquidationStatusOrder(
-                                        resultOrder.getLiquidation().getStatus(), resultOrder.getLiquidation().getDetail(), orderCanonical.getId()
-                                );
-                                return Mono.just(resultOrder);
-                            })
-                    )
+                    .flatMap(result -> {
+
+                        if (notifyExternal) {
+
+                            return iLiquidationAdapter.updateOrder(orderCanonical, result)
+                                    .flatMap(resultOrder -> {
+                                        orderTransaction.updateLiquidationStatusOrder(
+                                                resultOrder.getLiquidation().getStatus(), resultOrder.getLiquidation().getDetail(), orderCanonical.getId()
+                                        );
+                                        return Mono.just(resultOrder);
+                                    });
+
+                        } else {
+
+                            orderTransaction.updateLiquidationStatusOrder(result.getStatus(), null, orderCanonical.getId());
+                            return Mono.just(orderCanonical);
+
+                        }
+                    })
                     .defaultIfEmpty(orderCanonical)
                     .onErrorResume(e -> {
                         e.printStackTrace();
