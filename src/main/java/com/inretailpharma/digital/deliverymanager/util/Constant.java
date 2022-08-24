@@ -35,6 +35,7 @@ public interface Constant {
 
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el local"),
         CANCELLED_ORDER_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el local"),
+        CANCELLED_ORDER_BLACK_LIST("C46", "Cancelar orden lista negra"),
         NONE(null, null);
 
         private String id;
@@ -166,6 +167,7 @@ public interface Constant {
 
     interface InsinkErrorCode {
         String CODE_ERROR_STOCK = "E-1";
+        String CODE_ERROR_BLACK_LIST = "E-2";
     }
 
     enum Source {
@@ -321,6 +323,9 @@ public interface Constant {
 
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("CANCELLED", "CANCELLED",
                 OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK, OrderStatus.ERROR_CANCELLED,
+                ActionOrder.CANCEL_ORDER.name()),
+
+        CANCELLED_ORDER_BLACK_LIST("CANCELLED", "CANCELLED", OrderStatus.CANCELLED_ORDER_BLACK_LIST, OrderStatus.ERROR_CANCELLED,
                 ActionOrder.CANCEL_ORDER.name()),
 
         REJECTED_ORDER("REJECTED", "REJECTED", OrderStatus.REJECTED_ORDER, OrderStatus.ERROR_REJECTED,
@@ -567,7 +572,8 @@ public interface Constant {
         EMPTY_RESULT_INKATRACKERLITE("-1", false), END_STATUS_RESULT("-1", false),
         EMPTY_RESULT_ORDERTRACKER("-1", false),
 
-        BILLED_ORDER("47", true);
+        BILLED_ORDER("47", true),
+        CANCELLED_ORDER_BLACK_LIST("48", true);
 
         private String code;
         private boolean isSuccess;
