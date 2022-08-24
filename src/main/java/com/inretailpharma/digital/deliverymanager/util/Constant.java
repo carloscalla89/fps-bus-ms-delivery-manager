@@ -35,7 +35,7 @@ public interface Constant {
 
         CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el local"),
         CANCELLED_ORDER_NOT_ENOUGH_STOCK("C05", "Producto no disponible en el local"),
-        CANCELLED_ORDER_BLACK_LIST("C46", "Cancelar orden lista negra"),
+        CANCELLED_ORDER_BLACK_LIST("C47", "Cancelar orden lista negra"),
         NONE(null, null);
 
         private String id;
