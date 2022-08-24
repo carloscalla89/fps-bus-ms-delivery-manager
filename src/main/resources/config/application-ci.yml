@@ -3,6 +3,10 @@ spring:
     url: jdbc:mysql://fulfillment.ci01.internal:3306/ci01fulfillment?autoReconnect=true&useSSL=false&serverTimezone=America/Lima
     username: cesar
     password: cesar2020
+  cloud.gcp.pubsub.enabled: false
+  
+management.health.pubsub.enabled: false
+
 external-service:
   audit:
     create-order: http://us-audit/audit/order
