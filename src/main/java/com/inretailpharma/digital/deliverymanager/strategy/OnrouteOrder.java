@@ -6,13 +6,16 @@ import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.dto.ActionDto;
+import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.facade.FacadeAbstractUtil;
+import com.inretailpharma.digital.deliverymanager.service.OrderStatusService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.UtilClass;
 import com.inretailpharma.digital.deliverymanager.util.UtilFunctions;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -29,6 +32,9 @@ public class OnrouteOrder extends FacadeAbstractUtil implements IActionStrategy{
     private ApplicationContext context;
     private IAuditAdapter iAuditAdapter;
     private ISellerCenterAdapter iSellerCenterAdapter;
+
+    @Autowired
+    private OrderStatusService orderStatusService;
 
     public OnrouteOrder(ApplicationContext context, IAuditAdapter iAuditAdapter, ISellerCenterAdapter iSellerCenterAdapter) {
         this.context = context;
@@ -104,7 +110,17 @@ public class OnrouteOrder extends FacadeAbstractUtil implements IActionStrategy{
                                                 actionDto.getActionDate()
                                         )
                                 )
-                                .flatMap(response -> iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy()))
+                                .flatMap(response -> {
+                                    if (Constant.ON_ROUTE_ORDER.equalsIgnoreCase(actionDto.getAction()) && Constant.ORIGIN_CNID.equalsIgnoreCase(actionDto.getOrigin())) {
+                                        OrderStatusDto assignedOrderStatusDto = orderStatusService.findById(Constant.OrderStatus.ASSIGNED.getCode());
+                                        OrderCanonical preOrderCanonical = new OrderCanonical(response);
+                                        preOrderCanonical.setAction(Constant.ASSIGN_ORDER);
+                                        preOrderCanonical.getOrderStatus().setCode(assignedOrderStatusDto.getCode());
+                                        preOrderCanonical.getOrderStatus().setName(assignedOrderStatusDto.getType());
+                                        iAuditAdapter.updateAudit(preOrderCanonical, actionDto.getUpdatedBy());
+                                    }
+                                    return iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy());
+                                })
                 )
                 .switchIfEmpty(Flux.defer(() -> {
 

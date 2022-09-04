@@ -1530,6 +1530,14 @@ public class ObjectToMapper {
         return new ArrayList<>();
 
     }
+
+    public OrderStatusDto mapToOrderStatusDto(OrderStatus orderStatus) {
+        OrderStatusDto orderDto = new OrderStatusDto();
+        orderDto.setCode(orderStatus.getCode());
+        orderDto.setDescription(orderStatus.getDescription());
+        orderDto.setType(orderStatus.getType());
+        return orderDto;
+    }
     
     
     public RoutedOrderContainerDto convertIOrderFulfillmentToRoutedOrder(IOrderFulfillment iOrderFulfillment, int totalItems) {

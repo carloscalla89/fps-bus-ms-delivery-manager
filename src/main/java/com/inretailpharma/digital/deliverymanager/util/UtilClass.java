@@ -101,9 +101,14 @@ public class UtilClass {
                 case Constant.READY_TO_ASSIGN:
                 case Constant.ASSIGN_ORDER:
                 case Constant.ON_ROUTE_ORDER:
-                case Constant.ARRIVAL_ORDER:
                 case Constant.INVOICED_ORDER:
                     classList.add(TrackerAdapter.class);
+                    break;
+                case Constant.ARRIVAL_ORDER:
+                    classList.add(TrackerAdapter.class);
+                    if (Constant.ORIGIN_CNID.equalsIgnoreCase(origin)){
+                        classList.add(OrderTrackerAdapter.class);
+                    }
                     break;
                 case Constant.DELIVER_ORDER:
                 case Constant.CANCEL_ORDER:

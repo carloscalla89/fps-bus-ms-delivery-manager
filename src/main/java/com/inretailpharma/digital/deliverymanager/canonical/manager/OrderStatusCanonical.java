@@ -21,4 +21,18 @@ public class OrderStatusCanonical implements Serializable {
     private String firstStatusName;
     private boolean successful;
 
+    public OrderStatusCanonical() {
+    }
+
+    public OrderStatusCanonical(OrderStatusCanonical orderStatusCanonical) {
+        this.code = orderStatusCanonical.getCode();
+        this.name = orderStatusCanonical.getName();
+        this.detail = orderStatusCanonical.getDetail();
+        this.cancellationCode = orderStatusCanonical.getCancellationCode();
+        this.cancellationDescription = orderStatusCanonical.getCancellationDescription();
+        this.cancellationObservation = orderStatusCanonical.getCancellationObservation();
+        this.statusDate = orderStatusCanonical.getStatusDate();
+        this.firstStatusName = orderStatusCanonical.getFirstStatusName();
+        this.successful = orderStatusCanonical.isSuccessful();
+    }
 }

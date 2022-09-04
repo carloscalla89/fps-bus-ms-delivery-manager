@@ -161,4 +161,49 @@ public class OrderCanonical {
     private String saleChannelType;
     private boolean externalRouting;
 
+    public OrderCanonical(OrderCanonical orderCanonical) {
+        this.id = orderCanonical.getId();
+        this.ecommerceId = orderCanonical.getEcommerceId();
+        this.trackerId = orderCanonical.getTrackerId();
+        this.externalId = orderCanonical.getExternalId();
+        this.purchaseId = orderCanonical.getPurchaseId();
+        this.motorizedId = orderCanonical.getMotorizedId();
+        this.deliveryCost = orderCanonical.getDeliveryCost();
+        this.discountApplied = orderCanonical.getDiscountApplied();
+        this.subTotalCost = orderCanonical.getSubTotalCost();
+        this.totalAmount = orderCanonical.getTotalAmount();
+        this.totalCostNoDiscount = orderCanonical.getTotalCostNoDiscount();
+        this.localType = orderCanonical.getLocalType();
+        this.companyCode = orderCanonical.getCompanyCode();
+        this.localCode = orderCanonical.getLocalCode();
+        this.local = orderCanonical.getLocal();
+        this.company = orderCanonical.getCompany();
+        this.localDescription = orderCanonical.getLocalDescription();
+        this.localAddress = orderCanonical.getLocalAddress();
+        this.localLongitude = orderCanonical.getLocalLongitude();
+        this.localLatitude = orderCanonical.getLocalLatitude();
+        this.inkaVentaId = orderCanonical.getInkaVentaId();
+        this.localId = orderCanonical.getLocalId();
+        this.storeCenter = orderCanonical.getStoreCenter();
+        this.client = orderCanonical.getClient();
+        this.orderStatus = new OrderStatusCanonical(orderCanonical.getOrderStatus());
+        this.receipt = orderCanonical.getReceipt();
+        this.paymentMethod = orderCanonical.getPaymentMethod();
+        this.address = orderCanonical.getAddress();
+        this.orderItems = orderCanonical.getOrderItems();
+        this.orderDetail = orderCanonical.getOrderDetail();
+        this.shelfList = orderCanonical.getShelfList();
+        this.payBackEnvelope = orderCanonical.getPayBackEnvelope();
+        this.attempt = orderCanonical.getAttempt();
+        this.attemptTracker = orderCanonical.getAttemptTracker();
+        this.source = orderCanonical.getSource();
+        this.target = orderCanonical.getTarget();
+        this.action = orderCanonical.getAction();
+        this.partial = orderCanonical.getPartial();
+        this.updateBy = orderCanonical.getUpdateBy();
+        this.liquidation = orderCanonical.getLiquidation();
+        this.groupId = orderCanonical.getGroupId();
+        this.saleChannel = orderCanonical.getSaleChannel();
+        this.saleChannelType = orderCanonical.getSaleChannelType();
+    }
 }
