@@ -149,3 +149,8 @@ external-service:
       read-timeout: 60000
   manage-partner:
     update-status: http://fps-wsmanagepartneruat.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/
+  routing:
+    create-order:
+      uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/pedidos
+      connect-timeout: 30000
+      read-timeout: 60000
