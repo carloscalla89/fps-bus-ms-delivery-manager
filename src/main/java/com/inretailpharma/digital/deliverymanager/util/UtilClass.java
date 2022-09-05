@@ -22,18 +22,31 @@ public class UtilClass {
     private String target;
     private String orderStatusName;
     private String firstOrderStatusName;
+    private boolean externalRouting;
 
     public UtilClass(String classImplementTracker) {
         this.classImplementTracker = classImplementTracker;
+        this.externalRouting = false;
     }
+    
+    public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin,
+            String orderStatusName) {
+		this.classImplementTracker = classImplementTracker;
+		this.serviceType = serviceType;
+		this.actionName = actionName;
+		this.origin = origin;
+		this.orderStatusName = orderStatusName;
+		this.externalRouting = false;
+	}    
 
     public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin,
-                     String orderStatusName) {
+                     String orderStatusName, boolean externalRouting) {
         this.classImplementTracker = classImplementTracker;
         this.serviceType = serviceType;
         this.actionName = actionName;
         this.origin = origin;
         this.orderStatusName = orderStatusName;
+        this.externalRouting = externalRouting;
     }
 
     public String getOnlyTargetComponentTracker() {
@@ -79,7 +92,8 @@ public class UtilClass {
                         classList.add(TrackerAdapter.class);
                     }
                     if (!Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)
-                            && !classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
+                            && !classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())
+                    		&& !externalRouting) {
                         classList.add(OrderTrackerAdapter.class);
                     }
                     break;

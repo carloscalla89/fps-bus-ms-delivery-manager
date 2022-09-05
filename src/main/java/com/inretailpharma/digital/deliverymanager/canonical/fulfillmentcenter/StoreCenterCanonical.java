@@ -21,6 +21,7 @@ public class StoreCenterCanonical {
     private BigDecimal longitude;
     private String localType;
     private List<ServiceOffered> services;
+    private boolean externalRoutingEnabled;
 
     public StoreCenterCanonical() {
 

@@ -29,6 +29,8 @@ import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.Liquidation
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
+import com.inretailpharma.digital.deliverymanager.dto.RoutedOrderContainerDto;
+import com.inretailpharma.digital.deliverymanager.dto.RoutedOrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.AddressDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.DrugstoreDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ItemDto;
@@ -52,17 +54,21 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1136,6 +1142,7 @@ public class ObjectToMapper {
 
         orderFulfillment.setMixedOrder(orderDto.isMixedOrder());
         orderFulfillment.setGroupId(orderDto.getGroupId());
+        orderFulfillment.setExternalRouting(orderDto.isExternalRouting());
 
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
@@ -1207,7 +1214,8 @@ public class ObjectToMapper {
             orderCanonical.setReceipt(receipt);
             orderCanonical.setPaymentMethod(paymentMethod);
             
-            orderCanonical.setPartial(o.getPartial());
+            orderCanonical.setPartial(o.getPartial());            
+            orderCanonical.setExternalRouting(o.getExternalRouting());
 
         });
 
@@ -1522,4 +1530,34 @@ public class ObjectToMapper {
         return new ArrayList<>();
 
     }
+    
+    
+    public RoutedOrderContainerDto convertIOrderFulfillmentToRoutedOrder(IOrderFulfillment iOrderFulfillment, int totalItems) {
+    	
+    	RoutedOrderContainerDto container = new RoutedOrderContainerDto();
+    	RoutedOrderDto dto = new RoutedOrderDto();
+    	dto.setOrderid(String.valueOf(iOrderFulfillment.getEcommerceId()));
+    	dto.setLatitude(String.valueOf(iOrderFulfillment.getLatitude()));
+    	dto.setLongitude(String.valueOf(iOrderFulfillment.getLongitude()));
+    	dto.setAddress(
+	    	Arrays.asList(iOrderFulfillment.getStreet(), iOrderFulfillment.getNumber(), iOrderFulfillment.getDistrict())
+	    	.stream().filter(value -> null != value).collect(Collectors.joining(" "))
+    	);
+    	dto.setDeliveryTime(Constant.Routing.DEFAULT_DELIVERY_TIME);
+    	dto.setDeliveryWeight(Constant.Routing.DEFAULT_WEIGHT * totalItems);
+    	dto.setLocalCode(iOrderFulfillment.getCenterCode());    	
+    	dto.setMeasurementUnit(Constant.Routing.DEFAULT_MEASUREMENT_UNIT);    	
+    	dto.setPriority(Constant.Routing.DEFAULT_PRIORITY);
+    	
+    	container.setOrders(Arrays.asList(dto));
+    	
+    	dto.setCreationDate(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getCreatedOrder()));    	
+    	dto.setScheduledTimeStart(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getScheduledTime()));
+    	dto.setScheduledTimeEnd(
+    			DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getScheduledTime().plusMinutes(iOrderFulfillment.getLeadTime()))
+    	);
+    	
+    	return container;    	
+    }
+
 }

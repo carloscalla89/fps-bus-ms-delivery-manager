@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inretailpharma.digital.deliverymanager.adapter.IAuditAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.INotificationAdapter;
+import com.inretailpharma.digital.deliverymanager.adapter.IRoutingAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.IStoreAdapter;
 import com.inretailpharma.digital.deliverymanager.adapter.ITrackerAdapter;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrdersSelectedResponse;
@@ -61,6 +62,9 @@ public abstract class FacadeAbstractUtil {
     private OrderStatusService orderStatusService;
 
     private OrderInfoService orderInfoService;
+    
+    @Autowired
+    private IRoutingAdapter iRoutingAdapter;
 
     protected List<IOrderFulfillment> getListOrdersToCancel(String serviceType, String companyCode, Integer maxDayPickup,
                                                             String statustype) {
@@ -238,6 +242,8 @@ public abstract class FacadeAbstractUtil {
                                         Mono.defer(() ->
                                                 Mono.error(new CustomException("Order already exist", HttpStatus.INTERNAL_SERVER_ERROR.value())))),
                             (storeCenter, existOrder) -> {
+                            	
+                            orderDto.setExternalRouting(storeCenter.isExternalRoutingEnabled());
 
                             OrderCanonical orderCanonicalResponse = orderTransaction.processOrderTransaction(
                                     objectToMapper.convertOrderdtoToOrderEntity(orderDto),
@@ -303,6 +309,7 @@ public abstract class FacadeAbstractUtil {
                                 )
                                 .flatMap(response -> iAuditAdapter.updateAudit(response, Constant.UPDATED_BY_INIT))
                                 .flatMap(response -> liquidationFacade.create(response, order))
+                                .flatMap(response -> iRoutingAdapter.createOrder(response))
                                 .onErrorResume(e -> {
                                     e.printStackTrace();
 

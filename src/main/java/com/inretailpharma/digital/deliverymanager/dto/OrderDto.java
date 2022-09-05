@@ -94,6 +94,8 @@ public class OrderDto {
     private String saleChannelType;
 
     private boolean mixedOrder;
+    
+    private boolean externalRouting;
 
     private Integer idPickUp;
     private String dniPickUp;

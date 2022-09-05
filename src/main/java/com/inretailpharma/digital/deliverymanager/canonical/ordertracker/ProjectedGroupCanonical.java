@@ -14,6 +14,7 @@ public class ProjectedGroupCanonical implements Serializable {
     private String updateBy;
     private String groupName;
     private String motorizedId;
+    private String motorizedEmail;
     private Integer projectedEtaReturn;
     private List<GroupCanonical> group;
     private String source;

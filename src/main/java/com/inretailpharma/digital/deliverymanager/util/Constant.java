@@ -729,6 +729,7 @@ public interface Constant {
     String SOURCE_SELLER_CENTER = "SC";
     String[] ORDER_STATUS_RAPPI = {"CONFIRMED_TRACKER", "READY_PICKUP_ORDER", "PICK_ORDER", "CANCEL_ORDER"};
     String DU_CANCEL_CODE = "DU";
+    String TARGET_ROUTING = "EXT_ROUTER";
 
     String ACTION_DELIVER_ORDER = "DELIVER_ORDER";
     String ACTION_CANCEL_ORDER = "CANCEL_ORDER";
@@ -926,5 +927,14 @@ public interface Constant {
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(CASH);
         }
 
+    }
+    
+    
+    interface Routing {
+
+    	int DEFAULT_WEIGHT = 20;
+    	int DEFAULT_MEASUREMENT_UNIT = 5;
+    	int DEFAULT_PRIORITY = 1;
+    	int DEFAULT_DELIVERY_TIME = 30;
     }
 }

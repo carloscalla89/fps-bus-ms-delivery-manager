@@ -60,6 +60,9 @@ public class TrackerFacade extends FacadeAbstractUtil{
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
 
         log.info("[START] assign orders to external tracker");
+        
+        String source = Optional.ofNullable(projectedGroupCanonical.getSource())
+        		.orElse(Constant.UPDATED_BY_INKATRACKER_WEB);
 
         return getOrdersByEcommerceIds(
                 projectedGroupCanonical
@@ -94,9 +97,10 @@ public class TrackerFacade extends FacadeAbstractUtil{
                     newProjectedGroupCanonical.setGroup(allGroups);
                     newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
                     newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
+                    newProjectedGroupCanonical.setMotorizedEmail(projectedGroupCanonical.getMotorizedEmail());
                     newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
                     newProjectedGroupCanonical.setUpdateBy(projectedGroupCanonical.getUpdateBy());
-                    newProjectedGroupCanonical.setSource(Constant.UPDATED_BY_INKATRACKER_WEB);
+                    newProjectedGroupCanonical.setSource(source);
 
                     return ((OrderTrackerAdapter)iOrderTrackerAdapter)
                             .assignOrders(newProjectedGroupCanonical, allGroups);
@@ -105,7 +109,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                 })
                 .flatMap(result ->
                         updateOrderInfulfillment(
-                                result, result.getEcommerceId(), Constant.UPDATED_BY_INKATRACKER_WEB, Constant.TARGET_TRACKER,
+                                result, result.getEcommerceId(), source, Constant.TARGET_TRACKER,
                                 projectedGroupCanonical.getUpdateBy(), null)
                 )
                 .flatMap(result -> iAuditAdapter.updateAudit(result, projectedGroupCanonical.getUpdateBy()))

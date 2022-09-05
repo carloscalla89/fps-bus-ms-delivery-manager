@@ -159,5 +159,6 @@ public class OrderCanonical {
     
     private String saleChannel;
     private String saleChannelType;
+    private boolean externalRouting;
 
 }

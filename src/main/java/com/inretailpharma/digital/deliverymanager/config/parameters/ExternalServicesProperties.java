@@ -273,6 +273,16 @@ public class ExternalServicesProperties {
     @Value("${external-service.legacy-bridge.release-stock.read-timeout}")
     private String legacyBridgeReleaseStockReadTimeout;
     
+    // endpoint para ruteo
+    @Value("${external-service.routing.create-order.uri}")
+    private String routingCreateOrderUri;
+
+    @Value("${external-service.routing.create-order.connect-timeout}")
+    private String routingCreateOrderConnectTimeout;
+
+    @Value("${external-service.routing.create-order.read-timeout}")
+    private String routingCreateOrderReadTimeout;
+    
 
 
 }

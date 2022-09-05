@@ -123,5 +123,7 @@ public class OrderFulfillment extends OrderEntity<Long> {
     private boolean mixedOrder;
 
     private boolean voucher;
-
+    
+    @Column(name="external_routing")
+    private boolean externalRouting;
 }
