@@ -1,5 +1,11 @@
 package com.inretailpharma.digital.deliverymanager.proxy;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -7,7 +13,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
-import com.inretailpharma.digital.deliverymanager.dto.RoutedOrderContainerDto;
+import com.inretailpharma.digital.deliverymanager.dto.routing.RoutedOrderContainerDto;
+import com.inretailpharma.digital.deliverymanager.dto.routing.TokenCredentialsDto;
+import com.inretailpharma.digital.deliverymanager.dto.routing.TokenRequestDto;
+import com.inretailpharma.digital.deliverymanager.dto.routing.TokenResponseDto;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.ObjectUtil;
 
@@ -34,41 +43,157 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 		log.info("[START] router service - order:{}", ObjectUtil.objectToJson(routedOrderContainerDto));
 
 		log.info("url to create router:{}",externalServicesProperties.getRoutingCreateOrderUri());
+		
+		TokenResponseDto token = getToken();		
+		
+		if (token != null && token.isSuccess() && token.getIdToken() != null ) {
+			
+			return WebClient
+					.builder()
+					.clientConnector(
+							generateClientConnector(
+									Integer.parseInt(externalServicesProperties.getRoutingCreateOrderConnectTimeout()),
+									Long.parseLong(externalServicesProperties.getRoutingCreateOrderReadTimeout())
+							)
+					)
+					.baseUrl(externalServicesProperties.getRoutingCreateOrderUri())
+					.build()
+					.post()
+					.header("Authorization", token.getIdToken())
+					.bodyValue(routedOrderContainerDto)
+					.exchange()
+					.flatMap(r -> {
+							
+						if (r.statusCode().is2xxSuccessful()) {						
+							
+							return r.bodyToMono(String.class).flatMap(s -> {
+								
+								log.info("[END] router service - order:{} - response{}", ecommercePurchaseId, s);
+								return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER, null));	
+							});
+						}
+						
+						log.info("[ERROR] router service - order:{} - code{}", ecommercePurchaseId, r.rawStatusCode());					
+						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, null));	
+					})
+					.defaultIfEmpty(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, "EMPTY"))
+					.onErrorResume(ex -> {
+						ex.printStackTrace();
+						log.error("[ERROR] router service - order:{} - error:{}", ecommercePurchaseId, ex.getMessage());
+						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, ex.getMessage()));
+					});
+			
+		} else {
+			
+			return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, "invalid token"));
+			
+		}
 
+
+	}
+	
+	private Mono<TokenResponseDto> getTokenAsyn() {
+		
+		TokenCredentialsDto credentials = TokenCredentialsDto.builder()
+				.username("omnicanalidad@inkafarmadigital.pe")
+				.password("FP*2022om")
+				.build();
+		
+		TokenRequestDto request = TokenRequestDto.builder()
+				.authParameters(credentials)
+				.clientId("3kcves4j9g0dkd1tvrn21rlf3j")
+				.authFlow("USER_PASSWORD_AUTH")
+				.build();
+		
+		log.info("[START] router service - getToken - request:{}", ObjectUtil.objectToJson(request));
+		log.info("url to getToken:{}",externalServicesProperties.getRoutingCreateTokenUri());
+		
 		return WebClient
 				.builder()
 				.clientConnector(
 						generateClientConnector(
-								Integer.parseInt(externalServicesProperties.getRoutingCreateOrderConnectTimeout()),
-								Long.parseLong(externalServicesProperties.getRoutingCreateOrderReadTimeout())
+								Integer.parseInt(externalServicesProperties.getRoutingCreateTokenConnectTimeout()),
+								Long.parseLong(externalServicesProperties.getRoutingCreateTokenReadTimeout())
 						)
 				)
-				.baseUrl(externalServicesProperties.getRoutingCreateOrderUri())
+				.baseUrl(externalServicesProperties.getRoutingCreateTokenUri())
 				.build()
 				.post()
-				.bodyValue(routedOrderContainerDto)
+				.header("Content-Type", "application/x-amz-json-1.1")
+				.header("X-Amz-Target", "AWSCognitoIdentityProviderService.InitiateAuth")
+				.bodyValue(request)
 				.exchange()
 				.flatMap(r -> {
 						
 					if (r.statusCode().is2xxSuccessful()) {						
 						
-						return r.bodyToMono(String.class).flatMap(s -> {
+						return r.bodyToMono(String.class).flatMap(response -> {
 							
-							log.info("[END] router service - order:{} - response{}", ecommercePurchaseId, s);
-							return Mono.just(new OrderCanonical(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_TRACKER.getCode(), null));	
-							
+							TokenResponseDto r3 = new TokenResponseDto();
+							r3.setSuccess(true);
+							log.info("[END] router service - getToken - response{}", ObjectUtil.objectToJson(response));							
+							return Mono.just(r3);
 						});
-					}
+					}	
 					
-					log.info("[ERROR] router service - order:{} - code{}", ecommercePurchaseId, r.rawStatusCode());					
-					return Mono.just(new OrderCanonical(ecommercePurchaseId, Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(), null));	
+					log.info("[ERROR] router service - getToken - code{}", r.rawStatusCode());					
+					return Mono.just(new TokenResponseDto());	
 				})
-				.defaultIfEmpty(new OrderCanonical(ecommercePurchaseId, Constant.OrderStatus.EMPTY_RESULT_INKATRACKER.getCode(), null))
+				.defaultIfEmpty(new TokenResponseDto())
 				.onErrorResume(ex -> {
 					ex.printStackTrace();
-					log.error("[ERROR] router service - order:{} - error:{}", ecommercePurchaseId, ex.getMessage());
-					return Mono.just(new OrderCanonical(ecommercePurchaseId, Constant.OrderStatus.ERROR_INSERT_TRACKER.getCode(), null));
+					log.error("[ERROR] router service - getToken - error:{}", ex.getMessage());
+					return Mono.just(new TokenResponseDto());
 				});
+
+		
+	}
+	
+	private TokenResponseDto getToken() {
+		
+		TokenCredentialsDto credentials = TokenCredentialsDto.builder()
+				.username("omnicanalidad@inkafarmadigital.pe")
+				.password("FP*2022om")
+				.build();
+		
+		TokenRequestDto requestBody = TokenRequestDto.builder()
+				.authParameters(credentials)
+				.clientId("3kcves4j9g0dkd1tvrn21rlf3j")
+				.authFlow("USER_PASSWORD_AUTH")
+				.build();
+	    
+	    HttpClient httpClient = HttpClient.newHttpClient();	    
+	    HttpRequest request = HttpRequest.newBuilder(URI.create(externalServicesProperties.getRoutingCreateTokenUri()))
+	            .header("X-Amz-Target","AWSCognitoIdentityProviderService.InitiateAuth")
+	            .header("Content-Type","application/x-amz-json-1.1")
+	            .POST(HttpRequest.BodyPublishers.ofString(ObjectUtil.objectToJson(requestBody)))
+	            .build();
+	
+		try {
+			HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			
+			if (response.statusCode() == 200) {
+				
+				log.info("[END] router service - getToken - response{}", response.body());
+				TokenResponseDto responseBody = ObjectUtil.jsonToObject(response.body(), TokenResponseDto.class);
+				responseBody.setSuccess(true);
+				return responseBody;
+			}			
+
+			log.error("[ERROR] router service - getToken - code {}", response.statusCode());	
+			
+		} catch (Exception ex) {
+			log.error("[ERROR] router service - getToken - {}", ex.getMessage());
+			ex.printStackTrace();
+		}
+		
+		return new TokenResponseDto();
+		
+	}
+	
+	
+	private OrderCanonical createResponse(Long ecommerceId, Constant.OrderStatus status, String detail) {		
+		 return new OrderCanonical(ecommerceId, status.getCode(), status.getCode(), detail);
 	}
 
 }

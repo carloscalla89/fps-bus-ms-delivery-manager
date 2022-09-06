@@ -153,6 +153,10 @@ external-service:
   manage-partner:
     update-status: http://fps-wsmanagepartnerqa02.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/
   routing:
+    create-token:
+      uri: https://cognito-idp.us-east-1.amazonaws.com/
+      connect-timeout: 30000
+      read-timeout: 60000    
     create-order:
       uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/pedidos
       connect-timeout: 30000

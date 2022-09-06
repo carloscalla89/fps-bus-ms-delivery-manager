@@ -1,4 +1,4 @@
-package com.inretailpharma.digital.deliverymanager.dto;
+package com.inretailpharma.digital.deliverymanager.dto.routing;
 
 import java.util.List;
 

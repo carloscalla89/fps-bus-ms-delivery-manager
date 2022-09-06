@@ -1,4 +1,4 @@
-package com.inretailpharma.digital.deliverymanager.dto;
+package com.inretailpharma.digital.deliverymanager.dto.routing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -26,7 +26,7 @@ public class RoutedOrderDto {
 	private int deliveryWeight;
 	
 	@JsonProperty("puntos_ventas_id")	
-	private String localCode;
+	private int localCode;
 	
 	@JsonProperty("unidad_medida_id")	
 	private int measurementUnit;
