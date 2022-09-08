@@ -938,6 +938,6 @@ public interface Constant {
     	int DEFAULT_WEIGHT = 20;
     	int DEFAULT_MEASUREMENT_UNIT = 5;
     	int DEFAULT_PRIORITY = 1;
-    	int DEFAULT_DELIVERY_TIME = 30;
+    	int DEFAULT_DELIVERY_TIME = 5;
     }
 }
