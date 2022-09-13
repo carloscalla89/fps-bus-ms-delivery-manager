@@ -88,7 +88,7 @@ external-service:
       connect-timeout: 10000
       read-timeout: 120000
     update-order-status:
-      uri: http://ordertrackerqa02.backend.cindibyinkafarma.com/order
+      uri: http://localhost:8030/order
       connect-timeout: 10000
       read-timeout: 120000
     update-partial:

@@ -65,10 +65,22 @@ public class OrderTrackerAdapter extends AdapterAbstractUtil implements ITracker
                     orderCanonical.setEcommerceId(ecommerceId.getOrderId());
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(Constant.OrderStatus.ASSIGNED.getCode());
-                    orderStatus.setName(Constant.OrderStatus.ASSIGNED.name());
+                    
+                    if (!Constant.ORIGIN_ROUTING.equals(newProjectedGroupCanonical.getSource())) {                		
+                    	
+                        orderStatus.setCode(Constant.OrderStatus.ASSIGNED.getCode());
+                        orderStatus.setName(Constant.OrderStatus.ASSIGNED.name());
+                    	
+                	} else {               		
+        
+                        orderStatus.setCode(Constant.OrderStatus.EXT_ASSIGNED.getCode());
+                        orderStatus.setName(Constant.OrderStatus.ASSIGNED.name());                		
+                	}
+                    
+
                     orderStatus.setDetail("The order was sent to order tracker");
                     orderCanonical.setOrderStatus(orderStatus);
+                    
 
                     return Flux.just(orderCanonical);
 

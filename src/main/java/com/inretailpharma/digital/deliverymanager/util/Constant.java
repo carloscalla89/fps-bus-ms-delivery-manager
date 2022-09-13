@@ -575,7 +575,8 @@ public interface Constant {
         BILLED_ORDER("47", true),
         CANCELLED_ORDER_BLACK_LIST("48", true),
         
-        CONFIRMED_ROUTER("62", true), CONFIRMED_ROUTER_ERROR("63", false);
+        CONFIRMED_ROUTER("62", true), CONFIRMED_ROUTER_ERROR("63", false),
+        EXT_ASSIGNED("64", true), ERROR_EXT_ASSIGNED("65", false);
 
         UPDATE_PICKER_SUCCESS("49", true),
 

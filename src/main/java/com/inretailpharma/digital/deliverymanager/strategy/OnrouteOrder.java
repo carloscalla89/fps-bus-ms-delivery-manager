@@ -111,6 +111,9 @@ public class OnrouteOrder extends FacadeAbstractUtil implements IActionStrategy{
                                         )
                                 )
                                 .flatMap(response -> {
+                                	
+                                	var finalResponse = iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy());                               	
+                                	
                                     if (Constant.ON_ROUTE_ORDER.equalsIgnoreCase(actionDto.getAction()) && Constant.ORIGIN_ROUTING.equalsIgnoreCase(actionDto.getOrigin())) {
                                         OrderStatusDto assignedOrderStatusDto = orderStatusService.findById(Constant.OrderStatus.ASSIGNED.getCode());
                                         OrderCanonical preOrderCanonical = new OrderCanonical(response);
@@ -119,7 +122,8 @@ public class OnrouteOrder extends FacadeAbstractUtil implements IActionStrategy{
                                         preOrderCanonical.getOrderStatus().setName(assignedOrderStatusDto.getType());
                                         iAuditAdapter.updateAudit(preOrderCanonical, actionDto.getUpdatedBy());
                                     }
-                                    return iAuditAdapter.updateAudit(response, actionDto.getUpdatedBy());
+                                    
+                                    return finalResponse;
                                 })
                 )
                 .switchIfEmpty(Flux.defer(() -> {
