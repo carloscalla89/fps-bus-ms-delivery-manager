@@ -57,4 +57,30 @@ public class RoutingAdapter extends AdapterAbstractUtil implements IRoutingAdapt
 		return Mono.just(orderCanonical);
 	}
 
+	@Override
+	public Mono<OrderCanonical> cancelOrder(Long orderId, boolean externalRouting, String action, String origin) {
+		
+		Optional.ofNullable(orderId)
+			.ifPresent(sc -> {
+				
+				if (externalRouting &&
+						(Constant.ActionOrder.CANCEL_ORDER.name().equals(action) || Constant.ActionOrder.REJECT_ORDER.name().equals(action)) &&
+						!Constant.ORIGIN_ROUTING.equalsIgnoreCase(origin)
+						) {
+					
+					routingService.updateOrderRouting(orderId)
+					.flatMap(a -> {
+						
+						a.setTarget(Constant.TARGET_ROUTING);						
+						return auditService.updateOrderNewAudit(getAuditHistoryDtoFromObject(a, null));
+						
+					})
+					.subscribe();				
+					
+				}
+			});			
+		
+		return Mono.just(new OrderCanonical());
+	}
+
 }

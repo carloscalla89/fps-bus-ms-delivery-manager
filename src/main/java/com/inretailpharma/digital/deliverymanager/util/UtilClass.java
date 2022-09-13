@@ -106,7 +106,7 @@ public class UtilClass {
                     break;
                 case Constant.ARRIVAL_ORDER:
                     classList.add(TrackerAdapter.class);
-                    if (Constant.ORIGIN_CNID.equalsIgnoreCase(origin)){
+                    if (Constant.ORIGIN_ROUTING.equalsIgnoreCase(origin)){
                         classList.add(OrderTrackerAdapter.class);
                     }
                     break;

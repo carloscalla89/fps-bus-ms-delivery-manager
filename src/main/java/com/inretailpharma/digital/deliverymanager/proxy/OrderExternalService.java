@@ -62,4 +62,5 @@ public interface OrderExternalService {
 
     Mono<Void> updatePartial(OrderDto partialOrderDto);
     Mono<OrderCanonical> createOrderRouting(Long ecommercePurchaseId, RoutedOrderContainerDto routedOrderContainerDto);
+    Mono<OrderCanonical> updateOrderRouting(Long ecommercePurchaseId);
 }

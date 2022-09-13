@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.dto.routing.CancelOrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.routing.RoutedOrderContainerDto;
 import com.inretailpharma.digital.deliverymanager.dto.routing.TokenCredentialsDto;
 import com.inretailpharma.digital.deliverymanager.dto.routing.TokenRequestDto;
@@ -40,9 +41,9 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 	public Mono<OrderCanonical> createOrderRouting(Long ecommercePurchaseId, RoutedOrderContainerDto routedOrderContainerDto) {
 		
 		
-		log.info("[START] router service - order:{}", ObjectUtil.objectToJson(routedOrderContainerDto));
+		log.info("[START] RoutingService.createOrderRouting - order:{}", ObjectUtil.objectToJson(routedOrderContainerDto));
 
-		log.info("url to create router:{}",externalServicesProperties.getRoutingCreateOrderUri());
+		log.info("[INFO] RoutingService.createOrderRouting url:{}",externalServicesProperties.getRoutingCreateOrderUri());
 		
 		TokenResponseDto token = getToken();		
 		
@@ -68,18 +69,18 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 							
 							return r.bodyToMono(String.class).flatMap(s -> {
 								
-								log.info("[END] router service - order:{} - response{}", ecommercePurchaseId, s);
+								log.info("[END] RoutingService.createOrderRouting - order:{} - response{}", ecommercePurchaseId, s);
 								return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER, null));	
 							});
 						}
 						
-						log.info("[ERROR] router service - order:{} - code{}", ecommercePurchaseId, r.rawStatusCode());					
+						log.info("[ERROR] RoutingService.createOrderRouting - order:{} - code{}", ecommercePurchaseId, r.rawStatusCode());					
 						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, null));	
 					})
 					.defaultIfEmpty(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, "EMPTY"))
 					.onErrorResume(ex -> {
 						ex.printStackTrace();
-						log.error("[ERROR] router service - order:{} - error:{}", ecommercePurchaseId, ex.getMessage());
+						log.error("[ERROR] RoutingService.createOrderRouting - order:{} - error:{}", ecommercePurchaseId, ex.getMessage());
 						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, ex.getMessage()));
 					});
 			
@@ -90,6 +91,61 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 		}
 
 
+	}
+	
+	@Override
+	public Mono<OrderCanonical> updateOrderRouting(Long ecommercePurchaseId) {
+		
+		log.info("[START] RoutingService.updateOrderRouting - order:{}", ecommercePurchaseId);
+
+		log.info("[INFO] RoutingService.updateOrderRouting url:{}",externalServicesProperties.getRoutingCancelOrderUri());
+		
+		TokenResponseDto token = getToken();		
+		
+		if (token != null && token.isSuccess() && token.getIdToken() != null ) {
+			
+			CancelOrderDto dto = new CancelOrderDto(String.valueOf(ecommercePurchaseId));
+			
+			return WebClient
+					.builder()
+					.clientConnector(
+							generateClientConnector(
+									Integer.parseInt(externalServicesProperties.getRoutingCancelOrderConnectTimeout()),
+									Long.parseLong(externalServicesProperties.getRoutingCancelOrderReadTimeout())
+							)
+					)
+					.baseUrl(externalServicesProperties.getRoutingCancelOrderUri())
+					.build()
+					.put()
+					.header("Authorization", token.getIdToken())
+					.bodyValue(dto)
+					.exchange()
+					.flatMap(r -> {
+							
+						if (r.statusCode().is2xxSuccessful()) {						
+							
+							return r.bodyToMono(String.class).flatMap(s -> {
+								
+								log.info("[END] RoutingService.updateOrderRouting - order:{} - response{}", ecommercePurchaseId, s);
+								return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.REJECTED_ORDER, null));	
+							});
+						}
+						
+						log.info("[ERROR] RoutingService.updateOrderRouting - order:{} - code{}", ecommercePurchaseId, r.rawStatusCode());					
+						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_REJECTED, null));	
+					})
+					.defaultIfEmpty(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_REJECTED, "EMPTY"))
+					.onErrorResume(ex -> {
+						ex.printStackTrace();
+						log.error("[ERROR] RoutingService.updateOrderRouting - order:{} - error:{}", ecommercePurchaseId, ex.getMessage());
+						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_REJECTED, ex.getMessage()));
+					});
+			
+		} else {
+			
+			return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_REJECTED, "invalid token"));
+			
+		}
 	}
 	
 	private Mono<TokenResponseDto> getTokenAsyn() {
@@ -174,16 +230,16 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 			
 			if (response.statusCode() == 200) {
 				
-				log.info("[END] router service - getToken - response{}", response.body());
+				log.info("[END] RoutingService.getToken - response{}", response.body());
 				TokenResponseDto responseBody = ObjectUtil.jsonToObject(response.body(), TokenResponseDto.class);
 				responseBody.setSuccess(true);
 				return responseBody;
 			}			
 
-			log.error("[ERROR] router service - getToken - code {}", response.statusCode());	
+			log.error("[ERROR] RoutingService.getToken - code {}", response.statusCode());	
 			
 		} catch (Exception ex) {
-			log.error("[ERROR] router service - getToken - {}", ex.getMessage());
+			log.error("[ERROR] RoutingService.getToken - {}", ex.getMessage());
 			ex.printStackTrace();
 		}
 		

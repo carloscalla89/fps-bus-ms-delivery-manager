@@ -152,4 +152,8 @@ external-service:
     create-order:
       uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/pedidos
       connect-timeout: 30000
+      read-timeout: 60000  
+    cancel-order:
+      uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/cancelarpedido
+      connect-timeout: 30000
       read-timeout: 60000

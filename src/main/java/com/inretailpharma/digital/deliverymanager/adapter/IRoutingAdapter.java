@@ -7,5 +7,6 @@ import reactor.core.publisher.Mono;
 public interface IRoutingAdapter {
 	
 	Mono<OrderCanonical> createOrder(OrderCanonical orderCanonical);
+	Mono<OrderCanonical> cancelOrder(Long orderId, boolean externalRouting, String action, String origin);
 
 }

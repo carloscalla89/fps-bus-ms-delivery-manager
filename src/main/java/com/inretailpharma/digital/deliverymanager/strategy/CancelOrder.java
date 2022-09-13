@@ -291,6 +291,10 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
                                 .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                 )
                 .flatMap(publisherNotification)
+                .flatMap(r -> this.notifyRouting(ecommerceId,
+                		iOrderFulfillment.getExternalRouting(),
+                		actionDto.getAction(),
+                		actionDto.getOrigin()))
                 .flatMap(resp ->
                         UtilFunctions
                                 .getSuccessResponseFunction

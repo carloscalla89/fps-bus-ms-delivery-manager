@@ -292,6 +292,14 @@ public class ExternalServicesProperties {
     @Value("${external-service.routing.create-token.read-timeout}")
     private String routingCreateTokenReadTimeout;
     
+    @Value("${external-service.routing.cancel-order.uri}")
+    private String routingCancelOrderUri;
+
+    @Value("${external-service.routing.cancel-order.connect-timeout}")
+    private String routingCancelOrderConnectTimeout;
+
+    @Value("${external-service.routing.cancel-order.read-timeout}")
+    private String routingCancelOrderReadTimeout;
 
 
 }

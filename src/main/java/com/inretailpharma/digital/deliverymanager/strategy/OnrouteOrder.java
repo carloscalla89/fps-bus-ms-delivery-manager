@@ -111,7 +111,7 @@ public class OnrouteOrder extends FacadeAbstractUtil implements IActionStrategy{
                                         )
                                 )
                                 .flatMap(response -> {
-                                    if (Constant.ON_ROUTE_ORDER.equalsIgnoreCase(actionDto.getAction()) && Constant.ORIGIN_CNID.equalsIgnoreCase(actionDto.getOrigin())) {
+                                    if (Constant.ON_ROUTE_ORDER.equalsIgnoreCase(actionDto.getAction()) && Constant.ORIGIN_ROUTING.equalsIgnoreCase(actionDto.getOrigin())) {
                                         OrderStatusDto assignedOrderStatusDto = orderStatusService.findById(Constant.OrderStatus.ASSIGNED.getCode());
                                         OrderCanonical preOrderCanonical = new OrderCanonical(response);
                                         preOrderCanonical.setAction(Constant.ASSIGN_ORDER);

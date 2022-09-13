@@ -154,6 +154,11 @@ public class AbstractOrderService implements OrderExternalService {
 	public Mono<OrderCanonical> createOrderRouting(Long ecommercePurchaseId, RoutedOrderContainerDto routedOrderContainerDto) {
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public Mono<OrderCanonical> updateOrderRouting(Long ecommercePurchaseId) {
+		throw new UnsupportedOperationException();
+	}
 
 	protected ClientHttpConnector generateClientConnector(int connectionTimeOut, long readTimeOut) {
 		log.info("generateClientConnector, connectionTimeOut:{}, readTimeOut:{}",connectionTimeOut,readTimeOut);

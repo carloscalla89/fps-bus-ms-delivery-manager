@@ -397,4 +397,10 @@ public abstract class FacadeAbstractUtil {
                     return Mono.just(Constant.ERROR_PROCESS);
                 });
     }
+    
+    protected Mono<OrderCanonical> notifyRouting(Long orderId, boolean externalRouting, String action, String origin) {
+    	return iRoutingAdapter.cancelOrder(orderId, externalRouting, action, origin);
+    }
+    
+    
 }
