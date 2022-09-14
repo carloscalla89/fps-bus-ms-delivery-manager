@@ -26,7 +26,7 @@ public class RoutedOrderDto {
 	private int deliveryWeight;
 	
 	@JsonProperty("puntos_ventas_id")	
-	private int localCode;
+	private Long localCode;
 	
 	@JsonProperty("unidad_medida_id")	
 	private int measurementUnit;

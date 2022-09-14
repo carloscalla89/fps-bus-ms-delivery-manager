@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +22,16 @@ public class RoutingAdapter extends AdapterAbstractUtil implements IRoutingAdapt
 	private OrderExternalService routingService;
 	private OrderExternalService auditService;
 	private ObjectToMapper objectToMapper;
+	private ApplicationParameterService applicationParameterService;
 	
 	public RoutingAdapter(@Qualifier("routing")OrderExternalService routingService,
 			@Qualifier("audit") OrderExternalService auditService,
-			ObjectToMapper objectToMapper) {
+			ObjectToMapper objectToMapper,
+			ApplicationParameterService applicationParameterService) {
 		this.routingService = routingService;
 		this.auditService = auditService;
 		this.objectToMapper = objectToMapper;
+		this.applicationParameterService = applicationParameterService;
 	}
 
 	@Override
@@ -38,18 +42,40 @@ public class RoutingAdapter extends AdapterAbstractUtil implements IRoutingAdapt
 				
 				if (sc.isExternalRoutingEnabled()) {
 					
-					Mono.fromCallable(() -> this.getOrderByEcommerceId(orderCanonical.getEcommerceId()))
-					.flatMap(order -> 
+					boolean routingEnabled = Optional
+		                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ENABLED_EXTERNAL_ROUTING))
+		                    .map(val -> Constant.Logical.getByValueString(val.getValue()).value())
+		                    .orElse(false);
+					
+					if (routingEnabled) {
 						
-						routingService.createOrderRouting(orderCanonical.getEcommerceId(),
-								objectToMapper.convertIOrderFulfillmentToRoutedOrder(order, orderCanonical.getOrderItems().size()))
-						.flatMap(a -> {
-							a.setTarget(Constant.TARGET_ROUTING);						
-							return auditService.updateOrderNewAudit(getAuditHistoryDtoFromObject(a, null));
+						int defaultVolume = Optional
+			                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ROUTING_DEFAULT_VOLUME))
+			                    .map(val -> Integer.parseInt(val.getValue()))
+			                    .orElse(Constant.Routing.DEFAULT_VOLUME);
+						
+						int defaultDeliveryTime = Optional
+			                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ROUTING_DEFAULT_DELIVERY_TIME))
+			                    .map(val -> Integer.parseInt(val.getValue()))
+			                    .orElse(Constant.Routing.DEFAULT_DELIVERY_TIME);
+						
+						
+						Mono.fromCallable(() -> this.getOrderByEcommerceId(orderCanonical.getEcommerceId()))
+						.flatMap(order -> 
 							
-						})
+							routingService.createOrderRouting(orderCanonical.getEcommerceId(),
+									objectToMapper.convertIOrderFulfillmentToRoutedOrder(order, orderCanonical.getOrderItems().size(),
+											defaultVolume, defaultDeliveryTime, sc.getExternalRoutingLocalCode()))
+							.flatMap(a -> {
+								a.setTarget(Constant.TARGET_ROUTING);						
+								return auditService.updateOrderNewAudit(getAuditHistoryDtoFromObject(a, null));
+								
+							})
+							
+						).subscribe();	
 						
-					).subscribe();	
+					}					
+					
 				}
 			});	
 
@@ -68,15 +94,23 @@ public class RoutingAdapter extends AdapterAbstractUtil implements IRoutingAdapt
 						!Constant.ORIGIN_ROUTING.equalsIgnoreCase(origin)
 						) {
 					
-					routingService.updateOrderRouting(orderId)
-					.flatMap(a -> {
-						
-						a.setTarget(Constant.TARGET_ROUTING);						
-						return auditService.updateOrderNewAudit(getAuditHistoryDtoFromObject(a, null));
-						
-					})
-					.subscribe();				
+					boolean routingEnabled = Optional
+		                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ENABLED_EXTERNAL_ROUTING))
+		                    .map(val -> Constant.Logical.getByValueString(val.getValue()).value())
+		                    .orElse(false);
 					
+					if (routingEnabled) {
+						
+						routingService.updateOrderRouting(orderId)
+						.flatMap(a -> {
+							
+							a.setTarget(Constant.TARGET_ROUTING);						
+							return auditService.updateOrderNewAudit(getAuditHistoryDtoFromObject(a, null));
+							
+						})
+						.subscribe();	
+						
+					}
 				}
 			});			
 		

@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.config.parameters.ExternalServicesProperties;
+import com.inretailpharma.digital.deliverymanager.config.parameters.RoutingProperties;
 import com.inretailpharma.digital.deliverymanager.dto.routing.CancelOrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.routing.RoutedOrderContainerDto;
 import com.inretailpharma.digital.deliverymanager.dto.routing.TokenCredentialsDto;
@@ -30,10 +31,13 @@ import reactor.core.publisher.Mono;
 public class RoutingServiceImpl extends AbstractOrderService implements OrderExternalService {
 	
 	private ExternalServicesProperties externalServicesProperties;
+	private RoutingProperties routingProperties;
 	
 	@Autowired
-	public RoutingServiceImpl(ExternalServicesProperties externalServicesProperties) {
+	public RoutingServiceImpl(ExternalServicesProperties externalServicesProperties,
+			RoutingProperties routingProperties) {
 		this.externalServicesProperties = externalServicesProperties;
+		this.routingProperties = routingProperties;
 	}
 	
 	
@@ -127,23 +131,29 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 							return r.bodyToMono(String.class).flatMap(s -> {
 								
 								log.info("[END] RoutingService.updateOrderRouting - order:{} - response{}", ecommercePurchaseId, s);
-								return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.REJECTED_ORDER, null));	
+								return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CANCEL_ORDER, null));	
 							});
 						}
 						
-						log.info("[ERROR] RoutingService.updateOrderRouting - order:{} - code{}", ecommercePurchaseId, r.rawStatusCode());					
-						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_REJECTED, null));	
+						return r.bodyToMono(String.class).flatMap(s -> {
+							
+							log.info("[ERROR] RoutingService.updateOrderRouting - order:{} - code{} - response{}",
+									ecommercePurchaseId, r.rawStatusCode(), s);					
+							return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_CANCELLED, s));	
+						});
+						
+						
 					})
-					.defaultIfEmpty(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_REJECTED, "EMPTY"))
+					.defaultIfEmpty(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_CANCELLED, "EMPTY"))
 					.onErrorResume(ex -> {
 						ex.printStackTrace();
 						log.error("[ERROR] RoutingService.updateOrderRouting - order:{} - error:{}", ecommercePurchaseId, ex.getMessage());
-						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_REJECTED, ex.getMessage()));
+						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_CANCELLED, ex.getMessage()));
 					});
 			
 		} else {
 			
-			return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_REJECTED, "invalid token"));
+			return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.ERROR_CANCELLED, "invalid token"));
 			
 		}
 	}
@@ -151,17 +161,17 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 	private Mono<TokenResponseDto> getTokenAsyn() {
 		
 		TokenCredentialsDto credentials = TokenCredentialsDto.builder()
-				.username("omnicanalidad@inkafarmadigital.pe")
-				.password("FP*2022om")
+				.username(routingProperties.getUsername())
+				.password(routingProperties.getPassword())
 				.build();
 		
 		TokenRequestDto request = TokenRequestDto.builder()
 				.authParameters(credentials)
-				.clientId("3kcves4j9g0dkd1tvrn21rlf3j")
+				.clientId(routingProperties.getClientId())
 				.authFlow("USER_PASSWORD_AUTH")
 				.build();
 		
-		log.info("[START] router service - getToken - request:{}", ObjectUtil.objectToJson(request));
+		//log.info("[START] router service - getToken - request:{}", ObjectUtil.objectToJson(request));
 		log.info("url to getToken:{}",externalServicesProperties.getRoutingCreateTokenUri());
 		
 		return WebClient
@@ -208,13 +218,13 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 	private TokenResponseDto getToken() {
 		
 		TokenCredentialsDto credentials = TokenCredentialsDto.builder()
-				.username("omnicanalidad@inkafarmadigital.pe")
-				.password("FP*2022om")
+				.username(routingProperties.getUsername())
+				.password(routingProperties.getPassword())
 				.build();
 		
 		TokenRequestDto requestBody = TokenRequestDto.builder()
 				.authParameters(credentials)
-				.clientId("3kcves4j9g0dkd1tvrn21rlf3j")
+				.clientId(routingProperties.getClientId())
 				.authFlow("USER_PASSWORD_AUTH")
 				.build();
 	    

@@ -22,6 +22,7 @@ public class StoreCenterCanonical {
     private String localType;
     private List<ServiceOffered> services;
     private boolean externalRoutingEnabled;
+    private Long externalRoutingLocalCode;
 
     public StoreCenterCanonical() {
 

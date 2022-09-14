@@ -156,3 +156,8 @@ external-service:
       uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/cancelarpedido
       connect-timeout: 30000
       read-timeout: 60000
+      
+routing:
+  username: omnicanalidad@inkafarmadigital.pe
+  password: "FP*2022om"
+  client-id: 3kcves4j9g0dkd1tvrn21rlf3j 

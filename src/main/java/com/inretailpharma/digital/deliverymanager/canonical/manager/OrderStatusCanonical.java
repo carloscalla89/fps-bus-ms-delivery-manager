@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,6 +21,9 @@ public class OrderStatusCanonical implements Serializable {
     @JsonIgnore
     private String firstStatusName;
     private boolean successful;
+    
+    private BigDecimal latitude;
+    private BigDecimal longitude;
 
     public OrderStatusCanonical() {
     }
@@ -34,5 +38,7 @@ public class OrderStatusCanonical implements Serializable {
         this.statusDate = orderStatusCanonical.getStatusDate();
         this.firstStatusName = orderStatusCanonical.getFirstStatusName();
         this.successful = orderStatusCanonical.isSuccessful();
+        this.latitude = orderStatusCanonical.getLatitude();
+        this.longitude = orderStatusCanonical.getLongitude();
     }
 }

@@ -273,6 +273,9 @@ public class ObjectToMapper {
         auditHistoryDto.setSaleChannel(orderCanonical.getSaleChannel());
         auditHistoryDto.setSaleChannelType(orderCanonical.getSaleChannelType());;
         
+        auditHistoryDto.setLatitude(orderCanonical.getOrderStatus().getLatitude());
+        auditHistoryDto.setLongitude(orderCanonical.getOrderStatus().getLongitude());
+        
         return auditHistoryDto;
     }
 
@@ -1540,7 +1543,8 @@ public class ObjectToMapper {
     }
     
     
-    public RoutedOrderContainerDto convertIOrderFulfillmentToRoutedOrder(IOrderFulfillment iOrderFulfillment, int totalItems) {
+    public RoutedOrderContainerDto convertIOrderFulfillmentToRoutedOrder(IOrderFulfillment iOrderFulfillment,
+    		int totalItems, int volume, int deliveryTime, long routingLocalCode) {
     	
     	RoutedOrderContainerDto container = new RoutedOrderContainerDto();
     	RoutedOrderDto dto = new RoutedOrderDto();
@@ -1551,10 +1555,10 @@ public class ObjectToMapper {
 	    	Arrays.asList(iOrderFulfillment.getStreet(), iOrderFulfillment.getNumber(), iOrderFulfillment.getDistrict())
 	    	.stream().filter(value -> null != value).collect(Collectors.joining(" "))
     	);
-    	dto.setDeliveryTime(Constant.Routing.DEFAULT_DELIVERY_TIME);
-    	dto.setDeliveryWeight(Constant.Routing.DEFAULT_WEIGHT * totalItems);
-    	dto.setLocalCode(iOrderFulfillment.getCenterCode());    	
-    	dto.setMeasurementUnit(Constant.Routing.DEFAULT_MEASUREMENT_UNIT);    	
+    	dto.setDeliveryTime(deliveryTime);
+    	dto.setDeliveryWeight(volume * totalItems);
+    	dto.setLocalCode(routingLocalCode);
+    	dto.setMeasurementUnit(Constant.Routing.DEFAULT_MEASUREMENT_UNIT);
     	dto.setPriority(Constant.Routing.DEFAULT_PRIORITY);
     	
     	container.setOrders(Arrays.asList(dto));

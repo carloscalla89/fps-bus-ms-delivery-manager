@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class CancelOrderDto {
 	
-	@JsonProperty("cancelarpedido")	
+	@JsonProperty("pedido_id")	
 	private String orderId;
 	
 	public CancelOrderDto(String orderId) {

@@ -163,6 +163,10 @@ public interface Constant {
         String DEFAULT_INTERVAL_TIME_BY_SERVICE_ = "DEFAULT_INTERVAL_TIME_BY_SERVICE_";
 
         String ENABLED_SEND_TO_LIQUIDATION = "ENABLED_SEND_TO_LIQUIDATION";
+        String ENABLED_EXTERNAL_ROUTING = "ENABLED_EXTERNAL_ROUTING";
+        String ROUTING_DEFAULT_VOLUME = "ROUTING_DEFAULT_VOLUME";
+        String ROUTING_DEFAULT_DELIVERY_TIME = "ROUTING_DEFAULT_DELIVERY_TIME";
+        
     }
 
     interface InsinkErrorCode {
@@ -936,7 +940,7 @@ public interface Constant {
     
     interface Routing {
 
-    	int DEFAULT_WEIGHT = 20;
+    	int DEFAULT_VOLUME = 20;
     	int DEFAULT_MEASUREMENT_UNIT = 5;
     	int DEFAULT_PRIORITY = 1;
     	int DEFAULT_DELIVERY_TIME = 5;
