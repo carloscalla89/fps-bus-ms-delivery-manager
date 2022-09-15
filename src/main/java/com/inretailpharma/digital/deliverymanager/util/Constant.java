@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceIm
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
 import com.inretailpharma.digital.deliverymanager.strategy.*;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.apache.commons.lang3.EnumUtils;
 
@@ -756,6 +757,8 @@ public interface Constant {
 
     String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
     String ERROR_UPDATE_CODE = "36";
+    String DELIVERY_CODE = "024031";
+    
 
 
     enum DeliveryManagerStatus {
@@ -940,7 +943,7 @@ public interface Constant {
     
     interface Routing {
 
-    	int DEFAULT_VOLUME = 20;
+    	BigDecimal DEFAULT_VOLUME = new BigDecimal(20);
     	int DEFAULT_MEASUREMENT_UNIT = 5;
     	int DEFAULT_PRIORITY = 1;
     	int DEFAULT_DELIVERY_TIME = 5;

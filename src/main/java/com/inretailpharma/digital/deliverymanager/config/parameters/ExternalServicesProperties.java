@@ -300,6 +300,16 @@ public class ExternalServicesProperties {
 
     @Value("${external-service.routing.cancel-order.read-timeout}")
     private String routingCancelOrderReadTimeout;
+    
+    // endpoint productos
+    @Value("${external-service.product.get-dimensions.uri}")
+    private String productGetDimensionsUri;
+
+    @Value("${external-service.product.get-dimensions.connect-timeout}")
+    private String productGetDimensionsConnectTimeout;
+
+    @Value("${external-service.product.get-dimensions.read-timeout}")
+    private String productGetDimensionsReadTimeout;
 
 
 }

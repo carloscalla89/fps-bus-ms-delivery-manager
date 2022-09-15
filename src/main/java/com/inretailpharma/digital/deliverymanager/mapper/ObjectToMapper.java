@@ -64,10 +64,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -1543,33 +1543,61 @@ public class ObjectToMapper {
     }
     
     
-    public RoutedOrderContainerDto convertIOrderFulfillmentToRoutedOrder(IOrderFulfillment iOrderFulfillment,
-    		int totalItems, int volume, int deliveryTime, long routingLocalCode) {
+    public RoutedOrderContainerDto convertIOrderFulfillmentToRoutedOrder(OrderCanonical orderCanonical,
+    		List<OrderItemCanonical> orderItems, Map<String, BigDecimal> data, BigDecimal defaultVolume, int deliveryTime, long routingLocalCode) {
+    	
+    	BigDecimal totalVolume = orderItems.stream()
+    			.filter(f -> !Constant.DELIVERY_CODE.equals(f.getProductCode()))
+    			.map(i -> data.getOrDefault(i.getProductCode(), defaultVolume).multiply(BigDecimal.valueOf(i.getQuantity())))
+    			.reduce(BigDecimal.ZERO, BigDecimal::add);    	
     	
     	RoutedOrderContainerDto container = new RoutedOrderContainerDto();
     	RoutedOrderDto dto = new RoutedOrderDto();
-    	dto.setOrderid(String.valueOf(iOrderFulfillment.getEcommerceId()));
-    	dto.setLatitude(String.valueOf(iOrderFulfillment.getLatitude()));
-    	dto.setLongitude(String.valueOf(iOrderFulfillment.getLongitude()));
-    	dto.setAddress(
-	    	Arrays.asList(iOrderFulfillment.getStreet(), iOrderFulfillment.getNumber(), iOrderFulfillment.getDistrict())
-	    	.stream().filter(value -> null != value).collect(Collectors.joining(" "))
-    	);
+    	dto.setOrderid(String.valueOf(orderCanonical.getEcommerceId()));
+    	
+    	Optional.ofNullable(orderCanonical.getAddress())
+    	.ifPresent( a -> {    		
+
+        	dto.setLatitude(String.valueOf(a.getLatitude()));
+        	dto.setLongitude(String.valueOf(a.getLongitude()));
+        	dto.setAddress(
+        	    	Arrays.asList(a.getStreet(), a.getNumber(), a.getDistrict())
+        	    	.stream().filter(value -> null != value).collect(Collectors.joining(" "))
+            	);    		
+    	});    	
+    	
     	dto.setDeliveryTime(deliveryTime);
-    	dto.setDeliveryWeight(volume * totalItems);
+    	dto.setDeliveryWeight(totalVolume.intValue());
     	dto.setLocalCode(routingLocalCode);
     	dto.setMeasurementUnit(Constant.Routing.DEFAULT_MEASUREMENT_UNIT);
     	dto.setPriority(Constant.Routing.DEFAULT_PRIORITY);
     	
     	container.setOrders(Arrays.asList(dto));
     	
-    	dto.setCreationDate(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getCreatedOrder()));    	
-    	dto.setScheduledTimeStart(DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getScheduledTime()));
-    	dto.setScheduledTimeEnd(
-    			DateUtils.getLocalDateTimeWithFormat(iOrderFulfillment.getScheduledTime().plusMinutes(iOrderFulfillment.getLeadTime()))
-    	);
+    	Optional.ofNullable(orderCanonical.getOrderDetail())
+    	.ifPresent(d -> {
+
+    		dto.setCreationDate(d.getCreatedOrder());    		
+    		dto.setScheduledTimeStart(d.getConfirmedSchedule());
+
+    		Optional.ofNullable(DateUtils.getLocalDateTimeFromStringWithFormat(d.getConfirmedSchedule()))
+    		.ifPresent(sd -> dto.setScheduledTimeEnd(
+    				DateUtils.getLocalDateTimeWithFormat(sd.plusMinutes(d.getLeadTime()))
+    		));   		
+    	});
+
+    	return container;
+    }
+    
+    public Map<String, BigDecimal> convertProductDimensionsDtoToMap(List<ProductDimensionDto> dimensions){
     	
-    	return container;    	
+    	if (dimensions != null) {
+    		
+    		return dimensions.stream().collect(Collectors.toMap(ProductDimensionDto::getSku, ProductDimensionDto::getVolume));  		
+    	}
+    	
+    	return Map.of();
+    	
     }
 
 }

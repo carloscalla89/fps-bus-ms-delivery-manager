@@ -165,6 +165,11 @@ external-service:
       uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/cancelarpedido
       connect-timeout: 30000
       read-timeout: 60000
+  product:
+    get-dimensions:
+      uri: http://localhost:8020/dimension/
+      connect-timeout: 30000
+      read-timeout: 60000
       
 routing:
   username: omnicanalidad@inkafarmadigital.pe

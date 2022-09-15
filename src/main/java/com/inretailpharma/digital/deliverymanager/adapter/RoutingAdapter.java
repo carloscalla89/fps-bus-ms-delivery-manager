@@ -1,16 +1,23 @@
 package com.inretailpharma.digital.deliverymanager.adapter;
 
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
+import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
+import com.inretailpharma.digital.deliverymanager.proxy.ProductService;
 import com.inretailpharma.digital.deliverymanager.service.ApplicationParameterService;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
+import com.inretailpharma.digital.deliverymanager.util.ObjectUtil;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -23,63 +30,81 @@ public class RoutingAdapter extends AdapterAbstractUtil implements IRoutingAdapt
 	private OrderExternalService auditService;
 	private ObjectToMapper objectToMapper;
 	private ApplicationParameterService applicationParameterService;
+	private ProductService productService;
 	
 	public RoutingAdapter(@Qualifier("routing")OrderExternalService routingService,
 			@Qualifier("audit") OrderExternalService auditService,
 			ObjectToMapper objectToMapper,
-			ApplicationParameterService applicationParameterService) {
+			ApplicationParameterService applicationParameterService,
+			ProductService productService) {
 		this.routingService = routingService;
 		this.auditService = auditService;
 		this.objectToMapper = objectToMapper;
 		this.applicationParameterService = applicationParameterService;
+		this.productService = productService;
 	}
 
 	@Override
 	public Mono<OrderCanonical> createOrder(OrderCanonical orderCanonical) {
 		
+		log.info("[INFO] RoutingAdapter.createOrder - orderCanonical: {}", ObjectUtil.objectToJson(orderCanonical));
+		
 		Optional.ofNullable(orderCanonical.getStoreCenter())
 			.ifPresent(sc -> {
 				
-				if (sc.isExternalRoutingEnabled()) {
+				Optional.ofNullable(orderCanonical.getOrderDetail())
+				.ifPresent(od -> {
 					
-					boolean routingEnabled = Optional
-		                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ENABLED_EXTERNAL_ROUTING))
-		                    .map(val -> Constant.Logical.getByValueString(val.getValue()).value())
-		                    .orElse(false);
-					
-					if (routingEnabled) {
+					if (sc.isExternalRoutingEnabled() && Constant.DELIVERY.equalsIgnoreCase(od.getServiceType())) {
 						
-						int defaultVolume = Optional
-			                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ROUTING_DEFAULT_VOLUME))
-			                    .map(val -> Integer.parseInt(val.getValue()))
-			                    .orElse(Constant.Routing.DEFAULT_VOLUME);
+						boolean routingEnabled = Optional
+			                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ENABLED_EXTERNAL_ROUTING))
+			                    .map(val -> Constant.Logical.getByValueString(val.getValue()).value())
+			                    .orElse(false);
 						
-						int defaultDeliveryTime = Optional
-			                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ROUTING_DEFAULT_DELIVERY_TIME))
-			                    .map(val -> Integer.parseInt(val.getValue()))
-			                    .orElse(Constant.Routing.DEFAULT_DELIVERY_TIME);
-						
-						
-						Mono.fromCallable(() -> this.getOrderByEcommerceId(orderCanonical.getEcommerceId()))
-						.flatMap(order -> 
+						if (routingEnabled) {
 							
-							routingService.createOrderRouting(orderCanonical.getEcommerceId(),
-									objectToMapper.convertIOrderFulfillmentToRoutedOrder(order, orderCanonical.getOrderItems().size(),
-											defaultVolume, defaultDeliveryTime, sc.getExternalRoutingLocalCode()))
-							.flatMap(a -> {
-								a.setTarget(Constant.TARGET_ROUTING);						
-								return auditService.updateOrderNewAudit(getAuditHistoryDtoFromObject(a, null));
-								
-							})
+							BigDecimal defaultVolume = Optional
+				                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ROUTING_DEFAULT_VOLUME))
+				                    .map(val -> new BigDecimal(val.getValue()))
+				                    .orElse(Constant.Routing.DEFAULT_VOLUME);
 							
-						).subscribe();	
+							int defaultDeliveryTime = Optional
+				                    .ofNullable(applicationParameterService.getApplicationParameterByCodeIs(Constant.ApplicationsParameters.ROUTING_DEFAULT_DELIVERY_TIME))
+				                    .map(val -> Integer.parseInt(val.getValue()))
+				                    .orElse(Constant.Routing.DEFAULT_DELIVERY_TIME);
+							
+							List<String> skus = orderCanonical.getOrderItems()
+									.stream()
+									.filter(f -> !Constant.DELIVERY_CODE.equals(f.getProductCode()))
+									.map(OrderItemCanonical::getProductCode).collect(Collectors.toList());
+							
+							productService.getDimensions(skus)
+								.buffer()
+								.flatMap(m -> {
+									
+									log.info("[INFO] RoutingAdapter.createOrder - skus: {}", m);								
+									Map<String, BigDecimal> volumens = objectToMapper.convertProductDimensionsDtoToMap(m);
+									
+									return routingService.createOrderRouting(orderCanonical.getEcommerceId(),
+											objectToMapper.convertIOrderFulfillmentToRoutedOrder(orderCanonical, orderCanonical.getOrderItems(),
+													volumens, defaultVolume, defaultDeliveryTime, sc.getExternalRoutingLocalCode()))
+									.flatMap(a -> {
+										
+										a.setTarget(Constant.TARGET_ROUTING);						
+										return auditService.updateOrderNewAudit(getAuditHistoryDtoFromObject(a, null));
+										
+									});
+
+								}).subscribe();	
+							
+						}					
 						
-					}					
+					}
 					
-				}
+				});
 			});	
 
-		
 		return Mono.just(orderCanonical);
 	}
 
