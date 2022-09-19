@@ -32,11 +32,11 @@ public class ProductServiceImpl implements ProductService {
 	}
 	
 	@Override
-	public Flux<ProductDimensionDto> getDimensions(List<String> skus) {
+	public Flux<ProductDimensionDto> getDimensions(List<String> productCodes) {
 		
-		String skusArray = skus.stream().collect(Collectors.joining(","));	
+		String productCodesArray = productCodes.stream().collect(Collectors.joining(","));	
 		
-		log.info("[START] ProductService.getDimensions - skus: {}", skusArray);
+		log.info("[START] ProductService.getDimensions - productCodes: {}", productCodesArray);
 
 		log.info("[INFO] ProductService.getDimensions url:{}", externalServicesProperties.getProductGetDimensionsUri());
 		
@@ -55,8 +55,8 @@ public class ProductServiceImpl implements ProductService {
 				.get()
 				.uri(builder ->
 						builder
-								.path("/{skus}")
-								.build(skusArray)
+								.path("/{productCodes}")
+								.build(productCodesArray)
 				)
 				.retrieve()
 				.bodyToFlux(ProductDimensionDto.class)
@@ -66,7 +66,8 @@ public class ProductServiceImpl implements ProductService {
 					r.printStackTrace();
 					
 					ProductDimensionDto dto = new ProductDimensionDto();
-					dto.setSku("0");
+					dto.setCodInka("0");
+					dto.setFractionable(false);
 					dto.setVolume(BigDecimal.TEN);
 					return Flux.just(dto);
 				});

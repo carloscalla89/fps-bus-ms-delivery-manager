@@ -78,8 +78,13 @@ public class RoutingServiceImpl extends AbstractOrderService implements OrderExt
 							});
 						}
 						
-						log.info("[ERROR] RoutingService.createOrderRouting - order:{} - code{}", ecommercePurchaseId, r.rawStatusCode());					
-						return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, null));	
+						return r.bodyToMono(String.class).flatMap(s -> {
+							
+							log.info("[ERROR] RoutingService.createOrderRouting - order:{} - code{} - response{}",
+									ecommercePurchaseId, r.rawStatusCode(), s);					
+							return Mono.just(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, s));	
+						});
+	
 					})
 					.defaultIfEmpty(createResponse(ecommercePurchaseId, Constant.OrderStatus.CONFIRMED_ROUTER_ERROR, "EMPTY"))
 					.onErrorResume(ex -> {

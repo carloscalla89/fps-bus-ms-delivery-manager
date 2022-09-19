@@ -54,8 +54,10 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+import com.inretailpharma.digital.deliverymanager.util.ObjectUtil;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -67,6 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1543,13 +1546,39 @@ public class ObjectToMapper {
     }
     
     
-    public RoutedOrderContainerDto convertIOrderFulfillmentToRoutedOrder(OrderCanonical orderCanonical,
-    		List<OrderItemCanonical> orderItems, Map<String, BigDecimal> data, BigDecimal defaultVolume, int deliveryTime, long routingLocalCode) {
+    public RoutedOrderContainerDto convertCanonicalToRoutedOrder(OrderCanonical orderCanonical,
+    		List<OrderItemCanonical> orderItems, Map<String, ProductDimensionDto> data, BigDecimal defaultVolume, int deliveryTime, long routingLocalCode) {
+    	
+    	log.info("[START] convertCanonicalToRoutedOrder {}", orderCanonical.getEcommerceId());
     	
     	BigDecimal totalVolume = orderItems.stream()
-    			.filter(f -> !Constant.DELIVERY_CODE.equals(f.getProductCode()))
-    			.map(i -> data.getOrDefault(i.getProductCode(), defaultVolume).multiply(BigDecimal.valueOf(i.getQuantity())))
-    			.reduce(BigDecimal.ZERO, BigDecimal::add);    	
+		.filter(f -> !Constant.DELIVERY_CODE.equals(f.getProductCode()))
+		.map(i -> {
+			
+			BigDecimal quantity = BigDecimal.valueOf(i.getQuantity());
+			
+			if (data.containsKey(i.getProductCode())) {
+				
+				ProductDimensionDto pd = data.get(i.getProductCode());
+				
+				if (i.getFractionated() && pd.isFractionable() && pd.getUmv() > 0) {
+					
+					return pd.getVolume()
+							.divide(BigDecimal.valueOf(pd.getUmv()))
+									.multiply(quantity);
+					
+				}
+				
+				return pd.getVolume()
+						.multiply(quantity);
+				
+			}
+			
+			return defaultVolume.multiply(quantity);
+			
+		}).reduce(BigDecimal.ZERO, BigDecimal::add);  
+    	
+    	log.info("[INFO] convertCanonicalToRoutedOrder - orderid {} - totalVolume {}", orderCanonical.getEcommerceId(), totalVolume);
     	
     	RoutedOrderContainerDto container = new RoutedOrderContainerDto();
     	RoutedOrderDto dto = new RoutedOrderDto();
@@ -1567,7 +1596,7 @@ public class ObjectToMapper {
     	});    	
     	
     	dto.setDeliveryTime(deliveryTime);
-    	dto.setDeliveryWeight(totalVolume.intValue());
+    	dto.setDeliveryWeight(totalVolume.setScale(0, RoundingMode.CEILING).intValue());
     	dto.setLocalCode(routingLocalCode);
     	dto.setMeasurementUnit(Constant.Routing.DEFAULT_MEASUREMENT_UNIT);
     	dto.setPriority(Constant.Routing.DEFAULT_PRIORITY);
@@ -1585,15 +1614,17 @@ public class ObjectToMapper {
     				DateUtils.getLocalDateTimeWithFormat(sd.plusMinutes(d.getLeadTime()))
     		));   		
     	});
+    	
+    	log.info("[END] convertCanonicalToRoutedOrder {}", ObjectUtil.objectToJson(container));
 
     	return container;
     }
     
-    public Map<String, BigDecimal> convertProductDimensionsDtoToMap(List<ProductDimensionDto> dimensions){
+    public Map<String, ProductDimensionDto> convertProductDimensionsDtoToMap(List<ProductDimensionDto> dimensions){
     	
     	if (dimensions != null) {
     		
-    		return dimensions.stream().collect(Collectors.toMap(ProductDimensionDto::getSku, ProductDimensionDto::getVolume));  		
+    		return dimensions.stream().collect(Collectors.toMap(ProductDimensionDto::getCodInka, Function.identity()));  		
     	}
     	
     	return Map.of();

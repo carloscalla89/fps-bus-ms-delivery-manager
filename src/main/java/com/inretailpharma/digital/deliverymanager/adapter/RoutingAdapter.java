@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCanonical;
+import com.inretailpharma.digital.deliverymanager.dto.ProductDimensionDto;
 import com.inretailpharma.digital.deliverymanager.mapper.ObjectToMapper;
 import com.inretailpharma.digital.deliverymanager.proxy.OrderExternalService;
 import com.inretailpharma.digital.deliverymanager.proxy.ProductService;
@@ -74,21 +75,21 @@ public class RoutingAdapter extends AdapterAbstractUtil implements IRoutingAdapt
 				                    .map(val -> Integer.parseInt(val.getValue()))
 				                    .orElse(Constant.Routing.DEFAULT_DELIVERY_TIME);
 							
-							List<String> skus = orderCanonical.getOrderItems()
+							List<String> productCodes = orderCanonical.getOrderItems()
 									.stream()
 									.filter(f -> !Constant.DELIVERY_CODE.equals(f.getProductCode()))
 									.map(OrderItemCanonical::getProductCode).collect(Collectors.toList());
 							
-							productService.getDimensions(skus)
+							productService.getDimensions(productCodes)
 								.buffer()
 								.flatMap(m -> {
 									
-									log.info("[INFO] RoutingAdapter.createOrder - skus: {}", m);								
-									Map<String, BigDecimal> volumens = objectToMapper.convertProductDimensionsDtoToMap(m);
+									log.info("[INFO] RoutingAdapter.createOrder - productCodes: {}", m);								
+									Map<String, ProductDimensionDto> data = objectToMapper.convertProductDimensionsDtoToMap(m);
 									
 									return routingService.createOrderRouting(orderCanonical.getEcommerceId(),
-											objectToMapper.convertIOrderFulfillmentToRoutedOrder(orderCanonical, orderCanonical.getOrderItems(),
-													volumens, defaultVolume, defaultDeliveryTime, sc.getExternalRoutingLocalCode()))
+											objectToMapper.convertCanonicalToRoutedOrder(orderCanonical, orderCanonical.getOrderItems(),
+													data, defaultVolume, defaultDeliveryTime, sc.getExternalRoutingLocalCode()))
 									.flatMap(a -> {
 										
 										a.setTarget(Constant.TARGET_ROUTING);						
