@@ -780,7 +780,8 @@ public class ObjectToMapper {
         if (status != null && (status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER.name())
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT.name())
                 || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_NOT_ENOUGH_STOCK.name())
-                || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name()))) {
+                || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.name()))
+                || status.equalsIgnoreCase(Constant.OrderStatusTracker.CANCELLED_ORDER_BLACK_LIST.name()) ) {
 
 
             /** inkatracker **/
@@ -1155,6 +1156,7 @@ public class ObjectToMapper {
         	orderCanonical.setTotalAmount(o.getTotalCost());
         	orderCanonical.setDeliveryCost(o.getDeliveryCost());
         	
+        	orderCanonical.setCompanyCode(o.getCompanyCode());
         	orderCanonical.setCompany(o.getCompanyName());
         	orderCanonical.setLocalCode(o.getCenterCode());
         	orderCanonical.setLocal(o.getCenterName());

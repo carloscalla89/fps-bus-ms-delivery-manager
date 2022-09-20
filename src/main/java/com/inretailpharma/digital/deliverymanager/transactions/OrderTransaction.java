@@ -43,7 +43,7 @@ public class OrderTransaction {
                             OrderCancellationService orderCancellationService,
                             ObjectToMapper objectToMapper,
                             ApplicationParameterService applicationParameterService
-                            ) {
+    ) {
         this.orderRepositoryService = orderRepositoryService;
         this.orderCancellationService = orderCancellationService;
         this.objectMapper = objectToMapper;
@@ -66,8 +66,8 @@ public class OrderTransaction {
         ServiceLocalOrderIdentity serviceLocalOrderIdentity = new ServiceLocalOrderIdentity();
 
         ServiceType serviceType = Optional
-                                    .ofNullable(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()))
-                                    .orElse(orderRepositoryService.getServiceTypeByCode(Constant.NOT_DEFINED_SERVICE));
+                .ofNullable(orderRepositoryService.getServiceTypeByCode(orderDto.getServiceTypeCode()))
+                .orElse(orderRepositoryService.getServiceTypeByCode(Constant.NOT_DEFINED_SERVICE));
 
         serviceLocalOrderIdentity.setServiceType(serviceType);
         serviceLocalOrderIdentity.setOrderFulfillment(orderFulfillmentResp);
@@ -83,19 +83,19 @@ public class OrderTransaction {
 
         // set ServiceDetail from delivery dispatcher and set store canonical
         ServiceLocalOrder serviceLocalOrder = objectMapper
-                                                .getFromOrderDto(centerCompanyCanonical, orderDto, serviceType, dayToPickup);
+                .getFromOrderDto(centerCompanyCanonical, orderDto, serviceType, dayToPickup);
 
         serviceLocalOrder.setServiceLocalOrderIdentity(serviceLocalOrderIdentity);
         serviceLocalOrder.setLeadTime(
                 Optional.ofNullable(orderDto.getSchedules().getLeadTime())
                         .filter(val -> val > 0)
                         .orElseGet(() -> Optional
-                                            .ofNullable(
-                                                    getApplicationParameter(Constant.ApplicationsParameters.DEFAULT_INTERVAL_TIME_BY_SERVICE_
-                                                    + serviceType.getShortCode())
-                                            )
-                                            .map(Integer::parseInt)
-                                            .orElse(0)
+                                .ofNullable(
+                                        getApplicationParameter(Constant.ApplicationsParameters.DEFAULT_INTERVAL_TIME_BY_SERVICE_
+                                                + serviceType.getShortCode())
+                                )
+                                .map(Integer::parseInt)
+                                .orElse(0)
                         )
         );
         serviceLocalOrder.setCancellationCode(Constant.CancellationStockDispatcher.getByName(orderStatus.getType()).getId());
@@ -169,22 +169,40 @@ public class OrderTransaction {
             orderStatus = getOrderStatusByCode(Constant.OrderStatus.CONFIRMED.getCode());
 
         } else if (Optional
-                    .ofNullable(orderDto.getOrderStatusDto().getCode())
-                    .orElse(Constant.SUCCESS_CODE)
-                    .equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.SUCCESS_CODE)
+                .equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)
 
-                    && Optional
-                        .ofNullable(orderDto.getPayment().getType())
-                        .orElse(PaymentMethod.PaymentType.CASH.name())
-                        .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
+                && Optional
+                .ofNullable(orderDto.getPayment().getType())
+                .orElse(PaymentMethod.PaymentType.CASH.name())
+                .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
 
             orderStatus = getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_ONLINE_PAYMENT_NOT_ENOUGH_STOCK.getCode());
 
         } else if (Optional
-                    .ofNullable(orderDto.getOrderStatusDto().getCode())
-                    .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_STOCK)) {
 
             orderStatus = getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_NOT_ENOUGH_STOCK.getCode());
+
+        } else if (Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.SUCCESS_CODE)
+                .equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_BLACK_LIST)
+
+                && Optional
+                .ofNullable(orderDto.getPayment().getType())
+                .orElse(PaymentMethod.PaymentType.CASH.name())
+                .equalsIgnoreCase(PaymentMethod.PaymentType.ONLINE_PAYMENT.name())) {
+
+            orderStatus = getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_BLACK_LIST.getCode());
+
+        } else if (Optional
+                .ofNullable(orderDto.getOrderStatusDto().getCode())
+                .orElse(Constant.SUCCESS_CODE).equalsIgnoreCase(Constant.InsinkErrorCode.CODE_ERROR_BLACK_LIST)) {
+
+            orderStatus = getOrderStatusByCode(Constant.OrderStatus.CANCELLED_ORDER_BLACK_LIST.getCode());
 
         } else if (orderDto.getExternalPurchaseId() != null && orderDto.getTrackerId()==null){
 
@@ -244,9 +262,9 @@ public class OrderTransaction {
     }
 
     public List<CancellationCodeReason> getListCancelReason(List<String> appType, String type) {
-    	return Optional.ofNullable(type)
-    			.map(t -> orderCancellationService.getListCodeCancellationByAppTypeListAndType(appType, t))
-    			.orElseGet(() -> orderCancellationService.getListCodeCancellationByAppTypeList(appType));
+        return Optional.ofNullable(type)
+                .map(t -> orderCancellationService.getListCodeCancellationByAppTypeListAndType(appType, t))
+                .orElseGet(() -> orderCancellationService.getListCodeCancellationByAppTypeList(appType));
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class}, isolation = Isolation.READ_COMMITTED)
@@ -254,8 +272,8 @@ public class OrderTransaction {
                                            String orderStatusCode, Long orderFulfillmentId, LocalDateTime updateLast,
                                            LocalDateTime dateCancelled) {
         log.info("[START] updateStatusCancelledOrder transactional - statusDetail:{}, " +
-                 "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}, updateLast:{}, dateCancelled:{}"
-                 ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
+                        "cancellationObservation:{},orderStatusCode:{}, orderFulfillmentId:{}, updateLast:{}, dateCancelled:{}"
+                ,statusDetail, cancellationObservation, orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
 
         orderRepositoryService.updateStatusCancelledOrder(statusDetail, cancellationObservation, cancellationCode,
                 orderStatusCode, orderFulfillmentId, updateLast, dateCancelled);
