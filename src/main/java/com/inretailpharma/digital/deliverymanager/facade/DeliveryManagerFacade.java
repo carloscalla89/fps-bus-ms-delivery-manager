@@ -27,6 +27,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -153,6 +154,53 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
                 );
     }
 
+    public Mono<OrderCanonical> getUpdateOrderStorePickup(OrderDto orderDto) {
+
+        if (!validationIfExistOrderPickup(orderDto.getEcommercePurchaseId())) {
+
+            OrderStatusCanonical os = new OrderStatusCanonical();
+            os.setCode(Constant.OrderStatus.NOT_FOUND_ORDER.getCode());
+            os.setName(Constant.OrderStatus.NOT_FOUND_ORDER.name());
+            os.setDetail("The order " + orderDto.getEcommercePurchaseId() + " not exist or this has a final status");
+            os.setStatusDate(DateUtils.getLocalDateTimeNow());
+
+            OrderCanonical resultOrderNotFound = new OrderCanonical();
+
+            resultOrderNotFound.setOrderStatus(os);
+            resultOrderNotFound.setEcommerceId((orderDto.getEcommercePurchaseId()));
+
+            return Mono.just(resultOrderNotFound);
+
+        }
+
+        log.info("update order fulfillment");
+
+        return Mono
+                .just(orderTransaction.updateOrderPickup(orderDto))
+                .flatMap(order -> {
+                    OrderStatusCanonical updateStatus = new OrderStatusCanonical();
+                    updateStatus.setCode(Constant.OrderStatus.UPDATE_PICKER_SUCCESS.getCode());
+                    updateStatus.setName(Constant.OrderStatus.UPDATE_PICKER_SUCCESS.name());
+                    updateStatus.setSuccessful(Constant.OrderStatus.UPDATE_PICKER_SUCCESS.isSuccess());
+                    order.setOrderStatus(updateStatus);
+                    return Mono.just(order);
+                })
+                .onErrorResume(e -> {
+                    e.printStackTrace();
+                    log.error("Error during update partial order:{}", e.getMessage());
+                    OrderCanonical orderCanonical = new OrderCanonical();
+                    orderCanonical.setEcommerceId(orderDto.getEcommercePurchaseId());
+                    OrderStatusCanonical statusCanonical = new OrderStatusCanonical();
+                    statusCanonical.setCode(Constant.OrderStatus.UPDATE_PICKER_ERROR.getCode());
+                    statusCanonical.setName(Constant.OrderStatus.UPDATE_PICKER_ERROR.name());
+                    statusCanonical.setSuccessful(Constant.OrderStatus.UPDATE_PICKER_ERROR.isSuccess());
+                    statusCanonical.setDetail(e.getMessage());
+                    return Mono.just(orderCanonical);
+                });
+
+
+    }
+
     public IOrderFulfillment getOrderByEcommerceID(Long ecommercePurchaseId) {
         return orderTransaction.getOrderByecommerceId(ecommercePurchaseId);
     }
@@ -165,6 +213,12 @@ public class DeliveryManagerFacade extends FacadeAbstractUtil {
     @Override
     public OrdersSelectedResponse getOrderDetail(FilterOrderDTO filter) {
         return orderInfoService.getOrderHeaderDetails(filter);
+    }
+
+    public boolean validationIfExistOrderPickup(Long ecommerceId) {
+        return  Optional
+                .ofNullable(getOnlyOrderByecommerceId(ecommerceId))
+                .isPresent();
     }
 
 }
