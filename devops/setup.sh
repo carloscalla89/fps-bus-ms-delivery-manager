@@ -1,2 +1,2 @@
 #!/bin/sh
-java -Dspring.profiles.active=$environment -jar /usr/src/service/service.jar
+java $newrelic  -Dspring.profiles.active=$environment -jar /usr/src/service/service.jar

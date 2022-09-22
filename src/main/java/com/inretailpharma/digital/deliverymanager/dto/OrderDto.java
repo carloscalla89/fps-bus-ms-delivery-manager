@@ -8,6 +8,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -94,5 +95,7 @@ public class OrderDto {
 
     private boolean mixedOrder;
 
-
+    private Integer idPickUp;
+    private String dniPickUp;
+    private String datePickUp;
 }

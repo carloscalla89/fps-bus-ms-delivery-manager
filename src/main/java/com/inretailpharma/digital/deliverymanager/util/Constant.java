@@ -573,7 +573,11 @@ public interface Constant {
         EMPTY_RESULT_ORDERTRACKER("-1", false),
 
         BILLED_ORDER("47", true),
-        CANCELLED_ORDER_BLACK_LIST("48", true);
+        CANCELLED_ORDER_BLACK_LIST("48", true),
+
+        UPDATE_PICKER_SUCCESS("49", true),
+
+        UPDATE_PICKER_ERROR("50", false);
 
         private String code;
         private boolean isSuccess;
@@ -739,10 +743,11 @@ public interface Constant {
 
     double VALUE_ZERO_DOUBLE = 0.0;
     String VALUE_ZERO_STRING = "0";
-    
+    String MANAGE_PARTNER_ORIGIN = "MANAGE_PARTNER";
+
     String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
     String ERROR_UPDATE_CODE = "36";
-    
+
 
     enum DeliveryManagerStatus {
 
