@@ -1564,7 +1564,7 @@ public class ObjectToMapper {
 				if (i.getFractionated() && pd.isFractionable() && pd.getUmv() > 0) {
 					
 					return pd.getVolume()
-							.divide(BigDecimal.valueOf(pd.getUmv()))
+							.divide(BigDecimal.valueOf(pd.getUmv()), 2, RoundingMode.HALF_UP)
 									.multiply(quantity);
 					
 				}
