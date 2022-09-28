@@ -159,7 +159,7 @@ external-service:
       read-timeout: 60000
   product:
     get-dimensions:
-      uri: http://us-product/dimension/
+      uri: http://product-mongouat.backend.cindibyinkafarma.com/dimension/
       connect-timeout: 30000
       read-timeout: 60000
       
