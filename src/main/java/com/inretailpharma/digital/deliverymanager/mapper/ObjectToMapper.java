@@ -1576,10 +1576,14 @@ public class ObjectToMapper {
 			
 			return defaultVolume.multiply(quantity);
 			
-		}).reduce(BigDecimal.ZERO, BigDecimal::add);  
+		}).reduce(BigDecimal.ZERO, BigDecimal::add);    
     	
     	log.info("[INFO] convertCanonicalToRoutedOrder - orderid {} - totalVolume {}", orderCanonical.getEcommerceId(), totalVolume);
     	
+    	if (totalVolume.compareTo(BigDecimal.ZERO) == 0) {
+    		totalVolume = BigDecimal.ONE;
+    	}
+
     	RoutedOrderContainerDto container = new RoutedOrderContainerDto();
     	RoutedOrderDto dto = new RoutedOrderDto();
     	dto.setOrderid(String.valueOf(orderCanonical.getEcommerceId()));
