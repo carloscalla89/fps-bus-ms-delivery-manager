@@ -1610,7 +1610,7 @@ public class ObjectToMapper {
     	Optional.ofNullable(orderCanonical.getOrderDetail())
     	.ifPresent(d -> {
 
-    		dto.setCreationDate(d.getCreatedOrder());    		
+    		dto.setCreationDate(d.getConfirmedOrder());    		
     		dto.setScheduledTimeStart(d.getConfirmedSchedule());
 
     		Optional.ofNullable(DateUtils.getLocalDateTimeFromStringWithFormat(d.getConfirmedSchedule()))
