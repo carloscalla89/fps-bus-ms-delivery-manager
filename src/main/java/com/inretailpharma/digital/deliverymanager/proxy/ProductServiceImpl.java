@@ -60,6 +60,15 @@ public class ProductServiceImpl implements ProductService {
 				)
 				.retrieve()
 				.bodyToFlux(ProductDimensionDto.class)
+				.switchIfEmpty(Flux.defer(() -> {
+					log.error("[ERROR] ProductService.getDimensions - empty response");
+					
+					ProductDimensionDto dto = new ProductDimensionDto();
+					dto.setCodInka("0");
+					dto.setFractionable(false);
+					dto.setVolume(BigDecimal.TEN);
+					return Flux.just(dto);
+                }))
 				.onErrorResume(r -> {
 					
 					log.error("[ERROR] ProductService.getDimensions {}", r.getMessage());
