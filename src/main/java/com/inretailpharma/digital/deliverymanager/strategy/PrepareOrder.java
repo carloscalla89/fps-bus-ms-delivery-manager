@@ -52,8 +52,8 @@ public class PrepareOrder extends FacadeAbstractUtil implements IActionStrategy{
 
         IOrderFulfillment iOrderFulfillment = getOrderLightByecommerceId(ecommerceId);
 
-        log.info("prepareOrder update proxy: orderId:{}, ecommerceId:{}, action:{},",
-                iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), actionDto);
+        log.info("prepareOrder update proxy: orderId:{}, ecommerceId:{}, action:{}, externalRouting:{}",
+                iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), actionDto, iOrderFulfillment.getExternalRouting());
 
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
                 actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),

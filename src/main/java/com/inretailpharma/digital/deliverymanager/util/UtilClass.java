@@ -28,16 +28,6 @@ public class UtilClass {
         this.classImplementTracker = classImplementTracker;
         this.externalRouting = false;
     }
-    
-    public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin,
-            String orderStatusName) {
-		this.classImplementTracker = classImplementTracker;
-		this.serviceType = serviceType;
-		this.actionName = actionName;
-		this.origin = origin;
-		this.orderStatusName = orderStatusName;
-		this.externalRouting = false;
-	}    
 
     public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin,
                      String orderStatusName, boolean externalRouting) {

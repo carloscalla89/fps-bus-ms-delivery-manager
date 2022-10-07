@@ -68,7 +68,8 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                 iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), actionDto,
                 iOrderFulfillment.getServiceType());
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(), iOrderFulfillment.getServiceType(),
-                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
+                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),
+                iOrderFulfillment.getExternalRouting());
         Function<List<OrderCanonical>, Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(actionDto, iOrderFulfillment);
         return Flux.fromIterable(utilClass.getClassesToSend())
@@ -154,7 +155,8 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                 responses -> processSendNotification(actionDto, iOrderFulfillment);
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(), iOrderFulfillment.getServiceType(),
                 actionDto.getAction(), actionDto.getOrigin(),
-                Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
+                Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),
+                iOrderFulfillment.getExternalRouting());
         return Flux
                 .fromIterable(utilClass.getClassesToSend())
                 .flatMap(objectClass ->
@@ -222,7 +224,8 @@ public class UpdateTracker extends FacadeAbstractUtil implements IActionStrategy
                 .getOrderStatus();
         UtilClass utilClass = new UtilClass(
                 iOrdersFulfillment.getClassImplement(), iOrdersFulfillment.getServiceType(),
-                historySynchronized.getAction(), origin, orderStatus.name());
+                historySynchronized.getAction(), origin, orderStatus.name(),
+                false);
         if (orderSend.getAction().equalsIgnoreCase(historySynchronized.getAction())) {
             orderCanonical = orderSend;
         } else {

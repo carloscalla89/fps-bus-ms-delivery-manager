@@ -110,12 +110,13 @@ public class RoutingAdapter extends AdapterAbstractUtil implements IRoutingAdapt
 	}
 
 	@Override
-	public Mono<OrderCanonical> cancelOrder(Long orderId, boolean externalRouting, String action, String origin) {
+	public Mono<OrderCanonical> cancelOrder(Long orderId, boolean externalRouting, String serviceType, String action, String origin) {
 		
 		Optional.ofNullable(orderId)
 			.ifPresent(sc -> {
 				
 				if (externalRouting &&
+						Constant.DELIVERY.equalsIgnoreCase(serviceType) &&
 						(Constant.ActionOrder.CANCEL_ORDER.name().equals(action) || Constant.ActionOrder.REJECT_ORDER.name().equals(action)) &&
 						!Constant.ORIGIN_ROUTING.equalsIgnoreCase(origin)
 						) {
