@@ -27,8 +27,6 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanon
 import com.inretailpharma.digital.deliverymanager.dto.*;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
-import com.inretailpharma.digital.deliverymanager.dto.RoutedOrderContainerDto;
-import com.inretailpharma.digital.deliverymanager.dto.RoutedOrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.AddressDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.DrugstoreDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ItemDto;
