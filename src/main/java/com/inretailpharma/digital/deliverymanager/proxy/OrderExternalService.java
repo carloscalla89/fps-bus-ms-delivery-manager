@@ -13,6 +13,7 @@ import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
+import com.inretailpharma.digital.deliverymanager.dto.routing.RoutedOrderContainerDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import reactor.core.publisher.Mono;
@@ -60,4 +61,6 @@ public interface OrderExternalService {
     Mono<Void> updateStatusOrderSeller(Long externalId, String status);
 
     Mono<Void> updatePartial(OrderDto partialOrderDto);
+    Mono<OrderCanonical> createOrderRouting(Long ecommercePurchaseId, RoutedOrderContainerDto routedOrderContainerDto);
+    Mono<OrderCanonical> updateOrderRouting(Long ecommercePurchaseId);
 }

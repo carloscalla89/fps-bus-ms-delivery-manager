@@ -22,18 +22,21 @@ public class UtilClass {
     private String target;
     private String orderStatusName;
     private String firstOrderStatusName;
+    private boolean externalRouting;
 
     public UtilClass(String classImplementTracker) {
         this.classImplementTracker = classImplementTracker;
+        this.externalRouting = false;
     }
 
     public UtilClass(String classImplementTracker, String serviceType, String actionName, String origin,
-                     String orderStatusName) {
+                     String orderStatusName, boolean externalRouting) {
         this.classImplementTracker = classImplementTracker;
         this.serviceType = serviceType;
         this.actionName = actionName;
         this.origin = origin;
         this.orderStatusName = orderStatusName;
+        this.externalRouting = externalRouting;
     }
 
     public String getOnlyTargetComponentTracker() {
@@ -79,17 +82,23 @@ public class UtilClass {
                         classList.add(TrackerAdapter.class);
                     }
                     if (!Constant.ORIGIN_OMNI_DELIVERY.equalsIgnoreCase(origin)
-                            && !classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())) {
+                            && !classImplementTracker.equalsIgnoreCase(Constant.TrackerImplementation.inkatracker.name())
+                    		&& !externalRouting) {
                         classList.add(OrderTrackerAdapter.class);
                     }
                     break;
                 case Constant.PICK_ORDER:
                 case Constant.READY_TO_ASSIGN:
                 case Constant.ASSIGN_ORDER:
-                case Constant.ON_ROUTE_ORDER:
-                case Constant.ARRIVAL_ORDER:
                 case Constant.INVOICED_ORDER:
                     classList.add(TrackerAdapter.class);
+                    break;
+                case Constant.ARRIVAL_ORDER:
+                case Constant.ON_ROUTE_ORDER:
+                    classList.add(TrackerAdapter.class);
+                    if (Constant.ORIGIN_ROUTING.equalsIgnoreCase(origin)){
+                        classList.add(OrderTrackerAdapter.class);
+                    }
                     break;
                 case Constant.DELIVER_ORDER:
                 case Constant.CANCEL_ORDER:

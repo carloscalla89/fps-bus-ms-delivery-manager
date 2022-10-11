@@ -10,7 +10,7 @@ public class ObjectUtil {
         try {
             return new ObjectMapper().writeValueAsString(obj);
         } catch (Exception ex) {
-            log.error("objectToJson: ", ex.getMessage());
+            log.error("objectToJson: {}", ex.getMessage());
         }
         return null;
     }
@@ -19,7 +19,7 @@ public class ObjectUtil {
         try {
             return new ObjectMapper().readValue(json, valueType);
         } catch (Exception ex) {
-            log.error("jsonToObject: ", ex.getMessage());
+            log.error("jsonToObject: {}", ex.getMessage());
         }
         return null;
     }

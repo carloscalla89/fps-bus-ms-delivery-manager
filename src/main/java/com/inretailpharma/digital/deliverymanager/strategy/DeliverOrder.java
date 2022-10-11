@@ -55,7 +55,8 @@ public class DeliverOrder extends FacadeAbstractUtil implements IActionStrategy{
                 iOrderFulfillment.getOrderId(), iOrderFulfillment.getEcommerceId(), actionDto);
 
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
-                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
+                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),
+                iOrderFulfillment.getExternalRouting());
 
         Function<List<OrderCanonical>, Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(actionDto, iOrderFulfillment);

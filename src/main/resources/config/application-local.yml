@@ -76,11 +76,11 @@ external-service:
       read-timeout: 60000
   order-tracker:
     create-order:
-      uri: http://inkatrackerliteqa02.backend.cindibyinkafarma.com/order
+      uri: http://localhost:8030/order
       connect-timeout: 10000
       read-timeout: 120000
     assign-orders:
-      uri: http://ordertrackerqa02.backend.cindibyinkafarma.com/orders/status/assigned
+      uri: http://localhost:8030/orders/status/assigned
       connect-timeout: 10000
       read-timeout: 120000
     unassign-orders:
@@ -88,7 +88,7 @@ external-service:
       connect-timeout: 10000
       read-timeout: 120000
     update-order-status:
-      uri: http://ordertrackerqa02.backend.cindibyinkafarma.com/order
+      uri: http://localhost:8030/order
       connect-timeout: 10000
       read-timeout: 120000
     update-partial:
@@ -97,7 +97,7 @@ external-service:
       read-timeout: 120000
   fulfillment-center:
     get-center:
-      uri: http://fulfillment-centerqa02.backend.cindibyinkafarma.com/fulfillment/store/
+      uri: http://localhost:8033/fulfillment/store/
       connect-timeout: 15000
       read-timeout: 30000
   seller-center:
@@ -152,3 +152,26 @@ external-service:
       read-timeout: 60000
   manage-partner:
     update-status: http://fps-wsmanagepartnerqa02.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/
+  routing:
+    create-token:
+      uri: https://cognito-idp.us-east-1.amazonaws.com/
+      connect-timeout: 30000
+      read-timeout: 60000    
+    create-order:
+      uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/pedidos
+      connect-timeout: 30000
+      read-timeout: 60000  
+    cancel-order:
+      uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/cancelarpedido
+      connect-timeout: 30000
+      read-timeout: 60000
+  product:
+    get-dimensions:
+      uri: http://localhost:8020/dimension/
+      connect-timeout: 30000
+      read-timeout: 60000
+      
+routing:
+  username: omnicanalidad@inkafarmadigital.pe
+  password: "FP*2022om"
+  client-id: 3kcves4j9g0dkd1tvrn21rlf3j 

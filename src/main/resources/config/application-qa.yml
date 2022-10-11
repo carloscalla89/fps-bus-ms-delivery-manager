@@ -147,3 +147,26 @@ external-service:
       read-timeout: 60000
   manage-partner:
     update-status: http://fps-wsmanagepartneruat.backend.cindibyinkafarma.com/api/v1/managePartner/event/notify/
+  routing:
+    create-token:
+      uri: https://cognito-idp.us-east-1.amazonaws.com/
+      connect-timeout: 30000
+      read-timeout: 60000 
+    create-order:
+      uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/pedidos
+      connect-timeout: 30000
+      read-timeout: 60000  
+    cancel-order:
+      uri: https://xcucsoqfd8.execute-api.us-east-1.amazonaws.com/staging/cancelarpedido
+      connect-timeout: 30000
+      read-timeout: 60000
+  product:
+    get-dimensions:
+      uri: http://us-product/dimension/
+      connect-timeout: 30000
+      read-timeout: 60000
+      
+routing:
+  username: omnicanalidad@inkafarmadigital.pe
+  password: "FP*2022om"
+  client-id: 3kcves4j9g0dkd1tvrn21rlf3j 

@@ -44,7 +44,12 @@ public class OrderTrackerAdapter extends AdapterAbstractUtil implements ITracker
     public Mono<OrderCanonical> updateOrderToTracker(Class<?> classImplement, ActionDto actionDto, Long ecommerceId,
                                                      String company, String serviceType, String orderCancelDescription) {
 
-        return orderTrackerExternalService.updateOrderStatus(ecommerceId, actionDto);
+        return orderTrackerExternalService.updateOrderStatus(ecommerceId, actionDto)
+        		.flatMap(oc -> {
+        			oc.getOrderStatus().setLatitude(actionDto.getLatitude());
+        			oc.getOrderStatus().setLongitude(actionDto.getLongitude());
+        			return Mono.just(oc);
+        		});
     }
 
 
@@ -65,10 +70,21 @@ public class OrderTrackerAdapter extends AdapterAbstractUtil implements ITracker
                     orderCanonical.setEcommerceId(ecommerceId.getOrderId());
 
                     OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-                    orderStatus.setCode(Constant.OrderStatus.ASSIGNED.getCode());
-                    orderStatus.setName(Constant.OrderStatus.ASSIGNED.name());
+                    
+                    if (!Constant.ORIGIN_ROUTING.equals(newProjectedGroupCanonical.getSource())) {                		
+                    	
+                        orderStatus.setCode(Constant.OrderStatus.ASSIGNED.getCode());
+                        orderStatus.setName(Constant.OrderStatus.ASSIGNED.name());
+                    	
+                	} else {               		
+        
+                        orderStatus.setCode(Constant.OrderStatus.EXT_ASSIGNED.getCode());
+                        orderStatus.setName(Constant.OrderStatus.EXT_ASSIGNED.name());                		
+                	}                    
+
                     orderStatus.setDetail("The order was sent to order tracker");
                     orderCanonical.setOrderStatus(orderStatus);
+                    
 
                     return Flux.just(orderCanonical);
 

@@ -124,7 +124,8 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
         log.info("cancellationCodeReason:{}",codeReason);
 
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
-                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
+                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),
+                iOrderFulfillment.getExternalRouting());
 
         Function<List<OrderCanonical>, Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(actionDto, iOrderFulfillment);
@@ -291,6 +292,11 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
                                 .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                 )
                 .flatMap(publisherNotification)
+                .flatMap(r -> this.notifyRouting(ecommerceId,
+                		iOrderFulfillment.getExternalRouting(),
+                		iOrderFulfillment.getServiceType(),
+                		actionDto.getAction(),
+                		actionDto.getOrigin()))
                 .flatMap(resp ->
                         UtilFunctions
                                 .getSuccessResponseFunction

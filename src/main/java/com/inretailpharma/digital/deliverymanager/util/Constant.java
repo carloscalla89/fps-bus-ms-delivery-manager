@@ -4,6 +4,7 @@ import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerLiteServiceIm
 import com.inretailpharma.digital.deliverymanager.proxy.InkatrackerServiceImpl;
 import com.inretailpharma.digital.deliverymanager.strategy.*;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.apache.commons.lang3.EnumUtils;
 
@@ -163,6 +164,10 @@ public interface Constant {
         String DEFAULT_INTERVAL_TIME_BY_SERVICE_ = "DEFAULT_INTERVAL_TIME_BY_SERVICE_";
 
         String ENABLED_SEND_TO_LIQUIDATION = "ENABLED_SEND_TO_LIQUIDATION";
+        String ENABLED_EXTERNAL_ROUTING = "ENABLED_EXTERNAL_ROUTING";
+        String ROUTING_DEFAULT_VOLUME = "ROUTING_DEFAULT_VOLUME";
+        String ROUTING_DEFAULT_DELIVERY_TIME = "ROUTING_DEFAULT_DELIVERY_TIME";
+        
     }
 
     interface InsinkErrorCode {
@@ -574,6 +579,9 @@ public interface Constant {
 
         BILLED_ORDER("47", true),
         CANCELLED_ORDER_BLACK_LIST("48", true),
+        
+        CONFIRMED_ROUTER("66", true), CONFIRMED_ROUTER_ERROR("67", false),
+        EXT_ASSIGNED("64", true), ERROR_EXT_ASSIGNED("65", false),
 
         UPDATE_PICKER_SUCCESS("49", true),
 
@@ -701,6 +709,7 @@ public interface Constant {
     String CANCEL_ORDER = "CANCEL_ORDER";
     String REJECT_ORDER = "REJECT_ORDER";
     String ORIGIN_OMNI_DELIVERY = "OMNI_DELIVERY";
+    String ORIGIN_ROUTING = "EXT_ROUTER";
     String ORIGIN_DRUGSTORE_ENGINE = "DRUGSTORE_ENGINE";
     String ORIGIN_DIGITAL = "DIGITAL";
     String ORIGIN_FARMADASHBOARD = "FARMADASHBOARD";
@@ -718,6 +727,7 @@ public interface Constant {
     String TARGET_LIQUIDATION = "LIQUIDATION";
     String TARGET_INSINK = "INSINK";
     String TARGET_SELLER = "SELLER";
+    String TARGET_ROUTING = "EXT_ROUTER";
     String UPDATED_BY_INIT = "INIT";
     String UPDATED_BY_INKATRACKER_WEB = "INKATRACKER_WEB";
     String METHOD_UPDATE = "UPDATE";
@@ -747,6 +757,8 @@ public interface Constant {
 
     String DEFAULT_SALE_CHANNEL_TYPE = "Digital";
     String ERROR_UPDATE_CODE = "36";
+    String DELIVERY_CODE = "024031";
+    
 
 
     enum DeliveryManagerStatus {
@@ -926,5 +938,14 @@ public interface Constant {
                     .filter(item -> item.name().equalsIgnoreCase(name)).findFirst().orElse(CASH);
         }
 
+    }
+    
+    
+    interface Routing {
+
+    	BigDecimal DEFAULT_VOLUME = new BigDecimal(20);
+    	int DEFAULT_MEASUREMENT_UNIT = 5;
+    	int DEFAULT_PRIORITY = 1;
+    	int DEFAULT_DELIVERY_TIME = 5;
     }
 }

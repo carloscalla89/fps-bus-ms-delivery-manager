@@ -273,6 +273,43 @@ public class ExternalServicesProperties {
     @Value("${external-service.legacy-bridge.release-stock.read-timeout}")
     private String legacyBridgeReleaseStockReadTimeout;
     
+    // endpoint para ruteo
+    @Value("${external-service.routing.create-order.uri}")
+    private String routingCreateOrderUri;
+
+    @Value("${external-service.routing.create-order.connect-timeout}")
+    private String routingCreateOrderConnectTimeout;
+
+    @Value("${external-service.routing.create-order.read-timeout}")
+    private String routingCreateOrderReadTimeout;
+    
+    @Value("${external-service.routing.create-token.uri}")
+    private String routingCreateTokenUri;
+
+    @Value("${external-service.routing.create-token.connect-timeout}")
+    private String routingCreateTokenConnectTimeout;
+
+    @Value("${external-service.routing.create-token.read-timeout}")
+    private String routingCreateTokenReadTimeout;
+    
+    @Value("${external-service.routing.cancel-order.uri}")
+    private String routingCancelOrderUri;
+
+    @Value("${external-service.routing.cancel-order.connect-timeout}")
+    private String routingCancelOrderConnectTimeout;
+
+    @Value("${external-service.routing.cancel-order.read-timeout}")
+    private String routingCancelOrderReadTimeout;
+    
+    // endpoint productos
+    @Value("${external-service.product.get-dimensions.uri}")
+    private String productGetDimensionsUri;
+
+    @Value("${external-service.product.get-dimensions.connect-timeout}")
+    private String productGetDimensionsConnectTimeout;
+
+    @Value("${external-service.product.get-dimensions.read-timeout}")
+    private String productGetDimensionsReadTimeout;
 
 
 }

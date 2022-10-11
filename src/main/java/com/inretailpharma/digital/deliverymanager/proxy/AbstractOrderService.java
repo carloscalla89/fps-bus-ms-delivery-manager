@@ -13,6 +13,7 @@ import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
 import com.inretailpharma.digital.deliverymanager.dto.controversies.ControversyRequestDto;
 import com.inretailpharma.digital.deliverymanager.dto.notification.MessageDto;
+import com.inretailpharma.digital.deliverymanager.dto.routing.RoutedOrderContainerDto;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfillment;
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.errorhandling.ResponseErrorGeneric;
@@ -146,6 +147,16 @@ public class AbstractOrderService implements OrderExternalService {
 
 	@Override
 	public Mono<Void> updatePartial(OrderDto partialOrderDto) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public Mono<OrderCanonical> createOrderRouting(Long ecommercePurchaseId, RoutedOrderContainerDto routedOrderContainerDto) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public Mono<OrderCanonical> updateOrderRouting(Long ecommercePurchaseId) {
 		throw new UnsupportedOperationException();
 	}
 
