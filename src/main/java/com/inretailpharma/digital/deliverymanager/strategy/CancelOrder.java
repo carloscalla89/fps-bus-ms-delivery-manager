@@ -111,7 +111,8 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
 
         }
 
-        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER)) {
+        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER) &&
+        		!actionDto.getOrigin().equalsIgnoreCase(Constant.ORIGIN_MARKETPLACE)) {
             iSellerCenterAdapter
                     .updateStatusOrderSeller(ecommerceId, actionDto.getAction())
                     .flatMap(orderCanonical -> getDataToSentAudit(orderCanonical, actionDto))
@@ -133,7 +134,8 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
         if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())
                 || Constant.ActionOrder.REJECT_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
-            if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.Source.SC.name())) {
+            if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.Source.SC.name()) &&
+            		!actionDto.getOrigin().equalsIgnoreCase(Constant.ORIGIN_MARKETPLACE)) {
 
                 OrderExternalService sellerCenterService = (OrderExternalService) context.getBean(
                         Constant.SellerCenter.BEAN_SERVICE_NAME

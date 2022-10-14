@@ -759,7 +759,7 @@ public interface Constant {
     String ERROR_UPDATE_CODE = "36";
     String DELIVERY_CODE = "024031";
     
-
+    String ORIGIN_MARKETPLACE = "MARKETPLACE";
 
     enum DeliveryManagerStatus {
 
