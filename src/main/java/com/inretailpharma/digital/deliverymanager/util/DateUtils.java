@@ -2,13 +2,10 @@ package com.inretailpharma.digital.deliverymanager.util;
 
 import org.apache.commons.validator.GenericValidator;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Optional;
 
 public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
@@ -72,7 +69,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     public static LocalDateTime getLocalDateTimeFromStringWithFormat(String localDateTime) {
-        return LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
+    	try {
+    		return LocalDateTime.parse(localDateTime, DateTimeFormatter.ofPattern(DATETIME_TEMPLATE));
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	}
+        return null;
     }
 
     public static LocalDate getLocalDateFromStringWithFormatV2(String localDateTime) {

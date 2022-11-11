@@ -142,4 +142,5 @@ public interface IOrderFulfillment {
     Long getGroupId();
 
     boolean getVoucher();
+    boolean getExternalRouting();
 }

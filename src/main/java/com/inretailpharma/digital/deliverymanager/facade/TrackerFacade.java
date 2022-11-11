@@ -60,6 +60,9 @@ public class TrackerFacade extends FacadeAbstractUtil{
     public Mono<OrderAssignResponseCanonical> assignOrders(ProjectedGroupCanonical projectedGroupCanonical) {
 
         log.info("[START] assign orders to external tracker");
+        
+        String source = Optional.ofNullable(projectedGroupCanonical.getSource())
+        		.orElse(Constant.UPDATED_BY_INKATRACKER_WEB);
 
         return getOrdersByEcommerceIds(
                 projectedGroupCanonical
@@ -94,9 +97,10 @@ public class TrackerFacade extends FacadeAbstractUtil{
                     newProjectedGroupCanonical.setGroup(allGroups);
                     newProjectedGroupCanonical.setGroupName(projectedGroupCanonical.getGroupName());
                     newProjectedGroupCanonical.setMotorizedId(projectedGroupCanonical.getMotorizedId());
+                    newProjectedGroupCanonical.setMotorizedEmail(projectedGroupCanonical.getMotorizedEmail());
                     newProjectedGroupCanonical.setProjectedEtaReturn(projectedGroupCanonical.getProjectedEtaReturn());
                     newProjectedGroupCanonical.setUpdateBy(projectedGroupCanonical.getUpdateBy());
-                    newProjectedGroupCanonical.setSource(Constant.UPDATED_BY_INKATRACKER_WEB);
+                    newProjectedGroupCanonical.setSource(source);
 
                     return ((OrderTrackerAdapter)iOrderTrackerAdapter)
                             .assignOrders(newProjectedGroupCanonical, allGroups);
@@ -105,7 +109,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                 })
                 .flatMap(result ->
                         updateOrderInfulfillment(
-                                result, result.getEcommerceId(), Constant.UPDATED_BY_INKATRACKER_WEB, Constant.TARGET_TRACKER,
+                                result, result.getEcommerceId(), source, Constant.TARGET_ORDER_TRACKER,
                                 projectedGroupCanonical.getUpdateBy(), null)
                 )
                 .flatMap(result -> iAuditAdapter.updateAudit(result, projectedGroupCanonical.getUpdateBy()))
@@ -124,7 +128,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                     processErrorOrdersToSendAudit(
                             "Error during update status order assigning " + o + " - error: " + e.getMessage() +
                                     " - groupname:" + projectedGroupCanonical.getGroupName(),
-                            Collections.singletonList(ecommerceId), projectedGroupCanonical.getUpdateBy()
+                            Collections.singletonList(ecommerceId), projectedGroupCanonical.getUpdateBy(), source
                     );
 
                 })
@@ -154,7 +158,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                                     " - groupname:" + projectedGroupCanonical.getGroupName(),
                             projectedGroupCanonical
                                     .getGroup().stream().map(GroupCanonical::getOrderId)
-                                    .collect(Collectors.toList()), projectedGroupCanonical.getUpdateBy()
+                                    .collect(Collectors.toList()), projectedGroupCanonical.getUpdateBy(), source
                     );
 
                     return Mono.just(response);
@@ -178,7 +182,7 @@ public class TrackerFacade extends FacadeAbstractUtil{
                                     " - groupname:" + projectedGroupCanonical.getGroupName(),
                             projectedGroupCanonical
                                     .getGroup().stream().map(GroupCanonical::getOrderId)
-                                    .collect(Collectors.toList()), projectedGroupCanonical.getUpdateBy()
+                                    .collect(Collectors.toList()), projectedGroupCanonical.getUpdateBy(), source
                     );
 
                     return Mono.just(response);
@@ -355,13 +359,19 @@ public class TrackerFacade extends FacadeAbstractUtil{
 
     }
 
-    private void processErrorOrdersToSendAudit(String errorDetail, List<Long> ecommercesIds, String updateBy) {
+    private void processErrorOrdersToSendAudit(String errorDetail, List<Long> ecommercesIds, String updateBy, String source) {
 
         ecommercesIds.stream().forEach(val -> {
             OrderCanonical orderCanonical = new OrderCanonical();
             OrderStatusCanonical orderStatus = new OrderStatusCanonical();
-            orderStatus.setCode(Constant.OrderStatus.ERROR_ASSIGNED.getCode());
-            orderStatus.setName(Constant.OrderStatus.ERROR_ASSIGNED.name());
+            if (!Constant.ORIGIN_ROUTING.equals(source)) {
+            	orderStatus.setCode(Constant.OrderStatus.ERROR_ASSIGNED.getCode());
+                orderStatus.setName(Constant.OrderStatus.ERROR_ASSIGNED.name());            	
+            } else {
+            	orderStatus.setCode(Constant.OrderStatus.ERROR_EXT_ASSIGNED.getCode());
+                orderStatus.setName(Constant.OrderStatus.ERROR_EXT_ASSIGNED.name()); 
+            }
+            
             orderStatus.setDetail(errorDetail);
             orderCanonical.setOrderStatus(orderStatus);
             orderCanonical.setEcommerceId(val);

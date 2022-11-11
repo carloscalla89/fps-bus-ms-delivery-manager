@@ -111,7 +111,8 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
 
         }
 
-        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER)) {
+        if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.SOURCE_SELLER_CENTER) &&
+        		!actionDto.getOrigin().equalsIgnoreCase(Constant.ORIGIN_MARKETPLACE)) {
             iSellerCenterAdapter
                     .updateStatusOrderSeller(ecommerceId, actionDto.getAction())
                     .flatMap(orderCanonical -> getDataToSentAudit(orderCanonical, actionDto))
@@ -124,7 +125,8 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
         log.info("cancellationCodeReason:{}",codeReason);
 
         UtilClass utilClass = new UtilClass(iOrderFulfillment.getClassImplement(),iOrderFulfillment.getServiceType(),
-                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name());
+                actionDto.getAction(), actionDto.getOrigin(), Constant.OrderStatus.getByCode(iOrderFulfillment.getStatusCode()).name(),
+                iOrderFulfillment.getExternalRouting());
 
         Function<List<OrderCanonical>, Publisher<? extends Boolean>> publisherNotification =
                 responses -> processSendNotification(actionDto, iOrderFulfillment);
@@ -132,7 +134,8 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
         if (Constant.ActionOrder.CANCEL_ORDER.name().equalsIgnoreCase(actionDto.getAction())
                 || Constant.ActionOrder.REJECT_ORDER.name().equalsIgnoreCase(actionDto.getAction())) {
 
-            if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.Source.SC.name())) {
+            if (iOrderFulfillment.getSource().equalsIgnoreCase(Constant.Source.SC.name()) &&
+            		!actionDto.getOrigin().equalsIgnoreCase(Constant.ORIGIN_MARKETPLACE)) {
 
                 OrderExternalService sellerCenterService = (OrderExternalService) context.getBean(
                         Constant.SellerCenter.BEAN_SERVICE_NAME
@@ -291,6 +294,11 @@ public class CancelOrder extends FacadeAbstractUtil implements IActionStrategy{
                                 .allMatch(fr -> Constant.OrderStatus.getByName(fr.getOrderStatus().getName()).isSuccess())
                 )
                 .flatMap(publisherNotification)
+                .flatMap(r -> this.notifyRouting(ecommerceId,
+                		iOrderFulfillment.getExternalRouting(),
+                		iOrderFulfillment.getServiceType(),
+                		actionDto.getAction(),
+                		actionDto.getOrigin()))
                 .flatMap(resp ->
                         UtilFunctions
                                 .getSuccessResponseFunction

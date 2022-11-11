@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
+import com.google.gson.Gson;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressInkatrackerCanonical;
@@ -24,11 +25,9 @@ import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderItemCan
 import com.inretailpharma.digital.deliverymanager.canonical.manager.OrderStatusCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.PaymentMethodCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.manager.ReceiptCanonical;
-import com.inretailpharma.digital.deliverymanager.dto.AuditHistoryDto;
+import com.inretailpharma.digital.deliverymanager.dto.*;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.LiquidationDto;
 import com.inretailpharma.digital.deliverymanager.dto.LiquidationDto.StatusDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderDto;
-import com.inretailpharma.digital.deliverymanager.dto.OrderStatusDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.AddressDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.DrugstoreDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ItemDto;
@@ -37,6 +36,8 @@ import com.inretailpharma.digital.deliverymanager.dto.ecommerce.PaymentMethodDto
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ReceiptDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.ReceiptTypeDto;
 import com.inretailpharma.digital.deliverymanager.dto.ecommerce.UserDto;
+import com.inretailpharma.digital.deliverymanager.dto.routing.RoutedOrderContainerDto;
+import com.inretailpharma.digital.deliverymanager.dto.routing.RoutedOrderDto;
 import com.inretailpharma.digital.deliverymanager.entity.Address;
 import com.inretailpharma.digital.deliverymanager.entity.CancellationCodeReason;
 import com.inretailpharma.digital.deliverymanager.entity.Client;
@@ -52,17 +53,24 @@ import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderFulfil
 import com.inretailpharma.digital.deliverymanager.entity.projection.IOrderItemFulfillment;
 import com.inretailpharma.digital.deliverymanager.util.Constant;
 import com.inretailpharma.digital.deliverymanager.util.DateUtils;
+import com.inretailpharma.digital.deliverymanager.util.ObjectUtil;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -266,6 +274,9 @@ public class ObjectToMapper {
         
         auditHistoryDto.setSaleChannel(orderCanonical.getSaleChannel());
         auditHistoryDto.setSaleChannelType(orderCanonical.getSaleChannelType());;
+        
+        auditHistoryDto.setLatitude(orderCanonical.getOrderStatus().getLatitude());
+        auditHistoryDto.setLongitude(orderCanonical.getOrderStatus().getLongitude());
         
         return auditHistoryDto;
     }
@@ -535,7 +546,7 @@ public class ObjectToMapper {
             paymentDto.setDiscountApplied(Optional.ofNullable(orderFulfillment.getDiscountApplied()).orElse(BigDecimal.ZERO));
             paymentDto.setGrossPrice(orderFulfillment.getSubTotalCost());
             paymentDto.setProductsTotalCost(orderFulfillment.getTotalCost());
-            paymentDto.setProductsTotalCostNoDiscount(orderFulfillment.getTotalCost());
+            paymentDto.setProductsTotalCostNoDiscount(orderFulfillment.getSubTotalCost());
             paymentDto.setCoupon(orderFulfillment.getCoupon());
             paymentDto.setAmount(orderFulfillment.getPaidAmount());
             orderDto.setPaymentAmountDto(paymentDto);
@@ -617,16 +628,17 @@ public class ObjectToMapper {
             DrugstoreDto drugstoreDto = new DrugstoreDto();
             drugstoreDto.setId(storeCenterCanonical.getLegacyId());
             drugstoreDto.setInkaVentaId(storeCenterCanonical.getInkaVentaId());
-
+            drugstoreDto.setLocalCode(storeCenterCanonical.getLocalCode());
             orderDto.setDrugstore(drugstoreDto);
 
             orderDto.setZoneId(orderFulfillment.getZoneId());
             orderDto.setDistrictCode(orderFulfillment.getDistrictCode());
             orderDto.setDeliveryTime(orderFulfillment.getLeadTime());
             orderDto.setCompanyCode(orderFulfillment.getCompanyCode());
+            log.info("Set localCode{}",drugstoreDto.getLocalCode());
         }
 
-        log.info("mapper dto to DD:{}",orderDto);
+        log.info("mapper dto to DD:{}", new Gson().toJson(orderDto));
 
         return orderDto;
     }
@@ -1136,6 +1148,7 @@ public class ObjectToMapper {
 
         orderFulfillment.setMixedOrder(orderDto.isMixedOrder());
         orderFulfillment.setGroupId(orderDto.getGroupId());
+        orderFulfillment.setExternalRouting(orderDto.isExternalRouting());
 
         log.info("[END] map-convertOrderdtoToOrderEntity");
 
@@ -1207,7 +1220,8 @@ public class ObjectToMapper {
             orderCanonical.setReceipt(receipt);
             orderCanonical.setPaymentMethod(paymentMethod);
             
-            orderCanonical.setPartial(o.getPartial());
+            orderCanonical.setPartial(o.getPartial());            
+            orderCanonical.setExternalRouting(o.getExternalRouting());
 
         });
 
@@ -1522,4 +1536,103 @@ public class ObjectToMapper {
         return new ArrayList<>();
 
     }
+
+    public OrderStatusDto mapToOrderStatusDto(OrderStatus orderStatus) {
+        OrderStatusDto orderDto = new OrderStatusDto();
+        orderDto.setCode(orderStatus.getCode());
+        orderDto.setDescription(orderStatus.getDescription());
+        orderDto.setType(orderStatus.getType());
+        return orderDto;
+    }
+    
+    
+    public RoutedOrderContainerDto convertCanonicalToRoutedOrder(OrderCanonical orderCanonical,
+    		List<OrderItemCanonical> orderItems, Map<String, ProductDimensionDto> data, BigDecimal defaultVolume, int deliveryTime, long routingLocalCode) {
+    	
+    	log.info("[START] convertCanonicalToRoutedOrder {}", orderCanonical.getEcommerceId());
+    	
+    	BigDecimal totalVolume = orderItems.stream()
+		.filter(f -> !Constant.DELIVERY_CODE.equals(f.getProductCode()))
+		.map(i -> {
+			
+			BigDecimal quantity = BigDecimal.valueOf(i.getQuantity());
+			
+			if (data.containsKey(i.getProductCode())) {
+				
+				ProductDimensionDto pd = data.get(i.getProductCode());
+				
+				if (i.getFractionated() && pd.isFractionable() && pd.getUmv() > 0) {
+					
+					return pd.getVolume()
+							.divide(BigDecimal.valueOf(pd.getUmv()), 2, RoundingMode.HALF_UP)
+									.multiply(quantity);
+					
+				}
+				
+				return pd.getVolume()
+						.multiply(quantity);
+				
+			}
+			
+			return defaultVolume.multiply(quantity);
+			
+		}).reduce(BigDecimal.ZERO, BigDecimal::add);    
+    	
+    	log.info("[INFO] convertCanonicalToRoutedOrder - orderid {} - totalVolume {}", orderCanonical.getEcommerceId(), totalVolume);
+    	
+    	if (totalVolume.compareTo(BigDecimal.ZERO) == 0) {
+    		totalVolume = BigDecimal.ONE;
+    	}
+
+    	RoutedOrderContainerDto container = new RoutedOrderContainerDto();
+    	RoutedOrderDto dto = new RoutedOrderDto();
+    	dto.setOrderid(String.valueOf(orderCanonical.getEcommerceId()));
+    	
+    	Optional.ofNullable(orderCanonical.getAddress())
+    	.ifPresent( a -> {    		
+
+        	dto.setLatitude(String.valueOf(a.getLatitude()));
+        	dto.setLongitude(String.valueOf(a.getLongitude()));
+        	dto.setAddress(
+        	    	Arrays.asList(a.getStreet(), a.getNumber(), a.getDistrict())
+        	    	.stream().filter(value -> null != value).collect(Collectors.joining(" "))
+            	);    		
+    	});    	
+    	
+    	dto.setDeliveryTime(deliveryTime);
+    	dto.setDeliveryWeight(totalVolume.setScale(0, RoundingMode.CEILING).intValue());
+    	dto.setLocalCode(routingLocalCode);
+    	dto.setMeasurementUnit(Constant.Routing.DEFAULT_MEASUREMENT_UNIT);
+    	dto.setPriority(Constant.Routing.DEFAULT_PRIORITY);
+    	
+    	container.setOrders(Arrays.asList(dto));
+    	
+    	Optional.ofNullable(orderCanonical.getOrderDetail())
+    	.ifPresent(d -> {
+
+    		dto.setCreationDate(d.getConfirmedOrder());    		
+    		dto.setScheduledTimeStart(d.getConfirmedSchedule());
+
+    		Optional.ofNullable(DateUtils.getLocalDateTimeFromStringWithFormat(d.getConfirmedSchedule()))
+    		.ifPresent(sd -> dto.setScheduledTimeEnd(
+    				DateUtils.getLocalDateTimeWithFormat(sd.plusMinutes(d.getLeadTime()))
+    		));   		
+    	});
+    	
+    	log.info("[END] convertCanonicalToRoutedOrder {}", ObjectUtil.objectToJson(container));
+
+    	return container;
+    }
+    
+    public Map<String, ProductDimensionDto> convertProductDimensionsDtoToMap(List<ProductDimensionDto> dimensions){
+    	
+    	if (dimensions != null) {
+    		
+    		return dimensions.stream().collect(Collectors.toMap(ProductDimensionDto::getCodInka, Function.identity()));  		
+    	}
+    	
+    	return Map.of();
+    	
+    }
+
 }

@@ -78,7 +78,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "af.department, af.notes, af.latitude, af.longitude, o.partial, " +
             "o.subTotalWithNoSpecificPaymentMethod, o.totalWithNoSpecificPaymentMethod, o.totalWithPaymentMethod, " + // referentes a 3 precios
             "o.paymentMethodCardType, o.discountAppliedNoDP, " + // referentes a 3 precios
-            "os.liquidationEnabled, os.liquidationStatus, o.mixedOrder, o.group_id as groupId " +
+            "os.liquidationEnabled, os.liquidationStatus, o.mixedOrder, o.group_id as groupId, o.external_routing as externalRouting " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -146,7 +146,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "af.department, af.notes, af.latitude, af.longitude, o.partial, " +
             "o.subTotalWithNoSpecificPaymentMethod, o.totalWithNoSpecificPaymentMethod, o.totalWithPaymentMethod, " + // referentes a 3 precios
             "o.paymentMethodCardType, " + // referentes a 3 precios
-            "os.liquidationEnabled, os.liquidationStatus " +
+            "os.liquidationEnabled, os.liquidationStatus, o.external_routing as externalRouting " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -172,7 +172,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "st.class_implement as classImplement, st.short_code as serviceTypeShortCode, " +
             "c.first_name as firstName, c.phone, c.document_number as documentNumber, c.email, c.last_name as lastName, " +
             "pm.payment_type as paymentType, pm.transaction_date_visanet as transactionDateVisanet, " +
-            "pm.change_amount as changeAmount, pm.card_provider_code as cardProviderCode, o.voucher " +
+            "pm.change_amount as changeAmount, pm.card_provider_code as cardProviderCode, o.voucher, o.external_routing as externalRouting " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
@@ -198,7 +198,7 @@ public interface OrderRepository extends JpaRepository<OrderFulfillment, Long> {
             "st.type as serviceType, st.code as serviceTypeCode, st.source_channel as serviceChannel, " +
             "st.send_new_flow_enabled as sendNewFlow, st.send_notification_enabled as sendNotificationByChannel, " +
             "st.class_implement as classImplement, st.short_code as serviceTypeShortCode, " +
-            "c.first_name as firstName, c.phone " +
+            "c.first_name as firstName, c.phone, o.external_routing as externalRouting  " +
             "from order_fulfillment o " +
             "inner join client_fulfillment c on c.id = o.client_id " +
             "inner join order_process_status s on o.id = s.order_fulfillment_id " +
