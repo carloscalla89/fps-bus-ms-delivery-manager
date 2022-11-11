@@ -1,5 +1,6 @@
 package com.inretailpharma.digital.deliverymanager.mapper;
 
+import com.google.gson.Gson;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.OrderCanonicalFulfitment;
 import com.inretailpharma.digital.deliverymanager.canonical.fulfillmentcenter.StoreCenterCanonical;
 import com.inretailpharma.digital.deliverymanager.canonical.inkatracker.AddressInkatrackerCanonical;
@@ -545,7 +546,7 @@ public class ObjectToMapper {
             paymentDto.setDiscountApplied(Optional.ofNullable(orderFulfillment.getDiscountApplied()).orElse(BigDecimal.ZERO));
             paymentDto.setGrossPrice(orderFulfillment.getSubTotalCost());
             paymentDto.setProductsTotalCost(orderFulfillment.getTotalCost());
-            paymentDto.setProductsTotalCostNoDiscount(orderFulfillment.getTotalCost());
+            paymentDto.setProductsTotalCostNoDiscount(orderFulfillment.getSubTotalCost());
             paymentDto.setCoupon(orderFulfillment.getCoupon());
             paymentDto.setAmount(orderFulfillment.getPaidAmount());
             orderDto.setPaymentAmountDto(paymentDto);
@@ -627,16 +628,17 @@ public class ObjectToMapper {
             DrugstoreDto drugstoreDto = new DrugstoreDto();
             drugstoreDto.setId(storeCenterCanonical.getLegacyId());
             drugstoreDto.setInkaVentaId(storeCenterCanonical.getInkaVentaId());
-
+            drugstoreDto.setLocalCode(storeCenterCanonical.getLocalCode());
             orderDto.setDrugstore(drugstoreDto);
 
             orderDto.setZoneId(orderFulfillment.getZoneId());
             orderDto.setDistrictCode(orderFulfillment.getDistrictCode());
             orderDto.setDeliveryTime(orderFulfillment.getLeadTime());
             orderDto.setCompanyCode(orderFulfillment.getCompanyCode());
+            log.info("Set localCode{}",drugstoreDto.getLocalCode());
         }
 
-        log.info("mapper dto to DD:{}",orderDto);
+        log.info("mapper dto to DD:{}", new Gson().toJson(orderDto));
 
         return orderDto;
     }
