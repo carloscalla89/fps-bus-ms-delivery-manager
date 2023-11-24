@@ -1,1 +1,0 @@
-ALTER TABLE order_fulfillment ADD group_id bigint(20) NULL;
